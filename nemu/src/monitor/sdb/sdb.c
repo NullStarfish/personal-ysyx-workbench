@@ -18,6 +18,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include "memory/paddr.h"
+#include "memory/vaddr.h"
+
+
 
 static int is_batch_mode = false;
 
@@ -49,22 +53,30 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
   return -1;
 }
 
 static int cmd_help(char *args);
+
+static int cmd_si(char *args);
+
+static int cmd_info(char *args);
+
+static int cmd_x(char *args);
 
 static struct {
   const char *name;
   const char *description;
   int (*handler) (char *);
 } cmd_table [] = {
+  /* TODO: Add more commands */
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
-  /* TODO: Add more commands */
-
+  {"si", "step forward [n] times", cmd_si},
+  {"info", "print information", cmd_info},
+  {"x", "scan memory", cmd_x}
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -91,6 +103,52 @@ static int cmd_help(char *args) {
   }
   return 0;
 }
+
+static int cmd_si(char *args) {
+  int n = 1;
+  if (args != NULL) {
+    n = atoi(args);
+  }
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  if (args == NULL) {
+    printf("Usage: info r|w\n");
+    return 0;
+  }
+
+  if (strcmp(args, "r") == 0) {
+    isa_reg_display();
+  }
+  else if (strcmp(args, "w") == 0) {
+    //display_wp();
+  }
+  else {
+    printf("Unknown command '%s'\n", args);
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  if (args == NULL) {
+    printf("Usage: x [number of chunks] [start address of the memory]\n");
+    return 0;
+  }
+  int N;
+  uint32_t startAddress;
+  int ret = sscanf(args, "%d%x", &N, &startAddress);
+  if (ret != 2) {
+    printf("Invalid format\n");
+  }
+  
+  for (int i = 0; i < N; i ++) {
+    printf("%10x:%10x", startAddress + i * 4, vaddr_read(startAddress + i * 4, 4));
+  }
+  return 0;
+}
+
 
 void sdb_set_batch_mode() {
   is_batch_mode = true;
