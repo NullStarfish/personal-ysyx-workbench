@@ -65,6 +65,8 @@ static int cmd_info(char *args);
 
 static int cmd_x(char *args);
 
+static int cmd_p(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -76,7 +78,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   {"si", "step forward [n] times", cmd_si},
   {"info", "print information", cmd_info},
-  {"x", "scan memory", cmd_x}
+  {"x", "scan memory", cmd_x},
+  {"p", "process expressions", cmd_p}
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -147,6 +150,12 @@ static int cmd_x(char *args) {
     printf("%10x:%10x", startAddress + i * 4, vaddr_read(startAddress + i * 4, 4));
   }
   return 0;
+}
+
+static int cmd_p(char *args) {
+  bool success;
+  expr(args, &success);
+  return success;
 }
 
 
