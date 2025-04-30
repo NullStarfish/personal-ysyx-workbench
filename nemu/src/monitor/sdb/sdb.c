@@ -154,7 +154,9 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
   bool success;
-  expr(args, &success);
+  int ret =  expr(args, &success);
+  if (!success) printf("bad expression!\n");
+  else printf("%u\n", ret);
   return success;
 }
 
