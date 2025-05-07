@@ -1,5 +1,10 @@
 mainmenu "NEMU Configuration Menu"
 
+config CONFIG_WATCHPOINT
+  bool "Enable monitor"
+  default y
+
+
 choice
   prompt "Base ISA"
   default ISA_riscv

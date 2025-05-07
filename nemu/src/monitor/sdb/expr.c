@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEBUG_EXPR
+//#define DEBUG_EXPR
 
 
 #ifdef DEBUG_EXPR
@@ -30,6 +30,10 @@
 #else
 #define DEBUG_PRINT(fmt, ...) 
 #endif
+
+
+word_t vaddr_read(vaddr_t addr, int len);
+
 
 
 
@@ -57,11 +61,10 @@ static struct rule {
   {"/", '/'},         // divide
   {"\\(", '('},         // left parenthesis
   {"\\)", ')'},         // right parenthesis
+  {"0[xX][0-9a-fA-F]+",TK_HEX},    //hex must be placed before number
   {"[0-9]+", TK_NUMBER},      // number
-  {"[a-zA-Z_][a-zA-Z0-9_]*", '1'}, // identifier
-  {"0x[0-9a-fA-F]+", '2'}, // hex number
   {"\\$(\\$0|ra|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG},//reg
-  {"0[xX][0-9a-fA-F]+",TK_HEX},    //hex
+  
 
 };
 
@@ -247,25 +250,9 @@ int find_major(int p, int q) {
     if (parentheses != 0)
         continue;
   
-    int priority = -1;  
+    int priority = get_priority(tokens[i].type);
 
-
-    if (tokens[i].type == '+' || tokens[i].type == '-') {
-        if (i == p || tokens[i - 1].type != TK_NUMBER) {
-          priority = 3;
-          tokens[i].type = tokens[i].type == '+' ? TK_POS : TK_NEG;
-        }
-        else priority = 1;
-    } else if (tokens[i].type ==  TK_POS || tokens[i].type == TK_NEG) {
-      priority = 3;
-    } else if (tokens[i].type == '*' || tokens[i].type == '/') {
-        if (tokens[i].type == '*' && (i == p || tokens[i - 1].type != TK_NUMBER))
-          priority = 3;
-        else
-          priority = 2;
-    } else if (tokens[i].type == TK_EQ) {
-      priority = 0;
-    }
+    
     DEBUG_PRINT("priority: %d\n", priority);
 
     // 如果当前运算符的优先级低于或等于之前找到的，则更新 op
@@ -293,13 +280,21 @@ uint32_t eval(int p, int q, bool* badexpr) {
      * For now this token should be a number.
      * Return the value of the number.
      */
-     if (tokens[p].type != TK_NUMBER) {
-      DEBUG_PRINT("err in p == q not a number \n");
-      *badexpr = true;
-      return 0;
+     //DEBUG_PRINT("success return p == q number %d\n", atoi(tokens[p].str));
+     bool success = false;
+     if (tokens[p].type == TK_REG) {
+      return isa_reg_str2val(tokens[p].str, &success);
+     } else if (tokens[p].type == TK_HEX) {
+      return strtol(tokens[p].str, NULL, 16);
      }
-     DEBUG_PRINT("success return p == q number %d\n", atoi(tokens[p].str));
-     return atoi(tokens[p].str);
+     else if (tokens[p].type == TK_NUMBER) {
+      //DEBUG_PRINT("success return p == q number %d\n", atoi(tokens[p].str));
+      return atoi(tokens[p].str);
+     } else {
+        DEBUG_PRINT("err in p == q not a number \n");
+        *badexpr = true;
+        return 0;
+      }
   }
   else if (check_parentheses(p, q, badexpr) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
@@ -328,6 +323,16 @@ uint32_t eval(int p, int q, bool* badexpr) {
       return -val2;
     else if (tokens[op].type == TK_POS) 
       return val2;
+    else if (tokens[op].type == TK_DEREF) {
+      // deref
+      return vaddr_read(val2, 4);
+    }
+    else if (tokens[op].type == TK_EQ) {
+      if (val2 == 0)
+        return 0;
+      else
+        return 1;
+    }
 
 
 
@@ -343,6 +348,7 @@ uint32_t eval(int p, int q, bool* badexpr) {
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
+      case TK_EQ: return val1 == val2;
       default: *badexpr = true; return 1;
     }
   }

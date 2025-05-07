@@ -28,6 +28,22 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+  struct watchpoint *last;
+  
+  /* TODO: Add more members if necessary */
+  char *expr;
+  uint32_t old_val;
+
+} WP;
+WP* new_wp(char *e);
+void free_wp(WP *wp);
+void wp_remove(int NO);
+void display_wp();
+void wp_add(char *str);
+
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -67,6 +83,10 @@ static int cmd_x(char *args);
 
 static int cmd_p(char *args);
 
+static int cmd_w(char *args);
+
+static int cmd_d(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -79,7 +99,9 @@ static struct {
   {"si", "step forward [n] times", cmd_si},
   {"info", "print information", cmd_info},
   {"x", "scan memory", cmd_x},
-  {"p", "process expressions", cmd_p}
+  {"p", "process expressions", cmd_p},
+  {"w", "set watchpoints", cmd_w},
+  {"d", "delete watchpoint", cmd_d}
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -126,7 +148,7 @@ static int cmd_info(char *args) {
     isa_reg_display();
   }
   else if (strcmp(args, "w") == 0) {
-    //display_wp();
+    display_wp();
   }
   else {
     printf("Unknown command '%s'\n", args);
@@ -160,6 +182,26 @@ static int cmd_p(char *args) {
   return success;
 }
 
+static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Usage: w + expression\n");
+    return 0;
+  }
+  wp_add(args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  bool success = false;
+  int NO = expr(args, &success);
+  if (!success) {
+    printf("BAD expr!");
+    return 0;
+  }
+  //printf("start remove\n");
+  wp_remove(NO);
+  return 0;
+}
 
 void sdb_set_batch_mode() {
   is_batch_mode = true;
