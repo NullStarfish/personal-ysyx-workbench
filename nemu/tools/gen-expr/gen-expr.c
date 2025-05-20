@@ -53,17 +53,37 @@ static word_t choose(int n) {
 }
 
 
-static word_t gen(char c) {
-  if (strlen(buf) + 2 > sizeof(buf))
+
+static word_t gen(char c) { //1为成功
+  if (strlen(buf) + 2 >= sizeof(buf)) //2位：一位另外加的，一位'\0'
     return 0;
   buf[strlen(buf)] = c;
   DEBUG_PRINT("generate %c at %u in %s\n", c, (int)strlen(buf), buf);
   return 1;
 }
 
+
+static word_t gen_spaces() {
+  int ret = choose(2);
+  if (ret) {
+    if (gen(' '))
+      return gen_spaces();
+    else
+      return 0;
+  } else {
+    return 1;
+  }
+}
+
+
+
 static word_t gen_num() {
   DEBUG_PRINT("start gen_num\n");
-  return gen(choose(10) + '0') && gen('U');
+  int mem = strlen(buf);
+  if (gen(choose(10) + '0')) if (gen('U')) return 1;
+  buf[mem] = '\0';
+  return 0;
+  //return gen(choose(10) + '0') && gen('U'); //我们在buf中，必须加上U，不然不是非符号计算
 }
 
 static word_t  gen_rand_op() {
@@ -80,25 +100,27 @@ static word_t  gen_rand_op() {
 }
 
 
-static word_t gen_rand_expr() {
+static word_t gen_rand_expr() { //返回值1代表生成成功
   word_t mem;
   switch (choose(3)) {
     case 0: 
       mem = strlen(buf);
-      if (gen_num()) return 1;
+      if (gen_num()) if (gen_spaces()) return 1; 
       buf[mem] = '\0';
       return 0;
     case 1: 
-      mem = strlen(buf);
+      mem = strlen(buf); //记录生成前的位置
       if (gen('('))
-        if(gen_rand_expr())
-          if(gen(')'))
-            return 1;
+        if (gen_spaces())
+          if(gen_rand_expr())
+            if(gen(')'))
+              if (gen_spaces())
+                return 1; //只有三个都满足，才能返回成功
       buf[mem] = '\0';
       return 0;
     default: 
       mem = strlen(buf);
-      if (gen_rand_expr()) if(gen_rand_op()) if(gen_rand_expr()) return 1;
+      if (gen_rand_expr()) if(gen_rand_op()) if (gen_spaces()) if(gen_rand_expr()) return 1;
       buf[mem] = '\0';
       return 0;
   }

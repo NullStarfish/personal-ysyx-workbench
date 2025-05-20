@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-//#define DEBUG_EXPR
+#define DEBUG_EXPR
 
 
 #ifdef DEBUG_EXPR
@@ -63,7 +63,7 @@ static struct rule {
   {"\\)", ')'},         // right parenthesis
   {"0[xX][0-9a-fA-F]+",TK_HEX},    //hex must be placed before number
   {"[0-9]+", TK_NUMBER},      // number
-  {"\\$(\\$0|ra|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG},//reg
+  {"\\$(\\$0|ra|pc|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG},//reg
   
 
 };
@@ -104,7 +104,7 @@ typedef struct token {
 // tokens数组用于按顺序存放已经被识别出的token信息,
 // nr_token指示已经被识别出的token数目.
 //static Token tokens[32] __attribute__((used)) = {};
-static Token tokens[65536] __attribute__((used)) = {};
+static Token tokens[65536] __attribute__((used)) = {};//use to test the expr
 static int nr_token __attribute__((used))  = 0;
 
 static struct Op_priority {
@@ -215,7 +215,7 @@ int pre_token_process() {
     if (tokens[i].type == '+' || 
         tokens[i].type == '-' ||
         tokens[i].type == '*') {
-      if (i == 0 || tokens[i - 1].type != TK_NUMBER) {
+      if (i == 0 || (tokens[i - 1].type != TK_NUMBER && tokens[i - 1].type != ')')) {
         switch (tokens[i].type) {
           case '+': tokens[i].type = TK_POS; break;
           case '-': tokens[i].type = TK_NEG; break;
@@ -283,7 +283,7 @@ uint32_t eval(int p, int q, bool* badexpr) {
      //DEBUG_PRINT("success return p == q number %d\n", atoi(tokens[p].str));
      bool success = false;
      if (tokens[p].type == TK_REG) {
-      return isa_reg_str2val(tokens[p].str, &success);
+      return isa_reg_str2val(tokens[p].str + 1, &success);
      } else if (tokens[p].type == TK_HEX) {
       return strtol(tokens[p].str, NULL, 16);
      }

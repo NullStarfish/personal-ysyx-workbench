@@ -146,6 +146,7 @@ static int cmd_info(char *args) {
 
   if (strcmp(args, "r") == 0) {
     isa_reg_display();
+    printf("$pc:%x\n", cpu.pc);
   }
   else if (strcmp(args, "w") == 0) {
     display_wp();
@@ -161,6 +162,7 @@ static int cmd_x(char *args) {
     printf("Usage: x [number of chunks] [start address of the memory]\n");
     return 0;
   }
+  printf("args : %s\n", args);
   int N;
   uint32_t startAddress;
   int ret = sscanf(args, "%d%x", &N, &startAddress);
@@ -169,7 +171,7 @@ static int cmd_x(char *args) {
   }
   
   for (int i = 0; i < N; i ++) {
-    printf("%10x:%10x", startAddress + i * 4, vaddr_read(startAddress + i * 4, 4));
+    printf("%10x:%10x\n", startAddress + i * 4, vaddr_read(startAddress + i * 4, 4));
   }
   return 0;
 }
