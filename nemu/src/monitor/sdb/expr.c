@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEBUG_EXPR
+//#define DEBUG_EXPR
 
 
 #ifdef DEBUG_EXPR
@@ -41,7 +41,8 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
   TK_NUMBER, TK_HEX, TK_REG,
   /* TODO: Add more token types */
-  TK_NEG, TK_POS, TK_DEREF
+  TK_NEG, TK_POS, TK_DEREF, TK_NEQ, TK_LE, TK_GE, TK_LT, TK_GT,
+  TK_AND, TK_OR, TK_NOT
 };
 
 static struct rule {
@@ -54,8 +55,17 @@ static struct rule {
    */
 
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
+
   {"==", TK_EQ},        // equal
+  {"!=", TK_NEQ},       // not equal
+  {"<=", TK_LE},        // less than or equal
+  {">=", TK_GE},        // greater than or equal
+  {"<", TK_LT},         // less than
+  {">", TK_GT},         // greater than
+  {"&&", TK_AND},       // and
+  {"\\|\\|", TK_OR},    // or
+  {"!", TK_NOT},        // not
+  {"\\+", '+'},         // plus
   {"-", '-'},         // minus
   {"\\*", '*'},         // multiply
   {"/", '/'},         // divide
@@ -111,14 +121,22 @@ static struct Op_priority {
   int type;
   int priority;
 } priority[] = {
-  {TK_EQ, 0},
-  {'+', 1},
-  {'-', 1},
-  {'*', 2},
-  {'/', 2},
-  {TK_POS, 3},
-  {TK_NEG, 3},
-  {TK_DEREF, 3}
+  {TK_EQ, 7},
+  {TK_NEQ, 7},
+  {TK_AND, 11},
+  {TK_OR, 12},
+  {TK_NOT, 2},
+  {TK_LE, 6},
+  {TK_GE, 6},
+  {TK_LT, 6},
+  {TK_GT, 6},
+  {'+', 4},
+  {'-', 4},
+  {'*', 3},
+  {'/', 3},
+  {TK_POS, 2},
+  {TK_NEG, 2},
+  {TK_DEREF, 2}
 };
 
 #define NR_PRIORITY ARRLEN(priority)
@@ -215,7 +233,7 @@ int pre_token_process() {
     if (tokens[i].type == '+' || 
         tokens[i].type == '-' ||
         tokens[i].type == '*') {
-      if (i == 0 || (tokens[i - 1].type != TK_NUMBER && tokens[i - 1].type != ')')) {
+      if (i == 0 || (tokens[i - 1].type != TK_NUMBER && tokens[i - 1].type != TK_HEX && tokens[i - 1].type != ')')) {//判断逻辑
         switch (tokens[i].type) {
           case '+': tokens[i].type = TK_POS; break;
           case '-': tokens[i].type = TK_NEG; break;
@@ -233,7 +251,7 @@ int pre_token_process() {
 
 int find_major(int p, int q) {
   int op = -1;
-  int min_priority = 100; // 设个大的初始值
+  int max_priority = -1; // 设个大的初始值
   int parentheses = 0; //括号数量
   for (int i = p; i <= q; i ++) {
     DEBUG_PRINT("tokens[i] %s\n", tokens[i].str);
@@ -255,10 +273,10 @@ int find_major(int p, int q) {
     
     DEBUG_PRINT("priority: %d\n", priority);
 
-    // 如果当前运算符的优先级低于或等于之前找到的，则更新 op
-    // 注意：这里采用 <= 来确保左结合性（取最右边的同级运算符）
-    if (priority >= 0 && priority <= min_priority) {
-        min_priority = priority;
+    // 如果当前运算符的序号大于或等于之前找到的，则更新 op
+    //priority越大，越后算
+    if (priority >= 0 && priority >= max_priority) {
+        max_priority = priority;
         op = i;
     }
     DEBUG_PRINT("op: %d\n", op);
@@ -326,13 +344,10 @@ uint32_t eval(int p, int q, bool* badexpr) {
     else if (tokens[op].type == TK_DEREF) {
       // deref
       return vaddr_read(val2, 4);
+    } else if (tokens[op].type == TK_NOT) {
+      return !val2;
     }
-    else if (tokens[op].type == TK_EQ) {
-      if (val2 == 0)
-        return 0;
-      else
-        return 1;
-    }
+    
 
 
 
@@ -343,12 +358,19 @@ uint32_t eval(int p, int q, bool* badexpr) {
       DEBUG_PRINT("err in sub eval\n");
       return 1;
     }
-    switch (tokens[op].type) {
+    switch (tokens[op].type) { //运算符 双目
       case '+': return val1 + val2;
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
       case TK_EQ: return val1 == val2;
+      case TK_NEQ: return val1 != val2;
+      case TK_LE: return val1 <= val2;
+      case TK_GE: return val1 >= val2;
+      case TK_LT: return val1 < val2;
+      case TK_GT: return val1 > val2;
+      case TK_AND: return val1 && val2;
+      case TK_OR: return val1 || val2;
       default: *badexpr = true; return 1;
     }
   }

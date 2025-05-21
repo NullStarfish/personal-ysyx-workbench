@@ -27,7 +27,7 @@
 
 typedef struct watchpoint {
   int NO;
-  struct watchpoint *next;
+  struct watchpoint *next;//双向链表
   struct watchpoint *last;
   
   /* TODO: Add more members if necessary */
@@ -38,9 +38,9 @@ typedef struct watchpoint {
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
+//监视点池，总共就能分配这么多
 
-
-static uint32_t last_index = 0;
+static uint32_t last_index = 0; //全局编号
 
 
 void init_wp_pool() {
@@ -58,14 +58,14 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 
-void wp_setup(WP* wp, char *e, bool *success) {
+void wp_setup(WP* wp, char *e, bool *success) { //setup用来赋值
   int old_value = expr(e, success);
   if (!(*success)) {
     printf("Invalid EXPRESSION !\n");
     return;
   }
   // 使用 strdup 做深拷贝
-  wp->expr = strdup(e);
+  wp->expr = strdup(e); //实际上就是先分配空间然后strcpy
   wp->old_val = old_value;
 }
 
@@ -89,12 +89,12 @@ WP* new_wp(char *e) {
 
 
   retexpr->next = head;
-  retexpr->last = NULL;
-  if (head)
+  retexpr->last = NULL;//add first到头部
+  if (head)//本来不是空的话，回退的指针
     head->last = retexpr;
 
   retexpr->NO = last_index ++;
-  head = retexpr;
+  head = retexpr;//移动头
 
   return retexpr;
 
@@ -125,6 +125,8 @@ void free_wp(WP *wp) {
   wp->next = free_;
   wp->last = NULL;
   free(wp->expr);
+  wp->expr = NULL;
+  
   DEBUG_PRINT("success\n");
 }
 
@@ -153,6 +155,7 @@ void wp_add(char *str) {
 
 
 void wp_difftest() {
+  DEBUG_PRINT("Enter difftest\n");
   for (WP* i = head; i; i = i -> next) {
     bool success;
     uint32_t cur_val = expr(i->expr, &success);

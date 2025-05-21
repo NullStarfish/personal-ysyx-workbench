@@ -1,6 +1,6 @@
 mainmenu "NEMU Configuration Menu"
 
-config CONFIG_WATCHPOINT
+config WATCHPOINT
   bool "Enable monitor"
   default y
 

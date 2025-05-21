@@ -162,17 +162,27 @@ static int cmd_x(char *args) {
     printf("Usage: x [number of chunks] [start address of the memory]\n");
     return 0;
   }
-  printf("args : %s\n", args);
   int N;
-  uint32_t startAddress;
-  int ret = sscanf(args, "%d%x", &N, &startAddress);
+  char expr_buf[65536 + 10];
+  int ret = sscanf(args, "%d %[^\n]", &N, expr_buf);
+
+
   if (ret != 2) {
     printf("Invalid format\n");
+    return 0;
+  }
+
+
+  bool success = true;
+  word_t startAddress = expr(expr_buf, &success);
+  if (!success) {
+    printf("BAD EXPRESSION!\n");
   }
   
   for (int i = 0; i < N; i ++) {
     printf("%10x:%10x\n", startAddress + i * 4, vaddr_read(startAddress + i * 4, 4));
   }
+
   return 0;
 }
 
