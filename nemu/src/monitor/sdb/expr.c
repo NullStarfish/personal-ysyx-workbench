@@ -55,7 +55,6 @@ static struct rule {
    */
 
   {" +", TK_NOTYPE},    // spaces
-
   {"==", TK_EQ},        // equal
   {"!=", TK_NEQ},       // not equal
   {"<=", TK_LE},        // less than or equal
@@ -337,7 +336,9 @@ uint32_t eval(int p, int q, bool* badexpr) {
 
     bool badexpr1 = false, badexpr2 = false;
     uint32_t val2 = eval(op + 1, q, &badexpr2);
-    if (tokens[op].type == TK_NEG) 
+
+
+    if (tokens[op].type == TK_NEG) //运算符，单目
       return -val2;
     else if (tokens[op].type == TK_POS) 
       return val2;
