@@ -25,7 +25,7 @@ const char *regs[] = {
 
 void isa_reg_display() {
   for (int i = 0; i < 32 ; i ++) {
-    printf("%5s:%5d\n", regs[i], gpr(i));
+    printf("$%5s:%5d\n", regs[i], gpr(i));
   }
 }
 
@@ -34,7 +34,14 @@ word_t isa_reg_str2val(const char *s, bool *success) {
     return cpu.pc;
   }
 
+
   *success = false;
+
+  if (s[0] >= '0' && s[0] <= '9') {
+    *success = true;
+    return gpr(atoi(s));
+  }
+
   for (int i = 0; i < 32; i ++) {
     if (strcmp(s, regs[i]) == 0) {
       *success = true;

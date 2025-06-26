@@ -72,7 +72,7 @@ static struct rule {
   {"\\)", ')'},         // right parenthesis
   {"0[xX][0-9a-fA-F]+",TK_HEX},    //hex must be placed before number
   {"[0-9]+", TK_NUMBER},      // number
-  {"\\$(\\$0|ra|pc|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG},//reg
+  {"\\$(([0-9]|[1-3][0-9])|ra|pc|[sgt]p|t[0-6]|a[0-7]|s([0-9]|1[0-1]))", TK_REG},//reg
   
 
 };
