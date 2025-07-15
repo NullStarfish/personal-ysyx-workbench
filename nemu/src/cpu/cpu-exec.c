@@ -30,6 +30,63 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+
+#define IRING_CAPACITY 64
+typedef struct {
+  char inst_buf[IRING_CAPACITY][128];//Decode *s在execute中创建，是一个局部变量。同时128和itrace中的logbuf大小一样
+  int wrIdx;
+  int size;
+} IRingBuffer;
+
+IRingBuffer iring_buffer = { .wrIdx = 0, .size = 0 };
+
+
+static void format_trace(char *buf, size_t bufsize, vaddr_t pc, vaddr_t snpc, uint8_t *inst, int ilen) {
+  char *p = buf;
+  p += snprintf(p, bufsize, FMT_WORD ":", pc);
+#ifdef CONFIG_ISA_x86
+  for (int i = 0; i < ilen; i++) {
+#else
+  for (int i = ilen - 1; i >= 0; i--) {
+#endif
+    p += snprintf(p, 4, " %02x", inst[i]);
+  }
+  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
+  disassemble(p, buf + bufsize - p, MUXDEF(CONFIG_ISA_x86, snpc, pc), inst, ilen);
+}
+
+
+void iring_buffer_push(Decode *s) {
+  printf("Pushing instruction to iring buffer: %s\n", s->logbuf);
+  format_trace(
+    iring_buffer.inst_buf[iring_buffer.wrIdx],
+    sizeof(iring_buffer.inst_buf[0]),
+    s->pc, s->snpc, (uint8_t *)&s->isa.inst, s->snpc - s->pc
+  );
+  iring_buffer.wrIdx = (iring_buffer.wrIdx + 1) % IRING_CAPACITY;
+  if (iring_buffer.size < IRING_CAPACITY) iring_buffer.size++;
+}
+
+void print_iring_buffer() {
+  printf("Instruction Ring Buffer:\n");
+  int idx = iring_buffer.wrIdx - iring_buffer.size;
+  if (idx < 0) idx += IRING_CAPACITY;
+  for (int i = 0; i < iring_buffer.size; i++) {
+    printf("%s\n", iring_buffer.inst_buf[idx]);
+    idx = (idx + 1) % IRING_CAPACITY;
+  }
+}
+
+
+
+
 
 void device_update();
 
@@ -46,6 +103,8 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   //wp_difftest();
 }
 
+
+/*
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
@@ -53,10 +112,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
-  int ilen = s->snpc - s->pc;
+  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);//开始对s的logbuf进行写
+  int ilen = s->snpc - s->pc;//ilen由snpc来维护，即使是64位也有短指令
   int i;
-  uint8_t *inst = (uint8_t *)&s->isa.inst;
+  uint8_t *inst = (uint8_t *)&s->isa.inst; //inst本来是uint32_t类型，这里对其地址转换成uint8_t *类型
 #ifdef CONFIG_ISA_x86
   for (i = 0; i < ilen; i ++) {
 #else
@@ -71,14 +130,38 @@ static void exec_once(Decode *s, vaddr_t pc) {
   memset(p, ' ', space_len);
   p += space_len;
 
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+#endif//trace实现完成
+
+#ifdef CONFIG_IRBUFF 
+  iring_buffer_push(s);
 #endif
+
+}*/
+
+static void exec_once(Decode *s, vaddr_t pc) {
+  s->pc = pc;
+  s->snpc = pc;
+  isa_exec_once(s);
+  cpu.pc = s->dnpc;
+#ifdef CONFIG_ITRACE
+  format_trace(
+    s->logbuf, sizeof(s->logbuf),
+    s->pc, s->snpc, (uint8_t *)&s->isa.inst, s->snpc - s->pc
+  );
+#endif
+
+//#ifdef CONFIG_IRBUFF
+  iring_buffer_push(s);
+//#endif
 }
 
+
+
 static void execute(uint64_t n) {
-  Decode s;
+  Decode s; // ATTENTION! s is a local variable, so it is not shared between different calls of execute.
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
@@ -99,6 +182,7 @@ static void statistic() {
 
 void assert_fail_msg() {
   isa_reg_display();
+  print_iring_buffer();//每个错误都会调用这个asserty_fail_msg
   statistic();
 }
 
