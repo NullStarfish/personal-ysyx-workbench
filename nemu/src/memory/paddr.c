@@ -24,7 +24,21 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
+//由于虚拟内存机制：CONFIG_MABASE不为内存的开始
+//我们引入pmem，直接对pmem数组（物理内存）进行读写操作
+
+
+
+//paddr的位数是机器的位数，例如32、64位。paddr_t是物理地址类型，paddr_t的大小和机器的位数有关。
+//pmem是物理内存的起始地址，CONFIG_MSIZE是物理
+//physical memory: pmem
+uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }//CONFIG_MBASE是物理内存的起始地址，CONFIG_MSIZE是物理内存的大小
+//返回一个host虚拟地址，这个地址是pmem数组的偏移量加上物理内存的起始地址
+//host也是32位，但是存放的是一个uint8_t *类型的指针
+//对返回的地址取*，就可以直接得到内存的值
+
+
+
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
@@ -51,6 +65,8 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+
+  IFDEF(CONFIG_MTRACE, Log("paddr_read: addr = " FMT_PADDR ", len = %d", addr, len);)
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
@@ -58,6 +74,9 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
+
+  IFDEF(CONFIG_MTRACE, Log("paddr_write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD , addr, len, data);)
+
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);

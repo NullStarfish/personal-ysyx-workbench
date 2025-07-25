@@ -4,6 +4,10 @@ config WATCHPOINT
   bool "Enable monitor"
   default y
 
+config MTRACE
+  bool "Enable mtrace"
+  default y
+
 
 choice
   prompt "Base ISA"
