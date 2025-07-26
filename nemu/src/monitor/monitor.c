@@ -4,7 +4,7 @@
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
 * You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
+* http://license.coscl.org.cn/MulanPSL2
 *
 * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
@@ -16,6 +16,7 @@
 #include <isa.h>
 #include <elf.h>
 #include <memory/paddr.h>
+#include <ftrace.h> // 1. 包含ftrace头文件
 
 void init_rand();
 void init_log(const char *log_file);
@@ -33,7 +34,6 @@ static void welcome() {
   Log("Build time: %s, %s", __TIME__, __DATE__);
   printf("Welcome to %s-NEMU!\n", ANSI_FMT(str(__GUEST_ISA__), ANSI_FG_YELLOW ANSI_BG_RED));
   printf("For help, type \"help\"\n");
-  //Log("Exercise: Please remove me in the source code and compile NEMU again.");
 }
 
 #ifndef CONFIG_TARGET_AM
@@ -44,7 +44,7 @@ void sdb_set_batch_mode();
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
-static char *elf_file = NULL;
+static char *elf_file = NULL; // 2. 确保elf_file变量已声明
 static int difftest_port = 1234;
 
 static long load_img() {
@@ -71,32 +71,47 @@ static long load_img() {
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
+    // 3. 在选项表中添加 --ftrace
     {"batch"    , no_argument      , NULL, 'b'},
     {"log"      , required_argument, NULL, 'l'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
-    {"read elf" , required_argument, NULL, 'e'},
+    {"ftrace"   , required_argument, NULL, 'f'}, // 使用 'f' 作为短选项
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {//这个shortopts主要用来区别required_argument和no_argument
+  // 4. 在短选项字符串中添加 'f:' (冒号表示需要参数)
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:f:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 'e': elf_file = optarg; break;
-      case 1: img_file = optarg; return 0;
+      // 5. 添加处理 'f' 选项的 case
+      case 'f': elf_file = optarg; break;
+      case 1:
+        // 这个case用于处理没有短选项的长选项，或者非选项参数
+        // 在你的原始代码中，它被用来捕获img_file
+        // 我们需要确保img_file在最后被正确捕获
+        if (img_file == NULL) {
+          img_file = optarg;
+        }
+        break;
       default:
-        printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-        printf("\t-b,--batch              run with batch mode\n");
-        printf("\t-l,--log=FILE           output log to FILE\n");
-        printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
-        printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        printf("Usage: %s [OPTION...] IMAGE\n\n", argv[0]);
+        printf("\t-b, --batch              run with batch mode\n");
+        printf("\t-l, --log=FILE           output log to FILE\n");
+        printf("\t-d, --diff=REF_SO        run DiffTest with reference REF_SO\n");
+        printf("\t-p, --port=PORT          run DiffTest with port PORT\n");
+        printf("\t-f, --ftrace=ELF_FILE    enable function trace with given ELF file\n");
         printf("\n");
         exit(0);
     }
+  }
+  // getopt_long处理完后，optind会指向第一个非选项参数，即IMAGE文件
+  if (optind < argc) {
+    img_file = argv[optind];
   }
   return 0;
 }
@@ -115,6 +130,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize memory. */
   init_mem();
+  
+  // Initialize ftrace.
+  init_ftrace(elf_file);
 
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());

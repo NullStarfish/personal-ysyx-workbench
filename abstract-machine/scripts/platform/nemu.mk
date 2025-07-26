@@ -12,7 +12,27 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/nemu/include
 LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt -b
+NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt 
+
+
+# --- 修改开始 ---
+# 检查是否从命令行传入了 FTRACE=1 (或任意非空值)
+# 如果传入了，就添加 --ftrace 参数
+ifdef FTRACE
+  NEMUFLAGS += --ftrace=$(IMAGE).elf
+endif
+
+# 检查是否从命令行传入了 BATCH=1 (或任意非空值)
+# 如果传入了，就添加 -b (batch mode) 参数
+ifdef BATCH
+  NEMUFLAGS += -b
+endif
+# --- 修改结束 ---
+
+
+
+
+
 # -b: batch mode, no interactive input
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here.

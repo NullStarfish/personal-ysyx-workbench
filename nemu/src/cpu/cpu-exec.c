@@ -18,6 +18,13 @@
 #include <cpu/difftest.h>
 #include <locale.h>
 
+
+#define CONFIG_FTRACE
+
+
+
+
+
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -64,7 +71,7 @@ static void format_trace(char *buf, size_t bufsize, vaddr_t pc, vaddr_t snpc, ui
 
 
 void iring_buffer_push(Decode *s) {
-  printf("Pushing instruction to iring buffer: %s\n", s->logbuf);
+  //printf("Pushing instruction to iring buffer: %s\n", s->logbuf);
   format_trace(
     iring_buffer.inst_buf[iring_buffer.wrIdx],
     sizeof(iring_buffer.inst_buf[0]),
@@ -140,6 +147,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #endif
 
 }*/
+
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
