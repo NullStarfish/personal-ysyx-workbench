@@ -31,6 +31,15 @@ override ARGS += $(ARGS_DIFF)
 IMG ?=
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
+
+# --- 为VS Code添加的新目标 ---
+# 这个目标只依赖于构建NEMU二进制文件，不会执行任何操作
+build: $(BINARY)
+# --- 修改结束 ---
+
+
+
+
 run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
