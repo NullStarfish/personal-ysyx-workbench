@@ -102,11 +102,11 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
 
-  if (skip_dut_nr_inst > 0) {
+  if (skip_dut_nr_inst > 0) {//如果大于0，（具体来说是大于1），difftest_step什么都不做，仅仅只是执行nemu，让nemu充分地跑
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == npc) {
       skip_dut_nr_inst = 0;
-      checkregs(&ref_r, npc);
+      checkregs(&ref_r, npc); //如果刚好npc的值刚好为ref_r，也就是nemu的下一条指令就能达到ref_r的pc的时候，就可以直接计算了
       return;
     }
     skip_dut_nr_inst --;

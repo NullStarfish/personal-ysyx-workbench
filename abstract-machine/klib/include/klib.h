@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+#define __NATIVE_USE_KLIB__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
