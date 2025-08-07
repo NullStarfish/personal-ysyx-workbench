@@ -11,7 +11,7 @@ module DMEM (
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            rdata <= 32'b0; // Reset read data to zero
+            rdata <= 32'h80000000; // Reset read data to zero
         end else if (we) begin
             mem[addr[11:2]] <= wdata; // Write data to memory at the specified address
         end else begin

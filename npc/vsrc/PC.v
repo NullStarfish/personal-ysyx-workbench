@@ -9,11 +9,13 @@ module PC (
      //PC+4 value
     wire [31:0] PCin; //input to the PC
     assign PCin = PCsel ? ALUin : PCplus4; //select the input to the PC based on PCsel
+    
     always@(posedge clk) begin
-        if (rst) //if reset is high, set PC to 0
-            PC <= 32'd0;
+        if (rst) //if reset is high, set PC to the program start address
+            PC <= 32'h80000000;
         else //otherwise, update the PC value
             PC <= PCin; //update the PC value on the positive edge of PCsel
     end
+    
     assign PCplus4 = PC + 4; //calculate PC+4 value
 endmodule

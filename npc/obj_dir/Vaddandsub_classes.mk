@@ -2,7 +2,7 @@
 # DESCRIPTION: Verilator output: Make include file with class lists
 #
 # This file lists generated Verilated files, for including in higher level makefiles.
-# See VTop.mk for the caller.
+# See Vaddandsub.mk for the caller.
 
 ### Switches...
 # C11 constructs required?  0/1 (always on now)
@@ -23,31 +23,35 @@ VM_TRACE_FST = 0
 ### Object file lists...
 # Generated module classes, fast-path, compile with highest optimization
 VM_CLASSES_FAST += \
-	VTop \
-	VTop___024root__DepSet_hc590b6dd__0 \
-	VTop___024root__DepSet_h0d2e5939__0 \
-	VTop_Top__DepSet_h43a701a7__0 \
-	VTop_Top__DepSet_hfe6a16e1__0 \
-	VTop___024unit__DepSet_hd7ebdb33__0 \
+	Vaddandsub \
+	Vaddandsub___024root__DepSet_h25fadda4__0 \
+	Vaddandsub___024root__DepSet_h8fb1d1a7__0 \
+	Vaddandsub_Top__DepSet_h70e3ff70__0 \
+	Vaddandsub_Top__DepSet_h95a22b45__0 \
+	Vaddandsub___024unit__DepSet_h45e0dd52__0 \
+	Vaddandsub_rom__DepSet_h3e77fd52__0 \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization
 VM_CLASSES_SLOW += \
-	VTop___024root__Slow \
-	VTop___024root__DepSet_hc590b6dd__0__Slow \
-	VTop___024root__DepSet_h0d2e5939__0__Slow \
-	VTop_Top__Slow \
-	VTop_Top__DepSet_h43a701a7__0__Slow \
-	VTop_Top__DepSet_hfe6a16e1__0__Slow \
-	VTop___024unit__Slow \
-	VTop___024unit__DepSet_h1b4533a7__0__Slow \
+	Vaddandsub___024root__Slow \
+	Vaddandsub___024root__DepSet_h25fadda4__0__Slow \
+	Vaddandsub___024root__DepSet_h8fb1d1a7__0__Slow \
+	Vaddandsub_Top__Slow \
+	Vaddandsub_Top__DepSet_h70e3ff70__0__Slow \
+	Vaddandsub___024unit__Slow \
+	Vaddandsub___024unit__DepSet_hafa7d0b5__0__Slow \
+	Vaddandsub_IMEM__Slow \
+	Vaddandsub_IMEM__DepSet_ha87339f4__0__Slow \
+	Vaddandsub_rom__Slow \
+	Vaddandsub_rom__DepSet_h883eb0b5__0__Slow \
 
 # Generated support classes, fast-path, compile with highest optimization
 VM_SUPPORT_FAST += \
-	VTop__Dpi \
+	Vaddandsub__Dpi \
 
 # Generated support classes, non-fast-path, compile with low/medium optimization
 VM_SUPPORT_SLOW += \
-	VTop__Syms \
+	Vaddandsub__Syms \
 
 # Global classes, need linked once per executable, fast-path, compile with highest optimization
 VM_GLOBAL_FAST += \

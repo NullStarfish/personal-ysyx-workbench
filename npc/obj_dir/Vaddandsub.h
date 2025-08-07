@@ -5,23 +5,23 @@
 // The class here is then constructed to instantiate the design.
 // See the Verilator manual for examples.
 
-#ifndef VERILATED_VTOP_H_
-#define VERILATED_VTOP_H_  // guard
+#ifndef VERILATED_VADDANDSUB_H_
+#define VERILATED_VADDANDSUB_H_  // guard
 
 #include "verilated.h"
 #include "svdpi.h"
 
-class VTop__Syms;
-class VTop___024root;
-class VTop_Top;
-class VTop___024unit;
+class Vaddandsub__Syms;
+class Vaddandsub___024root;
+class Vaddandsub_Top;
+class Vaddandsub___024unit;
 
 
 // This class is the main interface to the Verilated model
-class VTop VL_NOT_FINAL : public VerilatedModel {
+class Vaddandsub VL_NOT_FINAL : public VerilatedModel {
   private:
     // Symbol table holding complete model state (owned by this class)
-    VTop__Syms* const vlSymsp;
+    Vaddandsub__Syms* const vlSymsp;
 
   public:
 
@@ -30,31 +30,33 @@ class VTop VL_NOT_FINAL : public VerilatedModel {
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clk,0,0);
     VL_IN8(&rst,0,0);
-    VL_IN8(&load_en,0,0);
-    VL_IN(&load_addr,31,0);
-    VL_IN(&load_data,31,0);
+    VL_IN8(&BrUn,0,0);
+    VL_OUT8(&BrEq,0,0);
+    VL_OUT8(&BrLT,0,0);
+    VL_IN(&rs1,31,0);
+    VL_IN(&rs2,31,0);
 
     // CELLS
     // Public to allow access to /* verilator public */ items.
     // Otherwise the application code can consider these internals.
-    VTop_Top* const Top;
-    VTop___024unit* const __PVT____024unit;
+    Vaddandsub_Top* const Top;
+    Vaddandsub___024unit* const __PVT____024unit;
 
     // Root instance pointer to allow access to model internals,
     // including inlined /* verilator public_flat_* */ items.
-    VTop___024root* const rootp;
+    Vaddandsub___024root* const rootp;
 
     // CONSTRUCTORS
     /// Construct the model; called by application code
     /// If contextp is null, then the model will use the default global context
     /// If name is "", then makes a wrapper with a
     /// single model invisible with respect to DPI scope names.
-    explicit VTop(VerilatedContext* contextp, const char* name = "TOP");
-    explicit VTop(const char* name = "TOP");
+    explicit Vaddandsub(VerilatedContext* contextp, const char* name = "TOP");
+    explicit Vaddandsub(const char* name = "TOP");
     /// Destroy the model; called (often implicitly) by application code
-    virtual ~VTop();
+    virtual ~Vaddandsub();
   private:
-    VL_UNCOPYABLE(VTop);  ///< Copying not allowed
+    VL_UNCOPYABLE(Vaddandsub);  ///< Copying not allowed
 
   public:
     // API METHODS

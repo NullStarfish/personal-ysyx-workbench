@@ -1,5 +1,5 @@
 
-import "DPI-C" function int ebreak();
+import "DPI-C" function void ebreak();
 // Controller.v (Updated for Advanced Branching)
 // Generates control signals, now with full support for all RV32I branch instructions.
 module Controller (

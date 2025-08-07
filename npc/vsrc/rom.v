@@ -1,33 +1,33 @@
 // rom.v
-// Modified to contain a test program.
+// Modified to be writable by a loader module.
 
 module rom (
+    input clk,          // Add clock for synchronous writes
     input [31:0] addr,
-    output [31:0] data //output data
+    output [31:0] data,
+
+    // Write port for loading the program
+    input we,
+    input [31:0] waddr,
+    input [31:0] wdata
 );
-    // ROM with 256 entries of 32 bits each [cite: 41]
-    reg [31:0] rom_data [0:255]; 
+    // The base address where the program is linked to run.
+    localparam BASE_ADDR = 32'h80000000;
+    localparam CAPACITY = 32768; // 128KB
 
-    initial begin
-        // Initialize ROM with the test program.
-        // Default all memory to NOP (addi x0, x0, 0)
-        for (integer i = 0; i < 256; i = i + 1) begin
-            rom_data[i] = 32'h00000013; // NOP
+    reg [31:0] rom_data [0:CAPACITY - 1];
+
+    // Read logic (combinational)
+    wire [31:0] read_index = (addr - BASE_ADDR) >> 2;
+    assign data = (addr >= BASE_ADDR && read_index < CAPACITY) ? rom_data[read_index] : 32'h00000000;
+
+    // Write logic (synchronous)
+    // The memory is written on the positive edge of the clock if 'we' is high.
+    wire [31:0] write_index = (waddr - BASE_ADDR) >> 2;
+    always @(posedge clk) begin
+        if (we && (waddr >= BASE_ADDR) && (write_index < CAPACITY)) begin
+            rom_data[write_index] <= wdata;
         end
-
-        // Test Program
-        // Address | Machine Code | Instruction
-        rom_data[0]  = 32'hAAAAA2B7; // 0x00: lui x5, 0xAAAAA  (x5 = 0xAAAAA000)
-        rom_data[1]  = 32'h55528293; // 0x04: addi x5, x5, 0x555 (x5 = 0xAAAAA555)
-        rom_data[2]  = 32'h06400313; // 0x08: addi x6, x0, 100   (x6 = 100, for memory base address)
-        rom_data[3]  = 32'h00532623; // 0x0C: sw x5, 12(x6)      (mem[100+12] = x5)
-        rom_data[4]  = 32'h00C32383; // 0x10: lw x7, 12(x6)      (x7 = mem[112])
-        rom_data[5]  = 32'h00728863; // 0x14: beq x5, x7, +8     (Branch to 0x1C if x5 == x7)
-        rom_data[6]  = 32'h00100113; // 0x18: addi x2, x0, 1     (This instruction should be SKIPPED)
-        rom_data[7]  = 32'h00200113; // 0x1C: addi x2, x0, 2     (Branch TARGET, x2 should become 2)
-        rom_data[8]  = 32'b00000000000100000000000001110011; // ebreak
     end
 
-    // Read data from ROM based on address (word-aligned) [cite: 45]
-    assign data = rom_data[addr[31:2]]; 
 endmodule
