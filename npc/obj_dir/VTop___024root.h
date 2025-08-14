@@ -9,14 +9,12 @@
 
 class VTop__Syms;
 class VTop_Top;
-class VTop___024unit;
 
 
 class VTop___024root final : public VerilatedModule {
   public:
     // CELLS
     VTop_Top* Top;
-    VTop___024unit* __PVT____024unit;
 
     // DESIGN SPECIFIC STATE
     VL_IN8(clk,0,0);

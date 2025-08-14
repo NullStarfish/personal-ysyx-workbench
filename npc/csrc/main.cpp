@@ -1,21 +1,26 @@
 #include <VTop.h>
 #include "VTop___024root.h" 
 #include "VTop_Top.h"
+#include "VTop_RegFile.h" // 需要包含 RegFile 的头文件
 #include <verilated.h>
 #include "svdpi.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cstdint>
+#include <sdb.h>
 
 // Forward declaration of the DPI-C function from Verilog
 extern "C" void ebreak();
+
+VTop* top_ptr = NULL;
 
 // --- Simulation State ---
 enum {
     RESET = 0,
     RUNNING = 1,
-    HALTED = 2
+    HALTED = 2,
+    ABORTED = 3
 };
 int npc_state = RESET;
 long long cycle_count = 0;
@@ -34,6 +39,7 @@ int main(int argc, char** argv) {
 
     Verilated::commandArgs(argc, argv);
     VTop* top = new VTop;
+    top_ptr = top; // 将 top 的指针存入全局变量
 
     // Phase 1: Load the program into ROM using the loader module
     load_program(top, argv[1]);
@@ -50,12 +56,16 @@ int main(int argc, char** argv) {
     // Phase 3: Main execution loop
     npc_state = RUNNING;
     while (cycle_count < 50 && npc_state == RUNNING && !Verilated::gotFinish()) {
+        
         single_cycle(top, true); // Cycle clock with tracing enabled
     }
 
+    // 根据最终状态决定程序的退出码
+    int exit_code = (npc_state == HALTED) ? 0 : 1;
+
     delete top;
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
-    return 0;
+    return exit_code; // 返回 0 表示成功, 1 表示失败
 }
 
 /**
@@ -107,19 +117,30 @@ void print_debug_info(VTop* top) {
 void single_cycle(VTop* top, bool trace) {
     top->clk = 0;
     top->eval();
-    top->clk = 1;
-    top->eval();
-    
+
+    // 在时钟上升沿之前打印，捕获当前周期的状态
     if (trace) {
         print_debug_info(top);
         cycle_count++;
     }
+
+    top->clk = 1;
+    top->eval();
+}
+extern "C" void ebreak() {
+    // 通过全局指针访问寄存器文件
+    // a0 寄存器是 reg_file[10]
+    uint32_t a0_val = top_ptr->rootp->Top->reg_file_unit->reg_file[10];
+
+    if (a0_val == 0) {
+        printf("\n--- HIT GOOD TRAP ---\n");
+        npc_state = HALTED; // 正常停止
+    } else {
+        printf("\n--- HIT BAD TRAP ---\n");
+        printf("--- Return Code: %d ---\n", a0_val);
+        npc_state = ABORTED; // 异常中止
+    }
 }
 
-/**
- * @brief DPI-C implementation for the 'ebreak' instruction.
- */
-extern "C" void ebreak() {
-    printf("\n--- EBREAK instruction executed. Halting simulation. ---\n");
-    npc_state = HALTED;
-}
+
+

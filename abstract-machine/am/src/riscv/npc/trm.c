@@ -2,6 +2,7 @@
 #include <klib-macros.h>
 
 extern char _heap_start;
+void ebreak();
 int main(const char *args);
 
 extern char _pmem_start;
@@ -15,10 +16,17 @@ void putch(char ch) {
 }
 
 void halt(int code) {
+  //while (1);
+  ebreak();
   while (1);
 }
 
 void _trm_init() {
   int ret = main(mainargs);
   halt(ret);
+}
+
+
+void ebreak() {
+  asm volatile("ebreak");
 }

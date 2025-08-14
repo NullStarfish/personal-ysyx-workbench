@@ -17,7 +17,6 @@ VTop::VTop(VerilatedContext* _vcontextp__, const char* _vcname__)
     , load_addr{vlSymsp->TOP.load_addr}
     , load_data{vlSymsp->TOP.load_data}
     , Top{vlSymsp->TOP.Top}
-    , __PVT____024unit{vlSymsp->TOP.__PVT____024unit}
     , rootp{&(vlSymsp->TOP)}
 {
     // Register model with the context

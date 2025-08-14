@@ -16,7 +16,7 @@ extern "C" {
 
 
     // DPI IMPORTS
-    // DPI import at vsrc/Controller.v:2:30
+    // DPI import at vsrc/Controller.v:27:34
     extern void ebreak();
 
 #ifdef __cplusplus

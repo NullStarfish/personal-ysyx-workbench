@@ -5,22 +5,22 @@
 #include "verilated.h"
 #include "verilated_dpi.h"
 
+#include "VTop_RegFile.h"
 #include "VTop__Syms.h"
-#include "VTop_rom.h"
 
-void VTop_rom___ctor_var_reset(VTop_rom* vlSelf);
+void VTop_RegFile___ctor_var_reset(VTop_RegFile* vlSelf);
 
-VTop_rom::VTop_rom(VTop__Syms* symsp, const char* v__name)
+VTop_RegFile::VTop_RegFile(VTop__Syms* symsp, const char* v__name)
     : VerilatedModule{v__name}
     , vlSymsp{symsp}
  {
     // Reset structure values
-    VTop_rom___ctor_var_reset(this);
+    VTop_RegFile___ctor_var_reset(this);
 }
 
-void VTop_rom::__Vconfigure(bool first) {
+void VTop_RegFile::__Vconfigure(bool first) {
     if (false && first) {}  // Prevent unused
 }
 
-VTop_rom::~VTop_rom() {
+VTop_RegFile::~VTop_RegFile() {
 }

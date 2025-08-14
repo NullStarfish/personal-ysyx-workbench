@@ -3,7 +3,7 @@ module PC (
     input rst, //reset signal
     input PCsel, //use to select the PC source
     input [31:0] ALUin, //input to the PC
-    output reg [31:0] PC, //output PC value
+    output reg [31:0] pc, //output PC value
     output [31:0] PCplus4
 );
      //PC+4 value
@@ -12,10 +12,10 @@ module PC (
     
     always@(posedge clk) begin
         if (rst) //if reset is high, set PC to the program start address
-            PC <= 32'h80000000;
+            pc <= 32'h80000000;
         else //otherwise, update the PC value
-            PC <= PCin; //update the PC value on the positive edge of PCsel
+            pc <= PCin; //update the PC value on the positive edge of PCsel
     end
     
-    assign PCplus4 = PC + 4; //calculate PC+4 value
+    assign PCplus4 = pc + 4; //calculate PC+4 value
 endmodule
