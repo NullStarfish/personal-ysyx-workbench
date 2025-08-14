@@ -1,25 +1,18 @@
 #ifndef __WATCHPOINT_H__
 #define __WATCHPOINT_H__
 
-#include <cstdint>
+#include <stdint.h>
+#include <stdbool.h>
 
-// Initializes the watchpoint pool. Should be called once at startup.
+// 初始化监视点池
 void init_wp_pool();
-
-// Handler for the 'w' command to add a new watchpoint.
-void wp_add(char* args);
-
-// Handler for the 'd' command to remove a watchpoint by its number.
+// 添加监视点
+void wp_add(char *args);
+// 移除监视点
 void wp_remove(int no);
-
-// Handler for the 'info w' command to display all active watchpoints.
+// 显示所有监视点
 void display_wp();
-
-/**
- * @brief Checks all active watchpoints to see if their values have changed.
- * This function should be called after each instruction execution.
- * @return true if a watchpoint was triggered, false otherwise.
- */
+// 检查监视点是否被触发
 bool check_watchpoints();
 
 #endif

@@ -1,46 +1,31 @@
 #ifndef __SDB_H__
 #define __SDB_H__
 
-#include <cstdint>
+#include <stdint.h>
+#include <stdbool.h>
 
-// --- SDB Public Interface ---
-// Initializes all SDB components.
+// SDB 初始化
 void init_sdb();
-// The main loop for the Simple Debugger.
+// SDB 主循环
 void sdb_mainloop();
-
+// 设置批处理模式
 void sdb_set_batch_mode();
 
-// --- CPU Execution Control ---
-// Executes the simulation for n cycles.
-void cpu_exec(uint64_t n);
-
-// --- ISA Access (to be implemented in main.cpp) ---
-// Reads a general-purpose register by its number.
-uint32_t isa_reg_read(int reg_num);
-// Displays the state of all registers.
-void isa_reg_display();
-// Reads a 32-bit word from the simulated physical memory.
-uint32_t paddr_read(uint32_t addr);
-// Converts a register name string (e.g., "pc", "a0") to its value.
-uint32_t isa_reg_str2val(const char *s, bool *success);
-
-// --- Expression Evaluation (from expr.cpp) ---
-// Initializes the regex compiler.
-void init_regex();
-// Evaluates a string expression.
+// 表达式求值接口
+void init_regex(); // 新增：初始化正则表达式
 uint32_t expr(char *e, bool *success);
 
-// --- Watchpoint Management (from watchpoint.cpp) ---
-// Initializes the watchpoint pool.
+// 监视点接口
 void init_wp_pool();
-// Checks if any watchpoint has been triggered.
-bool check_watchpoints();
-// Displays all active watchpoints.
-void display_wp();
-// Removes a watchpoint by its number.
+void wp_add(char *args);
 void wp_remove(int no);
-// Adds a new watchpoint from an expression string.
-void wp_add(char* args);
+void display_wp();
+bool check_watchpoints();
+
+// CPU 执行接口 (在 main.cpp 中定义)
+void cpu_exec(uint64_t n);
+
+// 物理地址读取 (在 main.cpp 中定义)
+uint32_t paddr_read(uint32_t addr);
 
 #endif
