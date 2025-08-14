@@ -1,113 +1,127 @@
-# ==================================================================
-#                       变量定义 (Variables)
-# ==================================================================
+# =============================================================================
+# Project-specific settings
+# =============================================================================
+# Set the shell to bash for robust scripting.
+SHELL := /bin/bash
+# The name of the final executable.
+TARGET := npc
+# The top-level Verilog module for Verilator.
+TOP_MODULE := Top
+# Default image file, can be overridden from the command line.
+# Example: make run IMG=path/to/my.bin
+IMG ?= ./dummy-riscv32e-npc.bin
+# Allows passing extra arguments to the simulation.
+# Example for batch mode: make run ARGS=-b
+ARGS ?=
 
-# --- 项目名称和路径 ---
-# 项目名称，也是最终生成的可执行文件名
-NAME ?= npc
-# !!! 用户需要修改这里 !!!
-# NEMU 项目的根目录，用于复用其源代码
-NEMU_HOME ?= 
-# NPC 项目的根目录 (当前目录)
-NPC_HOME ?= 
-# 编译输出目录
-BUILD_DIR ?= $(NPC_HOME)/build
-# Verilator 生成模型的输出目录
-V_BUILD_DIR = $(BUILD_DIR)/VTop_obj
+# =============================================================================
+# Directories and Source Files
+# =============================================================================
+VSRC_DIR := ./vsrc
+CSRC_DIR := ./csrc
+BUILD_DIR := ./build
+OBJ_DIR := $(BUILD_DIR)/obj_dir
 
-# --- 源代码文件 ---
-# Verilog 源文件目录
-VSRC_DIR = $(NPC_HOME)/vsrc
-# C/C++ 源文件目录
-CSRC_DIR = $(NPC_HOME)/csrc
-# 自动查找所有 Verilog 文件
-VSRCS = $(shell find $(VSRC_DIR) -name "*.v")
-# 自动查找所有 C++ 文件
-CPPSRCS = $(shell find $(CSRC_DIR) -name "*.cpp")
+# VPATH tells 'make' where to find source files.
+# This path includes the root C source directory and the sdb subdirectory.
+VPATH := $(CSRC_DIR):$(CSRC_DIR)/sdb
 
-# --- NEMU 基础设施复用 ---
-# 需要包含的 NEMU 头文件目录
-# --- FIX: Added ISA and Device include paths from NEMU ---
-NEMU_INCLUDES = \
-  -I$(NEMU_HOME)/include \
-  -I$(NEMU_HOME)/src/monitor/sdb \
-  -I$(NEMU_HOME)/src/utils \
-  -I$(NEMU_HOME)/src/isa/riscv32/include \
-  -I$(NEMU_HOME)/src/device/include
+# Find all Verilog and C++ source files automatically.
+VSRC := $(shell find $(VSRC_DIR) -name "*.v")
+CSRC := $(shell find $(CSRC_DIR) -name "*.cpp")
 
-# 需要编译的 NEMU 源文件
-NEMU_SRCS = \
-  $(NEMU_HOME)/src/monitor/sdb/sdb.c \
-  $(NEMU_HOME)/src/monitor/sdb/expr.c \
-  $(NEMU_HOME)/src/monitor/sdb/watchpoint.c \
-  $(NEMU_HOME)/src/utils/log.c \
-  $(NEMU_HOME)/src/utils/timer.c
+# Create a list of all C++ object file names to be placed in the build directory.
+# $(notdir ...) extracts just the filename (e.g., main.cpp from csrc/main.cpp).
+# The result is a list like: build/main.o build/monitor.o build/sdb.o ...
+C_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(notdir $(CSRC)))
 
-# --- 编译和链接标志 ---
-# Verilator 标志
-VERILATOR_FLAGS = --cc --exe --top-module Top -I$(VSRC_DIR) --build -j
-# C 和 C++ 编译器
-CC = gcc
-CXX = g++
-# 编译标志 (包含 NEMU 头文件, Verilator 头文件)
-INC_PATH = -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -I$(V_BUILD_DIR) $(NEMU_INCLUDES) -I/usr/include/SDL2
-# --- FIX: Removed quotes from __GUEST_ISA__ definition ---
-CFLAGS = -O2 -Wall -Werror -g $(INC_PATH) -D__GUEST_ISA__=riscv32 -DNPC_SIM
-CXXFLAGS = $(CFLAGS)
-# 链接标志
-LDFLAGS = -L/usr/lib -lSDL2 -lreadline -ldl
+# Define the path to the static library that Verilator will compile.
+VERILATED_LIB := $(OBJ_DIR)/V$(TOP_MODULE)__ALL.a
 
-# --- 目标文件 ---
-# 将所有 C/C++ 源文件转换为 .o 目标文件
-OBJS = $(CPPSRCS:$(CSRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-OBJS += $(NEMU_SRCS:$(NEMU_HOME)/%.c=$(BUILD_DIR)/nemu/%.o)
+# =============================================================================
+# Toolchain and Flags
+# =============================================================================
+VERILATOR := verilator
+CXX := g++
 
-# ==================================================================
-#                       编译规则 (Rules)
-# ==================================================================
+# Flags for Verilator.
+VERILATOR_FLAGS := \
+	--cc \
+	--top-module $(TOP_MODULE) \
+	+incdir+$(VSRC_DIR) \
+	-Mdir $(OBJ_DIR)
 
-# --- 默认目标 ---
-all: $(BUILD_DIR)/$(NAME)
+# Flags for C++ compilation.
+# -I$(CSRC_DIR) allows includes like #include "sdb/sdb.h" to work correctly.
+# -pthread is required for Verilator's multithreading support.
+CXXFLAGS := \
+    -I$(CSRC_DIR) \
+    -I$(OBJ_DIR) \
+    -I/usr/local/share/verilator/include \
+    -I/usr/local/share/verilator/include/vltstd \
+    -std=c++17 -g -Wall -pthread
 
-# --- Verilator 模型生成 ---
-# 这个目标负责运行 Verilator 并编译其生成的 C++ 模型
-# 它依赖于所有的 Verilog 和 C++ 源文件
-$(V_BUILD_DIR)/VTop: $(VSRCS) $(CPPSRCS)
-	@echo "[Verilator] Generating C++ model..."
-	@mkdir -p $(V_BUILD_DIR)
-	@verilator $(VERILATOR_FLAGS) --Mdir $(V_BUILD_DIR) $(VSRCS) $(CPPSRCS)
+# Flags for the final linking stage.
+# -lreadline enables the readline library for the interactive debugger.
+# -pthread is required for linking Verilator's threading support.
+LDFLAGS := -lreadline -pthread
 
-# --- NEMU 和 NPC 源代码编译 ---
-# 创建目标文件目录的规则
-$(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp | $(V_BUILD_DIR)/VTop
-	@mkdir -p $(dir $@)
-	@echo "[CXX] Compiling $<"
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+# =============================================================================
+# Makefile Rules
+# =============================================================================
+.PHONY: all sim run clean
 
-$(BUILD_DIR)/nemu/%.o: $(NEMU_HOME)/%.c | $(V_BUILD_DIR)/VTop
-	@mkdir -p $(dir $@)
-	@echo "[CC]  Compiling NEMU source $<"
-	@$(CC) $(CFLAGS) -c $< -o $@
+# Default target
+all: $(TARGET)
 
-# --- 链接生成最终可执行文件 ---
-$(BUILD_DIR)/$(NAME): $(OBJS) $(V_BUILD_DIR)/VTop
-	@echo "[LD]  Linking..."
-	@$(CXX) -o $@ $(filter %.o, $^) $(addprefix $(V_BUILD_DIR)/, VTop__ALL.a) $(LDFLAGS)
+# --- Final Executable Linking Rule ---
+# This rule links our C++ object files with the Verilator-generated library
+# and the necessary Verilator runtime source files.
+$(TARGET): $(C_OBJS) $(VERILATED_LIB)
+	@echo "### Linking executable: $(TARGET) ###"
+	$(CXX) $(CXXFLAGS) -o $@ $(C_OBJS) $(VERILATED_LIB) \
+		/usr/local/share/verilator/include/verilated.cpp \
+		/usr/local/share/verilator/include/verilated_dpi.cpp \
+		/usr/local/share/verilator/include/verilated_threads.cpp \
+		$(LDFLAGS)
 
-# ==================================================================
-#                       便捷命令 (Phony Targets)
-# ==================================================================
-.PHONY: all run clean
+# --- C++ Object File Compilation Rule ---
+# This generic rule compiles our C++ source files into object files.
+# It depends on the Verilator library to ensure Verilator-generated headers are
+# available before our code is compiled.
+$(BUILD_DIR)/%.o: %.cpp $(VERILATED_LIB) | $(BUILD_DIR)
+	@echo "### Compiling C++: $< ###"
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-# --- 运行仿真 ---
-# 使用 'make run IMG=/path/to/your/program.bin' 来指定程序
-IMG ?= your_program.bin
-run: $(BUILD_DIR)/$(NAME)
-	@echo "[RUN] Starting NPC simulation..."
-	@$^ $(IMG)
+# --- Verilated Library Generation Rule ---
+# This rule creates the Verilator library. It first runs Verilator to generate
+# the C++ source code from your Verilog files, and then it runs 'make' on the
+# Makefile that Verilator generated to compile the library.
+$(VERILATED_LIB): $(VSRC) | $(BUILD_DIR)
+	@echo "### Running Verilator to generate C++... ###"
+	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC)
+	@echo "### Compiling Verilated library... ###"
+	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
 
-# --- 清理 ---
+# --- Directory Creation Rule ---
+# This ensures the build directory exists before we try to put files in it.
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+
+# --- Simulation Run Rule ---
+# The run rule now uses the ARGS variable to pass command-line options
+# to the simulator executable.
+sim: run
+run: all
+	@echo "### Starting NPC Simulation ###"
+	@if [ -f "$(TARGET)" ]; then \
+		./$(TARGET) $(ARGS) $(IMG); \
+	else \
+		echo "Error: Executable '$(TARGET)' not found. Please run 'make' first."; \
+		exit 1; \
+	fi
+
+# --- Cleanup Rule ---
 clean:
-	@echo "[CLEAN] Removing generated files..."
-	@rm -rf $(BUILD_DIR)
-
+	@echo "### Cleaning up generated files... ###"
+	@rm -rf $(BUILD_DIR) $(TARGET) *.vcd

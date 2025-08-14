@@ -1,5 +1,5 @@
 // Top.v
-// 移除了冗余的解码逻辑
+// FINAL CORRECTED: This module is now clean of any DPI-C details.
 
 module Top (
     input clk,
@@ -14,11 +14,11 @@ module Top (
     wire [31:0] inst   /*verilator public*/;
     wire [4:0]  rd, rs1_raw, rs2;
     wire        RegWEn, DMWen, Asel, Bsel, PCSel, BrUn;
-    wire        ForceRs1ToZero; // 新增的控制信号
+    wire        ForceRs1ToZero;
     wire [1:0]  WBSel;
     wire [2:0]  ImmSel;
     wire [3:0]  ALUSel;
-    wire [4:0]  rs1_addr; // 这个 wire 仍然需要
+    wire [4:0]  rs1_addr;
     wire [31:0] reg_rs1_data, reg_rs2_data, wb_data;
     wire [31:0] imm_out;
     wire [31:0] alu_in_a, alu_in_b, alu_result;
@@ -45,10 +45,9 @@ module Top (
         .inst(inst), .BrEq(alu_br_eq), .BrLT(alu_br_lt),
         .RegWEn(RegWEn), .DMWen(DMWen), .Asel(Asel), .Bsel(Bsel),
         .WBSel(WBSel), .ImmSel(ImmSel), .ALUSel(ALUSel),
-        .BrUn(BrUn), .PCSel(PCSel), .ForceRs1ToZero(ForceRs1ToZero) // 连接新端口
+        .BrUn(BrUn), .PCSel(PCSel), .ForceRs1ToZero(ForceRs1ToZero)
     );
     
-    // 优化后的逻辑：根据来自 Controller 的信号选择 rs1 地址
     assign rs1_addr = ForceRs1ToZero ? 5'b0 : rs1_raw;
 
     RegFile reg_file_unit (.clk(clk), .rst(rst), .DataD(wb_data), .AddrD(rd), .AddrA(rs1_addr), .AddrB(rs2), .DataA(reg_rs1_data), .DataB(reg_rs2_data), .RegWEn(RegWEn), .load_en(load_en));

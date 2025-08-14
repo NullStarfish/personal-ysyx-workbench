@@ -1,146 +1,159 @@
 #include <VTop.h>
 #include "VTop___024root.h" 
 #include "VTop_Top.h"
-#include "VTop_RegFile.h" // 需要包含 RegFile 的头文件
+#include "VTop_RegFile.h"
 #include <verilated.h>
 #include "svdpi.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cstdint>
-#include <sdb.h>
+#include <cassert>
+#include <map>
+#include <string>
+#include "monitor.h"
+#include "sdb/sdb.h"
 
-// Forward declaration of the DPI-C function from Verilog
-extern "C" void ebreak();
-
+// --- Global Pointers & State ---
 VTop* top_ptr = NULL;
-
-// --- Simulation State ---
-enum {
-    RESET = 0,
-    RUNNING = 1,
-    HALTED = 2,
-    ABORTED = 3
-};
-int npc_state = RESET;
+enum { SIM_RESET, SIM_RUNNING, SIM_HALTED, SIM_ABORTED, SIM_STOPPED };
+int npc_state = SIM_RESET;
 long long cycle_count = 0;
 
+// --- DPI-C Interface ---
+extern "C" int pmem_read(int addr);
+extern "C" void ebreak();
+
 // --- Function Prototypes ---
-void single_cycle(VTop* top, bool trace);
-void load_program(VTop* top, const char* filename);
-void print_debug_info(VTop* top);
+void cpu_exec(uint64_t n);
 
 // --- Main Simulation Logic ---
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <path_to_binary_file>" << std::endl;
-        return 1;
-    }
+    // Initialize the entire monitor and simulation environment
+    init_monitor(argc, argv);
 
-    Verilated::commandArgs(argc, argv);
-    VTop* top = new VTop;
-    top_ptr = top; // 将 top 的指针存入全局变量
+    // ================== BUG FIX ==================
+    // After initialization, the simulator should be in the STOPPED state,
+    // ready to receive commands from the SDB.
+    npc_state = SIM_STOPPED;
+    // =============================================
 
-    // Phase 1: Load the program into ROM using the loader module
-    load_program(top, argv[1]);
+    // Enter the Simple Debugger main loop
+    sdb_mainloop();
 
-    // Phase 2: Reset the CPU
-    top->rst = 1;
-    for (int i = 0; i < 5; ++i) {
-        single_cycle(top, false); // Cycle clock during reset, no tracing
-    }
-    top->rst = 0;
-    std::cout << "CPU reset complete. Starting execution." << std::endl;
-    cycle_count = 0;
-
-    // Phase 3: Main execution loop
-    npc_state = RUNNING;
-    while (cycle_count < 50 && npc_state == RUNNING && !Verilated::gotFinish()) {
-        
-        single_cycle(top, true); // Cycle clock with tracing enabled
-    }
-
-    // 根据最终状态决定程序的退出码
-    int exit_code = (npc_state == HALTED) ? 0 : 1;
-
-    delete top;
+    // Cleanup
+    delete top_ptr;
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
-    return exit_code; // 返回 0 表示成功, 1 表示失败
+    int exit_code = (npc_state == SIM_HALTED) ? 0 : 1;
+    return exit_code;
 }
 
-/**
- * @brief Loads a binary program into the ROM cycle by cycle.
- */
-void load_program(VTop* top, const char* filename) {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file) {
-        std::cerr << "Error: Cannot open file '" << filename << "'" << std::endl;
-        exit(1);
-    }
 
-    file.seekg(0, std::ios::end);
-    size_t size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    
-    std::vector<uint32_t> program_data(size / sizeof(uint32_t));
-    file.read(reinterpret_cast<char*>(program_data.data()), size);
-    file.close();
+// =================================================================
+//          CORE SIMULATION & ISA ACCESS FUNCTIONS
+// =================================================================
+// These functions are fundamental utilities for the simulation
+// and are kept in main.cpp for clarity.
 
-    std::cout << "Starting program loading into ROM..." << std::endl;
-    top->rst = 0;
-    top->load_en = 1; // Enable the loader
-
-    for (size_t i = 0; i < program_data.size(); ++i) {
-        top->load_addr = 0x80000000 + (i * 4);
-        top->load_data = program_data[i];
-        single_cycle(top, false); // Pulse clock once to write data
-    }
-
-    top->load_en = 0; // Disable the loader
-    std::cout << "Program loading complete." << std::endl;
-}
-
-/**
- * @brief Prints the current PC and instruction.
- */
-void print_debug_info(VTop* top) {
+void print_trace_info() {
     printf("[Cycle %03lld] PC=0x%08x, INST=0x%08x\n",
-           cycle_count,
-           top->rootp->Top->pc_out,
-           top->rootp->Top->inst
-    );
+           cycle_count, top_ptr->rootp->Top->pc_out, top_ptr->rootp->Top->inst);
 }
 
-/**
- * @brief Simulates a single clock cycle (posedge and negedge).
- */
-void single_cycle(VTop* top, bool trace) {
-    top->clk = 0;
-    top->eval();
+void single_cycle(bool trace) {
+    top_ptr->clk = 0; top_ptr->eval();
+    if (trace && npc_state == SIM_RUNNING) print_trace_info();
+    top_ptr->clk = 1; top_ptr->eval();
+    if (trace && npc_state == SIM_RUNNING) cycle_count++;
+}
 
-    // 在时钟上升沿之前打印，捕获当前周期的状态
-    if (trace) {
-        print_debug_info(top);
-        cycle_count++;
+void cpu_exec(uint64_t n) {
+    if (npc_state != SIM_STOPPED && npc_state != SIM_RUNNING) {
+        if (npc_state == SIM_HALTED || npc_state == SIM_ABORTED) {
+             printf("Program has finished. To restart, exit and run again.\n");
+        } else {
+            printf("Cannot execute. CPU is in state %d\n", npc_state);
+        }
+        return;
+    }
+    npc_state = SIM_RUNNING;
+
+    uint64_t i = 0;
+    while ((n == (uint64_t)-1 || i < n) && npc_state == SIM_RUNNING) {
+        single_cycle(true);
+        if (check_watchpoints()) {
+            npc_state = SIM_STOPPED;
+        }
+        i++;
     }
 
-    top->clk = 1;
-    top->eval();
+    if (npc_state == SIM_RUNNING) {
+        npc_state = SIM_STOPPED;
+    }
 }
-extern "C" void ebreak() {
-    // 通过全局指针访问寄存器文件
-    // a0 寄存器是 reg_file[10]
-    uint32_t a0_val = top_ptr->rootp->Top->reg_file_unit->reg_file[10];
 
+void set_dpi_scope() {
+    const svScope scope = svGetScopeFromName("TOP.Top.imem_unit.rom0");
+    assert(scope);
+    svSetScope(scope);
+}
+
+void ebreak() {
+    uint32_t a0_val = isa_reg_read(10);
     if (a0_val == 0) {
         printf("\n--- HIT GOOD TRAP ---\n");
-        npc_state = HALTED; // 正常停止
+        npc_state = SIM_HALTED;
     } else {
         printf("\n--- HIT BAD TRAP ---\n");
         printf("--- Return Code: %d ---\n", a0_val);
-        npc_state = ABORTED; // 异常中止
+        npc_state = SIM_ABORTED;
     }
 }
 
+uint32_t isa_reg_read(int reg_num) {
+    if (reg_num >= 0 && reg_num < 32) {
+        return top_ptr->rootp->Top->reg_file_unit->reg_file[reg_num];
+    }
+    return 0;
+}
 
+void isa_reg_display() {
+    const char* abi_names[32] = {
+      "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+      "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+      "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+      "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+    };
+    for (int i = 0; i < 32; i++) {
+        printf("  $%-4s (x%-2d) = 0x%08x\n", abi_names[i], i, isa_reg_read(i));
+    }
+    printf("  $pc       = 0x%08x\n", top_ptr->rootp->Top->pc_out);
+}
 
+uint32_t isa_reg_str2val(const char *s, bool *success) {
+    static const std::map<std::string, int> reg_map = {
+        {"pc", -1}, {"zero", 0}, {"ra", 1}, {"sp", 2}, {"gp", 3}, {"tp", 4},
+        {"t0", 5}, {"t1", 6}, {"t2", 7}, {"s0", 8}, {"s1", 9}, {"a0", 10},
+        {"a1", 11}, {"a2", 12}, {"a3", 13}, {"a4", 14}, {"a5", 15}, {"a6", 16},
+        {"a7", 17}, {"s2", 18}, {"s3", 19}, {"s4", 20}, {"s5", 21}, {"s6", 22},
+        {"s7", 23}, {"s8", 24}, {"s9", 25}, {"s10", 26}, {"s11", 27},
+        {"t3", 28}, {"t4", 29}, {"t5", 30}, {"t6", 31}
+    };
+    *success = true;
+    std::string str(s);
+    if (reg_map.count(str)) {
+        int reg_num = reg_map.at(str);
+        return (reg_num == -1) ? top_ptr->rootp->Top->pc_out : isa_reg_read(reg_num);
+    }
+    if (str[0] == 'x' && str.length() > 1) {
+        try {
+            int reg_num = std::stoi(str.substr(1));
+            if (reg_num >= 0 && reg_num < 32) return isa_reg_read(reg_num);
+        } catch (...) { }
+    }
+    *success = false;
+    return 0;
+}
+
+uint32_t paddr_read(uint32_t addr) {
+    if (addr >= 0x80000000) {
+        return pmem_read(addr);
+    }
+    return 0;
+}

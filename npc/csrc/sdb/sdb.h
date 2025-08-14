@@ -9,6 +9,8 @@ void init_sdb();
 // The main loop for the Simple Debugger.
 void sdb_mainloop();
 
+void sdb_set_batch_mode();
+
 // --- CPU Execution Control ---
 // Executes the simulation for n cycles.
 void cpu_exec(uint64_t n);

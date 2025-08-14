@@ -5,6 +5,9 @@
 #include <readline/history.h>
 #include "sdb.h"
 
+// --- Static variable for batch mode ---
+static bool is_batch_mode = false;
+
 // Forward declaration from main.cpp
 extern int npc_state; 
 enum { RUNNING = 1, STOPPED = 4 };
@@ -119,8 +122,19 @@ static int cmd_help(char *args) {
     return 0;
 }
 
+// --- Public function to enable batch mode ---
+void sdb_set_batch_mode() {
+    is_batch_mode = true;
+}
+
 // --- SDB Main Loop ---
 void sdb_mainloop() {
+    if (is_batch_mode) {
+        printf("Batch mode enabled. Running program to completion.\n");
+        cmd_c(NULL); // Execute the 'continue' command automatically
+        return;
+    }
+
     for (char *str; (str = readline("(npc) ")) != NULL; ) {
         char *str_end = str + strlen(str);
         char *cmd = strtok(str, " ");
