@@ -4,12 +4,15 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
-#include "../reg.h" // 依赖 reg.h 获取寄存器函数
+#include "../cpu-exec.h"
+#include "../reg.h"
+#include "../state.h"
 
-// --- Command handlers and other functions remain the same ---
 static bool is_batch_mode = false;
+
+// --- Command handlers (no changes needed in these functions) ---
 static int cmd_c(char *args) { cpu_exec(-1); return 0; }
-static int cmd_q(char *args) { return -1; }
+static int cmd_q(char *args) { npc_state.state = NPC_QUIT; return -1; }
 static int cmd_help(char *args);
 static int cmd_si(char *args) {
     char *endptr;
@@ -74,18 +77,26 @@ static int cmd_help(char *args) {
     return 0;
 }
 void sdb_set_batch_mode() { is_batch_mode = true; }
+
 void sdb_mainloop() {
     if (is_batch_mode) { cmd_c(NULL); return; }
     for (char *str; (str = readline("(npc) ")) != NULL; ) {
-        char *str_end = str + strlen(str);
         char *cmd = strtok(str, " ");
         if (cmd == NULL) { continue; }
-        char *args = cmd + strlen(cmd) + 1;
-        if (args >= str_end) { args = NULL; }
+
+        // BUG FIX: 使用 strtok(NULL, "") 来安全地获取命令后的所有内容作为参数
+        char *args = strtok(NULL, "");
+
         size_t i;
-        for (i = 0; i < NR_CMD; i++) { if (strcmp(cmd, cmd_table[i].name) == 0) { if (cmd_table[i].handler(args) < 0) { free(str); return; } break; } }
+        for (i = 0; i < NR_CMD; i++) {
+            if (strcmp(cmd, cmd_table[i].name) == 0) {
+                if (cmd_table[i].handler(args) < 0) { free(str); return; }
+                break;
+            }
+        }
         if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
         free(str);
     }
 }
+
 void init_sdb() { init_regex(); init_wp_pool(); printf("SDB initialized. Ready for debugging.\n"); }

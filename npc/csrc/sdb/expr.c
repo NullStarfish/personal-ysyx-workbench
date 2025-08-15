@@ -5,9 +5,9 @@
 #include <string.h>
 #include <regex.h>
 #include "sdb.h"
-#include "../reg.h" // 依赖 reg.h 获取寄存器函数
+#include "../reg.h"
 
-// --- The rest of the file remains the same ---
+// --- The rest of the file remains the same, except for one line in eval() ---
 enum { TK_NOTYPE = 256, TK_EQ, TK_NEQ, TK_AND, TK_OR, TK_NUMBER, TK_HEX, TK_REG, TK_DEREF, TK_NEG };
 static struct rule { const char *regex; int token_type; } rules[] = {
   {" +", TK_NOTYPE}, {"==", TK_EQ}, {"!=", TK_NEQ}, {"&&", TK_AND}, {"\\|\\|", TK_OR},
@@ -93,7 +93,8 @@ static uint32_t eval(int p, int q, bool* badexpr) {
     else if (p == q) {
         bool success; uint32_t val;
         if (tokens[p].type == TK_NUMBER) return strtoul(tokens[p].str, NULL, 10);
-        if (tokens[p].type == TK_HEX) return strtoul(tokens[p].str + 2, NULL, 16);
+        // BUG FIX: 让 strtoul 自动处理 "0x" 前缀，更安全
+        if (tokens[p].type == TK_HEX) return strtoul(tokens[p].str, NULL, 16);
         if (tokens[p].type == TK_REG) { val = isa_reg_str2val(tokens[p].str + 1, &success); if (!success) *badexpr = true; return val; }
         *badexpr = true; return 0;
     } else if (check_parentheses(p, q, badexpr)) { return eval(p + 1, q - 1, badexpr);
@@ -115,6 +116,7 @@ static uint32_t eval(int p, int q, bool* badexpr) {
     }
 }
 uint32_t expr(char *e, bool *success) {
+    if (e == NULL) { *success = false; return 0; }
     if (!make_token(e)) { *success = false; return 0; }
     pre_token_process(); bool badexpr = false;
     uint32_t result = eval(0, nr_token - 1, &badexpr);

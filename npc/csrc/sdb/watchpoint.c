@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // 新增：包含 string.h 以声明 strdup
+#include <string.h>
 #include "watchpoint.h"
 #include "sdb.h"
 
 #define NR_WP 32
+// 定义监视点表达式的最大长度
+#define EXPR_MAX_CAPACITY 64
 
 typedef struct watchpoint {
   int NO;
@@ -35,6 +37,13 @@ static WP* new_wp_internal(char *e) {
     printf("No free watchpoint available.\n");
     return NULL;
   }
+
+  // 检查表达式长度是否超出最大容量
+  if (strlen(e) >= EXPR_MAX_CAPACITY) {
+      printf("Error: Watchpoint expression is too long (max %d characters).\n", EXPR_MAX_CAPACITY - 1);
+      return NULL;
+  }
+
   WP* wp = free_;
   free_ = free_->next;
 
@@ -47,7 +56,20 @@ static WP* new_wp_internal(char *e) {
     return NULL;
   }
 
-  wp->expr = strdup(e);
+  // 为表达式字符串分配固定大小的内存
+  wp->expr = (char *)malloc(EXPR_MAX_CAPACITY);
+  if (wp->expr == NULL) {
+      printf("Error: Failed to allocate memory for watchpoint expression.\n");
+      wp->next = free_;
+      free_ = wp;
+      return NULL;
+  }
+
+  // 使用 strncpy 安全地复制字符串
+  strncpy(wp->expr, e, EXPR_MAX_CAPACITY - 1);
+  // 确保字符串始终以空字符结尾，防止溢出
+  wp->expr[EXPR_MAX_CAPACITY - 1] = '\0';
+
   wp->old_val = initial_val;
   wp->NO = next_wp_no++;
   wp->next = head;
@@ -63,8 +85,10 @@ static void free_wp_internal(WP *wp) {
   else { head = wp->next; }
   if (wp->next) { wp->next->last = wp->last; }
 
+  // 释放由 malloc 分配的内存
   free(wp->expr);
   wp->expr = NULL;
+
   wp->next = free_;
   wp->last = NULL;
   free_ = wp;

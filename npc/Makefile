@@ -44,7 +44,8 @@ COMMON_FLAGS := \
     -g -Wall -pthread
 
 CXXFLAGS := $(COMMON_FLAGS) -std=c++17
-CFLAGS := $(COMMON_FLAGS) -std=c11
+# BUG FIX: 添加 -D_POSIX_C_SOURCE=200809L 来启用 strdup 等 POSIX 函数
+CFLAGS := $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 
 LDFLAGS := -lreadline -pthread
 
