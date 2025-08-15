@@ -25,7 +25,6 @@ module Controller (
     wire       funct7_5 = inst[30];
     
     import "DPI-C" function void ebreak();
-
     // LOGIC BLOCK 1: Datapath Control Signals
     always @(*) begin
         // --- 默认值 ---
@@ -55,6 +54,7 @@ module Controller (
             end
             `OPCODE_JAL: begin
                 RegWEn = 1'b1; Asel = 1'b1; Bsel = 1'b1; WBSel = `WB_PC4; ImmSel = `IMM_J;
+
             end
             `OPCODE_JALR: begin
                 RegWEn = 1'b1; Bsel = 1'b1; WBSel = `WB_PC4; ImmSel = `IMM_I;

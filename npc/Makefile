@@ -7,7 +7,7 @@ export NPC_HOME ?= $(shell pwd)
 TARGET := npc
 TOP_MODULE := Top
 IMG ?= ./dummy-riscv32e-npc.bin
-ARGS ?= -l log.txt
+ARGS ?= -l log.txt --ftrace=dummy-riscv32e-npc.elf
 
 CONFIG_ITRACE ?= y
 
@@ -101,6 +101,7 @@ $(BUILD_DIR):
 sim: run
 run: all
 	@echo "### Starting NPC Simulation ###"
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	./$(TARGET) $(ARGS) $(IMG)
 
 CLEAN_HOOKS ?=

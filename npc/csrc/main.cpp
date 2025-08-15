@@ -15,6 +15,7 @@ extern "C" {
     #include "sdb/sdb.h"
     #include "trace/itrace.h"
     #include "reg.h"
+    #include "ftrace.h"
 }
 
 VTop* top_ptr = NULL;
@@ -32,6 +33,7 @@ extern "C" {
 void assert_fail_msg() {
     isa_reg_display();
     print_iring_buffer();
+    print_ftrace_stack();
 }
 
 void exec_one_cycle_cpp() {
