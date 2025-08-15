@@ -1,25 +1,32 @@
 # =============================================================================
-# Project-specific settings
+# Project Configuration
 # =============================================================================
 SHELL := /bin/bash
+export NPC_HOME ?= $(shell pwd)
+
 TARGET := npc
 TOP_MODULE := Top
 IMG ?= ./dummy-riscv32e-npc.bin
-ARGS ?=
+ARGS ?= -l log.txt
+
+CONFIG_ITRACE ?= y
 
 # =============================================================================
 # Directories and Source Files
 # =============================================================================
-VSRC_DIR := ./vsrc
-CSRC_DIR := ./csrc
-BUILD_DIR := ./build
+VSRC_DIR := $(NPC_HOME)/vsrc
+CSRC_DIR := $(NPC_HOME)/csrc
+BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir
-
-VPATH := $(shell find $(CSRC_DIR) -type d | tr '\n' ':')
+TOOLS_DIR := $(NPC_HOME)/csrc/tools
 
 VSRC := $(shell find $(VSRC_DIR) -name "*.v")
-C_SRCS := $(shell find $(CSRC_DIR) -name "*.c")
 CXX_SRCS := $(shell find $(CSRC_DIR) -name "*.cpp")
+C_SRCS := $(shell find $(CSRC_DIR) -name "*.c")
+
+ifeq ($(CONFIG_ITRACE),)
+C_SRCS := $(filter-out %/disasm.c %/itrace.c, $(C_SRCS))
+endif
 
 C_OBJS   := $(patsubst $(CSRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(C_SRCS))
 CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(CXX_SRCS))
@@ -34,20 +41,28 @@ VERILATOR := verilator
 CC := gcc
 CXX := g++
 
+# --- Automatic Include Paths ---
+# Find all subdirectories in csrc and add them to the include path.
+# This allows for includes like #include "log.h" instead of #include "log/log.h".
+C_INCLUDE_PATHS := $(patsubst %,-I%,$(shell find $(CSRC_DIR) -type d))
+
 VERILATOR_FLAGS := --cc --top-module $(TOP_MODULE) +incdir+$(VSRC_DIR) -Mdir $(OBJ_DIR)
 
 COMMON_FLAGS := \
-    -I$(CSRC_DIR) \
+    $(C_INCLUDE_PATHS) \
     -I$(OBJ_DIR) \
     -I/usr/local/share/verilator/include \
     -I/usr/local/share/verilator/include/vltstd \
     -g -Wall -pthread
 
 CXXFLAGS := $(COMMON_FLAGS) -std=c++17
-# BUG FIX: 添加 -D_POSIX_C_SOURCE=200809L 来启用 strdup 等 POSIX 函数
 CFLAGS := $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 
-LDFLAGS := -lreadline -pthread
+LDFLAGS := -lreadline -pthread -ldl
+
+ifeq ($(CONFIG_ITRACE),y)
+include $(TOOLS_DIR)/disasm.mk
+endif
 
 # =============================================================================
 # Makefile Rules
@@ -64,18 +79,18 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB)
 		/usr/local/share/verilator/include/verilated_threads.cpp \
 		$(LDFLAGS)
 
-$(BUILD_DIR)/%.o: %.c $(VERILATED_LIB) | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(CSRC_DIR)/%.c $(VERILATED_LIB) | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C: $< ###"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/%.o: %.cpp $(VERILATED_LIB) | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp $(VERILATED_LIB) | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C++: $< ###"
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(VERILATED_LIB): $(VSRC) | $(BUILD_DIR)
-	@echo "### Running Verilator to generate C++... ###"
+	@echo "### Running Verilator... ###"
 	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC)
 	@echo "### Compiling Verilated library... ###"
 	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
@@ -86,13 +101,9 @@ $(BUILD_DIR):
 sim: run
 run: all
 	@echo "### Starting NPC Simulation ###"
-	@if [ -f "$(TARGET)" ]; then \
-		./$(TARGET) $(ARGS) $(IMG); \
-	else \
-		echo "Error: Executable '$(TARGET)' not found. Please run 'make' first."; \
-		exit 1; \
-	fi
+	./$(TARGET) $(ARGS) $(IMG)
 
-clean:
-	@echo "### Cleaning up generated files... ###"
+CLEAN_HOOKS ?=
+clean: $(CLEAN_HOOKS)
+	@echo "### Cleaning up project... ###"
 	@rm -rf $(BUILD_DIR) $(TARGET) *.vcd
