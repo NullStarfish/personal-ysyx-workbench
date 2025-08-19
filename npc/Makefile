@@ -52,11 +52,11 @@ ifeq ($(CONFIG_FTRACE),y)
 endif
 
 ifeq ($(CONFIG_ITRACE),y)
-  ifneq ($(CONFIG_DIFFTEST),y)
+  #ifneq ($(CONFIG_DIFFTEST),y)
     include $(TOOLS_DIR)/disasm.mk
-  else
-    C_SRCS := $(filter-out %/tools/disasm.c, $(C_SRCS))
-  endif
+  #else
+    #//C_SRCS := $(filter-out %/tools/disasm.c, $(C_SRCS))
+  #endif
 endif
 
 # Map sources to objects AFTER conditional filtering
@@ -117,7 +117,7 @@ run-diff:
 gdb-diff:
 	$(MAKE) $(TARGET) CONFIG_DIFFTEST=y
 	@echo "### Starting NPC Simulation with GDB (WITH difftest) ###"
-	gdb --args ./$(TARGET) --diff=build/riscv32-nemu-interpreter-so $(IMG)
+	gdb --args ./$(TARGET) --diff=build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)

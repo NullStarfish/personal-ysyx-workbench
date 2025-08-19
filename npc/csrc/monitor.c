@@ -70,10 +70,10 @@ void init_monitor(int argc, char *argv[]) {
     init_ftrace(elf_file);
     init_verilator(argc, argv);
 
-    #ifndef DIFFTEST_ON
+    //#ifndef DIFFTEST_ON
       printf("Disassembler for NPC log: ON\n");
       init_disasm();
-    #endif
+    //#endif
 
     set_dpi_scope();
     
