@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <limits.h> // For PATH_MAX
 #include "dut.h"
 #include "state.h"
 #include "reg.h"
 
 // --- From C++ bridge ---
 void get_dut_regstate_cpp(riscv32_CPU_state *dut);
-// Add the new function prototype
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n);
 
 // --- Reference Simulator API ---
@@ -23,10 +23,28 @@ static bool is_skip_ref = false;
 void init_difftest(char *ref_so_file, long img_size) {
   if (!ref_so_file) return;
 
-  void *handle = dlopen(ref_so_file, RTLD_LAZY);
+  // ============================ Robust Path Construction ============================
+  char *nemu_home = getenv("NEMU_HOME");
+  if (nemu_home == NULL) {
+      printf("\n[NPC ERROR] NEMU_HOME environment variable is not set.\n");
+      exit(1);
+  }
+
+  char so_full_path[PATH_MAX];
+  // This logic now correctly handles both absolute paths (just in case)
+  // and the relative paths we now pass from the Makefile and launch.json.
+  if (ref_so_file[0] == '/') {
+      snprintf(so_full_path, sizeof(so_full_path), "%s", ref_so_file);
+  } else {
+      snprintf(so_full_path, sizeof(so_full_path), "%s/%s", nemu_home, ref_so_file);
+  }
+  // =================================================================================
+
+  printf("Attempting to open reference simulator: %s\n", so_full_path);
+  void *handle = dlopen(so_full_path, RTLD_LAZY);
   if (!handle) {
-    printf("Error: Cannot open reference simulator '%s'\n", ref_so_file);
-    printf("dlerror: %s\n", dlerror());
+    printf("\n[NPC ERROR] Cannot open reference simulator '%s'\n", so_full_path);
+    printf("dlerror: %s\n\n", dlerror());
     exit(1);
   }
 
@@ -45,8 +63,6 @@ void init_difftest(char *ref_so_file, long img_size) {
 
   ref_difftest_init(0);
 
-  // FIX: Read the actual program data from our simulated ROM
-  // and copy only that to the reference.
   uint8_t *guest_mem = (uint8_t*)malloc(img_size);
   pmem_read_chunk(0x80000000, guest_mem, img_size);
   ref_difftest_memcpy(0x80000000, guest_mem, img_size, DIFFTEST_TO_REF);

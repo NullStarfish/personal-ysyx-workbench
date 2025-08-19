@@ -52,7 +52,10 @@ module Top (
 
     RegFile reg_file_unit (.clk(clk), .rst(rst), .DataD(wb_data), .AddrD(rd), .AddrA(rs1_addr), .AddrB(rs2), .DataA(reg_rs1_data), .DataB(reg_rs2_data), .RegWEn(RegWEn), .load_en(load_en));
 
-    ImmGen imm_gen_unit (.inst_in(inst[31:7]), .ImmSel(ImmSel), .imm_out(imm_out));
+   // 在 Top.v 中
+// 错误的方式: .inst_in(inst[31:7])
+// 正确的方式:
+    ImmGen imm_gen_unit (.inst_in(inst), .ImmSel(ImmSel), .imm_out(imm_out));
 
     ALUDataIn alu_data_in_unit (.RegRs1(reg_rs1_data), .RegRs2(reg_rs2_data), .Imm(imm_out), .PC(pc_out), .Asel(Asel), .Bsel(Bsel), .A(alu_in_a), .B(alu_in_b));
 

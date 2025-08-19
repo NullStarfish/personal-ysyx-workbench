@@ -4,7 +4,7 @@
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
 * You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
+* http://license.coscl.org.cn/MulanPSL2
 *
 * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
@@ -16,6 +16,7 @@
 #include <dlfcn.h>
 #include <capstone/capstone.h>
 #include <common.h>
+#include <limits.h> // For PATH_MAX
 
 static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
     size_t code_size, uint64_t address, size_t count, cs_insn **insn);
@@ -24,9 +25,19 @@ static void (*cs_free_dl)(cs_insn *insn, size_t count);
 static csh handle;
 
 void init_disasm() {
-  void *dl_handle;
-  dl_handle = dlopen("tools/capstone/repo/libcapstone.so.5", RTLD_LAZY);
-  assert(dl_handle);
+  // ======================= CRITICAL FIX =======================
+  // Construct an absolute path to the capstone library to ensure
+  // it can be found even when NEMU is loaded as a shared library
+  // by another process (like NPC).
+  char *nemu_home = getenv("NEMU_HOME");
+  Assert(nemu_home, "NEMU_HOME environment variable is not set");
+
+  char lib_path[PATH_MAX];
+  snprintf(lib_path, sizeof(lib_path), "%s/tools/capstone/repo/libcapstone.so.5", nemu_home);
+
+  void *dl_handle = dlopen(lib_path, RTLD_LAZY);
+  Assert(dl_handle, "Failed to open capstone library at %s. Did you run 'make' in nemu/tools/capstone?", lib_path);
+  // ============================================================
 
   cs_err (*cs_open_dl)(cs_arch arch, cs_mode mode, csh *handle) = NULL;
   cs_open_dl = dlsym(dl_handle, "cs_open");
@@ -46,7 +57,7 @@ void init_disasm() {
                    MUXDEF(CONFIG_ISA_mips32, CS_MODE_MIPS32,
                    MUXDEF(CONFIG_ISA_riscv,  MUXDEF(CONFIG_ISA64, CS_MODE_RISCV64, CS_MODE_RISCV32) | CS_MODE_RISCVC,
                    MUXDEF(CONFIG_ISA_loongarch32r,  CS_MODE_LOONGARCH32, -1))));
-	int ret = cs_open_dl(arch, mode, &handle);
+  int ret = cs_open_dl(arch, mode, &handle);
   assert(ret == CS_ERR_OK);
 
 #ifdef CONFIG_ISA_x86
@@ -60,12 +71,17 @@ void init_disasm() {
 }
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
-	cs_insn *insn;
-	size_t count = cs_disasm_dl(handle, code, nbyte, pc, 0, &insn);
-  assert(count == 1);
-  int ret = snprintf(str, size, "%s", insn->mnemonic);
-  if (insn->op_str[0] != '\0') {
-    snprintf(str + ret, size - ret, "\t%s", insn->op_str);
+  cs_insn *insn;
+  size_t count = cs_disasm_dl(handle, code, nbyte, pc, 0, &insn);
+  // It's possible for disassembly to fail on invalid instructions.
+  // Instead of asserting, handle it gracefully.
+  if (count > 0) {
+    int ret = snprintf(str, size, "%s", insn->mnemonic);
+    if (insn->op_str[0] != '\0') {
+      snprintf(str + ret, size - ret, "\t%s", insn->op_str);
+    }
+    cs_free_dl(insn, count);
+  } else {
+    snprintf(str, size, "invalid instruction");
   }
-  cs_free_dl(insn, count);
 }

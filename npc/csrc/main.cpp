@@ -43,18 +43,32 @@ void exec_one_cycle_cpp() {
     cycle_count++;
 }
 
-// Other C-exported functions remain the same...
+// ======================= New Synchronization Function =======================
+// This function is called after the ROM loading loop to ensure all writes
+// have completed in the Verilog simulation before we proceed.
+void sync_after_load() {
+    // Ensure the loading signal is de-asserted.
+    top_ptr->load_en = 0;
+    // Run one final, clean clock cycle to let this signal take effect
+    // and to complete the final scheduled write.
+    exec_one_cycle_cpp();
+    // One more eval to stabilize all combinational logic.
+    top_ptr->eval();
+}
+// ==========================================================================
+
 long long get_cycle_count() { return cycle_count; }
 void init_verilator(int argc, char *argv[]) { Verilated::commandArgs(argc, argv); top_ptr = new VTop; }
 void set_dpi_scope() { const svScope scope = svGetScopeFromName("TOP.Top.imem_unit.rom0"); assert(scope); svSetScope(scope); }
-void reset_cpu(int n) { top_ptr->rst = 1; for (int i = 0; i < n; ++i) { top_ptr->clk=0; top_ptr->eval(); top_ptr->clk=1; top_ptr->eval(); } top_ptr->rst = 0; }
+void reset_cpu(int n) { top_ptr->rst = 1; for (int i = 0; i < n; ++i) { exec_one_cycle_cpp(); } top_ptr->rst = 0; top_ptr->eval(); }
 void load_data_to_rom(const uint8_t* data, size_t size) {
     top_ptr->load_en = 1;
     for (size_t i = 0; i < size / 4; ++i) {
         top_ptr->load_addr = 0x80000000 + (i * 4);
         top_ptr->load_data = ((uint32_t*)data)[i];
-        top_ptr->clk=0; top_ptr->eval(); top_ptr->clk=1; top_ptr->eval();
+        exec_one_cycle_cpp();
     }
+    // De-assert load_en after the loop. The sync function will handle the rest.
     top_ptr->load_en = 0;
 }
 uint32_t paddr_read(uint32_t addr) { if (addr >= 0x80000000) { return pmem_read(addr); } return 0; }
@@ -76,50 +90,30 @@ uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
     *success = false; return 0;
 }
 
-
 void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
+    // This is the critical fix for reading the correct state during difftest.
+    top_ptr->eval();
     if (!dut) return;
     for (int i = 0; i < 32; i++) {
         dut->gpr[i] = top_ptr->rootp->Top->reg_file_unit->reg_file[i];
     }
     dut->pc = top_ptr->rootp->Top->pc_out;
 }
-// In npc/csrc/main.cpp
-
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
     if (!buf) return;
-
-    // Ensure the address is word-aligned for simplicity
-    // This logic is now essential for correctness.
     if (addr % 4 != 0 || n % 4 != 0) {
-        // This case should ideally not be hit for program loading.
-        // If it is, it indicates another issue.
-        printf("Warning: Unaligned memory read in pmem_read_chunk.\n");
         for (size_t i = 0; i < n; i++) {
-            // A simple, slow fallback (though still potentially flawed depending on Verilog)
             uint32_t word = pmem_read(addr + i);
             buf[i] = word & 0xFF;
         }
         return;
     }
-
-    // Optimized and CORRECT path for word-aligned access
     for (size_t i = 0; i < n; i += 4) {
-        // Read a full 32-bit word from the Verilog model at a word-aligned address
         uint32_t word = pmem_read(addr + i);
-
-        // Copy the 4 bytes of the word into the buffer.
-        // memcpy handles the little-endian conversion correctly.
         memcpy(buf + i, &word, 4);
     }
 }
-
-void pmem_write_chunk(uint32_t addr, const uint8_t *buf, size_t n) {
-    // This function would be needed if the reference could write back to DUT memory.
-    // Not implemented for now as it's not required by the current difftest model.
 }
-
-} // end of extern "C"
 
 int main(int argc, char** argv) {
     init_monitor(argc, argv);

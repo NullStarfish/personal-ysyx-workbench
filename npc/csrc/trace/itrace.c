@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "itrace.h"
-#include "disasm.h" // FIX: 路径已由 Makefile 管理
-#include "itrace.h"
-#include "log.h"    // FIX: 路径已由 Makefile 管理
+#include "log.h"
+
+// ======================= CRITICAL FIX =======================
+// Only include disasm.h if difftest is NOT on. This is the key to
+// preventing compilation and linking issues in difftest mode.
+#ifndef DIFFTEST_ON
+  #include "tools/disasm.h"
+#endif
+// ============================================================
 
 #define IRING_CAPACITY 16
 #define LOGBUF_SIZE 128
@@ -21,19 +27,29 @@ void log_and_trace(uint32_t pc, uint32_t inst) {
   char *p = logbuf;
   char *end = p + sizeof(logbuf);
 
+  // Step 1: Always log the PC and the hexadecimal instruction code.
   p += snprintf(p, end - p, "0x%08x: %02x %02x %02x %02x", pc,
     (uint8_t)(inst & 0xff), (uint8_t)((inst >> 8) & 0xff),
     (uint8_t)((inst >> 16) & 0xff), (uint8_t)((inst >> 24) & 0xff));
 
-  int space_len = 28 - (p - logbuf);
-  if (space_len < 0) space_len = 0;
-  memset(p, ' ', space_len);
-  p += space_len;
+  // ======================= CRITICAL FIX =======================
+  // Step 2: Only perform disassembly if difftest is OFF.
+  // In difftest mode, NEMU is responsible for disassembly logging.
+  // NPC should NOT attempt to call any disassembly function.
+  #ifndef DIFFTEST_ON
+    int space_len = 28 - (p - logbuf);
+    if (space_len < 0) space_len = 0;
+    memset(p, ' ', space_len);
+    p += space_len;
+    // This function will only be linked when DIFFTEST_ON is not defined.
+    disassemble(p, end - p, pc, (uint8_t *)&inst, 4);
+  #endif
+  // ============================================================
 
-  disassemble(p, end - p, pc, (uint8_t *)&inst, 4);
-
+  // Step 3: Write the final formatted string to the log file.
   log_write("%s\n", logbuf);
 
+  // Step 4: Update the instruction ring buffer for debugging purposes.
   strncpy(iring_buffer.inst_log[iring_buffer.wrIdx], logbuf, LOGBUF_SIZE - 1);
   iring_buffer.inst_log[iring_buffer.wrIdx][LOGBUF_SIZE - 1] = '\0';
 

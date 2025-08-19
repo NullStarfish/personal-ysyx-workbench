@@ -11,11 +11,15 @@ uint32_t get_pc_cpp();
 uint32_t get_inst_cpp();
 void exec_one_cycle_cpp();
 
+// This function is now defined in NEMU's difftest framework
+void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
+
 static void trace_and_difftest(uint32_t pc, uint32_t inst) {
+  // The log_and_trace function now handles disassembly correctly
+  // in both modes, so we can call it unconditionally.
   log_and_trace(pc, inst);
   trace_func_call(pc, inst);
   
-  // FIX: Only perform difftest step if it is enabled.
   if (difftest_is_enabled) {
     difftest_step();
   }

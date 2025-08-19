@@ -66,7 +66,10 @@ static void format_trace(char *buf, size_t bufsize, vaddr_t pc, vaddr_t snpc, ui
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
-  disassemble(p, buf + bufsize - p, MUXDEF(CONFIG_ISA_x86, snpc, pc), inst, ilen);
+  
+  #ifdef CONFIG_ITRACE
+    disassemble(p, buf + bufsize - p, MUXDEF(CONFIG_ISA_x86, snpc, pc), inst, ilen);
+  #endif
 }
 
 
