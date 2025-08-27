@@ -9,10 +9,7 @@ module ALU
         input  [WIDTH - 1 : 0] A,        // rs1
         input  [WIDTH - 1 : 0] B,        // rs2 or immediate
         input  [3:0]           ALUSel,   // Renamed from 'Mode' and width changed
-        input                  CompUn,
-        output reg [WIDTH-1:0] Results,
-        output                 BrEq,
-        output                 BrLT
+        output reg [WIDTH-1:0] Results
     );  
 
     // --- 实例化功能单元 ---
@@ -34,10 +31,8 @@ module ALU
     );
     
     // --- 分支比较逻辑 ---
-    assign BrEq = internal_zero;
     wire signed_less_than   = internal_overflow ^ adder_result[WIDTH - 1];
     wire unsigned_less_than = !internal_carry;
-    assign BrLT = CompUn ? unsigned_less_than : signed_less_than;
 
     // --- ALU 最终结果选择 ---
     always@(*) begin

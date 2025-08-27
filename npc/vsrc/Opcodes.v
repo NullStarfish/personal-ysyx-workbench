@@ -28,6 +28,14 @@
 `define FUNCT3_SRLI_SRAI  3'b101
 `define FUNCT3_ORI_OR     3'b110
 `define FUNCT3_ANDI_AND   3'b111
+`define FUNCT3_LW         3'b010
+`define FUNCT3_LH         3'b001
+`define FUNCT3_LB         3'b000
+`define FUNCT3_LHU        3'b101
+`define FUNCT3_LBU        3'b100
+`define FUNCT3_SW         3'b010
+`define FUNCT3_SH         3'b001
+`define FUNCT3_SB         3'b000
 
 // --- Immediate Type Selections (for ImmSel) ---
 `define IMM_U             3'b000

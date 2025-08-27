@@ -7,13 +7,14 @@ export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 
 TARGET := npc
 TOP_MODULE := Top
-IMG ?= ./dummy-riscv32e-npc.bin
+IMG ?= ./load-store-riscv32e-npc.bin
 
 # --- Feature Flags ---
 CONFIG_ITRACE ?= y
 CONFIG_FTRACE ?= y
 CONFIG_DIFFTEST ?=
 
+-include ../Makefile
 # =============================================================================
 # Directories and Source Files
 # =============================================================================
@@ -103,9 +104,10 @@ $(BUILD_DIR):
 # --- Execution Targets ---
 # Target to run WITHOUT difftest
 run:
+	$(call git_commit, "sim RTL")
 	$(MAKE) $(TARGET) CONFIG_DIFFTEST=
 	@echo "### Starting NPC Simulation (no difftest) ###"
-	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/capstone/repo ./$(TARGET) $(IMG)
+	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/capstone/repo ./$(TARGET) -l log.txt $(IMG)
 
 # Target to run WITH difftest
 run-diff:

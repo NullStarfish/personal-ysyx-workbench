@@ -17,7 +17,7 @@ module Controller (
     output reg [3:0] ALUSel,
     output reg BrUn,
     output reg PCSel,
-    output reg ForceRs1ToZero // 新增：用于强制 rs1 地址为 0
+    output reg ForceRs1ToZero// 新增：用于强制 rs1 地址为 0
 );
 
     wire [6:0] opcode = inst[6:0];
@@ -60,17 +60,18 @@ module Controller (
                 RegWEn = 1'b1; Bsel = 1'b1; WBSel = `WB_PC4; ImmSel = `IMM_I;
             end
             `OPCODE_BRANCH: begin
-                Asel = 1'b1; Bsel = 1'b1; ImmSel = `IMM_B; ALUSel = `ALU_SUB;
+                Asel = 1'b1; Bsel = 1'b1; ImmSel = `IMM_B; ALUSel = `ALU_ADD;
                 if (funct3 == `FUNCT3_BLTU || funct3 == `FUNCT3_BGEU) BrUn = 1'b1;
             end
             `OPCODE_LOAD: begin
                 RegWEn = 1'b1; Bsel = 1'b1; WBSel = `WB_MEM; ImmSel = `IMM_I; ALUSel = `ALU_ADD;
+
             end
             `OPCODE_STORE: begin
                 DMWen = 1'b1; Bsel = 1'b1; ImmSel = `IMM_S; ALUSel = `ALU_ADD;
             end
             `OPCODE_I_TYPE: begin
-                RegWEn = 1'b1; Bsel = 1'b1; ImmSel = `IMM_I;
+                Asel = 1'b0; RegWEn = 1'b1; Bsel = 1'b1; ImmSel = `IMM_I;
                 case(funct3)
                     `FUNCT3_ADDI_ADD:   ALUSel = `ALU_ADD;
                     `FUNCT3_SLTI_SLT:   ALUSel = `ALU_SLT;

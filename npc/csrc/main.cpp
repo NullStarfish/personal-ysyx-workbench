@@ -8,6 +8,9 @@
 #include <cstdio>
 #include <map>
 #include <string>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring> // For memcpy
 #include "difftest/dut.h"
 
 extern "C" {
@@ -19,10 +22,43 @@ extern "C" {
     #include "ftrace.h"
 }
 
+// --- Main Memory Model ---
+static uint8_t* pmem = NULL;
+static const long PMEM_SIZE = 0x8000000; // 128MB
+static const long PMEM_BASE = 0x80000000;
+
+// --- DPI-C Interface for Memory ---
+extern "C" int pmem_read(int raddr) {
+    long offset = (unsigned int)raddr - PMEM_BASE;
+    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
+
+    printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
+    return (*(uint32_t*)(pmem + align_offset));
+}
+
+extern "C" void pmem_write(int waddr, int wdata, char wmask) {
+    long offset = (unsigned int)waddr - PMEM_BASE;
+    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return;
+    uint32_t *paddr = (uint32_t*)(pmem + align_offset);
+    uint32_t old_data = *paddr;
+    uint32_t wmask_u32  = 0;
+    for (int i = 0; i < 4; i++) {
+        if (wmask & (1 << i)) {
+            wmask_u32 |= (0xFF << (i * 8));
+        }
+    }
+
+
+    uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);///错的，wmask控制4个字节
+    *paddr = new_data;
+    printf("pmem write at %x, aligned addr = %lx, data = %x, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, new_data);
+}
+
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
 
-extern "C" int pmem_read(int addr);
 extern "C" void ebreak() {
     uint32_t a0_val = top_ptr->rootp->Top->reg_file_unit->reg_file[10];
     npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
@@ -43,35 +79,40 @@ void exec_one_cycle_cpp() {
     cycle_count++;
 }
 
-// ======================= New Synchronization Function =======================
-// This function is called after the ROM loading loop to ensure all writes
-// have completed in the Verilog simulation before we proceed.
 void sync_after_load() {
-    // Ensure the loading signal is de-asserted.
-    top_ptr->load_en = 0;
-    // Run one final, clean clock cycle to let this signal take effect
-    // and to complete the final scheduled write.
-    exec_one_cycle_cpp();
-    // One more eval to stabilize all combinational logic.
-    top_ptr->eval();
+    // This function is no longer needed but kept for compatibility.
 }
-// ==========================================================================
 
 long long get_cycle_count() { return cycle_count; }
-void init_verilator(int argc, char *argv[]) { Verilated::commandArgs(argc, argv); top_ptr = new VTop; }
-void set_dpi_scope() { const svScope scope = svGetScopeFromName("TOP.Top.imem_unit.rom0"); assert(scope); svSetScope(scope); }
-void reset_cpu(int n) { top_ptr->rst = 1; for (int i = 0; i < n; ++i) { exec_one_cycle_cpp(); } top_ptr->rst = 0; top_ptr->eval(); }
-void load_data_to_rom(const uint8_t* data, size_t size) {
-    top_ptr->load_en = 1;
-    for (size_t i = 0; i < size / 4; ++i) {
-        top_ptr->load_addr = 0x80000000 + (i * 4);
-        top_ptr->load_data = ((uint32_t*)data)[i];
-        exec_one_cycle_cpp();
-    }
-    // De-assert load_en after the loop. The sync function will handle the rest.
-    top_ptr->load_en = 0;
+
+void init_verilator(int argc, char *argv[]) {
+    pmem = (uint8_t*)malloc(PMEM_SIZE);
+    assert(pmem);
+    Verilated::commandArgs(argc, argv);
+    top_ptr = new VTop;
 }
-uint32_t paddr_read(uint32_t addr) { if (addr >= 0x80000000) { return pmem_read(addr); } return 0; }
+
+void set_dpi_scope() {
+    // No longer needed.
+}
+
+void reset_cpu(int n) {
+    top_ptr->rst = 1;
+    for (int i = 0; i < n; ++i) { exec_one_cycle_cpp(); }
+    top_ptr->rst = 0;
+    top_ptr->eval();
+}
+
+// ======================= FINAL VERSION =======================
+// The loader now simply copies the program data into the C++ memory model.
+// No Verilog interaction is needed.
+void load_data_to_rom(const uint8_t* data, size_t size) {
+    assert(size <= PMEM_SIZE);
+    memcpy(pmem, data, size);
+}
+// ===========================================================
+
+uint32_t paddr_read(uint32_t addr) { return pmem_read(addr); }
 uint32_t isa_reg_read_cpp(int reg_num) { if (reg_num >= 0 && reg_num < 32) { return top_ptr->rootp->Top->reg_file_unit->reg_file[reg_num]; } return 0; }
 uint32_t get_pc_cpp() { return top_ptr->rootp->Top->pc_out; }
 uint32_t get_inst_cpp() { return top_ptr->rootp->Top->inst; }
@@ -91,7 +132,6 @@ uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
 }
 
 void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
-    // This is the critical fix for reading the correct state during difftest.
     top_ptr->eval();
     if (!dut) return;
     for (int i = 0; i < 32; i++) {
@@ -100,18 +140,9 @@ void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     dut->pc = top_ptr->rootp->Top->pc_out;
 }
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
-    if (!buf) return;
-    if (addr % 4 != 0 || n % 4 != 0) {
-        for (size_t i = 0; i < n; i++) {
-            uint32_t word = pmem_read(addr + i);
-            buf[i] = word & 0xFF;
-        }
-        return;
-    }
-    for (size_t i = 0; i < n; i += 4) {
-        uint32_t word = pmem_read(addr + i);
-        memcpy(buf + i, &word, 4);
-    }
+    long offset = (unsigned int)addr - PMEM_BASE;
+    if (offset < 0 || offset + n > PMEM_SIZE || !buf) return;
+    memcpy(buf, pmem + offset, n);
 }
 }
 
@@ -119,6 +150,7 @@ int main(int argc, char** argv) {
     init_monitor(argc, argv);
     sdb_mainloop();
     delete top_ptr;
+    free(pmem);
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
     return is_exit_status_bad();
 }

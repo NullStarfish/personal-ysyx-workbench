@@ -7,8 +7,7 @@ module RegFile (
     input [4:0] AddrB,
     output [31:0] DataA,
     output [31:0] DataB,
-    input RegWEn,
-    input load_en 
+    input RegWEn
 );
     // 将 reg_file 声明为 public，以便 C++ testbench 可以访问
     reg [31:0] reg_file [0:31] /*verilator public*/;
@@ -22,7 +21,7 @@ module RegFile (
             end
         end 
         // The 'else' ensures this part only runs when rst is low.
-        else if (RegWEn && AddrD != 5'b0 && !load_en) begin
+        else if (RegWEn && AddrD != 5'b0) begin
             // Only write if not resetting, not loading, and a valid write is enabled.
             $display("RegFile write: time=%0t AddrD=%d DataD=%h", $time, AddrD, DataD);
             reg_file[AddrD] <= DataD;

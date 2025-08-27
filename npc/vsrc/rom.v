@@ -3,41 +3,28 @@
 // DO NOT export here at the file scope.
 
 module rom (
-    input clk,
-    input [31:0] addr,
-    output [31:0] data,
-    input we,
+    input valid,
+    input [31:0] raddr,
+    output reg [31:0] rdata,
+    input wen,
     input [31:0] waddr,
-    input [31:0] wdata
+    input [31:0] wdata,
+    input [7:0] wmask
 );
-    localparam BASE_ADDR = 32'h80000000;
-    localparam CAPACITY = 32768; // 128KB
 
-    reg [31:0] rom_data [0:CAPACITY - 1];
-
-    wire [31:0] read_index = (addr - BASE_ADDR) >> 2;
-    assign data = (addr >= BASE_ADDR && read_index < CAPACITY) ? rom_data[read_index] : 32'h00000000;
-
-    wire [31:0] write_index = (waddr - BASE_ADDR) >> 2;
-
-    always @(posedge clk) begin
-        if (we && (waddr >= BASE_ADDR) && (write_index < CAPACITY)) begin
-            rom_data[write_index] <= wdata;
+    import "DPI-C" function int pmem_read(input int raddr);
+    import "DPI-C" function void pmem_write( input int waddr, input int wdata, input byte wmask);
+    always@(*) begin
+        if (valid) begin // 有读写请求时
+            rdata = pmem_read(raddr);
+            if (wen) begin // 有写请求时
+                pmem_write(waddr, wdata, wmask);
+            end
+        end
+        else begin
+            rdata = 0;
         end
     end
 
-    // ================== CORRECTION ==================
-    // The export statement MUST be inside the module scope,
-    // along with the function it is exporting.
-    export "DPI-C" function pmem_read;
-
-    function automatic int pmem_read(input int read_addr);
-        if (read_addr >= BASE_ADDR && ((read_addr - BASE_ADDR) >> 2) < CAPACITY) begin
-            return rom_data[(read_addr - BASE_ADDR) >> 2];
-        end else begin
-            return 0;
-        end
-    endfunction
-    // ===============================================
 
 endmodule

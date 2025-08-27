@@ -30,6 +30,8 @@ static void trace_and_difftest(uint32_t pc, uint32_t inst) {
 }
 
 static void exec_once() {
+  printf("exec_once\n");
+  printf("=========================\n");
   uint32_t pc = get_pc_cpp();
   uint32_t inst = get_inst_cpp();
   exec_one_cycle_cpp();

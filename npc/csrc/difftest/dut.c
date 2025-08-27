@@ -91,7 +91,13 @@ static void checkregs(riscv32_CPU_state *ref) {
 
   if (mismatch) {
     npc_state.state = NPC_ABORT;
+    printf("dut's regs:\n");
     isa_reg_display();
+    printf("============================\n");
+    printf("ref's regs:\n");
+    for (int i = 0; i < 32; i ++) {
+      printf("x%d:  %x\n", i, ref->gpr[i]);
+    }
   }
 }
 
