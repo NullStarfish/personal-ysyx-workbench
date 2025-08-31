@@ -24,7 +24,11 @@ BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir
 TOOLS_DIR := $(NPC_HOME)/csrc/tools
 
-VSRC := $(shell find $(VSRC_DIR) -name "*.v")
+# MODIFIED: Find both .v and .sv files, ensuring the package is listed first.
+PKG_FILE := $(VSRC_DIR)/include/riscv_pkg.sv
+OTHER_VSRCS := $(filter-out $(PKG_FILE), $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv"))
+VSRC := $(PKG_FILE) $(OTHER_VSRCS)
+
 CXX_SRCS := $(shell find $(CSRC_DIR) -name "*.cpp")
 C_SRCS := $(shell find $(CSRC_DIR) -name "*.c")
 
@@ -36,46 +40,47 @@ INC_DIRS := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
             /usr/local/share/verilator/include /usr/local/share/verilator/include/vltstd
 INC_FLAGS := $(addprefix -I, $(INC_DIRS))
 
-COMMON_FLAGS := -g -Wall -pthread
-CC := gcc
-CXX := g++
-CFLAGS := $(INC_FLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
-CXXFLAGS := $(INC_FLAGS) $(COMMON_FLAGS) -std=c++17
-LDFLAGS := -lreadline -pthread -ldl
+LDFLAGS := -L$(NEMU_HOME)/build/am-libs -L$(NEMU_HOME)/build -lriscv32-nemu-interpreter -ldl
+CXXFLAGS_EXTRA := -Wno-deprecated-declarations
+CFLAGS_EXTRA :=
 
-# --- Conditional Compilation Logic ---
-ifeq ($(CONFIG_DIFFTEST),y)
-  CFLAGS += -DDIFFTEST_ON
-endif
+VERILATOR_FLAGS := --cc --sv --top-module $(TOP_MODULE) \
+                   +incdir+$(VSRC_DIR)/include \
+                   -Mdir $(OBJ_DIR)
 
-ifeq ($(CONFIG_FTRACE),y)
-  LDFLAGS += -lelf
-endif
-
-ifeq ($(CONFIG_ITRACE),y)
-  #ifneq ($(CONFIG_DIFFTEST),y)
-    include $(TOOLS_DIR)/disasm.mk
-  #else
-    #//C_SRCS := $(filter-out %/tools/disasm.c, $(C_SRCS))
-  #endif
-endif
-
-# Map sources to objects AFTER conditional filtering
-CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CXX_SRCS))
-C_OBJS := $(patsubst $(CSRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(C_SRCS))
-ALL_OBJS := $(CXX_OBJS) $(C_OBJS)
-VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
+# MODIFIED: Add flag to suppress the benign WIDTHEXPAND warning.
+VERILATOR_FLAGS += -Wno-WIDTHEXPAND
 
 # =============================================================================
-# Makefile Rules
+# Main Compilation Logic (Generally no need to edit below this line)
 # =============================================================================
-.PHONY: all run run-diff gdb-diff clean
+OBJS := $(patsubst $(CSRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(C_SRCS)) \
+        $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CXX_SRCS))
+VERILATED_LIB := $(OBJ_DIR)/libV$(TOP_MODULE).a
+
+CFLAGS := -g -O2 -MMD -Wall $(CFLAGS_EXTRA) $(INC_FLAGS) -D__GUEST_ISA__=\"riscv32\"
+CXXFLAGS := -g -O2 -MMD -Wall $(CXXFLAGS_EXTRA) $(INC_FLAGS) -D__GUEST_ISA__=\"riscv32\"
+
+ifeq ($(CONFIG_ITRACE), y)
+  CFLAGS += -DCONFIG_ITRACE
+  CXXFLAGS += -DCONFIG_ITRACE
+endif
+
+ifeq ($(CONFIG_FTRACE), y)
+  CFLAGS += -DCONFIG_FTRACE
+  CXXFLAGS += -DCONFIG_FTRACE
+endif
+
+ifeq ($(CONFIG_DIFFTEST), y)
+  CFLAGS += -DCONFIG_DIFFTEST
+  CXXFLAGS += -DCONFIG_DIFFTEST
+endif
 
 all: $(TARGET)
 
-$(TARGET): $(ALL_OBJS) $(VERILATED_LIB)
-	@echo "### Linking executable: $(TARGET) ###"
-	$(CXX) $(CXXFLAGS) -o $@ $^ \
+$(TARGET): $(OBJS) $(VERILATED_LIB)
+	@echo "### Linking: $@ ###"
+	$(CXX) -o $@ $(OBJS) $(VERILATED_LIB) \
 		/usr/local/share/verilator/include/verilated.cpp \
 		/usr/local/share/verilator/include/verilated_dpi.cpp \
 		/usr/local/share/verilator/include/verilated_threads.cpp \
@@ -83,8 +88,7 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB)
 
 $(VERILATED_LIB): $(VSRC) | $(BUILD_DIR)
 	@echo "### Running Verilator... ###"
-	verilator --cc --top-module $(TOP_MODULE) $(addprefix +incdir+, $(VSRC_DIR)) \
-		-Mdir $(OBJ_DIR) $(VSRC)
+	verilator $(VERILATOR_FLAGS) $(VSRC)
 	@echo "### Compiling Verilated library... ###"
 	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
 
@@ -107,19 +111,34 @@ run:
 	$(call git_commit, "sim RTL")
 	$(MAKE) $(TARGET) CONFIG_DIFFTEST=
 	@echo "### Starting NPC Simulation (no difftest) ###"
-	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/capstone/repo ./$(TARGET) -l log.txt $(IMG)
+	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/my-difftest:$(NEMU_HOME)/build/am-libs:$(NEMU_HOME)/build:$$LD_LIBRARY_PATH \
+	./$(TARGET) -i $(IMG)
 
 # Target to run WITH difftest
-run-diff:
+rundiff:
+	$(call git_commit, "sim RTL")
 	$(MAKE) $(TARGET) CONFIG_DIFFTEST=y
-	@echo "### Starting NPC Simulation (WITH difftest) ###"
-	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/capstone/repo ./$(TARGET) --diff=build/riscv32-nemu-interpreter-so $(IMG)
+	@echo "### Starting NPC Simulation (with difftest) ###"
+	LD_LIBRARY_PATH=$(NEMU_HOME)/tools/my-difftest:$(NEMU_HOME)/build/am-libs:$(NEMU_HOME)/build:$$LD_LIBRARY_PATH \
+	./$(TARGET) -d -i $(IMG)
 
-# Target to debug WITH difftest
+gdb:
+	$(call git_commit, "sim RTL")
+	$(MAKE) $(TARGET) CONFIG_DIFFTEST=
+	@echo "### Starting NPC Simulation with GDB ###"
+	gdb -s ./$(TARGET) --args ./$(TARGET) -i $(IMG)
+
 gdb-diff:
+	$(call git_commit, "sim RTL")
 	$(MAKE) $(TARGET) CONFIG_DIFFTEST=y
-	@echo "### Starting NPC Simulation with GDB (WITH difftest) ###"
-	gdb --args ./$(TARGET) --diff=build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
+	@echo "### Starting NPC Simulation with GDB (and difftest) ###"
+	gdb -s ./$(TARGET) --args ./$(TARGET) -d -i $(IMG)
 
+# --- Cleanup ---
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(TARGET)
+
+.PHONY: all clean run rundiff gdb gdb-diff
+
+-include $(OBJS:.o=.d)
+
