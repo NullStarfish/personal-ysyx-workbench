@@ -19,14 +19,16 @@
 
 static uint32_t *rtc_port_base = NULL;
 
+
+//这个is_write表示的对设备地址进行读还是写
 static void rtc_io_handler(uint32_t offset, int len, bool is_write) {
   assert(offset == 0 || offset == 4);
-  if (!is_write && offset == 4) {
+  if (!is_write && offset == 0) {
     uint64_t us = get_time();
     rtc_port_base[0] = (uint32_t)us;
     rtc_port_base[1] = us >> 32;
   }
-}
+}//实际上的设备模拟代码不在这里，这里仅仅只是一个接口，模拟64位寄存器的行为
 
 #ifndef CONFIG_TARGET_AM
 static void timer_intr() {

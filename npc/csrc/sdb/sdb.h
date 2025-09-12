@@ -28,4 +28,7 @@ void cpu_exec(uint64_t n);
 // 物理地址读取 (在 main.cpp 中定义)
 uint32_t paddr_read(uint32_t addr);
 
+
+extern char *img_file;
+
 #endif

@@ -7,6 +7,16 @@
   enum { AM_##reg = (id) }; \
   typedef struct { __VA_ARGS__; } AM_##reg##_T;
 
+//上面这个宏定义干了两件事；以TIMER_UPTIME为例
+//1. 定义了一个枚举常量 AM_TIMER_UPTIME，其值为6
+//2. 定义了一个结构体类型 AM_TIMER_UPTIME_T，包含一个成员 uint64_t us
+//这个宏定义的作用是简化设备寄存器的定义，使得每个设备寄存器都可以通过一个唯一的ID和一个结构体来表示
+
+//另外在实际platform/nemu/ioe/ioe.c中，还有对__am_timer_uptime的实现,这是一个函数
+//同时，ioe.c还对这个函数进行了注册，使得可以通过ioe_read函数来调用它
+
+
+
 AM_DEVREG( 1, UART_CONFIG,  RD, bool present);
 AM_DEVREG( 2, UART_TX,      WR, char data);
 AM_DEVREG( 3, UART_RX,      RD, char data);

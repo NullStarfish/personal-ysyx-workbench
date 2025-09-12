@@ -20,7 +20,7 @@ void load_data_to_rom(const uint8_t* data, size_t size);
 void sync_after_load();
 
 // --- Command-line arguments ---
-static char *img_file = NULL;
+char *img_file = NULL;
 static char *log_file = NULL;
 static char *elf_file = NULL;
 static char *diff_so_file = NULL;
@@ -62,7 +62,7 @@ static int parse_args(int argc, char *argv[]) {
     return 0;
 }
 
-static void welcome() { printf("Welcome to the RISC-V NPC simulator!\nFor help, type \"help\"\n"); }
+static void welcome() { printf("Welcome to the RISC-V NPC simulator!\nFor help, type \"help\"\nThe current img is %s\n", img_file); }
 
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);

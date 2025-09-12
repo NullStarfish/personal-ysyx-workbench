@@ -1,7 +1,9 @@
 #include <verilated.h>
 #include "VTop.h"
 #include "VTop___024root.h"
+// MODIFIED: Include the full definitions for the hierarchy
 #include "VTop_Top.h"
+#include "VTop_datapath.h"
 #include "VTop_RegFile.h"
 #include "svdpi.h"
 #include <cassert>
@@ -51,16 +53,17 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
     }
 
 
-    uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);///错的，wmask控制4个字节
+    uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
     *paddr = new_data;
-    printf("pmem write at %x, aligned addr = %lx, data = %x, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, new_data);
+    printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
 }
 
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
 
 extern "C" void ebreak() {
-    uint32_t a0_val = top_ptr->rootp->Top->reg_file_unit->reg_file[10];
+    // Correct hierarchical path
+    uint32_t a0_val = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[10];
     npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
     npc_state.halt_ret = a0_val;
 }
@@ -113,9 +116,21 @@ void load_data_to_rom(const uint8_t* data, size_t size) {
 // ===========================================================
 
 uint32_t paddr_read(uint32_t addr) { return pmem_read(addr); }
-uint32_t isa_reg_read_cpp(int reg_num) { if (reg_num >= 0 && reg_num < 32) { return top_ptr->rootp->Top->reg_file_unit->reg_file[reg_num]; } return 0; }
+
+// Correct hierarchical path
+uint32_t isa_reg_read_cpp(int reg_num) {
+    if (reg_num >= 0 && reg_num < 32) {
+        return top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[reg_num];
+    }
+    return 0;
+}
+
+// This signal is now at the top level
 uint32_t get_pc_cpp() { return top_ptr->rootp->Top->pc_out; }
-uint32_t get_inst_cpp() { return top_ptr->rootp->Top->inst; }
+
+// Correct hierarchical path
+uint32_t get_inst_cpp() { return top_ptr->rootp->Top->datapath_unit->inst; }
+
 uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
     static const std::map<std::string, int> reg_map = {
         {"pc", -1}, {"zero", 0}, {"ra", 1}, {"sp", 2}, {"gp", 3}, {"tp", 4},
@@ -135,8 +150,10 @@ void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     top_ptr->eval();
     if (!dut) return;
     for (int i = 0; i < 32; i++) {
-        dut->gpr[i] = top_ptr->rootp->Top->reg_file_unit->reg_file[i];
+        // Correct hierarchical path
+        dut->gpr[i] = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[i];
     }
+    // This signal is now at the top level
     dut->pc = top_ptr->rootp->Top->pc_out;
 }
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
@@ -154,3 +171,4 @@ int main(int argc, char** argv) {
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
     return is_exit_status_bad();
 }
+

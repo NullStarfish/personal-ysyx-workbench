@@ -18,7 +18,9 @@ MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here
 CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAINARGS_PLACEHOLDER)"\"
 
 
-NPC_BIN = $(NPC_HOME)/obj_dir/VTop
+NPC_BIN = $(NPC_HOME)/npc
+
+ARGS = --ftrace=$(IMAGE).elf -l $(NPC_HOME)/log.txt --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
 insert-arg: image
 	@python3 $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
@@ -29,8 +31,10 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	$(NPC_BIN) $(IMAGE).bin
+	$(NPC_BIN) $(ARGS) $(IMAGE).bin
     
+gdb: insert-arg
+	gdb --args $(NPC_BIN) $(ARGS) $(IMAGE).bin
 
 .PHONY: insert-arg
 

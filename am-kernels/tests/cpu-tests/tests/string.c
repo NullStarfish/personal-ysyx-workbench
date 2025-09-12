@@ -22,6 +22,7 @@ int main() {
 	check(strcmp( strcat(strcpy(str, str1), s[3]), s[4]) == 0);
 
 	check(memcmp(memset(str, '#', 5), s[5], 5) == 0);
+	printf("string test pass\n");
 
 	return 0;
 }

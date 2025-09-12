@@ -1,11 +1,18 @@
 #include <am.h>
 #include <nemu.h>
 
+
 void __am_timer_init() {
+  
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = 0;
+  // 先读取高32位，触发NEMU更新整个64位时间值
+  uint32_t hi = inl(RTC_ADDR + 4);
+  // 再读取已经更新好的低32位
+  uint32_t lo = inl(RTC_ADDR);
+  
+  uptime->us = ((uint64_t)hi << 32) | lo;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

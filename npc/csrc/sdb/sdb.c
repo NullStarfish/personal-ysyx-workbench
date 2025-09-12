@@ -12,7 +12,7 @@ static bool is_batch_mode = false;
 
 // --- Command handlers (no changes needed in these functions) ---
 static int cmd_c(char *args) { cpu_exec(-1); return 0; }
-static int cmd_q(char *args) { npc_state.state = NPC_QUIT; return -1; }
+static int cmd_q(char *args) { npc_state.state = NPC_QUIT; printf("file %s quit\n", img_file); return -1; }
 static int cmd_help(char *args);
 static int cmd_si(char *args) {
     char *endptr;
