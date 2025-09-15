@@ -26,6 +26,43 @@ static int int_to_str(int value, char *buf) {
   return j;
 }
 
+// 新增：long 转字符串，支持负数
+static int long_to_str(long value, char *buf) {
+  char tmp[32];
+  int i = 0, j = 0, neg = 0;
+  if (value < 0) {
+    neg = 1;
+    value = -value;
+  }
+  do {
+    tmp[i++] = '0' + (value % 10);
+    value /= 10;
+  } while (value);
+  if (neg) tmp[i++] = '-';
+  while (i--) buf[j++] = tmp[i];
+  buf[j] = '\0';
+  return j;
+}
+
+// 新增：无符号长整型转十六进制字符串（小写），不带"0x"
+static int ulong_to_hex(unsigned long value, char *buf) {
+  char tmp[32];
+  const char *hex = "0123456789abcdef";
+  int i = 0, j = 0;
+  if (value == 0) {
+    buf[0] = '0';
+    buf[1] = '\0';
+    return 1;
+  }
+  while (value) {
+    tmp[i++] = hex[value & 0xF];
+    value >>= 4;
+  }
+  while (i--) buf[j++] = tmp[i];
+  buf[j] = '\0';
+  return j;
+}
+
 
 int printf(const char *fmt, ...) {
   va_list ap;
@@ -77,6 +114,37 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         int_to_str(d, buf);
         for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
           out[out_cnt++] = buf[i];
+      } else if (*fmt == 'x') {
+        unsigned int x = va_arg(ap, unsigned int);
+        char buf[32];
+        ulong_to_hex((unsigned long)x, buf);
+        for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
+          out[out_cnt++] = buf[i];
+      } else if (*fmt == 'p') {
+        void *p = va_arg(ap, void *);
+        unsigned long addr = (unsigned long)p;
+        // 写入 "0x"
+        if (out_cnt + 2 < n) {
+          out[out_cnt++] = '0';
+          out[out_cnt++] = 'x';
+        }
+        char buf[32];
+        ulong_to_hex(addr, buf);
+        for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
+          out[out_cnt++] = buf[i];
+      } else if (*fmt == 'l') {
+        fmt++;
+        if (*fmt == 'd') {
+          long ld = va_arg(ap, long);
+          char buf[32];
+          long_to_str(ld, buf);
+          for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
+            out[out_cnt++] = buf[i];
+        } else {
+          // 不支持的 %l? 回退以输出原样
+          out[out_cnt++] = 'l';
+          if (*fmt && out_cnt + 1 < n) out[out_cnt++] = *fmt;
+        }
       } else if (*fmt) {
         out[out_cnt++] = *fmt;
       }

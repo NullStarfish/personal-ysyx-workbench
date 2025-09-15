@@ -28,6 +28,10 @@ AM_DEVREG( 8, INPUT_KEYBRD, RD, bool keydown; int keycode);
 AM_DEVREG( 9, GPU_CONFIG,   RD, bool present, has_accel; int width, height, vmemsz);
 AM_DEVREG(10, GPU_STATUS,   RD, bool ready);
 AM_DEVREG(11, GPU_FBDRAW,   WR, int x, y; void *pixels; int w, h; bool sync);
+//x,y: the position to draw
+//pixels: the pixel data to be drawn: uint32_t(00RRGGBB)的数组，在am-kernels中位color_buf[32*32]这是一个正方形，给了32*32个像素点
+//w,h: the width and height of the pixel data(这个矩形的大小)
+//sync: if false, the function will wait until the drawing is finished（这意味着，在sync之前，都可以一直传递数据，画无限个矩形），这个和nemu的sync不是一个东西
 AM_DEVREG(12, GPU_MEMCPY,   WR, uint32_t dest; void *src; int size);
 AM_DEVREG(13, GPU_RENDER,   WR, uint32_t root);
 AM_DEVREG(14, AUDIO_CONFIG, RD, bool present; int bufsize);

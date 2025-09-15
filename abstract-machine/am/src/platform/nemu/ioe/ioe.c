@@ -57,3 +57,10 @@ bool ioe_init() {
 
 void ioe_read (int reg, void *buf) { ((handler_t)lut[reg])(buf); }
 void ioe_write(int reg, void *buf) { ((handler_t)lut[reg])(buf); }
+
+
+/*
+ *记住：am只是客户程序，硬件平台是nemu
+ *nemu已经实现了io设备的行为
+ *am端的__am函数等仅仅做了一个胶水的作用，行为依旧是io设备的直接行为，仅仅抽象掉了访问的一系列步骤
+*/

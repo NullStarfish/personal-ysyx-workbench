@@ -130,9 +130,10 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize memory. */
   init_mem();
-  
+#ifdef CONFIG_FTRACE
   // Initialize ftrace.
   init_ftrace(elf_file);
+#endif
 
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());

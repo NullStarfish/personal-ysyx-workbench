@@ -8,6 +8,23 @@ config MTRACE
   bool "Enable mtrace"
   default y
 
+config DTRACE
+  bool "Enable dtrace"
+  default y
+
+config IRBUFF
+  bool "Enable IRBUFF"
+  default y
+
+config FTRACE
+  bool "Enable ftrace"
+  default y
+
+config TRACE_ALL
+  bool "Disable all trace"
+  default y
+
+
 
 choice
   prompt "Base ISA"

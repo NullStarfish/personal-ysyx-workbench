@@ -121,15 +121,18 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal, J, {
     s->dnpc = s->pc + imm;
     R(rd) = s->snpc;
+  #ifdef CONFIG_FTRACE
     if (is_ftrace_enabled()) {
       log_func_call(s->pc, s->dnpc);
     }
+  #endif
   });
 
   // 3. 将ftrace逻辑添加到jalr指令
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, I, {
     s->dnpc = (src1 + imm) & ~1;
     R(rd) = s->snpc;
+  #ifdef CONFIG_FTRACE
     if (is_ftrace_enabled()) {
       int rs1_idx = BITS(s->isa.inst, 19, 15);
       // ret伪指令是 jalr x0, 0(x1)
@@ -139,6 +142,7 @@ static int decode_exec(Decode *s) {
         log_func_call(s->pc, s->dnpc);
       }
     }
+#endif
   });
 
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, if (src1 == src2) s->dnpc = s->pc + imm);

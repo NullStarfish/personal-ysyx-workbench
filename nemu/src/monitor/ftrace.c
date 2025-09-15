@@ -30,7 +30,7 @@ static int func_count = 0;          // 函数数量
 static bool ftrace_is_enabled = false; // 运行时标志
 
 // --- 调用栈 ---
-#define CALL_STACK_DEPTH 1024
+#define CALL_STACK_DEPTH 4096
 typedef struct {
     paddr_t pc;
     paddr_t target_func_addr;
