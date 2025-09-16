@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <cstring> // For memcpy
 #include "difftest/dut.h"
-
+#include "device.h"
 extern "C" {
     #include "monitor.h"
     #include "state.h"
@@ -24,16 +24,44 @@ extern "C" {
     #include "ftrace.h"
 }
 
+VTop* top_ptr = NULL;
+long long cycle_count = 0;
+
+extern "C" void ebreak() {
+    // Correct hierarchical path
+    uint32_t a0_val = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[10];
+    npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
+    npc_state.halt_ret = a0_val;
+}
+
+
+
+
+
+
+
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
-static const long PMEM_SIZE = 0x8000000; // 128MB
+static const long PMEM_SIZE = 0x70000000; // 128MB
 static const long PMEM_BASE = 0x80000000;
+
+
+
+
+
+
 
 // --- DPI-C Interface for Memory ---
 extern "C" int pmem_read(int raddr) {
     long offset = (unsigned int)raddr - PMEM_BASE;
     long align_offset = offset & ~0x3u; // Align to 4 bytes
     if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
+    
+    if (align_offset + PMEM_BASE == SERIAL_PORT) {
+        //printf("serial do not support read!");
+        //ebreak();
+        return 0;
+    }
 
     printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
     return (*(uint32_t*)(pmem + align_offset));
@@ -54,19 +82,18 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
 
     uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
+
+
+    if (align_offset + PMEM_BASE == SERIAL_PORT) {
+        putchar(new_data);
+        //printf("access serial\n");
+        fflush(stdout);
+    }
     *paddr = new_data;
     printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
 }
 
-VTop* top_ptr = NULL;
-long long cycle_count = 0;
 
-extern "C" void ebreak() {
-    // Correct hierarchical path
-    uint32_t a0_val = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[10];
-    npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
-    npc_state.halt_ret = a0_val;
-}
 
 extern "C" {
 

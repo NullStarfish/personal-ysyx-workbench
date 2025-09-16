@@ -20,7 +20,7 @@ CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAI
 
 NPC_BIN = $(NPC_HOME)/npc
 
-ARGS = --ftrace=$(IMAGE).elf -l $(NPC_HOME)/log.txt --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+ARGS = -l $(NPC_HOME)/log.txt 
 
 insert-arg: image
 	@python3 $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
