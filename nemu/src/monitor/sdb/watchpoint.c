@@ -154,21 +154,23 @@ void wp_add(char *str) {
 }
 
 
-void wp_difftest() {
+bool wp_difftest() {
   DEBUG_PRINT("Enter difftest\n");
   for (WP* i = head; i; i = i -> next) {
     bool success;
     uint32_t cur_val = expr(i->expr, &success);
     if (!success) {
       printf("BAD EXPRESSION!\n");
-      return;
+      return false;
     }
 
     if (i->old_val != cur_val) {
       printf("Watchpoint %d: %s\nOld value = %u\nNew value = %u\n", i->NO, i->expr, i->old_val, cur_val);
       i->old_val = cur_val;
+      return true;
     }
   }
+  return false;
 }
 
 

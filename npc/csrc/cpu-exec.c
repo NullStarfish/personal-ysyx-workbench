@@ -15,18 +15,26 @@ void exec_one_cycle_cpp();
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 static void trace_and_difftest(uint32_t pc, uint32_t inst) {
+#ifdef CONFIG_ITRACE
   // The log_and_trace function now handles disassembly correctly
   // in both modes, so we can call it unconditionally.
   log_and_trace(pc, inst);
+#endif
+
+#ifdef CONFIG_FTRACE
   trace_func_call(pc, inst);
+#endif
   
+#ifdef CONFIG_DIFFTEST
   if (difftest_is_enabled) {
     difftest_step();
   }
-
+#endif
+#ifdef CONFIG_WATCHPOINT
   if (check_watchpoints()) {
     npc_state.state = NPC_STOP;
   }
+#endif
 }
 
 static void exec_once() {

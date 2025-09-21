@@ -105,53 +105,106 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
   while (*fmt && out_cnt + 1 < n) { // 预留结尾'\0'
     if (*fmt == '%') {
       fmt++;
+      // Parse optional zero-padding flag and width like %02d
+      bool zero_pad = false;
+      int width = 0;
+      if (*fmt == '0') { zero_pad = true; fmt++; }
+      while (*fmt >= '0' && *fmt <= '9') { width = width * 10 + (*fmt - '0'); fmt++; }
+
       if (*fmt == 's') {
         const char *s = va_arg(ap, const char *);
         while (*s && out_cnt + 1 < n) out[out_cnt++] = *s++;
+        fmt++;
+        continue;
       } else if (*fmt == 'd') {
         int d = va_arg(ap, int);
-        char buf[20];
+        char buf[32];
         int_to_str(d, buf);
-        for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
-          out[out_cnt++] = buf[i];
+        int len = (int)strlen(buf);
+        int sign = (buf[0] == '-');
+        if (sign && zero_pad) {
+          // print sign first
+          if (out_cnt + 1 < n) out[out_cnt++] = '-';
+          const char *num = buf + 1;
+          int num_len = len - 1;
+          int pad = (width > len) ? (width - len) : 0;
+          for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = '0';
+          for (int i = 0; i < num_len && out_cnt + 1 < n; i++) out[out_cnt++] = num[i];
+        } else {
+          int pad = (width > len) ? (width - len) : 0;
+          char padch = zero_pad ? '0' : ' ';
+          for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
+          for (int i = 0; i < len && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
+        }
+        fmt++;
+        continue;
       } else if (*fmt == 'x') {
         unsigned int x = va_arg(ap, unsigned int);
         char buf[32];
         ulong_to_hex((unsigned long)x, buf);
-        for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
-          out[out_cnt++] = buf[i];
+        int len = (int)strlen(buf);
+        int pad = (width > len) ? (width - len) : 0;
+        char padch = zero_pad ? '0' : ' ';
+        for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
+        for (int i = 0; buf[i] && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
+        fmt++;
+        continue;
       } else if (*fmt == 'p') {
         void *p = va_arg(ap, void *);
         unsigned long addr = (unsigned long)p;
-        // 写入 "0x"
+        char buf[32];
+        ulong_to_hex(addr, buf);
+        // "0x" prefix
         if (out_cnt + 2 < n) {
           out[out_cnt++] = '0';
           out[out_cnt++] = 'x';
         }
-        char buf[32];
-        ulong_to_hex(addr, buf);
-        for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
-          out[out_cnt++] = buf[i];
+        int len = (int)strlen(buf);
+        int pad = (width > (len + 2)) ? (width - (len + 2)) : 0; // account for "0x"
+        char padch = zero_pad ? '0' : ' ';
+        for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
+        for (int i = 0; buf[i] && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
+        fmt++;
+        continue;
       } else if (*fmt == 'l') {
         fmt++;
         if (*fmt == 'd') {
           long ld = va_arg(ap, long);
           char buf[32];
           long_to_str(ld, buf);
-          for (int i = 0; buf[i] && out_cnt + 1 < n; i++)
-            out[out_cnt++] = buf[i];
+          int len = (int)strlen(buf);
+          int sign = (buf[0] == '-');
+          if (sign && zero_pad) {
+            if (out_cnt + 1 < n) out[out_cnt++] = '-';
+            const char *num = buf + 1;
+            int num_len = len - 1;
+            int pad = (width > len) ? (width - len) : 0;
+            for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = '0';
+            for (int i = 0; i < num_len && out_cnt + 1 < n; i++) out[out_cnt++] = num[i];
+          } else {
+            int pad = (width > len) ? (width - len) : 0;
+            char padch = zero_pad ? '0' : ' ';
+            for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
+            for (int i = 0; i < len && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
+          }
+          fmt++;
+          continue;
         } else {
-          // 不支持的 %l? 回退以输出原样
+          // unsupported %l? treat literally
           out[out_cnt++] = 'l';
           if (*fmt && out_cnt + 1 < n) out[out_cnt++] = *fmt;
+          if (*fmt) fmt++;
+          continue;
         }
       } else if (*fmt) {
         out[out_cnt++] = *fmt;
+        fmt++;
+        continue;
       }
     } else {
       out[out_cnt++] = *fmt;
+      fmt++;
     }
-    if (*fmt) fmt++;
   }
   out[out_cnt] = '\0';
   return out_cnt;

@@ -4,11 +4,16 @@
 #include "monitor.h"
 #include "sdb/sdb.h"
 #include "log/log.h"
+#ifdef CONFIG_FTRACE
 #include "trace/ftrace.h"
-#include "difftest/dut.h"
+#endif
 
-#ifndef DIFFTEST_ON
+#ifdef CONFIG_ITRACE
 #include "tools/disasm.h"
+#endif
+
+#ifdef CONFIG_DIFFTEST
+#include "difftest/dut.h"
 #endif
 
 // --- From C++ Bridge ---
@@ -67,33 +72,29 @@ static void welcome() { printf("Welcome to the RISC-V NPC simulator!\nFor help, 
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
     init_log(log_file);
+
+#ifdef CONFIG_FTRACE
     init_ftrace(elf_file);
+#endif
+
     init_verilator(argc, argv);
 
-    //#ifndef DIFFTEST_ON
-      printf("Disassembler for NPC log: ON\n");
-      init_disasm();
-    //#endif
+#ifdef CONFIG_ITRACE
+    printf("Disassembler for NPC log: ON\n");
+    init_disasm();
+#endif
 
     set_dpi_scope();
     
-    // Step 1: Load the program into the Verilog model's memory.
     long img_size = load_program(img_file);
-
-    // ============================ CRITICAL FIX ============================
-    // After scheduling the program writes, call this dedicated sync function
-    // to ensure all writes are completed in the simulation before proceeding.
     sync_after_load();
-    // ======================================================================
-
-    // Step 2: Now that memory is stable, reset the CPU.
     reset_cpu(5);
     printf("CPU reset complete.\n");
 
-    // Step 3: Initialize difftest, which will now read the correct program.
+#ifdef CONFIG_DIFFTEST
     init_difftest(diff_so_file, img_size);
-
-    // Step 4: Initialize the debugger.
+#endif
+    
     init_sdb();
     welcome();
 }

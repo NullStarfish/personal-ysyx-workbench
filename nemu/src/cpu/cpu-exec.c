@@ -19,7 +19,6 @@
 #include <locale.h>
 
 
-#define CONFIG_FTRACE
 
 
 
@@ -100,7 +99,7 @@ void print_iring_buffer() {
 
 void device_update();
 
-void wp_difftest();//come from watchpoints
+bool wp_difftest();//come from watchpoints
 
 void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -108,8 +107,10 @@ void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-
-  IFDEF(CONFIG_WATCHPOINT, wp_difftest());
+#ifdef CONFIG_WATCHPOINT
+  bool wp_state = wp_difftest();
+  if (wp_state) { nemu_state.state = NEMU_STOP; }
+#endif
 }
 
 
@@ -153,8 +154,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
-  s->snpc = pc;
-  isa_exec_once(s);
+  s->snpc = pc;//一开始pc指向的还是已经执行完的指令，在执行完之后，才对cpu.pc进行更新
+  isa_exec_once(s);//有点像模拟执行，实际上不对cpu对象产生作用
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   format_trace(
@@ -163,7 +164,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   );
 #endif
 
- #ifdef CONFIG_IRBUFF
+#ifdef CONFIG_IRBUFF
   iring_buffer_push(s);
 #endif
 }
@@ -192,7 +193,9 @@ static void statistic() {
 
 void assert_fail_msg() {
   isa_reg_display();
+#ifdef CONFIG_IRBUFF
   print_iring_buffer();//每个错误都会调用这个asserty_fail_msg
+#endif
   statistic();
 }
 

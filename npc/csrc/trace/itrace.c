@@ -36,14 +36,14 @@ void log_and_trace(uint32_t pc, uint32_t inst) {
   // Step 2: Only perform disassembly if difftest is OFF.
   // In difftest mode, NEMU is responsible for disassembly logging.
   // NPC should NOT attempt to call any disassembly function.
-  //#ifndef DIFFTEST_ON
+  #ifdef CONFIG_ITRACE
     int space_len = 28 - (p - logbuf);
     if (space_len < 0) space_len = 0;
     memset(p, ' ', space_len);
     p += space_len;
     // This function will only be linked when DIFFTEST_ON is not defined.
     disassemble(p, end - p, pc, (uint8_t *)&inst, 4);
-  //#endif
+  #endif
   // ============================================================
 
   // Step 3: Write the final formatted string to the log file.

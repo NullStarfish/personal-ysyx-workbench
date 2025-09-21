@@ -1,3 +1,5 @@
+#include <ctime>
+#include <sys/types.h>
 #include <verilated.h>
 #include "VTop.h"
 #include "VTop___024root.h"
@@ -15,6 +17,7 @@
 #include <cstring> // For memcpy
 #include "difftest/dut.h"
 #include "device.h"
+#include <sys/time.h>
 extern "C" {
     #include "monitor.h"
     #include "state.h"
@@ -45,10 +48,26 @@ static uint8_t* pmem = NULL;
 static const long PMEM_SIZE = 0x70000000; // 128MB
 static const long PMEM_BASE = 0x80000000;
 
+static long last_pc = -1;
 
 
 
 
+static uint64_t boot_time = 0;
+
+static uint64_t get_time_internal() {
+
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  uint64_t us = now.tv_sec * 1000000 + now.tv_usec;
+  return us;
+}
+
+uint64_t get_time() {
+  if (boot_time == 0) boot_time = get_time_internal();
+  uint64_t now = get_time_internal();
+  return now - boot_time;
+}
 
 
 // --- DPI-C Interface for Memory ---
@@ -57,13 +76,26 @@ extern "C" int pmem_read(int raddr) {
     long align_offset = offset & ~0x3u; // Align to 4 bytes
     if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
     
-    if (align_offset + PMEM_BASE == SERIAL_PORT) {
-        //printf("serial do not support read!");
-        //ebreak();
-        return 0;
-    }
 
-    printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
+    if (last_pc != top_ptr->rootp->Top->pc_out) { 
+
+        if (align_offset + PMEM_BASE == RTC_ADDR) {
+            time_t timep;
+            struct tm *p;
+            time(&timep);
+            p = localtime(&timep);
+            *(uint32_t*)(pmem + align_offset) = (p->tm_sec) | (p->tm_min << 6) | (p->tm_hour << 12);
+            *(uint32_t*)(pmem + align_offset + 4) = (p->tm_year + 1900) | ((p->tm_mon + 1) << 12) | (p->tm_mday << 16);
+        } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {//这意味着需要先访问低位来进行更新
+            uint64_t us = get_time();
+            *(uint32_t*)(pmem + align_offset) = (uint32_t)(us & 0xFFFFFFFF);
+            *(uint32_t*)(pmem + align_offset + 4) = (uint32_t)(us >> 32);
+            //printf("RTC_UP read: %x\n", *(uint32_t*)(pmem + align_offset));
+        }
+
+        //printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
+    }
+    
     return (*(uint32_t*)(pmem + align_offset));
 }
 
@@ -82,15 +114,19 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
 
     uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
-
-
-    if (align_offset + PMEM_BASE == SERIAL_PORT) {
-        putchar(new_data);
-        //printf("access serial\n");
-        fflush(stdout);
+    if (last_pc != top_ptr->rootp->Top->pc_out) { 
+        if (align_offset + PMEM_BASE == SERIAL_PORT) {
+            putchar(new_data);
+            //printf("access serial\n");
+            fflush(stdout);
+        }
+        //printf("pc = %08x, cycle = %lld\n", top_ptr->rootp->Top->pc_out, cycle_count);
+        //printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
     }
     *paddr = new_data;
-    printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
+
+
+    
 }
 
 
@@ -107,6 +143,7 @@ void exec_one_cycle_cpp() {
     top_ptr->clk = 0; top_ptr->eval();
     top_ptr->clk = 1; top_ptr->eval();
     cycle_count++;
+    last_pc = top_ptr->rootp->Top->pc_out;
 }
 
 void sync_after_load() {

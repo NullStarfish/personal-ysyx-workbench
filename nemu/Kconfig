@@ -20,9 +20,15 @@ config FTRACE
   bool "Enable ftrace"
   default y
 
-config TRACE_ALL
-  bool "Disable all trace"
+config ETRACE
+  bool "Enable etrace"
   default y
+
+
+config TRACE_ALL
+  bool "the necessary switch to turn on all trace"
+  default y
+
 
 
 

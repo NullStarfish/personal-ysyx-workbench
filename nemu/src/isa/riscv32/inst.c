@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "isa.h"
 #include "local-include/reg.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
@@ -22,6 +23,19 @@
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
+#define CSR(i) *csr_reg(i)
+#define ECALL(dnpc) { printf("into ECALL\n"); bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }
+
+static void etrace() {
+  IFDEF(CONFIG_ETRACE, {
+    printf("\n" 
+      ANSI_FMT("[ETRACE]", ANSI_FG_YELLOW) 
+      "ecall in mepc = " FMT_WORD ", mcause = " FMT_WORD "\n",
+      cpu.csrs.mepc, cpu.csrs.mcause);
+  });
+}
+
+
 
 enum {
   TYPE_I, TYPE_U, TYPE_S, TYPE_J, TYPE_R, TYPE_B,
@@ -65,7 +79,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 }
 
 static int decode_exec(Decode *s) {
-  s->dnpc = s->snpc;
+  s->dnpc = s->snpc;//这就是当前模拟执行的指令的pc
 
 #define INSTPAT_INST(s) ((s)->isa.inst)
 #define INSTPAT_MATCH(s, name, type, ... /* execute body */ ) { \
@@ -153,7 +167,34 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, if ((uint32_t)src1 >= (uint32_t)src2) s->dnpc = s->pc + imm);
 
   // System Instructions
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, NEMUTRAP(s->pc, R(10))); 
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = CSR(imm); CSR(imm) |= src1);
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = CSR(imm); CSR(imm) = src1);
+  // 在 riscv/decode.c 文件中
+
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, {
+    // mret 指令的正确实现
+    // 详见 RISC-V 手册 Volume 2, Page 41 (v2.2)
+
+    // 1. 恢复中断使能: 将 mstatus.MPIE (bit 7) 的值复制到 mstatus.MIE (bit 3)
+    if ((cpu.csrs.mstatus >> 7) & 1) { // if MPIE == 1
+      cpu.csrs.mstatus |= (1 << 3);    // then set MIE = 1
+    } else {
+      cpu.csrs.mstatus &= ~(1 << 3);   // else set MIE = 0
+    }
+
+    // 2. 将 mstatus.MPIE (bit 7) 设置为 1
+    //    因为返回后，中断栈已经“弹”出，所以 MPIE 恢复为就绪状态。
+    cpu.csrs.mstatus |= (1 << 7);
+
+    // 3. 将CPU的权限模式设置为 mstatus.MPP (bits 11-12) 中保存的值。
+    //    同时，需要将 mstatus.MPP 设置为最低权限 U-mode (0b00)。
+    //    这是最关键的一步，它让你的NEMU可以从M-mode返回到U-mode。
+    cpu.csrs.mstatus &= ~((1 << 11) | (1 << 12)); // 设置 MPP = U-mode (00)
+
+    // 4. 跳转到 mepc 指向的指令继续执行
+    s->dnpc = cpu.csrs.mepc;
+  });
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, ECALL(s->dnpc) etrace(); );
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); 
 
   // Fence Instructions
@@ -181,3 +222,4 @@ int isa_exec_once(Decode *s) {
   s->isa.inst = inst_fetch(&s->snpc, 4);
   return decode_exec(s);
 }
+

@@ -99,4 +99,10 @@ void sdb_mainloop() {
     }
 }
 
-void init_sdb() { init_regex(); init_wp_pool(); printf("SDB initialized. Ready for debugging.\n"); }
+void init_sdb() { 
+    init_regex(); 
+#ifdef CONFIG_WATCHPOINT
+    init_wp_pool(); 
+#endif
+    printf("SDB initialized. Ready for debugging.\n"); 
+}
