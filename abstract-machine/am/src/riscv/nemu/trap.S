@@ -59,6 +59,8 @@ __am_asm_trap:
 
   mv a0, sp
   call __am_irq_handle
+  mv sp, a0 #把on_interrupt返回的context传回来，这里已经切换了context，
+  #这使得下面的load全部都是在装在新的context，在mret之后，由于Kcontext更新了mepc，下面将跳转到下一个进程
 
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)

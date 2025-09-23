@@ -8,7 +8,6 @@ Context *simple_trap(Event ev, Context *ctx) {
       putch('d'); break;
     case EVENT_YIELD:
       putch('y'); 
-      ctx->mepc += 4;//simple_trap在mret之前调用
       break;
     default:
       panic("Unhandled event"); break;

@@ -62,7 +62,7 @@ int main() {
 
   for (int i = 0; i < LENGTH(tasks); i++) {
     Task *task    = &tasks[i];
-    Area stack    = (Area) { &task->context + 1, task + 1 };
+    Area stack    = (Area) { &task->context + 1, task + 1 };//左闭右开
     task->context = kcontext(stack, task->entry, (void *)task->name);
     task->next    = &tasks[(i + 1) % LENGTH(tasks)];
   }

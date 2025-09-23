@@ -17,8 +17,9 @@ static void f(void *arg) {
 }
 
 static Context *schedule(Event ev, Context *prev) {
-  current->cp = prev;
+  current->cp = prev;// save current context,进程初启动不需要上下文，kcontext初始化为空。第二次切换时装在这个上下文
   current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current->cp->mstatus = 0x1800;//to pass difftest
   return current->cp;
 }
 
