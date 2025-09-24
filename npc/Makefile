@@ -55,7 +55,7 @@ VERILATOR_INC_DIRS := /usr/local/share/verilator/include \
 VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
 
 # Combine all include directories into the final flag list
-INC_DIRS  := $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS) $(VERILATOR_OBJ_DIR)
+INC_DIRS  := $(VERILATOR_OBJ_DIR) $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS)
 INC_FLAGS := $(addprefix -I, $(INC_DIRS))
 
 # --- Compiler Flags ---
@@ -173,6 +173,18 @@ $(BUILD_DIR):
 # =============================================================================
 # User-facing Targets
 # =============================================================================
+
+
+
+
+rundiff: CFLAGS += -DCONFIG_DIFFTEST
+rundiff: CXXFLAGS += -DCONFIG_DIFFTEST
+
+gdb-diff: CFLAGS += -DCONFIG_DIFFTEST
+gdb-diff: CXXFLAGS += -DCONFIG_DIFFTEST
+
+
+
 menuconfig:
 	@echo "### Launching Kconfig menu... ###"
 	kconfig-mconf Kconfig
@@ -184,16 +196,14 @@ run:
 	@echo "### Starting NPC Simulation (config from menuconfig) ###"
 	./$(TARGET) $(IMG)
 
-rundiff:
+
+rundiff: npc
 	$(call git_commit, "sim RTL")
-	# Override .config for this target by passing flags on the command line.
-	$(MAKE) npc 'CFLAGS += -DCONFIG_DIFFTEST' 'CXXFLAGS += -DCONFIG_DIFFTEST'
 	@echo "### Starting NPC Simulation (WITH difftest) ###"
 	./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
-gdb-diff:
+gdb-diff: npc
 	$(call git_commit, "sim RTL")
-	$(MAKE) npc 'CFLAGS += -DCONFIG_DIFFTEST' 'CXXFLAGS += -DCONFIG_DIFFTEST'
 	@echo "### Starting NPC Simulation with GDB (WITH difftest) ###"
 	gdb --args ./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 

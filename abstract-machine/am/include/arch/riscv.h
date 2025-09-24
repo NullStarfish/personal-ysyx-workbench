@@ -13,15 +13,22 @@ struct Context {
   void *pdir;
 };
 
+// Based on RISC-V ABI
 #ifdef __riscv_e
-#define GPR1 gpr[15] // a5
+#define GPR1 gpr[15] // a5, on RV32E a5-a7 are not standard
+// Note: RV32E has a reduced register set, the convention might differ slightly
+// but for the PA, this is the typical setup. For syscall number, a5 is often used.
+#define GPR2 gpr[10] // a0
+#define GPR3 gpr[11] // a1
+#define GPR4 gpr[12] // a2
+#define GPRx gpr[10] // a0 (return value)
 #else
-#define GPR1 gpr[17] // a7
+// Standard RV32/64 ABI
+#define GPR1 gpr[17] // a7 (Syscall number)
+#define GPR2 gpr[10] // a0 (Argument 1)
+#define GPR3 gpr[11] // a1 (Argument 2)
+#define GPR4 gpr[12] // a2 (Argument 3)
+#define GPRx gpr[10] // a0 (Return value)
 #endif
-
-#define GPR2 gpr[0]
-#define GPR3 gpr[0]
-#define GPR4 gpr[0]
-#define GPRx gpr[0]
 
 #endif

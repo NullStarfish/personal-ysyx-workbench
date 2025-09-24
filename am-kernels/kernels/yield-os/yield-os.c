@@ -8,6 +8,7 @@ typedef union {
 } PCB;
 static PCB pcb[2], pcb_boot, *current = &pcb_boot;
 
+//程序入口，就是进程本身
 static void f(void *arg) {
   while (1) {
     putch("?AB"[(uintptr_t)arg > 2 ? 0 : (uintptr_t)arg]);
@@ -16,10 +17,11 @@ static void f(void *arg) {
   }
 }
 
+//handler使用a0寄存器来切换进程
 static Context *schedule(Event ev, Context *prev) {
   current->cp = prev;// save current context,进程初启动不需要上下文，kcontext初始化为空。第二次切换时装在这个上下文
   current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
-  current->cp->mstatus = 0x1800;//to pass difftest
+  
   return current->cp;
 }
 
