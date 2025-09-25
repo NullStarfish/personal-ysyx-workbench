@@ -6,6 +6,7 @@
 uint32_t isa_reg_read_cpp(int reg_num);
 uint32_t get_pc_cpp();
 uint32_t isa_reg_str2val_cpp(const char *s, bool *success);
+uint32_t isa_get_csrs(int csr_num);
 
 void isa_reg_display() {
     const char* abi_names[32] = {
@@ -18,6 +19,10 @@ void isa_reg_display() {
         printf("  $%-4s (x%-2d) = 0x%08x\n", abi_names[i], i, isa_reg_read_cpp(i));
     }
     printf("  $pc       = 0x%08x\n", get_pc_cpp());
+    printf("$mstatus = 0x%08x\n", isa_get_csrs(0x300));
+    printf("$mtvec  = 0x%08x\n", isa_get_csrs(0x305));
+    printf("$mepc   = 0x%08x\n", isa_get_csrs(0x341));
+    printf("$mcause = 0x%08x\n", isa_get_csrs(0x342));
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {

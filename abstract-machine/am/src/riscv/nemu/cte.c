@@ -35,7 +35,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *kctx = (Context *)(kstack.end-sizeof(Context));
   kctx->mepc=(uintptr_t) entry;
-  kctx->gpr[10] = (uint32_t)arg;
+  kctx->gpr[10] = (uint32_t)arg;//a0寄存器
   kctx->mstatus = 0x1800;//to pass difftest
   return kctx;
 }
@@ -43,7 +43,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 
 void yield() {
 #ifdef __riscv_e
-  asm volatile("li a5, -1; ecall");
+  asm volatile("li a5, 11; ecall");
 #else
   asm volatile("li a7, 11; ecall");//a7用来传递服务号
 #endif

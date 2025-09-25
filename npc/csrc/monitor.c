@@ -74,6 +74,7 @@ void init_monitor(int argc, char *argv[]) {
     init_log(log_file);
 
 #ifdef CONFIG_FTRACE
+    printf("FTRACE is ON\n");
     init_ftrace(elf_file);
 #endif
 

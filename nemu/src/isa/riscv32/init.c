@@ -33,7 +33,10 @@ static void restart() {
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
 
-  cpu.csrs.mcause = 0x1800;
+  cpu.csrs.mstatus = 0;
+  cpu.csrs.mepc    = 0;
+  cpu.csrs.mcause  = 0;
+  cpu.csrs.mtvec   = 0;
 }
 
 void init_isa() {

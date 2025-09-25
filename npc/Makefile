@@ -100,6 +100,10 @@ ifeq ($(strip $(CONFIG_DIFFTEST)),y)
     CFLAGS   += -DCONFIG_DIFFTEST
     CXXFLAGS += -DCONFIG_DIFFTEST
 endif
+ifeq ($(strip $(CONFIG_WATCHPOINT)),y)
+    CFLAGS   += -DCONFIG_WATCHPOINT
+    CXXFLAGS += -DCONFIG_WATCHPOINT
+endif
 
 # =============================================================================
 # Object File Mapping
@@ -194,7 +198,7 @@ run:
 	$(call git_commit, "sim RTL")
 	$(MAKE) npc
 	@echo "### Starting NPC Simulation (config from menuconfig) ###"
-	./$(TARGET) $(IMG)
+	./$(TARGET) -l log.txt --ftrace=load-store-riscv32e-npc.elf $(IMG)
 
 
 rundiff: npc

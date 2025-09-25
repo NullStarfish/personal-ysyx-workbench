@@ -15,6 +15,7 @@
 
 #include "isa.h"
 #include "local-include/reg.h"
+#include "macro.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
@@ -24,7 +25,8 @@
 #define Mr vaddr_read
 #define Mw vaddr_write
 #define CSR(i) *csr_reg(i)
-#define ECALL(dnpc) { printf("into ECALL\n"); bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }
+#define ECALL(dnpc) {   int NO = MUXDEF(CONFIG_TARGET_SHARE, 15, 17); dnpc = isa_raise_intr(gpr(NO), s->pc); }
+
 
 static void etrace() {
   IFDEF(CONFIG_ETRACE, {

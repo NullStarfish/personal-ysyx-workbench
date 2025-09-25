@@ -23,6 +23,7 @@
 typedef struct {
   uint32_t gpr[32];
   uint32_t pc;
+  CSRS csrs;
  } dut_cpu_state;
 
 // In your NEMU project's difftest_ref.c
@@ -47,12 +48,25 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     for (int i = 0; i < 32; i++) {
       cpu.gpr[i] = dut_regs->gpr[i];
     }
+
+    cpu.csrs.mstatus = dut_regs->csrs.mstatus;
+    cpu.csrs.mepc    = dut_regs->csrs.mepc;
+    cpu.csrs.mtvec   = dut_regs->csrs.mtvec;
+    cpu.csrs.mcause  = dut_regs->csrs.mcause;
+    
     cpu.pc = dut_regs->pc;
+    
   } else {
     // Copy registers from REF (NEMU) to DUT (NPC)
     for (int i = 0; i < 32; i++) {
       dut_regs->gpr[i] = cpu.gpr[i];
     }
+
+    dut_regs->csrs.mstatus = cpu.csrs.mstatus;
+    dut_regs->csrs.mepc    = cpu.csrs.mepc;
+    dut_regs->csrs.mtvec   = cpu.csrs.mtvec;
+    dut_regs->csrs.mcause  = cpu.csrs.mcause;
+
     dut_regs->pc = cpu.pc;
   }
 }

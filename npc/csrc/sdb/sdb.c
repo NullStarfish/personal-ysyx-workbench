@@ -102,6 +102,7 @@ void sdb_mainloop() {
 void init_sdb() { 
     init_regex(); 
 #ifdef CONFIG_WATCHPOINT
+    printf("Watchpoint is ON\n");
     init_wp_pool(); 
 #endif
     printf("SDB initialized. Ready for debugging.\n"); 

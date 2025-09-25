@@ -20,6 +20,11 @@ void (*ref_difftest_init)(int port) = NULL;
 bool difftest_is_enabled = false;
 static bool is_skip_ref = false;
 
+
+void difftest_skip_ref() {
+  is_skip_ref = true;
+}
+
 void init_difftest(char *ref_so_file, long img_size) {
   if (!ref_so_file) return;
 
@@ -88,6 +93,23 @@ static void checkregs(riscv32_CPU_state *ref) {
     printf("Difftest mismatch at PC: DUT=0x%08x, REF=0x%08x\n", dut.pc, ref->pc);
     mismatch = true;
   }
+  if (dut.csrs.mcause != ref->csrs.mcause) {
+    printf("Difftest mismatch at mcause: DUT=0x%08x, REF=0x%08x\n", dut.csrs.mcause, ref->csrs.mcause);
+    mismatch = true;
+  }
+  if (dut.csrs.mepc != ref->csrs.mepc) {
+    printf("Difftest mismatch at mepc: DUT=0x%08x, REF=0x%08x\n", dut.csrs.mepc, ref->csrs.mepc);
+    mismatch = true;
+  }
+  if (dut.csrs.mstatus != ref->csrs.mstatus) {
+    printf("Difftest mismatch at mstatus: DUT=0x%08x, REF=0x%08x\n", dut.csrs.mstatus, ref->csrs.mstatus);
+    mismatch = true;
+  }
+  if (dut.csrs.mtvec != ref->csrs.mtvec) {
+    printf("Difftest mismatch at mtvec: DUT=0x%08x, REF=0x%08x\n", dut.csrs.mtvec, ref->csrs.mtvec); 
+    mismatch = true;
+  }
+
 
   if (mismatch) {
     npc_state.state = NPC_ABORT;
@@ -98,7 +120,12 @@ static void checkregs(riscv32_CPU_state *ref) {
     for (int i = 0; i < 32; i ++) {
       printf("x%d:  %x\n", i, ref->gpr[i]);
     }
-  }
+    printf("pc:  %x\n", ref->pc);
+    printf("mstatus:  %x\n", ref->csrs.mstatus);
+    printf("mtvec:  %x\n", ref->csrs.mtvec);
+    printf("mepc:  %x\n", ref->csrs.mepc);
+    printf("mcause:  %x\n", ref->csrs.mcause);  
+}
 }
 
 void difftest_step() {

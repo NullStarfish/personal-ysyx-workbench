@@ -1,3 +1,6 @@
+//#define CONFIG_DIFFTEST
+
+
 #include <ctime>
 #include <sys/types.h>
 #include <verilated.h>
@@ -7,6 +10,7 @@
 #include "VTop_Top.h"
 #include "VTop_datapath.h"
 #include "VTop_RegFile.h"
+#include "VTop_CSRs.h"
 #include "svdpi.h"
 #include <cassert>
 #include <cstdio>
@@ -25,7 +29,15 @@ extern "C" {
     #include "trace/itrace.h"
     #include "reg.h"
     #include "ftrace.h"
+
+#ifdef CONFIG_DIFFTEST
+    #include "difftest/dut.h"
+#endif
 }
+
+
+
+
 
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
@@ -99,6 +111,8 @@ extern "C" int pmem_read(int raddr) {
     return (*(uint32_t*)(pmem + align_offset));
 }
 
+
+static int flag = 0;
 extern "C" void pmem_write(int waddr, int wdata, char wmask) {
     long offset = (unsigned int)waddr - PMEM_BASE;
     long align_offset = offset & ~0x3u; // Align to 4 bytes
@@ -123,6 +137,19 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
         //printf("pc = %08x, cycle = %lld\n", top_ptr->rootp->Top->pc_out, cycle_count);
         //printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
     }
+
+    if (align_offset + PMEM_BASE == SERIAL_PORT) {
+        //printf("access serial, flag = %d\n", flag);
+#ifdef CONFIG_DIFFTEST
+        //printf("Difftest skip ref\n");
+        if (flag)
+            difftest_skip_ref();
+        flag = !flag;
+#endif
+    }
+
+
+
     *paddr = new_data;
 
 
@@ -189,6 +216,16 @@ uint32_t isa_reg_read_cpp(int reg_num) {
     return 0;
 }
 
+uint32_t isa_get_csrs(int csr_num) {
+    switch (csr_num) {
+        case 0x300: return top_ptr->rootp->Top->datapath_unit->csr_unit->mstatus;
+        case 0x305: return top_ptr->rootp->Top->datapath_unit->csr_unit->mtvec;
+        case 0x341: return top_ptr->rootp->Top->datapath_unit->csr_unit->mepc;
+        case 0x342: return top_ptr->rootp->Top->datapath_unit->csr_unit->mcause;
+        default: return 0; // 未实现其他 CSR
+    }
+}
+
 // This signal is now at the top level
 uint32_t get_pc_cpp() { return top_ptr->rootp->Top->pc_out; }
 
@@ -219,6 +256,11 @@ void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     }
     // This signal is now at the top level
     dut->pc = top_ptr->rootp->Top->pc_out;
+    
+    dut->csrs.mtvec = top_ptr->rootp->Top->datapath_unit->csr_unit->mtvec;
+    dut->csrs.mepc = top_ptr->rootp->Top->datapath_unit->csr_unit->mepc;
+    dut->csrs.mstatus = top_ptr->rootp->Top->datapath_unit->csr_unit->mstatus;
+    dut->csrs.mcause = top_ptr->rootp->Top->datapath_unit->csr_unit->mcause;
 }
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
     long offset = (unsigned int)addr - PMEM_BASE;
@@ -228,7 +270,9 @@ void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
 }
 
 int main(int argc, char** argv) {
+
     init_monitor(argc, argv);
+    reset_cpu(5);
     sdb_mainloop();
     delete top_ptr;
     free(pmem);

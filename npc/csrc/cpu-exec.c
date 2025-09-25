@@ -31,7 +31,8 @@ static void trace_and_difftest(uint32_t pc, uint32_t inst) {
   }
 #endif
 #ifdef CONFIG_WATCHPOINT
-  if (check_watchpoints()) {
+  volatile bool need_stop = check_watchpoints();
+  if (need_stop) {
     npc_state.state = NPC_STOP;
   }
 #endif
