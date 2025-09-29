@@ -83,6 +83,7 @@ uint64_t get_time() {
 
 
 // --- DPI-C Interface for Memory ---
+static int flag_rtc = 0;
 extern "C" int pmem_read(int raddr) {
     long offset = (unsigned int)raddr - PMEM_BASE;
     long align_offset = offset & ~0x3u; // Align to 4 bytes
@@ -107,7 +108,15 @@ extern "C" int pmem_read(int raddr) {
 
         //printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
     }
-    
+    if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
+        //printf("access rtc, flag_rtc = %d\n", flag_rtc);
+#ifdef CONFIG_DIFFTEST
+        //printf("Difftest skip ref\n");
+        if (flag_rtc)
+            difftest_skip_ref();
+        flag_rtc = !flag_rtc;
+#endif
+    }
     return (*(uint32_t*)(pmem + align_offset));
 }
 
