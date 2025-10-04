@@ -12,7 +12,7 @@ module RegFile (
     input  logic        RegWEn
 );
     // Public for C++ testbench access
-    logic [31:0] reg_file [0:31] /*verilator public*/;
+    logic [31:0] reg_file [0:31] /* verilator public */;
 
     always_ff @(posedge clk) begin
         if (rst) begin

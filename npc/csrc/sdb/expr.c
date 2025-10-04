@@ -102,7 +102,7 @@ static uint32_t eval(int p, int q, bool* badexpr) {
         int op = find_main_op(p, q); if (op == -1) { *badexpr = true; return 0; }
         if (tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF) {
             uint32_t val = eval(op + 1, q, badexpr);
-            if (tokens[op].type == TK_NEG) return -val; if (tokens[op].type == TK_DEREF) return paddr_read(val);
+            if (tokens[op].type == TK_NEG) return -val; if (tokens[op].type == TK_DEREF) return pmem_read(val);
         }
         uint32_t val1 = eval(p, op - 1, badexpr); uint32_t val2 = eval(op + 1, q, badexpr);
         if (*badexpr) return 0;

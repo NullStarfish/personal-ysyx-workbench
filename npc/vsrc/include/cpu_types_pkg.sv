@@ -10,8 +10,12 @@ package cpu_types_pkg;
     } alusel_e;
 
     typedef enum logic [1:0] {
-        WB_MEM, WB_ALU, WB_PC4
-    } wbsel_e;
+        CSR_NONE,  // Not a CSR operation
+        CSR_WRITE, // CSRRW, CSRRWI
+        CSR_SET,   // CSRRS, CSRRSI
+        CSR_CLEAR  // CSRRC, CSRRCI
+    } csr_op_e;
+
 
     typedef enum logic [2:0] {
         IMM_I, IMM_S, IMM_B, IMM_U, IMM_J
@@ -21,6 +25,9 @@ package cpu_types_pkg;
     typedef struct packed {
         logic [31:0] inst;
         logic [31:0] pc;
+
+
+        logic valid; // Indicates if the data is valid
     } if_id_t;
 
     // Payload from IDU to EXU
@@ -50,7 +57,17 @@ package cpu_types_pkg;
         logic        mem_wen;// Memory Write Enable
         logic [2:0]  funct3;//用于load/store解码
 
+        logic valid; // Indicates if the data is valid
 
+        logic        is_ecall;
+        logic        is_mret;
+        logic        is_ebreak; // [NEW] Signal for EBREAK instruction
+        logic        [31:0] a5_data;
+
+
+        csr_op_e     csr_op;       // Type of CSR operation
+        logic [11:0] csr_addr;
+        logic [31:0] rs1_or_imm; // Pass rs1 data or immediate for CSR ops
     } id_ex_t;
 
     // Payload from EXU to LSU
@@ -72,6 +89,9 @@ package cpu_types_pkg;
         //jal中pc+4写入rd，pc+imm写入pc，
         //在exu中同时存在pc + imm和pc + 4，只是一般来说，pc_target为pc + 4, 
 
+
+        logic valid;
+
     } ex_lsu_t; // We give it a descriptive name
 
 
@@ -83,6 +103,9 @@ package cpu_types_pkg;
         logic [4:0]  rd_addr;
         logic        reg_wen;
         logic [31:0] pc_target; // Pass through for redirect target
+
+
+        logic valid;
 
     } lsu_wb_t;
 

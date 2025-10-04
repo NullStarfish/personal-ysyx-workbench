@@ -8,6 +8,9 @@
 #include "../reg.h"
 #include "../state.h"
 
+
+int pmem_read(int raddr);
+
 static bool is_batch_mode = false;
 
 // --- Command handlers (no changes needed in these functions) ---
@@ -39,7 +42,7 @@ static int cmd_x(char *args) {
     if (!success) { printf("Invalid expression: %s\n", expr_str); return 0; }
     printf("Scanning %d words from address 0x%x:\n", n, addr);
     for (int i = 0; i < n; i++) {
-        printf("0x%08x: 0x%08x\n", addr + i * 4, paddr_read(addr + i * 4));
+        printf("0x%08x: 0x%08x\n", addr + i * 4, pmem_read(addr + i * 4));
     }
     return 0;
 }

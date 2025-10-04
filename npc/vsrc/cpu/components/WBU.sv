@@ -44,7 +44,7 @@ module WBU (
         unique case (cur_state)
             S_IDLE: begin
                 // 如果LSU有数据，接收并进入COMMIT状态
-                if (wb_in.valid) begin
+                if (wb_in.valid && wb_in.payload.valid) begin
                     next_state = S_COMMIT;
                 end
             end

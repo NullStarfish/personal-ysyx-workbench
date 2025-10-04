@@ -8,7 +8,6 @@
 #include "VTop___024root.h"
 // MODIFIED: Include the full definitions for the hierarchy
 #include "VTop_Top.h"
-#include "VTop_datapath.h"
 #include "VTop_RegFile.h"
 #include "VTop_CSRs.h"
 #include "svdpi.h"
@@ -22,6 +21,10 @@
 #include "difftest/dut.h"
 #include "device.h"
 #include <sys/time.h>
+#include "VTop_IFU__Iz5.h"
+#include "VTop_IDU__Iz5_IBz6.h"
+#include "VTop_EXU__Ez6_EBz7.h"
+#include "VTop_CSR.h"
 extern "C" {
     #include "monitor.h"
     #include "state.h"
@@ -44,9 +47,11 @@ long long cycle_count = 0;
 
 extern "C" void ebreak() {
     // Correct hierarchical path
-    uint32_t a0_val = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[10];
+    uint32_t a0_val = top_ptr->rootp->Top->u_idu->u_regfile->reg_file[10];
     npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
     npc_state.halt_ret = a0_val;
+
+    printf("ebreak: state: %d\n", npc_state.state);
 }
 
 
@@ -81,92 +86,6 @@ uint64_t get_time() {
   return now - boot_time;
 }
 
-
-// --- DPI-C Interface for Memory ---
-static int flag_rtc = 0;
-extern "C" int pmem_read(int raddr) {
-    long offset = (unsigned int)raddr - PMEM_BASE;
-    long align_offset = offset & ~0x3u; // Align to 4 bytes
-    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
-    
-
-    if (last_pc != top_ptr->rootp->Top->pc_out) { 
-
-        if (align_offset + PMEM_BASE == RTC_ADDR) {
-            time_t timep;
-            struct tm *p;
-            time(&timep);
-            p = localtime(&timep);
-            *(uint32_t*)(pmem + align_offset) = (p->tm_sec) | (p->tm_min << 6) | (p->tm_hour << 12);
-            *(uint32_t*)(pmem + align_offset + 4) = (p->tm_year + 1900) | ((p->tm_mon + 1) << 12) | (p->tm_mday << 16);
-        } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {//这意味着需要先访问低位来进行更新
-            uint64_t us = get_time();
-            *(uint32_t*)(pmem + align_offset) = (uint32_t)(us & 0xFFFFFFFF);
-            *(uint32_t*)(pmem + align_offset + 4) = (uint32_t)(us >> 32);
-            //printf("RTC_UP read: %x\n", *(uint32_t*)(pmem + align_offset));
-        }
-
-        //printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
-    }
-    if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
-        //printf("access rtc, flag_rtc = %d\n", flag_rtc);
-#ifdef CONFIG_DIFFTEST
-        //printf("Difftest skip ref\n");
-        if (flag_rtc)
-            difftest_skip_ref();
-        flag_rtc = !flag_rtc;
-#endif
-    }
-    return (*(uint32_t*)(pmem + align_offset));
-}
-
-
-static int flag = 0;
-extern "C" void pmem_write(int waddr, int wdata, char wmask) {
-    long offset = (unsigned int)waddr - PMEM_BASE;
-    long align_offset = offset & ~0x3u; // Align to 4 bytes
-    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return;
-    uint32_t *paddr = (uint32_t*)(pmem + align_offset);
-    uint32_t old_data = *paddr;
-    uint32_t wmask_u32  = 0;
-    for (int i = 0; i < 4; i++) {
-        if (wmask & (1 << i)) {
-            wmask_u32 |= (0xFF << (i * 8));
-        }
-    }
-
-
-    uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
-    if (last_pc != top_ptr->rootp->Top->pc_out) { 
-        if (align_offset + PMEM_BASE == SERIAL_PORT) {
-            putchar(new_data);
-            //printf("access serial\n");
-            fflush(stdout);
-        }
-        //printf("pc = %08x, cycle = %lld\n", top_ptr->rootp->Top->pc_out, cycle_count);
-        //printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
-    }
-
-    if (align_offset + PMEM_BASE == SERIAL_PORT) {
-        //printf("access serial, flag = %d\n", flag);
-#ifdef CONFIG_DIFFTEST
-        //printf("Difftest skip ref\n");
-        if (flag)
-            difftest_skip_ref();
-        flag = !flag;
-#endif
-    }
-
-
-
-    *paddr = new_data;
-
-
-    
-}
-
-
-
 extern "C" {
 
 void assert_fail_msg() {
@@ -175,12 +94,7 @@ void assert_fail_msg() {
     print_ftrace_stack();
 }
 
-void exec_one_cycle_cpp() {
-    top_ptr->clk = 0; top_ptr->eval();
-    top_ptr->clk = 1; top_ptr->eval();
-    cycle_count++;
-    last_pc = top_ptr->rootp->Top->pc_out;
-}
+
 
 void sync_after_load() {
     // This function is no longer needed but kept for compatibility.
@@ -195,15 +109,42 @@ void init_verilator(int argc, char *argv[]) {
     top_ptr = new VTop;
 }
 
+// This signal is now at the top level
+uint32_t get_pc_cpp() { return top_ptr->rootp->Top->u_ifu->pc_reg; }
+
+// Correct hierarchical path
+uint32_t get_inst_cpp() { return top_ptr->rootp->Top->u_ifu->inst_reg; }
+
 void set_dpi_scope() {
     // No longer needed.
 }
+void step_one_clk() {
+    top_ptr->clk = 0; top_ptr->eval();
+    top_ptr->clk = 1; top_ptr->eval();
+    cycle_count++; // Increment cycle count for each clock cycle
+}
+
+void exec_one_cycle_cpp() {
+    last_pc = get_pc_cpp();
+    while (get_pc_cpp() == last_pc && npc_state.state == NPC_RUNNING) {
+        step_one_clk();
+        cycle_count++;
+    }
+    
+}
 
 void reset_cpu(int n) {
-    top_ptr->rst = 1;
-    for (int i = 0; i < n; ++i) { exec_one_cycle_cpp(); }
-    top_ptr->rst = 0;
-    top_ptr->eval();
+    top_ptr->rst = 1; // Assert reset
+    for (int i = 0; i < n; ++i) {
+        step_one_clk(); // Step n clock cycles while reset is high
+    }
+    top_ptr->rst = 0; // De-assert reset
+    top_ptr->eval();    // Evaluate once with rst=0 to propagate the change
+}
+
+void init_cpu() {
+    while (!top_ptr->rootp->Top->u_ifu->blank)
+        step_one_clk();
 }
 
 // ======================= FINAL VERSION =======================
@@ -215,31 +156,27 @@ void load_data_to_rom(const uint8_t* data, size_t size) {
 }
 // ===========================================================
 
-uint32_t paddr_read(uint32_t addr) { return pmem_read(addr); }
 
 // Correct hierarchical path
 uint32_t isa_reg_read_cpp(int reg_num) {
     if (reg_num >= 0 && reg_num < 32) {
-        return top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[reg_num];
+        return top_ptr->rootp->Top->u_idu->u_regfile->reg_file[reg_num];
     }
     return 0;
 }
 
+
 uint32_t isa_get_csrs(int csr_num) {
     switch (csr_num) {
-        case 0x300: return top_ptr->rootp->Top->datapath_unit->csr_unit->mstatus;
-        case 0x305: return top_ptr->rootp->Top->datapath_unit->csr_unit->mtvec;
-        case 0x341: return top_ptr->rootp->Top->datapath_unit->csr_unit->mepc;
-        case 0x342: return top_ptr->rootp->Top->datapath_unit->csr_unit->mcause;
+        case 0x300: return top_ptr->rootp->Top->u_exu->u_csr->mstatus;
+        case 0x305: return top_ptr->rootp->Top->u_exu->u_csr->mtvec;
+        case 0x341: return top_ptr->rootp->Top->u_exu->u_csr->mepc;
+        case 0x342: return top_ptr->rootp->Top->u_exu->u_csr->mcause;
         default: return 0; // 未实现其他 CSR
     }
 }
 
-// This signal is now at the top level
-uint32_t get_pc_cpp() { return top_ptr->rootp->Top->pc_out; }
 
-// Correct hierarchical path
-uint32_t get_inst_cpp() { return top_ptr->rootp->Top->datapath_unit->inst; }
 
 uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
     static const std::map<std::string, int> reg_map = {
@@ -261,15 +198,16 @@ void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     if (!dut) return;
     for (int i = 0; i < 32; i++) {
         // Correct hierarchical path
-        dut->gpr[i] = top_ptr->rootp->Top->datapath_unit->reg_file_unit->reg_file[i];
+        dut->gpr[i] = isa_reg_read_cpp(i);
     }
     // This signal is now at the top level
-    dut->pc = top_ptr->rootp->Top->pc_out;
+    dut->pc = get_pc_cpp();
     
-    dut->csrs.mtvec = top_ptr->rootp->Top->datapath_unit->csr_unit->mtvec;
-    dut->csrs.mepc = top_ptr->rootp->Top->datapath_unit->csr_unit->mepc;
-    dut->csrs.mstatus = top_ptr->rootp->Top->datapath_unit->csr_unit->mstatus;
-    dut->csrs.mcause = top_ptr->rootp->Top->datapath_unit->csr_unit->mcause;
+    dut->csrs.mtvec = top_ptr->rootp->Top->u_exu->u_csr->mtvec;
+    dut->csrs.mepc = top_ptr->rootp->Top->u_exu->u_csr->mepc;
+    dut->csrs.mstatus = top_ptr->rootp->Top->u_exu->u_csr->mstatus;
+    dut->csrs.mcause = top_ptr->rootp->Top->u_exu->u_csr->mcause;
+    
 }
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
     long offset = (unsigned int)addr - PMEM_BASE;
@@ -278,10 +216,122 @@ void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
 }
 }
 
+
+// --- DPI-C Interface for Memory ---
+static int flag_rtc = 0;
+extern "C" int pmem_read(int raddr) {
+    long offset = (unsigned int)raddr - PMEM_BASE;
+    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
+    
+
+    if (last_pc != get_pc_cpp()) { 
+
+        if (align_offset + PMEM_BASE == RTC_ADDR) {
+            time_t timep;
+            struct tm *p;
+            time(&timep);
+            p = localtime(&timep);
+            *(uint32_t*)(pmem + align_offset) = (p->tm_sec) | (p->tm_min << 6) | (p->tm_hour << 12);
+            *(uint32_t*)(pmem + align_offset + 4) = (p->tm_year + 1900) | ((p->tm_mon + 1) << 12) | (p->tm_mday << 16);
+        } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {//这意味着需要先访问低位来进行更新
+            uint64_t us = get_time();
+            *(uint32_t*)(pmem + align_offset) = (uint32_t)(us & 0xFFFFFFFF);
+            *(uint32_t*)(pmem + align_offset + 4) = (uint32_t)(us >> 32);
+            printf("RTC_UP read: %x\n", *(uint32_t*)(pmem + align_offset));
+        }
+
+        //printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
+    }
+    if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
+        if (align_offset + PMEM_BASE == RTC_ADDR) {
+            time_t timep;
+            struct tm *p;
+            time(&timep);
+            p = localtime(&timep);
+            *(uint32_t*)(pmem + align_offset) = (p->tm_sec) | (p->tm_min << 6) | (p->tm_hour << 12);
+            *(uint32_t*)(pmem + align_offset + 4) = (p->tm_year + 1900) | ((p->tm_mon + 1) << 12) | (p->tm_mday << 16);
+        } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {//这意味着需要先访问低位来进行更新
+            uint64_t us = get_time();
+            *(uint32_t*)(pmem + align_offset) = (uint32_t)(us & 0xFFFFFFFF);
+            *(uint32_t*)(pmem + align_offset + 4) = (uint32_t)(us >> 32);
+            //printf("RTC_UP read: %x\n", *(uint32_t*)(pmem + align_offset));
+        }
+        //printf("access rtc, flag_rtc = %d\n", flag_rtc);
+
+        //printf("Difftest skip ref\n");
+        if (flag_rtc) {
+#ifdef CONFIG_DIFFTEST
+            difftest_skip_ref();
+#endif
+            
+        }
+        flag_rtc = !flag_rtc;
+
+    }
+    return (*(uint32_t*)(pmem + align_offset));
+}
+
+
+static int flag = 0;
+extern "C" void pmem_write(int waddr, int wdata, char wmask) {
+    long offset = (unsigned int)waddr - PMEM_BASE;
+    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return;
+    uint32_t *paddr = (uint32_t*)(pmem + align_offset);
+    uint32_t old_data = *paddr;
+    uint32_t wmask_u32  = 0;
+    for (int i = 0; i < 4; i++) {
+        if (wmask & (1 << i)) {
+            wmask_u32 |= (0xFF << (i * 8));
+        }
+    }
+
+
+    uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
+    if (last_pc != get_pc_cpp()) { 
+        if (align_offset + PMEM_BASE == SERIAL_PORT) {
+            putchar(new_data);
+            printf("access serial\n");
+            fflush(stdout);
+        }
+        //printf("pc = %08x, cycle = %lld\n", top_ptr->rootp->Top->pc_out, cycle_count);
+        //printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
+    }
+
+    if (align_offset + PMEM_BASE == SERIAL_PORT) {
+        //printf("access serial, flag = %d\n", flag);
+
+        //printf("Difftest skip ref\n");
+        if (flag) {
+#ifdef CONFIG_DIFFTEST
+            difftest_skip_ref();
+#endif
+            putchar(new_data);
+            //printf("access serial\n");
+            fflush(stdout);
+        }
+        flag = !flag;
+
+    }
+
+
+
+    *paddr = new_data;
+
+
+    
+}
+
+
+
+
+
 int main(int argc, char** argv) {
 
     init_monitor(argc, argv);
-    reset_cpu(5);
+    reset_cpu(100);
+    init_cpu();
     sdb_mainloop();
     delete top_ptr;
     free(pmem);

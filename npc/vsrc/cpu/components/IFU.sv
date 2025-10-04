@@ -9,7 +9,7 @@ module IFU (
     output logic        i_addr_valid,
     input  logic        i_rdata_valid, 
     input  logic [31:0] i_rdata,
-    stage_if.master     if_out
+    stage_if.master     if_out 
 );
     // 状态定义
     typedef enum logic[1:0] {
@@ -21,9 +21,11 @@ module IFU (
     state_e cur_state, next_state;
 
     // 数据路径寄存器
-    logic [31:0] pc;       // Program Counter
-    logic [31:0] inst_reg; // 锁存从内存读出的指令
-    logic [31:0] pc_reg;   // 锁存指令对应的PC
+    logic [31:0] pc /* verilator public */ ;       // Program Counter
+    logic [31:0] inst_reg /* verilator public */; // 锁存从内存读出的指令
+    logic [31:0] pc_reg   /* verilator public */; // 锁存指令对应的PC
+
+    logic [31:0] i_addr_reg; 
 
     // 控制逻辑寄存器
     logic        cpu_started; // 标志位, 用于处理CPU的首次启动取指
@@ -43,11 +45,14 @@ module IFU (
     end
 
     // PC 和数据锁存 (时序逻辑)
+    logic blank /* verilator public */ ;
     always_ff @(posedge clk) begin
         if (rst) begin
             pc       <= 32'h80000000; // 设置复位向量
             inst_reg <= 32'b0;
-            pc_reg   <= 32'b0;
+            pc_reg   <= 32'h80000000;
+            i_addr_reg <= 32'h80000000;
+            blank <= 1'b0;
         end else begin
             // PC只在即将开始一次新的取指时更新 (即, 从IDLE进入BUSY)
             if (next_state == S_BUSY && cur_state == S_IDLE) begin
@@ -58,10 +63,22 @@ module IFU (
                 // 如果是首次启动, PC保持复位向量, 无需更新
             end
 
-            // 当处于BUSY状态且内存返回有效数据时, 锁存指令和当时的PC
+                // [NEW] 当我们发出内存请求时，锁存当前的PC值
+            if (next_state == S_BUSY && cur_state == S_IDLE) begin
+                if (cpu_started) begin
+                    i_addr_reg <= pc_redirect_port.target;
+                end else begin
+                    i_addr_reg <= pc; // For the very first fetch
+                end
+            end
+
+            // [MODIFIED] 当内存返回数据时...
             if (cur_state == S_BUSY && i_rdata_valid) begin
+                // 使用之前锁存的地址来显示和更新pc_reg
+                //$display("IFU: Fetched instruction 0x%08x from address 0x%08x", i_rdata, i_addr_reg);
                 inst_reg <= i_rdata;
-                pc_reg   <= pc; // 锁存的是发出请求的地址
+                pc_reg   <= i_addr_reg; // <-- 关键修改！使用延迟的PC
+                blank <= 1'b1;
             end
         end
     end
@@ -74,6 +91,7 @@ module IFU (
                 // 如果是首次启动, 则无条件开始取指。
                 // 否则, 必须等待WBU的有效重定向信号。
                 if (!cpu_started || pc_redirect_port.valid) begin
+                    //$display("IFU: Starting instruction fetch at PC = 0x%08x", pc);
                     next_state = S_BUSY;
                 end
             end
@@ -100,6 +118,7 @@ module IFU (
         if_out.valid = 1'b0;
         if_out.payload.inst = inst_reg; // 总是输出寄存器中的值
         if_out.payload.pc = pc_reg;     // 总是输出寄存器中的值
+        if_out.payload.valid = 1'b0;    // 默认无效
 
         unique case (cur_state)
             S_BUSY: begin
@@ -108,7 +127,9 @@ module IFU (
             end
             S_WAIT_READY: begin
                 // WAIT_READY状态: 向下游提供有效数据
+                
                 if_out.valid = 1'b1;
+                if_out.payload.valid = 1'b1;
             end
             default: begin
                 // S_IDLE状态: 无任何有效输出, 使用默认值即可

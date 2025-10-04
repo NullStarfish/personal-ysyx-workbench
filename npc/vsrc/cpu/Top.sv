@@ -106,6 +106,8 @@ module Top (
     //----------------------------------------------------------------
     Memory u_memory (
         // 指令端口 (Instruction Port)
+        .clk           (clk),
+        .rst           (rst),
         .i_addr        (i_addr),
         .i_addr_valid  (i_addr_valid),
         .i_rdata       (i_rdata),

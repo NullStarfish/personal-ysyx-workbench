@@ -13,7 +13,7 @@ module IDU (
     // 输出到 EXU
     stage_if.master    id_out
 );
-
+    
 
     //----------------------------------------------------------------
     // 指令字段提取
@@ -31,6 +31,8 @@ module IDU (
     logic id_in_fire = id_in.valid && id_in.ready;
     id_ex_t id_ex_payload_next;
 
+    
+
 
 
     //----------------------------------------------------------------
@@ -39,13 +41,17 @@ module IDU (
     logic [31:0] rs1_data;
     logic [31:0] rs2_data;
 
+    logic [4:0] read_addr_b;
+    assign read_addr_b = (inst == 32'h00000073) ? 5'd15 : rs2_addr;//给ecall用的
+
+
     RegFile u_regfile (
         .clk    (clk),
         .rst    (rst),
         .DataD  (reg_write_port.data),
         .AddrD  (reg_write_port.addr),
         .AddrA  (rs1_addr),
-        .AddrB  (rs2_addr),
+        .AddrB  (read_addr_b),
         .DataA  (rs1_data),
         .DataB  (rs2_data),
         .RegWEn (reg_write_port.wen)
@@ -97,11 +103,22 @@ module IDU (
         id_ex_payload_next.rd_addr     = rd_addr;
         id_ex_payload_next.funct3      = funct3;
 
+        id_ex_payload_next.is_ecall    = 0;
+        id_ex_payload_next.is_mret     = 0;
+        id_ex_payload_next.is_ebreak   = 0;
+        id_ex_payload_next.a5_data     = rs2_data;
+
         // --- 直通的数据 ---
         id_ex_payload_next.pc       = id_in.payload.pc;
         id_ex_payload_next.rs1_data = rs1_data;
         id_ex_payload_next.rs2_data = rs2_data;
         id_ex_payload_next.imm      = imm; // 从 ImmGen 模块获取
+        id_ex_payload_next.valid = id_in.payload.valid; // 传递有效位
+
+        //csr逻辑
+        id_ex_payload_next.csr_op = CSR_NONE;
+        id_ex_payload_next.csr_addr = 12'b0;
+        id_ex_payload_next.rs1_or_imm = rs1_data; // Default to rs1_data
 
         // --- 根据具体指令生成控制信号 ---
         unique case (opcode)
@@ -205,6 +222,38 @@ module IDU (
                     default:            id_ex_payload_next.alu_opcode = ALU_ADD;
                 endcase
             end
+            `OPCODE_I_TYPE_SYS: begin
+                    unique case (inst[31:20]) // Check funct12
+                        12'h000: id_ex_payload_next.is_ecall = 1'b1;
+                        12'h001: id_ex_payload_next.is_ebreak = 1'b1; // EBREAK instruction
+                        12'h302: id_ex_payload_next.is_mret = 1'b1;
+                        default: begin
+                            id_ex_payload_next.reg_wen  = 1'b1;
+                            id_ex_payload_next.csr_addr = inst[31:20];
+
+                            // Decode funct3 to determine CSR operation type
+                            unique case (funct3)
+                                `FUNCT3_CSRRW:  id_ex_payload_next.csr_op = CSR_WRITE;
+                                `FUNCT3_CSRRS:  id_ex_payload_next.csr_op = CSR_SET;
+                                `FUNCT3_CSRRC:  id_ex_payload_next.csr_op = CSR_CLEAR;
+                                `FUNCT3_CSRRWI: begin
+                                    id_ex_payload_next.csr_op = CSR_WRITE;
+                                    id_ex_payload_next.rs1_or_imm = {27'b0, rs1_addr}; // Use immediate
+                                end
+                                `FUNCT3_CSRRSI: begin
+                                    id_ex_payload_next.csr_op = CSR_SET;
+                                    id_ex_payload_next.rs1_or_imm = {27'b0, rs1_addr}; // Use immediate
+                                end
+                                `FUNCT3_CSRRCI: begin
+                                    id_ex_payload_next.csr_op = CSR_CLEAR;
+                                    id_ex_payload_next.rs1_or_imm = {27'b0, rs1_addr}; // Use immediate
+                                end
+                                default: id_ex_payload_next.csr_op = CSR_NONE;
+                            endcase
+                        end
+                    endcase
+                    
+            end
             default: begin
                 // 非法指令，保持默认值
             end
@@ -241,6 +290,7 @@ module IDU (
         unique case(cur_state)
             S_IDLE: begin
                 // 在IDLE状态，如果IFU有有效数据，则接收并进入WAIT状态
+                //$display("current passing valid is %b", id_out.payload.valid);
                 if (id_in.valid) begin
                     next_state = S_WAIT_EXU;
                 end 
@@ -257,6 +307,8 @@ module IDU (
     // 输出逻辑 (只依赖于 cur_state)
     always_comb begin
         id_out.payload = id_ex_payload_reg; // 输出总是来自寄存器
+
+
 
         // --- 默认输出 ---
         id_in.ready = 1'b0;

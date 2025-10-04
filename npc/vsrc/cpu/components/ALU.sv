@@ -36,11 +36,21 @@ module ALU #(parameter WIDTH = 32) (
         .zero(internal_zero)
     );
 
+    logic [1:0] shift_type_internal;
+    always_comb begin
+        unique case (ALUSel)
+            ALU_SLL: shift_type_internal = 2'b00; // SLL
+            ALU_SRL: shift_type_internal = 2'b01; // SRL
+            ALU_SRA: shift_type_internal = 2'b10; // SRA
+            default: shift_type_internal = 2'bxx; // Don't care for non-shift operations
+        endcase
+    end
+
     // Instantiate Shifter unit
     BarrelShifter shifter_unit (
         .data_in(A),
         .shamt(B[4:0]),
-        .shift_type(ALUSel[1:0]),
+        .shift_type(shift_type_internal),
         .data_out(shifter_result)
     );
 

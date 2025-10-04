@@ -42,6 +42,7 @@ static void exec_once() {
   uint32_t pc = get_pc_cpp();
   uint32_t inst = get_inst_cpp();
   exec_one_cycle_cpp();
+  
   trace_and_difftest(pc, inst);
 }
 
