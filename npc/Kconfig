@@ -1,0 +1,59 @@
+mainmenu "RISC-V CPU Simulator (NPC) Configuration"
+
+config TRACE
+    bool "Enable Tracing Features (Master Switch)"
+    default y
+    help
+      Enable this to turn on all tracing sub-features. This is the
+      master switch for itrace, ftrace, and other potential traces.
+      Disabling this will turn off all tracing code compilation for
+      maximum performance.
+
+if TRACE
+
+    config ITRACE
+        bool "Enable Instruction Trace (itrace)"
+        default y
+        help
+          Logs every instruction executed by the CPU, including its disassembly.
+          This requires the Capstone disassembly library. This can generate
+          very large log files and has a noticeable performance impact.
+
+    config FTRACE
+        bool "Enable Function Trace (ftrace)"
+        default y
+        help
+          Tracks function calls and returns using symbols from an ELF file.
+          This requires providing an ELF file at runtime and links against
+          libelf.
+
+    config MTRACE
+        bool "Enable Memory Trace (mtrace)"
+        default n
+        help
+          Logs every memory read and write operation. This is extremely
+          verbose and will severely impact simulation speed. Use only for
+          debugging specific memory issues.
+
+    config DTRACE
+        bool "Enable Device Trace (dtrace)"
+        default n
+        help
+          Logs interactions with memory-mapped devices like the serial
+          port or timer. Less verbose than full mtrace.
+
+endif # TRACE
+
+config DIFFTEST
+    bool "Enable Differential Testing"
+    default n
+    help
+      Compare the execution of the DUT (this simulator) against
+      a reference implementation (e.g., NEMU) on every step. This is
+      a powerful verification tool but requires the reference to be built.
+
+
+
+config WATCHPOINT
+    bool "Enable Watchpoints"
+    default y

@@ -9,5 +9,7 @@
 !*.cc
 !*.cpp
 !.gitignore
+!Kconfig
+!.config
 !README.md
 build/
