@@ -85,18 +85,21 @@ module IFU (
             S_IDLE: begin
                 if (!cpu_started || pc_redirect_port.valid) begin
                     next_state = S_SEND_ADDR;
+                    //$display("begin send addr");
                 end
             end
             S_SEND_ADDR: begin
                 // 地址成功发送后，进入等待数据状态
                 if (ifu_axi_if.ar_fire) begin
                     next_state = S_WAIT_DATA;
+                    //$display("begin wait data");
                 end
             end
             S_WAIT_DATA: begin
                 // 数据成功接收后，进入等待下游状态
                 if (ifu_axi_if.r_fire) begin
                     next_state = S_WAIT_IDU;
+                    //$display("begin wait idu");
                 end
             end
             S_WAIT_IDU: begin

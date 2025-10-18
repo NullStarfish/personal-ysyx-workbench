@@ -21,6 +21,7 @@ module Top (
 
 
     AXI4_Lite ifu_sram();
+    AXI4_Lite lsu_sram();
 
     //----------------------------------------------------------------
     // 反馈路径接口 (Feedback Interfaces)
@@ -83,13 +84,7 @@ module Top (
     LSU u_lsu (
         .clk         (clk),
         .rst         (rst),
-        .d_addr      (d_addr),      // 输出到数据内存的地址
-        .d_wdata     (d_wdata),     // 输出到数据内存的写数据
-        .d_wmask     (d_wmask),     // 写掩码
-        .d_wen       (d_wen),       // 写使能
-        .d_rdata_raw (d_rdata_raw), // 从数据内存读出的原始数据
-        .d_ready     (d_ready),     // 数据内存就绪信号
-        .d_valid     (d_valid),     // 访问数据内存的有效信号
+        .lsu_axi_if  (lsu_sram),
         .lsu_in      (ex_lsu_if.slave),  // 来自 EXU 的输入
         .lsu_out     (lsu_wb_if.master)  // 输出到 WBU
     );
@@ -106,30 +101,20 @@ module Top (
     //----------------------------------------------------------------
     // 内存模块实例化 (Memory Instantiation)
     //----------------------------------------------------------------
+    AXI4_Lite to_sram();
+    AXI_Pipelined_Bridge_Arbiter u_arbiter (
+        .clk              (clk),
+        .rst              (rst),
+        .slave0_if        (ifu_sram),
+        .slave1_if        (lsu_sram),
+        .master_if        (to_sram)
+    );
 
     SRAM u_sram (
         .clk              (clk),
         .rst              (rst),
-        .sram_axi_if      (ifu_sram)
+        .sram_axi_if      (to_sram)
     );
 
-    wire blank1, blank2;
-    Memory u_memory (
-        // 指令端口 (Instruction Port)
-        .clk           (clk),
-        .rst           (rst),
-        .i_addr        (0),
-        .i_addr_valid  (0),
-        .i_rdata       (blank1),
-        .i_rdata_valid (blank2),
-        // 数据端口 (Data Port)
-        .d_addr        (d_addr),
-        .wmask         (d_wmask),
-        .d_rdata       (d_rdata_raw),
-        .d_wen         (d_wen),
-        .d_wdata       (d_wdata),
-        .d_valid       (d_valid),
-        .d_ready       (d_ready)
-    );
 
 endmodule
