@@ -23,10 +23,22 @@ OBJ_DIR := $(BUILD_DIR)/obj_dir
 TOOLS_DIR := $(NPC_HOME)/csrc/tools
 
 # --- Verilog/SystemVerilog Sources ---
+# 1. Packages must come first.
 VSRC_PKG := $(shell find $(VSRC_DIR)/include -name "*pkg.sv")
+
+# 2. Interface definitions must come after packages but before modules.
+VSRC_INTERFACES := $(shell find $(VSRC_DIR)/include -name "interfaces.sv")
+
+# 3. Opcode definitions (can be anywhere, but let's keep them separate).
 VSRC_OPCODES := $(shell find $(VSRC_DIR)/include -name "*opcodes.sv")
-VSRC_OTHERS := $(filter-out $(VSRC_PKG) $(VSRC_OPCODES), $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv"))
-VSRC := $(VSRC_PKG) $(VSRC_OTHERS) $(VSRC_OPCODES)
+
+# 4. All other modules and files.
+#    CRITICAL: We must filter out ALL definition files we've already listed.
+VSRC_OTHERS := $(filter-out $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES), \
+               $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv"))
+
+# 5. Assemble the final list in the CORRECT order.
+VSRC := $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OTHERS) $(VSRC_OPCODES)
 
 # --- C/C++ Sources ---
 # Start with base lists of all source files found.

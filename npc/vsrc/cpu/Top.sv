@@ -17,6 +17,11 @@ module Top (
     stage_if #(ex_lsu_t) ex_lsu_if(); // EXU -> LSU
     stage_if #(lsu_wb_t) lsu_wb_if(); // LSU -> WBU
 
+
+
+
+    AXI4_Lite ifu_sram();
+
     //----------------------------------------------------------------
     // 反馈路径接口 (Feedback Interfaces)
     //----------------------------------------------------------------
@@ -53,10 +58,7 @@ module Top (
         .clk              (clk),
         .rst              (rst),
         .pc_redirect_port (pc_redirect_if.slave), // 来自 WBU 的 PC 重定向请求
-        .i_addr           (i_addr),                 // 输出到指令内存的地址
-        .i_addr_valid     (i_addr_valid),           // 地址有效信号
-        .i_rdata_valid    (i_rdata_valid),          // 来自指令内存的数据有效信号
-        .i_rdata          (i_rdata),                // 来自指令内存的指令数据
+        .ifu_axi_if       (ifu_sram),
         .if_out           (if_id_if.master)         // 输出到 IDU
     );
 
@@ -104,14 +106,22 @@ module Top (
     //----------------------------------------------------------------
     // 内存模块实例化 (Memory Instantiation)
     //----------------------------------------------------------------
+
+    SRAM u_sram (
+        .clk              (clk),
+        .rst              (rst),
+        .sram_axi_if      (ifu_sram)
+    );
+
+    wire blank1, blank2;
     Memory u_memory (
         // 指令端口 (Instruction Port)
         .clk           (clk),
         .rst           (rst),
-        .i_addr        (i_addr),
-        .i_addr_valid  (i_addr_valid),
-        .i_rdata       (i_rdata),
-        .i_rdata_valid (i_rdata_valid),
+        .i_addr        (0),
+        .i_addr_valid  (0),
+        .i_rdata       (blank1),
+        .i_rdata_valid (blank2),
         // 数据端口 (Data Port)
         .d_addr        (d_addr),
         .wmask         (d_wmask),

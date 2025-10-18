@@ -21,7 +21,7 @@
 #include "difftest/dut.h"
 #include "device.h"
 #include <sys/time.h>
-#include "VTop_IFU__Iz5.h"
+#include "VTop_IFU__IBz5.h"
 #include "VTop_IDU__Iz5_IBz6.h"
 #include "VTop_EXU__Ez6_EBz7.h"
 #include "VTop_CSR.h"

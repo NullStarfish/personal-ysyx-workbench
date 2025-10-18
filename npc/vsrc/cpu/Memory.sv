@@ -21,8 +21,10 @@ module Memory (
     input  logic [31:0] d_wdata,
     input logic d_valid,
     output logic d_ready
-    // Note: For simplicity, we assume word-aligned writes for now.
-    // wmask can be added later if needed.
+
+    //在得到valid 之后，跳转busy，并发出pmem_read请求（可以使用时序块），于是在下一个周期之后，得到了数据
+    //然后等待发出rvalid，等待cpu。在cpu_ready之后，拉低
+    //读的状态：IDLE, WAIT_CPU， 对于ready，在IDLE情况下永远ready
 );
 
     // Import the C functions that will perform the actual memory operations.
