@@ -28,21 +28,21 @@ module OptimizedDivider (
     stage_if.master         div_out
 
 );
-    wire in_valid = div_in.valid;
-    logic in_ready;
-    assign div_in.ready = in_ready;
+ // Directly map interface signals to internal wires for clarity
+    wire            in_valid    = div_in.valid;
+    wire [31:0]     operand_a   = div_in.payload.dataA;
+    wire [31:0]     operand_b   = div_in.payload.dataB;
+    wire riscv_div_op_e div_op   = div_in.payload.opcode;
+    wire            out_ready   = div_out.ready;
 
-    wire [31:0] operand_a = div_in.payload.dataA;
-    wire [31:0] operand_b = div_in.payload.dataB;
-    riscv_div_op_e div_op = div_in.payload.opcode;
-
-
-
-    logic out_valid;
+    // Internal logic drives the output interface signals
+    logic           in_ready;
+    logic           out_valid;
+    assign div_in.ready  = in_ready;
     assign div_out.valid = out_valid;
 
-    wire out_ready = div_out.ready;
-    wire [31:0] out_result = div_out.payload;
+    assign div_out.payload = final_result_reg;
+
 
 
     // --- FSM States ---
@@ -230,6 +230,5 @@ module OptimizedDivider (
         endcase
     end
 
-    assign out_result = final_result_reg;
 
 endmodule

@@ -195,8 +195,8 @@ module EXU (
         unique case (cur_state)
             S_IDLE:     ex_in.ready = 1'b1;
             S_WAIT_ALU:     exu_alu_if.valid = 1'b1;
-            S_CALC:         alu_exu_if.ready = 1'b1;
-            S_WAIT_LSU: ex_out.valid  = 1'b1;
+            S_CALC:     begin alu_exu_if.ready = 1'b1;  end
+            S_WAIT_LSU: begin  ex_out.valid  = 1'b1;end
         endcase
     end
     

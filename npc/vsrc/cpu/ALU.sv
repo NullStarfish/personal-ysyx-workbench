@@ -17,11 +17,18 @@ module ALU #(parameter WIDTH = 32) (
     //output logic [WIDTH-1:0] Results
 );
 
-    wire [31:0] A = alu_in.payload.dataA;
-    wire [31:0] B = alu_in.payload.dataB;
-    alusel_e ALUSel = alu_in.payload.opcode;
+    exu_alu_t alu_in_payload_reg;
+
+    wire [31:0] A;
+    wire [31:0] B; 
+    alusel_e ALUSel;
+    assign A = alu_in_payload_reg.dataA;
+    assign B = alu_in_payload_reg.dataB;
+    assign ALUSel = alu_in_payload_reg.opcode;
+
 
     logic [WIDTH - 1 : 0] Results;
+
     assign alu_out.payload = Results;
 
 
@@ -100,6 +107,8 @@ module ALU #(parameter WIDTH = 32) (
         endcase  
     end
 
+    assign alu_div_if.payload.opcode = div_op;
+
 
     OptimizedDivider u_div (
         .clk    (clk),
@@ -108,6 +117,37 @@ module ALU #(parameter WIDTH = 32) (
         .div_out (div_alu_if.master)
     );
 
+
+    stage_if #(alu_mul_t) alu_mul_if();
+    stage_if              mul_alu_if();
+    alu_mul_t            mul_payload_reg;
+    assign alu_mul_if.payload = mul_payload_reg;
+
+
+    riscv_mul_op_e mul_op;
+    always_comb begin
+        mul_op = MUL_NONE;
+        case (ALUSel) 
+            ALU_MUL: mul_op = MUL;
+            ALU_MULH: mul_op = MULH;
+            ALU_MULHSU: mul_op = MULHSU;
+            ALU_MULHU: mul_op = MULHU;
+            default:;
+        endcase  
+    end
+
+    assign alu_mul_if.payload.opcode = mul_op;
+
+
+    BoothMultiplier u_mul (
+        .clk (clk),
+        .rst (rst),
+        .mul_in (alu_mul_if.slave),
+        .mul_out (mul_alu_if.master)
+    );
+
+
+    
 
 
 
@@ -126,6 +166,16 @@ module ALU #(parameter WIDTH = 32) (
                     ALUSel == ALU_REMU   );
 
 
+    logic is_mul = (ALUSel == ALU_MUL    ||
+                    ALUSel == ALU_MULH   ||
+                    ALUSel == ALU_MULHSU ||
+                    ALUSel == ALU_MULHU );
+
+    
+    logic is_div = (ALUSel == ALU_DIV    ||
+                    ALUSel == ALU_DIVU   ||
+                    ALUSel == ALU_REM    ||
+                    ALUSel == ALU_REMU   );
 
 
     always_comb begin
@@ -143,6 +193,7 @@ module ALU #(parameter WIDTH = 32) (
             ALU_COPY_A:  Results = A;
             ALU_COPY_B:  Results = B;
             ALU_DIV, ALU_DIVU, ALU_REM, ALU_REMU: Results = div_alu_if.payload;
+            ALU_MUL, ALU_MULH, ALU_MULHSU, ALU_MULHU: Results = mul_alu_if.payload;
             default:  Results = 32'hdeadbeef;
         endcase
     end
@@ -151,8 +202,9 @@ module ALU #(parameter WIDTH = 32) (
     //----------------------------------------------------------------
     // Moore FSM Handshake Logic
     //----------------------------------------------------------------
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         S_IDLE, // 等待 EXU 发起请求
+        S_PREP,
         S_WAIT_SEQU,
         S_CALC,  // 正在进行计算 (对于组合ALU，此状态持续一个周期)
         S_WAIT_EXU
@@ -177,12 +229,50 @@ module ALU #(parameter WIDTH = 32) (
             div_payload_reg.dataA <= 0;
             div_payload_reg.dataB <= 0;
             div_payload_reg.opcode <= DIV_NONE;
+
+            mul_payload_reg.dataA <= 0;
+            mul_payload_reg.dataB <= 0;
+            mul_payload_reg.opcode <= MUL_NONE;
+
+
+
+            alu_in_payload_reg.dataA <= 0;
+            alu_in_payload_reg.dataB <= 0;
+            alu_in_payload_reg.opcode <= ALU_NOP;
+
         end else begin
-            if (cur_state == S_IDLE && next_state == S_WAIT_SEQU) begin
+            if (cur_state == S_IDLE && next_state == S_PREP) begin
                 div_payload_reg.dataA <= alu_in.payload.dataA;
                 div_payload_reg.dataB <= alu_in.payload.dataB;
                 div_payload_reg.opcode <= div_op;
+
+                mul_payload_reg.dataA <= alu_in.payload.dataA;
+                mul_payload_reg.dataB <= alu_in.payload.dataB;
+                mul_payload_reg.opcode <= mul_op;
+
+                alu_in_payload_reg.dataA <= alu_in.payload.dataA;
+                alu_in_payload_reg.dataB <= alu_in.payload.dataB;
+                alu_in_payload_reg.opcode <= alu_in.payload.opcode;
+
             end
+
+        end
+        if (cur_state == S_PREP && next_state == S_WAIT_SEQU) begin
+            $display("begin div or mul");
+            if (is_mul)
+                $display("data: a: %d, b: %d, op: %d", alu_mul_if.payload.dataA, alu_mul_if.payload.dataB, alu_mul_if.payload.opcode);
+            else
+                $display("data: a: %d, b: %d, op: %d", alu_div_if.payload.dataA, alu_div_if.payload.dataB, alu_div_if.payload.opcode);
+
+        end
+        if (cur_state == S_WAIT_SEQU && next_state == S_CALC) begin
+            $display("mul or div begin calc");
+        end
+        if (cur_state == S_CALC && next_state == S_WAIT_EXU) begin
+            if (is_mul)
+                $display("mul results %d", mul_alu_if.payload);
+            else
+                $display("div results %d", div_alu_if.payload); 
         end
     end
 
@@ -195,19 +285,22 @@ module ALU #(parameter WIDTH = 32) (
                 // 如果 EXU 发来了有效的请求，则下一个周期进入计算状态
 
                 if (alu_in.fire) begin
-                    if (is_seq) 
-                        next_state = S_WAIT_SEQU;
-                    else
-                        next_state = S_WAIT_EXU;
+                    next_state = S_PREP;
                 end
 
             end
-            S_WAIT_SEQU: begin
-                if (alu_div_if.fire)
+            S_PREP: begin
+                if (is_seq) 
+                    next_state = S_WAIT_SEQU;
+                else
+                    next_state = S_WAIT_EXU;
+            end
+            S_WAIT_SEQU: begin//fire由alu调控
+                if (alu_div_if.fire || alu_mul_if.fire)
                     next_state = S_CALC;
             end
             S_CALC: begin
-                if (div_alu_if.fire)
+                if (div_alu_if.fire || mul_alu_if.fire)
                     next_state = S_WAIT_EXU;
             end
             S_WAIT_EXU: begin
@@ -223,21 +316,39 @@ module ALU #(parameter WIDTH = 32) (
     always_comb begin
         alu_in.ready = 1'b0; // 默认情况下，ALU 没有准备好
         alu_out.valid = 1'b0;
+
         alu_div_if.valid = 1'b0;
         div_alu_if.ready = 1'b0;
+
+        alu_mul_if.valid = 1'b0;
+        mul_alu_if.ready = 1'b0;
         unique case (cur_state)
             S_IDLE: begin
+                //$display("alu idle");
                 alu_in.ready = 1'b1;
             end
             S_WAIT_SEQU:begin
-                alu_div_if.valid = 1'b1;
+                if (is_div) begin
+                    //$display("begin div");
+                    alu_div_if.valid = 1'b1;
+                end
+                else if (is_mul)
+                    alu_mul_if.valid = 1'b1;
             end
             S_CALC: begin
-                div_alu_if.ready = 1'b0;
+                if (is_div) begin
+                    //$display("begin div calc");
+                    div_alu_if.ready = 1'b1;
+                end
+                else if (is_mul)
+                    mul_alu_if.ready = 1'b1;
             end
             S_WAIT_EXU: begin
+                
                 alu_out.valid = 1'b1;
+                //$display("Results = %d", Results);
             end
+            default:;
         endcase
     end
 

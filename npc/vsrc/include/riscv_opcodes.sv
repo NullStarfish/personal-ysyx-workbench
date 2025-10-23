@@ -37,6 +37,16 @@
 `define FUNCT3_ANDI_AND   3'b111
 
 
+// ---- M extension ----
+`define FUNCT3_MUL      3'h0
+`define FUNCT3_MULH     3'h1
+`define FUNCT3_MULHSU   3'h2
+`define FUNCT3_MULHU    3'h3
+`define FUNCT3_DIV      3'h4
+`define FUNCT3_DIVU     3'h5
+`define FUNCT3_REM      3'h6
+`define FUNCT3_REMU     3'h7
+
 
 // --- SYStem Instructions Funct3 Constants ---
 `define FUNCT3_CSRRW     3'b001

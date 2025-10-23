@@ -32,4 +32,10 @@ package exu_types_pkg;
         riscv_div_op_e     opcode;
     } alu_div_t;
 
+    typedef struct packed {
+        logic [31:0] dataA;
+        logic [31:0] dataB;
+        riscv_mul_op_e   opcode;
+    } alu_mul_t;
+
 endpackage
