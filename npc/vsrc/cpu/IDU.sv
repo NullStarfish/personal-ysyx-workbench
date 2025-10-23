@@ -223,6 +223,7 @@ module IDU (
                 endcase
             end
             `OPCODE_I_TYPE_SYS: begin
+                    id_ex_payload_next.alu_opcode = ALU_NOP;
                     unique case (inst[31:20]) // Check funct12
                         12'h000: id_ex_payload_next.is_ecall = 1'b1;
                         12'h001: id_ex_payload_next.is_ebreak = 1'b1; // EBREAK instruction

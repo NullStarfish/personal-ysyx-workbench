@@ -1,28 +1,42 @@
 // ALU.sv
 import cpu_types_pkg::*;
+import exu_types_pkg::*;
 
 module ALU #(parameter WIDTH = 32) (
-    input  logic [WIDTH-1:0] A,
-    input  logic [WIDTH-1:0] B,
-    input  alusel_e          ALUSel,
+    // input  logic [WIDTH-1:0] A,
+    // input  logic [WIDTH-1:0] B,
+    // input  alusel_e          ALUSel,
 
     input  logic             clk,
-    input  logic             valid,
-    output  logic             ready,//i am slave
+    // input  logic             valid,
+    // output  logic             ready,//i am slave
     input logic             rst,
+    stage_if.slave          alu_in,
+    stage_if.master         alu_out
 
-    output logic [WIDTH-1:0] Results
+    //output logic [WIDTH-1:0] Results
 );
+
+    wire [31:0] A = alu_in.payload.dataA;
+    wire [31:0] B = alu_in.payload.dataB;
+    alusel_e ALUSel = alu_in.payload.opcode;
+
+    logic [WIDTH - 1 : 0] Results;
+    assign alu_out.payload = Results;
+
+
+
+
+
+    // ADDAndSub
     // Internal signals for functional units
     logic [WIDTH-1:0] adder_result;
-    logic [WIDTH-1:0] shifter_result;
+
     logic             internal_carry;
     logic             internal_overflow;
     logic             internal_zero; // Wire to connect the zero output
     logic             When2Sub;
 
-    // Instantiate Add/Sub unit
-    // MODIFIED: Connected the .zero port to resolve PINMISSING warning.
 
 
     assign When2Sub = ALUSel == ALU_SUB || ALUSel == ALU_SLT || ALUSel == ALU_SLTU;
@@ -36,7 +50,12 @@ module ALU #(parameter WIDTH = 32) (
         .zero(internal_zero)
     );
 
+
+
+
+    // Instantiate Shifter unit
     logic [1:0] shift_type_internal;
+    logic [WIDTH-1:0] shifter_result;
     always_comb begin
         unique case (ALUSel)
             ALU_SLL: shift_type_internal = 2'b00; // SLL
@@ -46,7 +65,7 @@ module ALU #(parameter WIDTH = 32) (
         endcase
     end
 
-    // Instantiate Shifter unit
+
     BarrelShifter shifter_unit (
         .data_in(A),
         .shamt(B[4:0]),
@@ -54,11 +73,61 @@ module ALU #(parameter WIDTH = 32) (
         .data_out(shifter_result)
     );
 
+
+
     // Comparison logic
     logic signed_less_than   = internal_overflow ^ adder_result[WIDTH-1];
     logic unsigned_less_than = ~internal_carry;
 
+
+
+    stage_if #(alu_div_t) alu_div_if();
+    stage_if #()          div_alu_if();
+    alu_div_t             div_payload_reg;
+    assign alu_div_if.payload = div_payload_reg;
+
+
+    //we also need translate alusel_e to riscv_div_op_e
+    riscv_div_op_e div_op;
+    always_comb begin
+        div_op = DIV_NONE;
+        case (ALUSel) 
+            ALU_DIV: div_op = DIV;
+            ALU_DIVU: div_op = DIVU;
+            ALU_REM: div_op = REM;
+            ALU_REMU: div_op = REMU;
+            default:;
+        endcase  
+    end
+
+
+    OptimizedDivider u_div (
+        .clk    (clk),
+        .rst    (rst),
+        .div_in (alu_div_if.slave),
+        .div_out (div_alu_if.master)
+    );
+
+
+
+
+
+
+
     // Final result selection
+
+    logic is_seq = (ALUSel == ALU_MUL    ||
+                    ALUSel == ALU_MULH   ||
+                    ALUSel == ALU_MULHSU ||
+                    ALUSel == ALU_MULHU  ||
+                    ALUSel == ALU_DIV    ||
+                    ALUSel == ALU_DIVU   ||
+                    ALUSel == ALU_REM    ||
+                    ALUSel == ALU_REMU   );
+
+
+
+
     always_comb begin
         unique case (ALUSel)
             ALU_ADD:  begin  Results = adder_result;end
@@ -73,6 +142,7 @@ module ALU #(parameter WIDTH = 32) (
             ALU_SRA:  Results = shifter_result;
             ALU_COPY_A:  Results = A;
             ALU_COPY_B:  Results = B;
+            ALU_DIV, ALU_DIVU, ALU_REM, ALU_REMU: Results = div_alu_if.payload;
             default:  Results = 32'hdeadbeef;
         endcase
     end
@@ -81,9 +151,11 @@ module ALU #(parameter WIDTH = 32) (
     //----------------------------------------------------------------
     // Moore FSM Handshake Logic
     //----------------------------------------------------------------
-    typedef enum logic {
+    typedef enum logic [1:0] {
         S_IDLE, // 等待 EXU 发起请求
-        S_CALC  // 正在进行计算 (对于组合ALU，此状态持续一个周期)
+        S_WAIT_SEQU,
+        S_CALC,  // 正在进行计算 (对于组合ALU，此状态持续一个周期)
+        S_WAIT_EXU
     } alu_state_e;
     
     alu_state_e cur_state, next_state;
@@ -97,20 +169,51 @@ module ALU #(parameter WIDTH = 32) (
         end
     end
 
+
+
+    //时序输出逻辑
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            div_payload_reg.dataA <= 0;
+            div_payload_reg.dataB <= 0;
+            div_payload_reg.opcode <= DIV_NONE;
+        end else begin
+            if (cur_state == S_IDLE && next_state == S_WAIT_SEQU) begin
+                div_payload_reg.dataA <= alu_in.payload.dataA;
+                div_payload_reg.dataB <= alu_in.payload.dataB;
+                div_payload_reg.opcode <= div_op;
+            end
+        end
+    end
+
+
     // 状态转移逻辑 (组合逻辑)
     always_comb begin
         next_state = cur_state;
         unique case (cur_state)
             S_IDLE: begin
                 // 如果 EXU 发来了有效的请求，则下一个周期进入计算状态
-                if (valid) begin
-                    next_state = S_CALC;
+
+                if (alu_in.fire) begin
+                    if (is_seq) 
+                        next_state = S_WAIT_SEQU;
+                    else
+                        next_state = S_WAIT_EXU;
                 end
+
+            end
+            S_WAIT_SEQU: begin
+                if (alu_div_if.fire)
+                    next_state = S_CALC;
             end
             S_CALC: begin
-                // 计算状态只持续一个周期，然后无条件返回IDLE
-                // (如果未来有真正的多周期操作，这里的条件会变为 `if (real_done)`)
-                next_state = S_IDLE;
+                if (div_alu_if.fire)
+                    next_state = S_WAIT_EXU;
+            end
+            S_WAIT_EXU: begin
+                if (alu_out.fire) begin
+                    next_state = S_IDLE;
+                end
             end
         endcase
     end
@@ -118,16 +221,22 @@ module ALU #(parameter WIDTH = 32) (
     // 输出逻辑 (组合逻辑, Moore 类型)
     // ready 信号只依赖于当前状态 cur_state
     always_comb begin
-        ready = 1'b0; // 默认情况下，ALU 没有准备好
+        alu_in.ready = 1'b0; // 默认情况下，ALU 没有准备好
+        alu_out.valid = 1'b0;
+        alu_div_if.valid = 1'b0;
+        div_alu_if.ready = 1'b0;
         unique case (cur_state)
             S_IDLE: begin
-                // 在IDLE状态，ALU 正在等待任务，计算结果尚未就绪
-                ready = 1'b0;
+                alu_in.ready = 1'b1;
+            end
+            S_WAIT_SEQU:begin
+                alu_div_if.valid = 1'b1;
             end
             S_CALC: begin
-                // 只要进入了CALC状态，就意味着上一个周期的计算已经完成，
-                // 结果在这个周期是有效的。因此将 ready 置为1，通知EXU来取结果。
-                ready = 1'b1;
+                div_alu_if.ready = 1'b0;
+            end
+            S_WAIT_EXU: begin
+                alu_out.valid = 1'b1;
             end
         endcase
     end
