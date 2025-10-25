@@ -9,7 +9,7 @@
 // MODIFIED: Include the full definitions for the hierarchy
 #include "VTop_Top.h"
 #include "VTop_RegFile.h"
-#include "VTop_CSRs.h"
+#include "VTop_CSR.h"
 #include "svdpi.h"
 #include <cassert>
 #include <cstdio>
