@@ -6,210 +6,170 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-
-// 辅助函数：将整数转为字符串，支持负数
-static int int_to_str(int value, char *buf) {
-  char tmp[20];
-  int i = 0, j = 0, neg = 0;
-  if (value < 0) {
-    neg = 1;
-    value = -value;
-  }
-  do {
-    tmp[i++] = '0' + (value % 10);
-    value /= 10;
-  } while (value);
-  if (neg) tmp[i++] = '-';
-  // 逆序写入buf
-  while (i--) buf[j++] = tmp[i];
-  buf[j] = '\0';
-  return j;
-}
-
-// 新增：long 转字符串，支持负数
-static int long_to_str(long value, char *buf) {
-  char tmp[32];
-  int i = 0, j = 0, neg = 0;
-  if (value < 0) {
-    neg = 1;
-    value = -value;
-  }
-  do {
-    tmp[i++] = '0' + (value % 10);
-    value /= 10;
-  } while (value);
-  if (neg) tmp[i++] = '-';
-  while (i--) buf[j++] = tmp[i];
-  buf[j] = '\0';
-  return j;
-}
-
-// 新增：无符号长整型转十六进制字符串（小写），不带"0x"
-static int ulong_to_hex(unsigned long value, char *buf) {
-  char tmp[32];
-  const char *hex = "0123456789abcdef";
-  int i = 0, j = 0;
-  if (value == 0) {
-    buf[0] = '0';
-    buf[1] = '\0';
+// 健壮的辅助函数：将整数转为字符串
+static int int_to_str(int n, char *buf) {
+  char *p = buf;
+  if (n == 0) {
+    *p++ = '0';
+    *p = '\0';
     return 1;
   }
-  while (value) {
-    tmp[i++] = hex[value & 0xF];
-    value >>= 4;
+  
+  // 处理INT_MIN的特殊情况，因为它不能安全地取反
+  unsigned int u;
+  if (n == -2147483648) { // INT_MIN for 32-bit
+    strcpy(buf, "-2147483648");
+    return 11;
   }
-  while (i--) buf[j++] = tmp[i];
-  buf[j] = '\0';
-  return j;
+
+  if (n < 0) {
+    *p++ = '-';
+    u = -n;
+  } else {
+    u = n;
+  }
+
+  char tmp[20];
+  int i = 0;
+  while (u > 0) {
+    tmp[i++] = (u % 10) + '0';
+    u /= 10;
+  }
+
+  // 将tmp中的数字逆序拷贝到buf中
+  while (i-- > 0) {
+    *p++ = tmp[i];
+  }
+  *p = '\0';
+
+  return p - buf;
+}
+
+// 健壮的辅助函数：将无符号整数转为十六进制字符串
+static int uint_to_hex(unsigned int n, char *buf) {
+    if (n == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return 1;
+    }
+    char hex_chars[] = "0123456789abcdef";
+    char tmp[10];
+    int i = 0;
+    while (n > 0) {
+        tmp[i++] = hex_chars[n & 0xF];
+        n >>= 4;
+    }
+    int len = i;
+    int j = 0;
+    while (i-- > 0) {
+        buf[j++] = tmp[i];
+    }
+    buf[j] = '\0';
+    return len;
 }
 
 
 int printf(const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  char buf[1024];
-  int len = vsnprintf(buf, sizeof(buf), fmt, ap);
-  va_end(ap);
-  for (int i = 0; i < len; i++) {
+  char buf[2048]; // 增大缓冲区以防万一
+  va_list args;
+  va_start(args, fmt);
+  int len = vsnprintf(buf, sizeof(buf), fmt, args);
+  va_end(args);
+  for(int i = 0; i < len; i++) {
     putch(buf[i]);
   }
   return len;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  // 这里假设缓冲区足够大
   return vsnprintf(out, (size_t)-1, fmt, ap);
 }
 
-
 int sprintf(char *out, const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  int ret = vsprintf(out, fmt, ap);
-  va_end(ap);
+  va_list args;
+  va_start(args, fmt);
+  int ret = vsprintf(out, fmt, args);
+  va_end(args);
   return ret;
 }
-
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  int ret = vsnprintf(out, n, fmt, ap);
-  va_end(ap);
-  return ret;
+    va_list args;
+    va_start(args, fmt);
+    int ret = vsnprintf(out, n, fmt, args);
+    va_end(args);
+    return ret;
 }
-
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  size_t out_cnt = 0;
-  while (*fmt && out_cnt + 1 < n) { // 预留结尾'\0'
+  char *str = out;
+  char *end = out + n -1;
+  
+  while (*fmt) {
+    if (str >= end) break;
+
     if (*fmt == '%') {
       fmt++;
-      // Parse optional zero-padding flag and width like %02d
-      bool zero_pad = false;
-      int width = 0;
-      if (*fmt == '0') { zero_pad = true; fmt++; }
-      while (*fmt >= '0' && *fmt <= '9') { width = width * 10 + (*fmt - '0'); fmt++; }
+      if (*fmt == '\0') break;
 
       if (*fmt == 's') {
-        const char *s = va_arg(ap, const char *);
-        while (*s && out_cnt + 1 < n) out[out_cnt++] = *s++;
-        fmt++;
-        continue;
+        const char *s = va_arg(ap, const char*);
+        if (s == NULL) s = "(null)";
+        while (*s && str < end) {
+          *str++ = *s++;
+        }
       } else if (*fmt == 'd') {
         int d = va_arg(ap, int);
-        char buf[32];
-        int_to_str(d, buf);
-        int len = (int)strlen(buf);
-        int sign = (buf[0] == '-');
-        if (sign && zero_pad) {
-          // print sign first
-          if (out_cnt + 1 < n) out[out_cnt++] = '-';
-          const char *num = buf + 1;
-          int num_len = len - 1;
-          int pad = (width > len) ? (width - len) : 0;
-          for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = '0';
-          for (int i = 0; i < num_len && out_cnt + 1 < n; i++) out[out_cnt++] = num[i];
+        char num_buf[20];
+        int len = int_to_str(d, num_buf);
+        for (int i = 0; i < len && str < end; i++) {
+          *str++ = num_buf[i];
+        }
+      } else if (*fmt == 'u') {
+        // 简单实现无符号，可以基于有符号修改
+        unsigned int u = va_arg(ap, unsigned int);
+        if (u == 0) {
+             if (str < end) *str++ = '0';
         } else {
-          int pad = (width > len) ? (width - len) : 0;
-          char padch = zero_pad ? '0' : ' ';
-          for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
-          for (int i = 0; i < len && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
+            char num_buf[20];
+            int i = 0;
+            while(u > 0){
+                num_buf[i++] = (u % 10) + '0';
+                u /= 10;
+            }
+            while(i-- > 0 && str < end){
+                *str++ = num_buf[i];
+            }
         }
-        fmt++;
-        continue;
-      } else if (*fmt == 'x') {
-        unsigned int x = va_arg(ap, unsigned int);
-        char buf[32];
-        ulong_to_hex((unsigned long)x, buf);
-        int len = (int)strlen(buf);
-        int pad = (width > len) ? (width - len) : 0;
-        char padch = zero_pad ? '0' : ' ';
-        for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
-        for (int i = 0; buf[i] && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
-        fmt++;
-        continue;
-      } else if (*fmt == 'p') {
-        void *p = va_arg(ap, void *);
-        unsigned long addr = (unsigned long)p;
-        char buf[32];
-        ulong_to_hex(addr, buf);
-        // "0x" prefix
-        if (out_cnt + 2 < n) {
-          out[out_cnt++] = '0';
-          out[out_cnt++] = 'x';
+      } else if (*fmt == 'x' || *fmt == 'p') {
+        unsigned int p = va_arg(ap, unsigned int);
+        char hex_buf[20];
+        if (*fmt == 'p' && str + 2 < end) {
+            *str++ = '0';
+            *str++ = 'x';
         }
-        int len = (int)strlen(buf);
-        int pad = (width > (len + 2)) ? (width - (len + 2)) : 0; // account for "0x"
-        char padch = zero_pad ? '0' : ' ';
-        for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
-        for (int i = 0; buf[i] && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
-        fmt++;
-        continue;
-      } else if (*fmt == 'l') {
-        fmt++;
-        if (*fmt == 'd') {
-          long ld = va_arg(ap, long);
-          char buf[32];
-          long_to_str(ld, buf);
-          int len = (int)strlen(buf);
-          int sign = (buf[0] == '-');
-          if (sign && zero_pad) {
-            if (out_cnt + 1 < n) out[out_cnt++] = '-';
-            const char *num = buf + 1;
-            int num_len = len - 1;
-            int pad = (width > len) ? (width - len) : 0;
-            for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = '0';
-            for (int i = 0; i < num_len && out_cnt + 1 < n; i++) out[out_cnt++] = num[i];
-          } else {
-            int pad = (width > len) ? (width - len) : 0;
-            char padch = zero_pad ? '0' : ' ';
-            for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
-            for (int i = 0; i < len && out_cnt + 1 < n; i++) out[out_cnt++] = buf[i];
-          }
-          fmt++;
-          continue;
-        } else {
-          // unsupported %l? treat literally
-          out[out_cnt++] = 'l';
-          if (*fmt && out_cnt + 1 < n) out[out_cnt++] = *fmt;
-          if (*fmt) fmt++;
-          continue;
+        int len = uint_to_hex(p, hex_buf);
+        for (int i = 0; i < len && str < end; i++) {
+          *str++ = hex_buf[i];
         }
-      } else if (*fmt) {
-        out[out_cnt++] = *fmt;
-        fmt++;
-        continue;
+      } else if (*fmt == 'c') {
+        char c = (char)va_arg(ap, int);
+        if (str < end) *str++ = c;
+      } else if (*fmt == '%') {
+        if (str < end) *str++ = '%';
+      } else {
+        // 不支持的格式，原样输出
+        if (str < end) *str++ = '%';
+        if (str < end) *str++ = *fmt;
       }
     } else {
-      out[out_cnt++] = *fmt;
-      fmt++;
+      *str++ = *fmt;
     }
+    fmt++;
   }
-  out[out_cnt] = '\0';
-  return out_cnt;
+  
+  *str = '\0';
+  return str - out;
 }
-
-
 
 #endif

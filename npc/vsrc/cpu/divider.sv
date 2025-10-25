@@ -80,6 +80,7 @@ module OptimizedDivider (
                         original_dividend_reg <= operand_a;
                         original_divisor_reg  <= operand_b;
                         is_div_by_zero_reg    <= (operand_b == 32'd0);
+                        //$display("from divider: div_Op: %d, divdend: %d, divisor: %d, is zero: %d", div_op, operand_a, operand_b, (operand_b == 0));
                     end
                 end
                 S_PREP: begin
