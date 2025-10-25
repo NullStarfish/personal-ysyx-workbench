@@ -6,12 +6,13 @@ interface stage_if #(parameter type PAYLOAD = logic [31:0]);
     PAYLOAD      payload;
     logic        valid;
     logic        ready;
-
-    modport master (output payload, output valid, input ready);
-    modport slave  (input payload, input valid, output ready);
+    wire         fire = valid && ready;
+    modport master (output payload, output valid, input ready, input fire);
+    modport slave  (input payload, input valid, output ready, input fire);
 
     wire fire = valid && ready;
 endinterface
+
 
 // Feedback interface for register file writes
 interface regfile_write_if;

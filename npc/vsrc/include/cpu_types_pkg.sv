@@ -3,10 +3,11 @@
 package cpu_types_pkg;
 
     // Enumerations for control signals
-    typedef enum logic [3:0] {
-        ALU_ADD, ALU_SUB, ALU_AND, ALU_OR, ALU_XOR,
+    typedef enum logic [4:0] {
+        ALU_NOP, ALU_ADD, ALU_SUB, ALU_AND, ALU_OR, ALU_XOR,
         ALU_SLT, ALU_SLTU, ALU_SLL, ALU_SRL, ALU_SRA,
-        ALU_COPY_A, ALU_COPY_B
+        ALU_COPY_A, ALU_COPY_B, ALU_MUL, ALU_MULH, ALU_MULHSU, ALU_MULHU, 
+        ALU_DIV, ALU_DIVU, ALU_REM, ALU_REMU
     } alusel_e;
 
     typedef enum logic [1:0] {

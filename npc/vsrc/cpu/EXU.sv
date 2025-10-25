@@ -2,6 +2,7 @@
 // Executes ALU/CSR operations and calculates next PC.
 // Integrates a single-cycle CSR module.
 import cpu_types_pkg::*;
+import exu_types_pkg::*;
 
 module EXU (
     input  logic      clk, rst,
@@ -32,23 +33,32 @@ module EXU (
     end
 
     // --- ALU Datapath ---
-    logic [31:0] alu_in_a, alu_in_b;
-    logic [31:0] alu_result;
-    logic        alu_ready;
-    logic        alu_valid; // Controlled by the FSM
 
-    assign alu_in_a = id_ex_payload_reg.pc_rs1_sel ? id_ex_payload_reg.pc : id_ex_payload_reg.rs1_data;
-    assign alu_in_b = id_ex_payload_reg.rs2_imm_sel ? id_ex_payload_reg.imm : id_ex_payload_reg.rs2_data;
+
+    stage_if #(exu_alu_t) exu_alu_if();
+    stage_if              alu_exu_if();//默认logic [31:0]输出
+
+    assign exu_alu_if.payload.dataA = id_ex_payload_reg.pc_rs1_sel ? id_ex_payload_reg.pc : id_ex_payload_reg.rs1_data;
+    assign exu_alu_if.payload.dataB = id_ex_payload_reg.rs2_imm_sel ? id_ex_payload_reg.imm : id_ex_payload_reg.rs2_data;
+    assign exu_alu_if.payload.opcode = id_ex_payload_reg.alu_opcode;
+
+    // logic [31:0] alu_in_a, alu_in_b;
+    // logic [31:0] alu_exu_if.payload;
+    // logic        alu_ready;
+    // logic        alu_valid; // Controlled by the FSM
+
+    // assign alu_in_a = id_ex_payload_reg.pc_rs1_sel ? id_ex_payload_reg.pc : id_ex_payload_reg.rs1_data;
+    // assign alu_in_b = id_ex_payload_reg.rs2_imm_sel ? id_ex_payload_reg.imm : id_ex_payload_reg.rs2_data;
+
+
+
+
 
     ALU u_alu (
         .clk     (clk),
         .rst     (rst),
-        .valid   (alu_valid),
-        .ready   (alu_ready),
-        .A       (alu_in_a),
-        .B       (alu_in_b),
-        .ALUSel  (id_ex_payload_reg.alu_opcode),
-        .Results (alu_result)
+        .alu_in  (exu_alu_if.slave),
+        .alu_out (alu_exu_if.master)
     );
 
     // --- CSR Datapath ---
@@ -80,6 +90,7 @@ module EXU (
         .ecall_target (ecall_target_pc),
         .mret_target  (mret_target_pc)
     );
+
     logic [31:0] pc_plus_4;
     assign pc_plus_4 = id_ex_payload_reg.pc + 32'd4;
     // --- Output Payload Calculation (Combinational Logic) ---
@@ -95,7 +106,7 @@ module EXU (
         end else if (id_ex_payload_reg.is_mret) begin
             ex_lsu_payload_next.pc_target = mret_target_pc;
         end else if (id_ex_payload_reg.pc_redirect) begin
-            ex_lsu_payload_next.pc_target = alu_result; // For branch/JAL/JALR
+            ex_lsu_payload_next.pc_target = alu_exu_if.payload; // For branch/JAL/JALR
         end else begin
             ex_lsu_payload_next.pc_target = pc_plus_4;  // Default sequential execution
         end
@@ -106,7 +117,7 @@ module EXU (
         end else if (id_ex_payload_reg.csr_op != CSR_NONE) begin
             ex_lsu_payload_next.exu_result = csr_rdata; // CSR instructions write back the old value
         end else begin
-            ex_lsu_payload_next.exu_result = alu_result;
+            ex_lsu_payload_next.exu_result = alu_exu_if.payload;
         end
         
         // 3. Pass-through other control and data signals to LSU
@@ -115,7 +126,7 @@ module EXU (
         ex_lsu_payload_next.mem_en    = id_ex_payload_reg.mem_en;
         ex_lsu_payload_next.mem_wen   = id_ex_payload_reg.mem_wen;
         ex_lsu_payload_next.mem_wdata = id_ex_payload_reg.rs2_data;
-        ex_lsu_payload_next.mem_addr  = alu_result;
+        ex_lsu_payload_next.mem_addr  = alu_exu_if.payload;
         ex_lsu_payload_next.funct3    = id_ex_payload_reg.funct3;
     end
 
@@ -123,7 +134,7 @@ module EXU (
     always_ff @(posedge clk) begin
         if (rst) begin
             ex_lsu_payload_reg.valid <= 1'b0;
-        end else if (cur_state == S_BUSY && alu_ready) begin
+        end else if (cur_state == S_CALC && next_state == S_WAIT_LSU) begin
             ex_lsu_payload_reg <= ex_lsu_payload_next;
         end
     end
@@ -139,7 +150,7 @@ module EXU (
     //----------------------------------------------------------------
     // Moore FSM Handshake Logic (remains the same)
     //----------------------------------------------------------------
-    typedef enum logic [1:0] { S_IDLE, S_BUSY, S_WAIT_LSU } ex_state_e;
+    typedef enum logic [1:0] { S_IDLE, S_WAIT_ALU, S_CALC, S_WAIT_LSU } ex_state_e;
     ex_state_e cur_state, next_state;
 
     always_ff @(posedge clk) begin
@@ -149,7 +160,7 @@ module EXU (
 
 
     logic is_first_busy_cycle;
-    assign is_first_busy_cycle = (cur_state == S_BUSY) && (prev_state == S_IDLE);
+    assign is_first_busy_cycle = (cur_state == S_WAIT_ALU) && (prev_state == S_IDLE);
 
     ex_state_e prev_state;
     always_ff @(posedge clk) begin
@@ -165,8 +176,11 @@ module EXU (
     always_comb begin
         next_state = cur_state;
         unique case (cur_state)
-            S_IDLE:     if (ex_in.valid)  begin next_state = S_BUSY;      end
-            S_BUSY:     if (alu_ready)    begin next_state = S_WAIT_LSU;  end
+            S_IDLE:     if (ex_in.valid)  begin 
+                    next_state = S_WAIT_ALU;     
+            end
+            S_WAIT_ALU: if (exu_alu_if.fire) next_state = S_CALC;
+            S_CALC:     if (alu_exu_if.fire) next_state = S_WAIT_LSU;
             S_WAIT_LSU: if (ex_out.ready) begin next_state = S_IDLE;      end
         endcase
     end
@@ -175,12 +189,14 @@ module EXU (
         ex_out.payload = ex_lsu_payload_reg;
         ex_in.ready  = 1'b0;
         ex_out.valid = 1'b0;
-        alu_valid    = 1'b0;
+        exu_alu_if.valid    = 1'b0;
+        alu_exu_if.ready    = 1'b0;
 
         unique case (cur_state)
             S_IDLE:     ex_in.ready = 1'b1;
-            S_BUSY:     alu_valid   = 1'b1;
-            S_WAIT_LSU: ex_out.valid  = 1'b1;
+            S_WAIT_ALU:     exu_alu_if.valid = 1'b1;
+            S_CALC:     begin alu_exu_if.ready = 1'b1;  end
+            S_WAIT_LSU: begin  ex_out.valid  = 1'b1;end
         endcase
     end
     

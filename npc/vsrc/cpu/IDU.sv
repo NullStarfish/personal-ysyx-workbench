@@ -210,19 +210,36 @@ module IDU (
             end
             `OPCODE_R_TYPE: begin
                 id_ex_payload_next.reg_wen = 1'b1;
-                case (funct3)
-                    `FUNCT3_ADDI_ADD:   id_ex_payload_next.alu_opcode = (funct7[5]) ? ALU_SUB : ALU_ADD;
-                    `FUNCT3_SLLI_SLL:   id_ex_payload_next.alu_opcode = ALU_SLL;
-                    `FUNCT3_SLTI_SLT:   id_ex_payload_next.alu_opcode = ALU_SLT;
-                    `FUNCT3_SLTIU_SLTU: id_ex_payload_next.alu_opcode = ALU_SLTU;
-                    `FUNCT3_XORI_XOR:   id_ex_payload_next.alu_opcode = ALU_XOR;
-                    `FUNCT3_SRLI_SRAI:  id_ex_payload_next.alu_opcode = (funct7[5]) ? ALU_SRA : ALU_SRL;
-                    `FUNCT3_ORI_OR:     id_ex_payload_next.alu_opcode = ALU_OR;
-                    `FUNCT3_ANDI_AND:   id_ex_payload_next.alu_opcode = ALU_AND;
-                    default:            id_ex_payload_next.alu_opcode = ALU_ADD;
+                case (funct7)
+                    7'h1: begin
+                        case (funct3)
+                            `FUNCT3_MUL:       id_ex_payload_next.alu_opcode = ALU_MUL;
+                            `FUNCT3_MULH:      id_ex_payload_next.alu_opcode = ALU_MULH;
+                            `FUNCT3_MULHSU:    id_ex_payload_next.alu_opcode = ALU_MULHSU;
+                            `FUNCT3_MULHU:     id_ex_payload_next.alu_opcode = ALU_MULHU;
+                            `FUNCT3_DIV:       id_ex_payload_next.alu_opcode = ALU_DIV;
+                            `FUNCT3_DIVU:      id_ex_payload_next.alu_opcode = ALU_DIVU;
+                            `FUNCT3_REM:       id_ex_payload_next.alu_opcode = ALU_REM;
+                            `FUNCT3_REMU:      id_ex_payload_next.alu_opcode = ALU_REMU;
+                        endcase
+                    end
+                    default: begin
+                        case (funct3)
+                            `FUNCT3_ADDI_ADD:   id_ex_payload_next.alu_opcode = (funct7[5]) ? ALU_SUB : ALU_ADD;
+                            `FUNCT3_SLLI_SLL:   id_ex_payload_next.alu_opcode = ALU_SLL;
+                            `FUNCT3_SLTI_SLT:   id_ex_payload_next.alu_opcode = ALU_SLT;
+                            `FUNCT3_SLTIU_SLTU: id_ex_payload_next.alu_opcode = ALU_SLTU;
+                            `FUNCT3_XORI_XOR:   id_ex_payload_next.alu_opcode = ALU_XOR;
+                            `FUNCT3_SRLI_SRAI:  id_ex_payload_next.alu_opcode = (funct7[5]) ? ALU_SRA : ALU_SRL;
+                            `FUNCT3_ORI_OR:     id_ex_payload_next.alu_opcode = ALU_OR;
+                            `FUNCT3_ANDI_AND:   id_ex_payload_next.alu_opcode = ALU_AND;
+                            default:;
+                        endcase           
+                    end
                 endcase
             end
             `OPCODE_I_TYPE_SYS: begin
+                    id_ex_payload_next.alu_opcode = ALU_NOP;
                     unique case (inst[31:20]) // Check funct12
                         12'h000: id_ex_payload_next.is_ecall = 1'b1;
                         12'h001: id_ex_payload_next.is_ebreak = 1'b1; // EBREAK instruction
