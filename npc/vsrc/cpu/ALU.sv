@@ -98,7 +98,7 @@ module ALU #(parameter WIDTH = 32) (
     riscv_div_op_e div_op;
     always_comb begin
         div_op = DIV_NONE;
-        case (ALUSel) 
+        case (alu_in_payload_reg.opcode) 
             ALU_DIV: div_op = DIV;
             ALU_DIVU: div_op = DIVU;
             ALU_REM: div_op = REM;
@@ -127,7 +127,7 @@ module ALU #(parameter WIDTH = 32) (
     riscv_mul_op_e mul_op;
     always_comb begin
         mul_op = MUL_NONE;
-        case (ALUSel) 
+        case (alu_in_payload_reg.opcode) 
             ALU_MUL: mul_op = MUL;
             ALU_MULH: mul_op = MULH;
             ALU_MULHSU: mul_op = MULHSU;
