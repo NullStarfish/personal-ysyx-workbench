@@ -16,7 +16,6 @@ int main() {
 
 		if(n == cube(n2) + cube(n1) + cube(n0)) {
 			check(n == ans[k]);
-			printf("%d = %d^3 + %d^3 + %d^3 \n", n, n2, n1, n0);
 			k ++;
 		}
 	}

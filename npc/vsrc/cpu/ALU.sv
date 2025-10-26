@@ -90,8 +90,10 @@ module ALU #(parameter WIDTH = 32) (
 
     stage_if #(alu_div_t) alu_div_if();
     stage_if #()          div_alu_if();
-    alu_div_t             div_payload_reg;
-    assign alu_div_if.payload = div_payload_reg;
+
+    assign alu_div_if.payload.dataA = alu_in_payload_reg.dataA;
+    assign alu_div_if.payload.dataB = alu_in_payload_reg.dataB;
+    assign alu_div_if.payload.opcode = div_op;
 
 
     //we also need translate alusel_e to riscv_div_op_e
@@ -120,8 +122,10 @@ module ALU #(parameter WIDTH = 32) (
 
     stage_if #(alu_mul_t) alu_mul_if();
     stage_if              mul_alu_if();
-    alu_mul_t            mul_payload_reg;
-    assign alu_mul_if.payload = mul_payload_reg;
+
+    assign alu_mul_if.payload.dataA = alu_in_payload_reg.dataA;
+    assign alu_mul_if.payload.dataB = alu_in_payload_reg.dataB;
+    assign alu_mul_if.payload.opcode = mul_op;
 
 
     riscv_mul_op_e mul_op;
@@ -226,13 +230,13 @@ module ALU #(parameter WIDTH = 32) (
     //时序输出逻辑
     always_ff @(posedge clk) begin
         if (rst) begin
-            div_payload_reg.dataA <= 0;
-            div_payload_reg.dataB <= 0;
-            div_payload_reg.opcode <= DIV_NONE;
+            // div_payload_reg.dataA <= 0;
+            // div_payload_reg.dataB <= 0;
+            // div_payload_reg.opcode <= DIV_NONE;
 
-            mul_payload_reg.dataA <= 0;
-            mul_payload_reg.dataB <= 0;
-            mul_payload_reg.opcode <= MUL_NONE;
+            // mul_payload_reg.dataA <= 0;
+            // mul_payload_reg.dataB <= 0;
+            // mul_payload_reg.opcode <= MUL_NONE;
 
 
 
@@ -242,13 +246,13 @@ module ALU #(parameter WIDTH = 32) (
 
         end else begin
             if (cur_state == S_IDLE && next_state == S_PREP) begin
-                div_payload_reg.dataA <= alu_in.payload.dataA;
-                div_payload_reg.dataB <= alu_in.payload.dataB;
-                div_payload_reg.opcode <= div_op;
+                // div_payload_reg.dataA <= alu_in.payload.dataA;
+                // div_payload_reg.dataB <= alu_in.payload.dataB;
+                // div_payload_reg.opcode <= div_op;
 
-                mul_payload_reg.dataA <= alu_in.payload.dataA;
-                mul_payload_reg.dataB <= alu_in.payload.dataB;
-                mul_payload_reg.opcode <= mul_op;
+                // mul_payload_reg.dataA <= alu_in.payload.dataA;
+                // mul_payload_reg.dataB <= alu_in.payload.dataB;
+                // mul_payload_reg.opcode <= mul_op;
 
                 alu_in_payload_reg.dataA <= alu_in.payload.dataA;
                 alu_in_payload_reg.dataB <= alu_in.payload.dataB;
@@ -257,23 +261,23 @@ module ALU #(parameter WIDTH = 32) (
             end
 
         end
-        // if (cur_state == S_PREP && next_state == S_WAIT_SEQU) begin
-        //     $display("begin div or mul");
-        //     if (is_mul)
-        //         $display("data: a: %d, b: %d, op: %d", alu_mul_if.payload.dataA, alu_mul_if.payload.dataB, alu_mul_if.payload.opcode);
-        //     else
-        //         $display("data: a: %d, b: %d, op: %d", alu_div_if.payload.dataA, alu_div_if.payload.dataB, alu_div_if.payload.opcode);
+        if (cur_state == S_PREP && next_state == S_WAIT_SEQU) begin
+            $display("begin div or mul");
+            if (is_mul)
+                $display("data: a: %d, b: %d, op: %d", alu_mul_if.payload.dataA, alu_mul_if.payload.dataB, alu_mul_if.payload.opcode);
+            else
+                $display("data: a: %d, b: %d, op: %d", alu_div_if.payload.dataA, alu_div_if.payload.dataB, alu_div_if.payload.opcode);
 
-        // end
-        // if (cur_state == S_WAIT_SEQU && next_state == S_CALC) begin
-        //     $display("mul or div begin calc");
-        // end
-        // if (cur_state == S_CALC && next_state == S_WAIT_EXU) begin
-        //     if (is_mul)
-        //         $display("mul results %d", mul_alu_if.payload);
-        //     else
-        //         $display("div results %d", div_alu_if.payload); 
-        // end
+        end
+        if (cur_state == S_WAIT_SEQU && next_state == S_CALC) begin
+            $display("mul or div begin calc");
+        end
+        if (cur_state == S_CALC && next_state == S_WAIT_EXU) begin
+            if (is_mul)
+                $display("mul results %d", mul_alu_if.payload);
+            else
+                $display("div results %d", div_alu_if.payload); 
+        end
     end
 
 
@@ -353,4 +357,3 @@ module ALU #(parameter WIDTH = 32) (
     end
 
 endmodule
-

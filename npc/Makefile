@@ -80,9 +80,9 @@ CFLAGS   := $(INC_FLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 CXXFLAGS := $(INC_FLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
 
 # --- Linker Flags ---
-#LDFLAGS := -lreadline -pthread -ldl
+LDFLAGS := -lreadline -pthread -ldl
 # --- Linker Flags ---
-LDFLAGS := --static -static-libgcc -static-libstdc++ -lreadline -pthread -ldl -ltinfo
+#LDFLAGS := --static -static-libgcc -static-libstdc++ -lreadline -pthread -ldl -ltinfo
 
 # --- Kconfig Conditional Flags ---
 # Use `strip` to be robust against whitespace in .config file.
