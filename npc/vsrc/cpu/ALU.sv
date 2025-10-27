@@ -261,23 +261,23 @@ module ALU #(parameter WIDTH = 32) (
             end
 
         end
-        if (cur_state == S_PREP && next_state == S_WAIT_SEQU) begin
-            $display("begin div or mul");
-            if (is_mul)
-                $display("data: a: %d, b: %d, op: %d", alu_mul_if.payload.dataA, alu_mul_if.payload.dataB, alu_mul_if.payload.opcode);
-            else
-                $display("data: a: %d, b: %d, op: %d", alu_div_if.payload.dataA, alu_div_if.payload.dataB, alu_div_if.payload.opcode);
+        // if (cur_state == S_PREP && next_state == S_WAIT_SEQU) begin
+        //     $display("begin div or mul");
+        //     if (is_mul)
+        //         $display("data: a: %d, b: %d, op: %d", alu_mul_if.payload.dataA, alu_mul_if.payload.dataB, alu_mul_if.payload.opcode);
+        //     else
+        //         $display("data: a: %d, b: %d, op: %d", alu_div_if.payload.dataA, alu_div_if.payload.dataB, alu_div_if.payload.opcode);
 
-        end
-        if (cur_state == S_WAIT_SEQU && next_state == S_CALC) begin
-            $display("mul or div begin calc");
-        end
-        if (cur_state == S_CALC && next_state == S_WAIT_EXU) begin
-            if (is_mul)
-                $display("mul results %d", mul_alu_if.payload);
-            else
-                $display("div results %d", div_alu_if.payload); 
-        end
+        // end
+        // if (cur_state == S_WAIT_SEQU && next_state == S_CALC) begin
+        //     $display("mul or div begin calc");
+        // end
+        // if (cur_state == S_CALC && next_state == S_WAIT_EXU) begin
+        //     if (is_mul)
+        //         $display("mul results %d", mul_alu_if.payload);
+        //     else
+        //         $display("div results %d", div_alu_if.payload); 
+        // end
     end
 
 

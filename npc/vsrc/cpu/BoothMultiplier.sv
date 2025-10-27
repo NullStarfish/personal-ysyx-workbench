@@ -2,7 +2,6 @@
 
 import cpu_types_pkg::*;
 
-`define BOOTH_ITER_DEBUG
 
 module BoothMultiplier (
     input  logic             clk,
@@ -196,6 +195,7 @@ module BoothMultiplier (
     assign out_result = comb_result;
 
     // --- DEBUGGING DISPLAY BLOCK ---
+`ifdef BOOTH_ITER_DEBUG
     always_ff @(posedge clk) begin
         if (!rst) begin
             if (current_state != next_state) begin
@@ -205,7 +205,8 @@ module BoothMultiplier (
                 $display("[MUL @ %0t] New Job: Op=%s, A=0x%h (%d), B=0x%h (%d)", $time, 
                          mul_op.name(), operand_a, $signed(operand_a), operand_b, $signed(operand_b));
             end
-`ifdef BOOTH_ITER_DEBUG
+
+ 
             if (current_state == S_CALC) begin
                 $display("---------------------------------------------------------");
                 $display("[MUL @ %0t] Cycle for Iter %0d:", $time, 32 - (count_reg-1));
@@ -213,7 +214,7 @@ module BoothMultiplier (
                 $display("           Op:  Bits {Q0,Q-1}=%b", {product_reg[0], q_minus_1_reg});
                 $display("           Out: P=0x%h, Q=0x%h (to be latched for next cycle)", product_reg_next[65:32], product_reg_next[31:0]);
             end
-`endif
+`
             if (current_state == S_CALC && next_state == S_DONE) begin
                 $display("---------------------------------------------------------");
                 $display("[MUL @ %0t] Final Raw Result (P,Q): 0x%h", $time, product_reg_next[63:0]);
@@ -221,5 +222,6 @@ module BoothMultiplier (
             end
         end
     end
+`endif
 
 endmodule
