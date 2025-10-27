@@ -18,11 +18,15 @@ module LSU (
     logic [31:0] store_wdata;
     logic [3:0]  store_wmask; // AXI wstrb for 32-bit data is 4 bits wide
 
+
+    logic read_not_aligned;
+    logic not_aligned;
     // LOAD解码器的输入数据源现在是AXI读数据通道
     LOAD_Decoder u_LOAD_Decoder(
         .raw_addr 	(ex_lsu_payload_reg.mem_addr),
         .raw_data 	(lsu_axi_if.rdata), // [MODIFIED] 从AXI接口获取读数据
         .funct3   	(ex_lsu_payload_reg.funct3),
+        .not_aligned (not_aligned),
         .out      	(load_out)
     );
 
@@ -60,22 +64,66 @@ module LSU (
         S_PROCESSING,       // 分析指令，决定是内存操作还是直通
         S_READ_ADDR,        // 发送读地址
         S_READ_DATA,        // 等待读数据返回
+        S_TAILOR_READ,
         S_WRITE_ADDR_DATA,  // 同时发送写地址和写数据
         S_WRITE_RESP,       // 等待写响应
         S_WAIT_WBU          // 操作完成，等待WBU接收
     } lsu_state_e;
     
     lsu_state_e cur_state, next_state;
+    logic read_not_aligned_not_handle_flag;
 
     always_ff @(posedge clk) begin
         if (rst) begin
             cur_state <= S_IDLE;
+            read_not_aligned_not_handle_flag <= 0;
+            read_not_aligned <= 0;
         end else begin
             cur_state <= next_state;
         end
     end
 
     // FSM 状态转移逻辑
+
+    logic [31:0] first_read_reg, second_read_reg;
+    logic [31:0] stitched_data; // Use a better name for the combinational result
+
+    logic [1:0] offset = ex_lsu_payload_reg.mem_addr[1:0];
+    logic [4:0] offset_bits;
+    
+    assign offset_bits = {offset, 3'b000};
+    // [FIX] Compute the stitched data combinationally
+    assign stitched_data = (first_read_reg >> offset_bits) | (second_read_reg << (32 - offset_bits));
+
+
+// [FIX] Remove final_reg from this always_ff block
+    always_ff @(posedge clk) begin
+        if (cur_state == S_PROCESSING && next_state == S_READ_ADDR) begin
+            read_not_aligned <= not_aligned;
+            //if (not_aligned)
+                //$display(" this inst not aligned ");
+        end
+        if (cur_state == S_READ_DATA && next_state == S_READ_ADDR) begin
+            read_not_aligned_not_handle_flag <= 1;
+            first_read_reg <= load_out;
+        end 
+        if (cur_state == S_READ_DATA && next_state == S_TAILOR_READ) begin
+            second_read_reg <= load_out;
+        end
+        // [FIX] The stitching logic is now combinational. The flags are still needed.
+        if (cur_state == S_TAILOR_READ && next_state == S_WAIT_WBU) begin
+            // final_reg <= (first_read_reg >> offset_bits) | (second_read_reg << (32 - offset_bits)); // REMOVED
+            read_not_aligned_not_handle_flag <= 0;
+        end
+        if (cur_state == S_WAIT_WBU && next_state == S_IDLE) begin
+            read_not_aligned <= 0;
+        end
+        
+    end
+
+
+
+
     always_comb begin
         next_state = cur_state;
         unique case (cur_state)
@@ -102,8 +150,20 @@ module LSU (
             end
             S_READ_DATA: begin // 等待读数据状态
                 if (lsu_axi_if.r_fire) begin
-                    next_state = S_WAIT_WBU;
+                    if (read_not_aligned && !read_not_aligned_not_handle_flag) begin
+                        next_state = S_READ_ADDR;
+                        //$display("begin second visit");
+                    end
+                    else if (read_not_aligned && read_not_aligned_not_handle_flag) begin
+                        next_state = S_TAILOR_READ;
+                        //$display("second visit over");
+                    end
+                    else 
+                        next_state = S_WAIT_WBU;
                 end
+            end
+            S_TAILOR_READ: begin
+                next_state = S_WAIT_WBU;
             end
             S_WRITE_ADDR_DATA: begin // 发送写地址和数据状态
                 // AXI4-Lite允许地址和数据通道独立握手
@@ -127,6 +187,14 @@ module LSU (
     
     // --- 数据路径和输出逻辑 ---
     
+
+    logic op_is_done;
+    assign op_is_done = 
+        (cur_state == S_PROCESSING && next_state == S_WAIT_WBU) ||      // 1. 非内存指令完成
+        (cur_state == S_READ_DATA && lsu_axi_if.r_fire && !read_not_aligned) || // 2. 对齐的读操作完成
+        (cur_state == S_TAILOR_READ) ||                               // 3. 非对齐的读操作完成
+        (cur_state == S_WRITE_RESP && lsu_axi_if.b_fire);              // 4. 写操作完成
+
     // 准备发送到WBU的数据
     lsu_wb_t lsu_wb_payload_next;
     always_comb begin
@@ -135,10 +203,13 @@ module LSU (
         lsu_wb_payload_next.rd_addr   = ex_lsu_payload_reg.rd_addr;
         lsu_wb_payload_next.pc_target = ex_lsu_payload_reg.pc_target;
         
-        // 如果是Load指令，写回数据来自内存；否则来自EXU的结果
-        if (ex_lsu_payload_reg.mem_en && !ex_lsu_payload_reg.mem_wen) begin
-             lsu_wb_payload_next.wb_data = load_out;
-        end else begin
+        if (ex_lsu_payload_reg.mem_en && !ex_lsu_payload_reg.mem_wen) begin // 是 LOAD 指令
+            if (read_not_aligned) begin
+                lsu_wb_payload_next.wb_data = stitched_data; // 非对齐加载，使用拼接后的数据
+            end else begin
+                lsu_wb_payload_next.wb_data = load_out;  // 对齐加载，使用解码器输出
+            end
+        end else begin // 非 LOAD 指令 (STORE 或 ALU)
              lsu_wb_payload_next.wb_data = ex_lsu_payload_reg.exu_result;
         end
     end
@@ -147,14 +218,14 @@ module LSU (
     always_ff @(posedge clk) begin
         if (rst) begin
             lsu_wb_payload_reg.valid <= 1'b0;
-        end else if ( (cur_state == S_PROCESSING && !ex_lsu_payload_reg.mem_en) || // Non-mem op completes
-                      (cur_state == S_READ_DATA && lsu_axi_if.r_fire)           || // Read op completes
-                      (cur_state == S_WRITE_RESP && lsu_axi_if.b_fire) ) begin      // Write op completes
+        end else if (op_is_done) begin // 使用 op_is_done 信号
             lsu_wb_payload_reg <= lsu_wb_payload_next;
         end
     end
 
     // 控制流水线握手和AXI接口信号
+    logic [31:0] temp_mem_addr;
+    assign temp_mem_addr = ex_lsu_payload_reg.mem_addr[31:2] + 1;
     always_comb begin
         // --- 默认值 ---
         lsu_in.ready = 1'b0;
@@ -174,7 +245,9 @@ module LSU (
             end
             S_READ_ADDR: begin
                 lsu_axi_if.arvalid = 1'b1;
-                lsu_axi_if.araddr  = ex_lsu_payload_reg.mem_addr;
+                lsu_axi_if.araddr  = read_not_aligned_not_handle_flag ? {temp_mem_addr[29:0], 2'b00} : ex_lsu_payload_reg.mem_addr;
+                //if (read_not_aligned_not_handle_flag)
+                    //$display("temp_addr: %x, ex mem: %x", {temp_mem_addr[29:0], 2'b00}, ex_lsu_payload_reg.mem_addr);
             end
             S_READ_DATA: begin
                 lsu_axi_if.rready = 1'b1;

@@ -63,40 +63,68 @@ module AXI_Pipelined_Bridge_Arbiter (
         endcase
     end
 
+    // AXI_Pipelined_Bridge_Arbiter.sv
+
+    // AXI_Pipelined_Bridge_Arbiter.sv
+
     // --- Latching Logic: Populating the single pipe_reg ---
     always_ff @(posedge clk) begin
-        // --- Latch the FORWARD path signals ONCE on grant ---
-        if (cur_state == S_IDLE && next_state != S_IDLE) begin
-            if (next_state == S_GRANT_S0) begin
-                granted_is_read_reg <= slave0_if.arvalid;
-                // Snapshot the request part of the interface
-                {pipe_reg.araddr, pipe_reg.arvalid, pipe_reg.awaddr, pipe_reg.awvalid,
-                 pipe_reg.wdata, pipe_reg.wstrb, pipe_reg.wvalid} =
-                {slave0_if.araddr, slave0_if.arvalid, slave0_if.awaddr, slave0_if.awvalid,
-                 slave0_if.wdata, slave0_if.wstrb, slave0_if.wvalid};
-            end else begin // S_GRANT_S1
-                granted_is_read_reg <= slave1_if.arvalid;
-                {pipe_reg.araddr, pipe_reg.arvalid, pipe_reg.awaddr, pipe_reg.awvalid,
-                 pipe_reg.wdata, pipe_reg.wstrb, pipe_reg.wvalid} =
-                {slave1_if.araddr, slave1_if.arvalid, slave1_if.awaddr, slave1_if.awvalid,
-                 slave1_if.wdata, slave1_if.wstrb, slave1_if.wvalid};
+        if (rst) begin
+             // It's good practice to reset registers here, though your FSM reset covers the main state.
+             // For clarity, let's reset the pipe_reg valids.
+            pipe_reg.arvalid <= 1'b0;
+            pipe_reg.awvalid <= 1'b0;
+            pipe_reg.wvalid  <= 1'b0;
+            pipe_reg.rvalid  <= 1'b0;
+            pipe_reg.bvalid  <= 1'b0;
+        end else begin
+            // --- Latch the FORWARD path signals ONCE on grant ---
+            if (cur_state == S_IDLE && next_state != S_IDLE) begin
+                // [FIX] When granting, CLEAR the response and LATCH the new request.
+                // All assignments are non-blocking.
+                pipe_reg.rvalid <= 1'b0;
+                pipe_reg.bvalid <= 1'b0;
+
+                if (next_state == S_GRANT_S0) begin
+                    granted_is_read_reg <= slave0_if.arvalid;
+                    {pipe_reg.araddr, pipe_reg.arvalid, pipe_reg.awaddr, pipe_reg.awvalid,
+                     pipe_reg.wdata, pipe_reg.wstrb, pipe_reg.wvalid} <=
+                    {slave0_if.araddr, slave0_if.arvalid, slave0_if.awaddr, slave0_if.awvalid,
+                     slave0_if.wdata, slave0_if.wstrb, slave0_if.wvalid};
+                end else begin // S_GRANT_S1
+                    granted_is_read_reg <= slave1_if.arvalid;
+                    {pipe_reg.araddr, pipe_reg.arvalid, pipe_reg.awaddr, pipe_reg.awvalid,
+                     pipe_reg.wdata, pipe_reg.wstrb, pipe_reg.wvalid} <=
+                    {slave1_if.araddr, slave1_if.arvalid, slave1_if.awaddr, slave1_if.awvalid,
+                     slave1_if.wdata, slave1_if.wstrb, slave1_if.wvalid};
+                end
+            end else begin
+                // [FIX] ELSE, when NOT granting, the response path follows the master interface.
+                // The request valids should be cleared when the transaction ends (FSM goes to IDLE).
+                // Or simply let them be overwritten by a new request. Let's handle response here.
+                pipe_reg.rvalid <= master_if.rvalid;
+                pipe_reg.bvalid <= master_if.bvalid;
+            end
+
+            // [FIX] Latch other BACKWARD path signals CONTINUOUSLY and UNCONDITIONALLY.
+            // These are not part of the grant-time conflict, so they can be assigned every cycle.
+            // Ensure they also use non-blocking assignments.
+            {pipe_reg.rdata, pipe_reg.rresp, pipe_reg.bresp,
+             pipe_reg.arready, pipe_reg.awready, pipe_reg.wready} <=
+            {master_if.rdata, master_if.rresp, master_if.bresp,
+             master_if.arready, master_if.awready, master_if.wready};
+
+
+            // --- Latch the master's readiness CONTINUOUSLY during grant ---
+            // This part is fine as it is.
+            if (cur_state == S_GRANT_S0) begin
+                pipe_reg.rready <= slave0_if.rready;
+                pipe_reg.bready <= slave0_if.bready;
+            end else if (cur_state == S_GRANT_S1) begin
+                pipe_reg.rready <= slave1_if.rready;
+                pipe_reg.bready <= slave1_if.bready;
             end
         end
-
-        // --- Latch the master's readiness CONTINUOUSLY during grant ---
-        if (cur_state == S_GRANT_S0) begin
-            pipe_reg.rready <= slave0_if.rready;
-            pipe_reg.bready <= slave0_if.bready;
-        end else if (cur_state == S_GRANT_S1) begin
-            pipe_reg.rready <= slave1_if.rready;
-            pipe_reg.bready <= slave1_if.bready;
-        end
-
-        // --- Latch the BACKWARD path signals CONTINUOUSLY ---
-        {pipe_reg.rdata, pipe_reg.rresp, pipe_reg.rvalid, pipe_reg.bresp, pipe_reg.bvalid,
-         pipe_reg.arready, pipe_reg.awready, pipe_reg.wready} =
-        {master_if.rdata, master_if.rresp, master_if.rvalid, master_if.bresp, master_if.bvalid,
-         master_if.arready, master_if.awready, master_if.wready};
     end
 
     // --- Combinational Output Logic ---

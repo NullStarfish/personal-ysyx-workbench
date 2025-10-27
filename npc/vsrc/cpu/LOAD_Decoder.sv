@@ -5,6 +5,7 @@ module LOAD_Decoder (
     input  logic [31:0] raw_addr,
     input  logic [31:0] raw_data,
     input  logic [2:0]  funct3,
+    output logic        not_aligned,
     output logic [31:0] out
 );
     logic [1:0] addr_offset = raw_addr[1:0];
@@ -15,6 +16,7 @@ module LOAD_Decoder (
         // --- Defaults to prevent latches ---
         
         out  = 32'hdeadbeef;
+        not_aligned = 0;
 
         unique case (funct3)
             `FUNCT3_LB: begin // LB (Load Byte, sign-extended)
@@ -24,8 +26,10 @@ module LOAD_Decoder (
             `FUNCT3_LH: begin // LH (Load Halfword, sign-extended)
                 data = (raw_data >> bit_offset) & 32'h0000FFFF;
                 out  = {{16{data[15]}}, data[15:0]};
+                ///$display("this is lh: raw_addr: %x, raw_data: %x: out: %x", raw_addr, raw_data, out);
             end
             `FUNCT3_LW: begin // LW (Load Word)
+                not_aligned = (addr_offset != 0);
                 data = raw_data; // Assign to data to prevent latch
                 out  = raw_data;
             end

@@ -115,6 +115,7 @@ module EXU (
         if (id_ex_payload_reg.forjal) begin
             ex_lsu_payload_next.exu_result = pc_plus_4;
         end else if (id_ex_payload_reg.csr_op != CSR_NONE) begin
+            //$display("current csr_data: %x, mem_en: %d", csr_rdata, id_ex_payload_reg.mem_en);
             ex_lsu_payload_next.exu_result = csr_rdata; // CSR instructions write back the old value
         end else begin
             ex_lsu_payload_next.exu_result = alu_exu_if.payload;
@@ -136,7 +137,8 @@ module EXU (
             ex_lsu_payload_reg.valid <= 1'b0;
         end else if (cur_state == S_CALC && next_state == S_WAIT_LSU) begin
             ex_lsu_payload_reg <= ex_lsu_payload_next;
-        end
+            //$display("current result: %x, rd_addr: %x, reg_wen: %d", ex_lsu_payload_next.exu_result, ex_lsu_payload_next.rd_addr, ex_lsu_payload_next.reg_wen);
+        end 
     end
 
     // --- Action Logic (EBREAK) ---

@@ -217,51 +217,95 @@ void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
 }
 
 
-// --- DPI-C Interface for Memory ---
-static int flag_read = 0;
+static int pmem_read_commit_flag = 0;
+
 extern "C" int pmem_read(int raddr) {
+    // --- Execution Guard ---
+    // On the first call by Verilator (flag=0), do nothing but toggle the flag.
+    // On the second call (flag=1), execute the full logic.
+    if (pmem_read_commit_flag == 0) {
+        pmem_read_commit_flag = 1;
+        // Read from memory without side effects for the "probe" call.
+        // This ensures Verilator gets a consistent value during its evaluation.
+        long offset = (unsigned int)raddr - PMEM_BASE;
+        long align_offset = offset & ~0x3u;
+        if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
+        return (*(uint32_t*)(pmem + align_offset));
+    }
+    // This is the "commit" call. Reset the flag for the next logical access.
+    pmem_read_commit_flag = 0;
+
+    // --- Main Logic (Executes only ONCE per DUT access) ---
+
+    // Address calculation
     long offset = (unsigned int)raddr - PMEM_BASE;
-    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    long align_offset = offset & ~0x3u;
+
+    // Boundary check
     if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
-    if (flag_read) {
-        printf("pmem_read at %x, aligned addr = %lx, result = %x\n", raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
 
+    // Debug Printing
+    //printf("pmem_read at 0x%08x, aligned_addr = 0x%08lx, result = 0x%08x\n",
+    //       raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
 
-        if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
-            if (align_offset + PMEM_BASE == RTC_ADDR) {
-                time_t timep;
-                struct tm *p;
-                time(&timep);
-                p = localtime(&timep);
-                *(uint32_t*)(pmem + align_offset) = (p->tm_sec) | (p->tm_min << 6) | (p->tm_hour << 12);
-                *(uint32_t*)(pmem + align_offset + 4) = (p->tm_year + 1900) | ((p->tm_mon + 1) << 12) | (p->tm_mday << 16);
-            } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {//这意味着需要先访问低位来进行更新
-                uint64_t us = get_time();
-                *(uint32_t*)(pmem + align_offset) = (uint32_t)(us & 0xFFFFFFFF);
-                *(uint32_t*)(pmem + align_offset + 4) = (uint32_t)(us >> 32);
-                //printf("RTC_UP read: %x\n", *(uint32_t*)(pmem + align_offset));
-            }
-            //printf("access rtc, flag_rtc = %d\n", flag_rtc);
-
-            //printf("Difftest skip ref\n");
-
-#ifdef CONFIG_DIFFTEST
-                difftest_skip_ref();
-#endif
-            
+    // Device Access Logic
+    if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
+        //printf("  (RTC device access)\n");
+        if (align_offset + PMEM_BASE == RTC_ADDR) {
+            time_t timep;
+            struct tm *p;
+            time(&timep);
+            p = localtime(&timep);
+            uint32_t *rtc_low_addr = (uint32_t*)(pmem + (RTC_ADDR - PMEM_BASE));
+            uint32_t *rtc_high_addr = (uint32_t*)(pmem + (RTC_ADDR - PMEM_BASE + 4));
+            *rtc_low_addr = (p->tm_sec) | (p->tm_min << 8) | (p->tm_hour << 16);
+            *rtc_high_addr = (p->tm_year + 1900) | ((p->tm_mon + 1) << 16) | (p->tm_mday << 24);
+        } else if (align_offset + PMEM_BASE == RTC_UP_ADDR) {
+            uint64_t us = get_time();
+            uint32_t *rtc_us_low_addr = (uint32_t*)(pmem + (RTC_UP_ADDR - PMEM_BASE));
+            uint32_t *rtc_us_high_addr = (uint32_t*)(pmem + (RTC_UP_ADDR - PMEM_BASE + 4));
+            *rtc_us_low_addr = (uint32_t)(us & 0xFFFFFFFF);
+            *rtc_us_high_addr = (uint32_t)(us >> 32);
         }
 
+        // Difftest Interaction
+        #ifdef CONFIG_DIFFTEST
+        //printf("  Difftest: Skipping REF execution for device read.\n");
+        difftest_skip_ref();
+        #endif
     }
-    flag_read = !flag_read;
+    if (align_offset + PMEM_BASE == RTC_ADDR + 4 || align_offset + PMEM_BASE == RTC_UP_ADDR + 4) {
+        #ifdef CONFIG_DIFFTEST
+        //printf("  Difftest: Skipping REF execution for device read.\n");
+        difftest_skip_ref();
+        #endif
+    }
+
+
+
+    // Return the memory content
     return (*(uint32_t*)(pmem + align_offset));
 }
 
+// Static flag for pmem_write.
+static int pmem_write_commit_flag = 0;
 
-static int flag_write = 0;
 extern "C" void pmem_write(int waddr, int wdata, char wmask) {
+    // --- Execution Guard ---
+    if (pmem_write_commit_flag == 0) {
+        pmem_write_commit_flag = 1;
+        return; // For the "probe" write call, do nothing.
+    }
+    // This is the "commit" call.
+    pmem_write_commit_flag = 0;
+
+    // --- Main Logic (Executes only ONCE per DUT access) ---
+
+    // Address and mask calculation
     long offset = (unsigned int)waddr - PMEM_BASE;
-    long align_offset = offset & ~0x3u; // Align to 4 bytes
+    long align_offset = offset & ~0x3u;
     if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return;
+
     uint32_t *paddr = (uint32_t*)(pmem + align_offset);
     uint32_t old_data = *paddr;
     uint32_t wmask_u32  = 0;
@@ -270,43 +314,29 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
             wmask_u32 |= (0xFF << (i * 8));
         }
     }
-
-
     uint32_t new_data = (old_data & ~wmask_u32) | (wdata & wmask_u32);
-    if (flag_write) {
-        if (align_offset + PMEM_BASE == SERIAL_PORT) {
-            putchar(new_data);
-            printf("access serial\n");
-            fflush(stdout);
-        }
-        printf("pc = %08x, cycle = %lld\n", get_pc_cpp(), cycle_count);
-        printf("pmem write at %x, aligned addr = %lx, data = %x, wmask = %b, masked data = %x\n", waddr, (long)align_offset + PMEM_BASE, wdata, wmask, new_data);
-    
 
+    // Debug Printing
+    //printf("pc = 0x%08x, cycle = %lld\n", get_pc_cpp(), cycle_count);
+    //printf("pmem_write at 0x%08x, aligned_addr = 0x%08lx, data = 0x%08x, wmask = 0b%04b, written_data = 0x%08x\n",
+    //       waddr, (long)align_offset + PMEM_BASE, wdata, (unsigned char)wmask, new_data);
+
+    // Device Access Logic
     if (align_offset + PMEM_BASE == SERIAL_PORT) {
-        //printf("access serial, flag = %d\n", flag);
+        //printf("  (Serial port access, char: '%c')\n", (char)new_data);
+        putchar((char)new_data);
+        fflush(stdout);
 
-        //printf("Difftest skip ref\n");
-
-#ifdef CONFIG_DIFFTEST
-            difftest_skip_ref();
-#endif
-            putchar(new_data);
-            //printf("access serial\n");
-            fflush(stdout);
-        }
-
-
+        // Difftest Interaction
+        #ifdef CONFIG_DIFFTEST
+        //printf("  Difftest: Skipping REF execution for device write.\n");
+        difftest_skip_ref();
+        #endif
     }
-    flag_write = !flag_write;
 
-
+    // Perform the memory write
     *paddr = new_data;
-
-
-    
 }
-
 
 
 
