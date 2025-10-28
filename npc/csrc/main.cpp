@@ -25,11 +25,14 @@
 #include "VTop_IDU__Iz5_IBz6.h"
 #include "VTop_EXU__Ez6_EBz7.h"
 #include "VTop_CSR.h"
+#include <sys/time.h>
+#include <csignal>
 extern "C" {
     #include "monitor.h"
     #include "state.h"
     #include "sdb/sdb.h"
     #include "trace/itrace.h"
+    #include "readline/readline.h"
     #include "reg.h"
     #include "ftrace.h"
 
@@ -44,6 +47,7 @@ extern "C" {
 
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
+long long instr_count = 0;
 
 extern "C" void ebreak() {
     // Correct hierarchical path
@@ -67,6 +71,30 @@ static const long PMEM_BASE = 0x80000000;
 
 static long last_pc = -1;
 
+void print_stats() {
+    printf("\nExecution Statistics:\n");
+    printf("  Total Cycles:       %lld\n", cycle_count);
+    printf("  Total Instructions: %lld\n", instr_count);
+    if (cycle_count > 0) {
+        printf("  Average IPC:        %f\n", (double)instr_count / cycle_count);
+    } else {
+        printf("  Average IPC:        N/A (cycles = 0)\n");
+    }
+}
+
+// ADDED: Signal handler for Ctrl+C (SIGINT)
+void handle_sigint(int sig) {
+    printf("\n\nCaught Ctrl+C (SIGINT). Terminating simulation...\n");
+    print_stats();
+    
+    // Optional: cleanup before hard exit if needed. 
+    // Note: Complex cleanup in signal handlers can be unsafe, 
+    // but for this simulation it's usually okay to just exit.
+    if (top_ptr) delete top_ptr;
+    if (pmem) free(pmem);
+
+    exit(0);
+}
 
 
 
@@ -121,7 +149,7 @@ void set_dpi_scope() {
 void step_one_clk() {
     top_ptr->clk = 0; top_ptr->eval();
     top_ptr->clk = 1; top_ptr->eval();
-    cycle_count++; // Increment cycle count for each clock cycle
+    
 }
 
 void exec_one_cycle_cpp() {
@@ -129,6 +157,10 @@ void exec_one_cycle_cpp() {
     while (get_pc_cpp() == last_pc && npc_state.state == NPC_RUNNING) {
         step_one_clk();
         cycle_count++;
+    }
+
+    if (npc_state.state == NPC_RUNNING) {
+        instr_count++;
     }
     
 }
@@ -344,9 +376,14 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 int main(int argc, char** argv) {
 
     init_monitor(argc, argv);
+    rl_catch_signals = 0;             // 告诉 readline 不要管信号。
+    signal(SIGINT, handle_sigint);  // 强制安装我们自己的处理器，覆盖掉 init_monitor 可能设置的任何处理器。
     reset_cpu(100);
     init_cpu();
     sdb_mainloop();
+
+    print_stats();
+
     delete top_ptr;
     free(pmem);
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
