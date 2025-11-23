@@ -16,7 +16,7 @@ IMG ?= ./load-store-riscv32e-npc.bin
 # =============================================================================
 # Directories and Source Files
 # =============================================================================
-VSRC_DIR := $(NPC_HOME)/vsrc
+VSRC_DIR := $(NPC_HOME)/src/main/verilog
 CSRC_DIR := $(NPC_HOME)/csrc
 BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir

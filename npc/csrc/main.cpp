@@ -5,11 +5,7 @@
 #include <sys/types.h>
 #include <verilated.h>
 #include "VTop.h"
-#include "VTop___024root.h"
-// MODIFIED: Include the full definitions for the hierarchy
-#include "VTop_Top.h"
-#include "VTop_RegFile.h"
-#include "VTop_CSR.h"
+
 #include "svdpi.h"
 #include <cassert>
 #include <cstdio>
@@ -17,14 +13,11 @@
 #include <string>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring> // For memcpy
+#include <cstring> // For memcpys
 #include "difftest/dut.h"
 #include "device.h"
 #include <sys/time.h>
-#include "VTop_IFU__IBz5.h"
-#include "VTop_IDU__Iz5_IBz6.h"
-#include "VTop_EXU__Ez6_EBz7.h"
-#include "VTop_CSR.h"
+
 #include <sys/time.h>
 #include <csignal>
 extern "C" {
@@ -51,7 +44,7 @@ long long instr_count = 0;
 
 extern "C" void ebreak() {
     // Correct hierarchical path
-    uint32_t a0_val = top_ptr->rootp->Top->u_idu->u_regfile->reg_file[10];
+    uint32_t a0_val = top_ptr->rootp->Top->core->decode->regFile->regs_ext->Memory[10];
     npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
     npc_state.halt_ret = a0_val;
 
@@ -138,17 +131,17 @@ void init_verilator(int argc, char *argv[]) {
 }
 
 // This signal is now at the top level
-uint32_t get_pc_cpp() { return top_ptr->rootp->Top->u_ifu->pc_reg; }
+uint32_t get_pc_cpp() { return top_ptr->rootp->Top->core->fetch->pc; }
 
 // Correct hierarchical path
-uint32_t get_inst_cpp() { return top_ptr->rootp->Top->u_ifu->inst_reg; }
+uint32_t get_inst_cpp() { return top_ptr->rootp->Top->core->fetch->inst_reg; }
 
 void set_dpi_scope() {
     // No longer needed.
 }
 void step_one_clk() {
-    top_ptr->clk = 0; top_ptr->eval();
-    top_ptr->clk = 1; top_ptr->eval();
+    top_ptr->clock = 0; top_ptr->eval();
+    top_ptr->clock = 1; top_ptr->eval();
     
 }
 
@@ -166,11 +159,11 @@ void exec_one_cycle_cpp() {
 }
 
 void reset_cpu(int n) {
-    top_ptr->rst = 1; // Assert reset
+    top_ptr->reset = 1; // Assert reset
     for (int i = 0; i < n; ++i) {
         step_one_clk(); // Step n clock cycles while reset is high
     }
-    top_ptr->rst = 0; // De-assert reset
+    top_ptr->reset = 0; // De-assert reset
     top_ptr->eval();    // Evaluate once with rst=0 to propagate the change
 }
 
