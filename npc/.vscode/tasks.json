@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make build",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "options": {
+                "env": {
+                    "NEMU_HOME": "/home/nullstarfish/Desktop/ysyx-workbench/nemu"
+                }
+            },
+            "detail": "使用 make 命令编译项目"
+        }
+    ]
+}

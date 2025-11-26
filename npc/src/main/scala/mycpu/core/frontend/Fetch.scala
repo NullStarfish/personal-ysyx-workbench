@@ -9,60 +9,96 @@ import mycpu.memory.AXI4LiteMasterIO
 class Fetch extends Module {
   val io = IO(new Bundle {
     val axi      = new AXI4LiteMasterIO()
-    val redirect = Flipped(Valid(UInt(XLEN.W)))
-    val out      = Decoupled(new FetchPacket())
+    
+    // [修改] 移除 redirect，改为接收后端确定的 Next PC
+    val next_pc       = Input(UInt(XLEN.W))
+    val pc_update_en  = Input(Bool()) // 来自 WB 阶段的握手信号
 
-    val debug_pc = Output(UInt(XLEN.W)) // 新增
+    val out      = Decoupled(new FetchPacket()) 
   })
 
+  // 状态机：等待启动 -> 发起读请求 -> 等待数据 -> 发送数据 -> 等待后端完成
+  object State extends ChiselEnum {
+    val sIdle, sReadReq, sReadData, sOutput, sWaitBackend = Value
+  }
+  val state = RegInit(State.sIdle)
+
   val pc = RegInit(START_ADDR.U(XLEN.W))
-  val pcNext = WireInit(pc + 4.U)
+  
+  // [关键] 启动逻辑：
+  // 1. 复位后，自动启动第一次 (first_fetch)
+  // 2. 之后，必须等待 io.pc_update_en
+  val first_fetch = RegInit(true.B)
 
-  io.debug_pc := pc // 连接内部寄存器
-
-  // 处理跳转
-  when(io.redirect.valid) {
-    pc := io.redirect.bits
-  }.elsewhen(io.axi.ar.fire) {
-    pc := pcNext
+  // 更新 PC 的逻辑
+  when (io.pc_update_en) {
+    pc := io.next_pc
   }
 
-  // === 1. AXI Read Channel (AR) ===
-  val reqSent = RegInit(false.B)
-  
-  io.axi.ar.valid     := !reqSent && !reset.asBool
+  // AXI 默认值
+  io.axi.ar.valid := false.B
   io.axi.ar.bits.addr := pc
-  io.axi.ar.bits.prot := 0.U // [修复] 初始化 prot
+  io.axi.ar.bits.prot := 0.U
   
-  when (io.axi.ar.fire) { reqSent := true.B }
+  io.axi.r.ready := false.B
 
-  // === 2. AXI Write Channels (AW, W, B) - Fetch 是只读的，必须置 0 ===
-  io.axi.aw.valid     := false.B
-  io.axi.aw.bits.addr := 0.U
-  io.axi.aw.bits.prot := 0.U
-  
-  io.axi.w.valid      := false.B
-  io.axi.w.bits.data  := 0.U
-  io.axi.w.bits.strb  := 0.U
-  
-  io.axi.b.ready      := false.B
+  io.axi.aw.valid := false.B; io.axi.aw.bits := DontCare
+  io.axi.w.valid  := false.B; io.axi.w.bits  := DontCare
+  io.axi.b.ready  := false.B
 
-  // === 3. Data & Queue ===
-  val queue = Module(new Queue(new FetchPacket, entries = 2))
+  // Output 默认值
+  io.out.valid := false.B
+  io.out.bits  := DontCare
   
-  // 只要 Queue 能收，我们就 Ready 接收 AXI R 通道数据
-  io.axi.r.ready := queue.io.enq.ready 
-  
-  queue.io.enq.valid     := io.axi.r.valid && !io.redirect.valid
-  queue.io.enq.bits.inst := io.axi.r.bits.data
-  queue.io.enq.bits.pc   := pc 
-  // [修复] 初始化 isException
-  queue.io.enq.bits.isException := false.B 
-  
-  when (io.axi.r.fire || io.redirect.valid) {
-      reqSent := false.B 
+  // 保存取到的指令
+  val inst_reg = Reg(UInt(32.W))
+
+  switch (state) {
+    is (State.sIdle) {
+      // 如果是刚复位，或者后端通知更新了 PC，则开始取指
+      when (first_fetch || io.pc_update_en) {
+        state := State.sReadReq
+        first_fetch := false.B // 消耗掉首次启动标志
+      }
+    }
+
+    is (State.sReadReq) {
+      io.axi.ar.valid := true.B
+      when (io.axi.ar.fire) {
+        state := State.sReadData
+      }
+    }
+
+    is (State.sReadData) {
+      io.axi.r.ready := true.B
+      when (io.axi.r.fire) {
+        inst_reg := io.axi.r.bits.data
+        state := State.sOutput
+      }
+    }
+
+    is (State.sOutput) {
+      io.out.valid := true.B
+      io.out.bits.inst := inst_reg
+      io.out.bits.pc   := pc
+      // 这里 dnpc 暂时设为 pc+4 传给后端，但后端(Execute)会重算真正的 dnpc
+      io.out.bits.dnpc := pc + 4.U 
+      io.out.bits.isException := false.B
+
+      when (io.out.fire) {
+        // 输出成功后，进入等待状态，直到 WB 阶段完成并更新 PC
+        state := State.sWaitBackend 
+        printf("Fetch: Sent PC=%x, Inst=%x. Waiting for WB...\n", pc, inst_reg)
+      }
+    }
+
+    is (State.sWaitBackend) {
+      // 这里的逻辑其实隐含在 sIdle 中了。
+      // 当 io.pc_update_en 到来时，在 Always 块开头会更新 PC。
+      // 我们只需要跳转回 sReadReq 即可（或者回到 sIdle 等待，逻辑是一样的）
+      when (io.pc_update_en) {
+        state := State.sReadReq
+      }
+    }
   }
-  
-  // 连接 Output
-  io.out <> queue.io.deq
 }

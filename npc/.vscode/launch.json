@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug NPC (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/npc",
+            "args": [
+                "-l",
+                "log.txt",
+                "--ftrace=${workspaceFolder}/load-store-riscv32e-npc.elf",
+                // --- 关键修改 ---
+                // 我们不再依赖VS Code的变量替换，只传递相对路径。
+                // C代码将负责拼接NEMU_HOME。
+                "--diff=build/riscv32-nemu-interpreter-so",
+                // ----------------
+                "${workspaceFolder}/load-store-riscv32e-npc.bin"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "NEMU_HOME",
+                    "value": "/home/nullstarfish/Desktop/ysyx-workbench/nemu"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "make build"
+        }
+    ]
+}

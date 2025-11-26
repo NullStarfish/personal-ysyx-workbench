@@ -39,10 +39,21 @@ static void trace_and_difftest(uint32_t pc, uint32_t inst) {
 }
 
 static void exec_once() {
+  // [修改前]
+  // uint32_t pc = get_pc_cpp();
+  // uint32_t inst = get_inst_cpp();
+  // exec_one_cycle_cpp();
+  
+  // [修改后]
+  // 1. 先让硬件跑，直到有一条指令在 WB 阶段提交
+  //    此时 DPI 函数会被调用，更新 C++ 侧的 g_cpu_state
+  exec_one_cycle_cpp();
+
+  // 2. 此时读取的才是刚刚执行完的那条指令的 PC 和机器码
   uint32_t pc = get_pc_cpp();
   uint32_t inst = get_inst_cpp();
-  exec_one_cycle_cpp();
   
+  // 3. 拿着最新的状态去写 Log 和做 Difftest
   trace_and_difftest(pc, inst);
 }
 

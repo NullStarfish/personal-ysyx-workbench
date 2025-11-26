@@ -1,25 +1,25 @@
 //#define CONFIG_DIFFTEST
 
-
 #include <ctime>
 #include <sys/types.h>
 #include <verilated.h>
 #include "VTop.h"
 
-#include "svdpi.h"
+#include "svdpi.h" 
+#include "VTop__Dpi.h" // 确保包含 Verilator 生成的 DPI 头文件
+
 #include <cassert>
 #include <cstdio>
 #include <map>
 #include <string>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring> // For memcpys
+#include <cstring> 
 #include "difftest/dut.h"
 #include "device.h"
 #include <sys/time.h>
-
-#include <sys/time.h>
 #include <csignal>
+
 extern "C" {
     #include "monitor.h"
     #include "state.h"
@@ -34,28 +34,57 @@ extern "C" {
 #endif
 }
 
-
-
-
-
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
 long long instr_count = 0;
 
+// =========================================================================
+// [关键修改] 全局 CPU 状态副本 (由 DPI 自动更新)
+// =========================================================================
+struct CpuState {
+    uint32_t pc;
+    uint32_t dnpc; // [新增] 下一个 PC
+    uint32_t inst; // [新增]
+    uint32_t gpr[32];
+    struct {
+        uint32_t mtvec;
+        uint32_t mepc;
+        uint32_t mstatus;
+        uint32_t mcause;
+    } csrs;
+} g_cpu_state;
+
+bool g_has_committed = false;
+
+extern "C" void dpi_update_state(int pc, int dnpc, const svBitVecVal* gprs, 
+                                 int mtvec, int mepc, int mstatus, int mcause,
+                                 int inst) {
+    g_cpu_state.pc = (uint32_t)pc;     // Current PC
+    g_cpu_state.dnpc = (uint32_t)dnpc; // [新增] Next PC
+    g_cpu_state.inst = (uint32_t)inst;
+    
+    for(int i = 0; i < 32; i++) {
+        g_cpu_state.gpr[i] = gprs[i];
+    }
+    
+    g_cpu_state.csrs.mtvec   = (uint32_t)mtvec;
+    g_cpu_state.csrs.mepc    = (uint32_t)mepc;
+    g_cpu_state.csrs.mstatus = (uint32_t)mstatus;
+    g_cpu_state.csrs.mcause  = (uint32_t)mcause;
+
+    // [新增] 标记本周期有有效指令提交
+    g_has_committed = true;
+}
+// =========================================================================
+
+
+// [修复] ebreak 现在读取全局状态中的 a0 (gpr[10])
 extern "C" void ebreak() {
-    // Correct hierarchical path
-    uint32_t a0_val = top_ptr->rootp->Top->core->decode->regFile->regs_ext->Memory[10];
+    uint32_t a0_val = g_cpu_state.gpr[10];
     npc_state.state = (a0_val == 0) ? NPC_END : NPC_ABORT;
     npc_state.halt_ret = a0_val;
-
-    printf("ebreak: state: %d\n", npc_state.state);
+    printf("ebreak: state: %d, a0: %d\n", npc_state.state, a0_val);
 }
-
-
-
-
-
-
 
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
@@ -75,26 +104,17 @@ void print_stats() {
     }
 }
 
-// ADDED: Signal handler for Ctrl+C (SIGINT)
 void handle_sigint(int sig) {
     printf("\n\nCaught Ctrl+C (SIGINT). Terminating simulation...\n");
     print_stats();
-    
-    // Optional: cleanup before hard exit if needed. 
-    // Note: Complex cleanup in signal handlers can be unsafe, 
-    // but for this simulation it's usually okay to just exit.
     if (top_ptr) delete top_ptr;
     if (pmem) free(pmem);
-
     exit(0);
 }
-
-
 
 static uint64_t boot_time = 0;
 
 static uint64_t get_time_internal() {
-
   struct timeval now;
   gettimeofday(&now, NULL);
   uint64_t us = now.tv_sec * 1000000 + now.tv_usec;
@@ -115,11 +135,7 @@ void assert_fail_msg() {
     print_ftrace_stack();
 }
 
-
-
-void sync_after_load() {
-    // This function is no longer needed but kept for compatibility.
-}
+void sync_after_load() { }
 
 long long get_cycle_count() { return cycle_count; }
 
@@ -130,78 +146,81 @@ void init_verilator(int argc, char *argv[]) {
     top_ptr = new VTop;
 }
 
-// This signal is now at the top level
-uint32_t get_pc_cpp() { return top_ptr->rootp->Top->core->fetch->pc; }
-
-// Correct hierarchical path
-uint32_t get_inst_cpp() { return top_ptr->rootp->Top->core->fetch->inst_reg; }
-
-void set_dpi_scope() {
-    // No longer needed.
+// [修复] 从全局状态读取 PC
+uint32_t get_pc_cpp() { 
+    return g_cpu_state.pc; 
 }
+
+uint32_t get_inst_cpp() { 
+    return g_cpu_state.inst; // [修改]
+}
+
+void set_dpi_scope() {}
+
 void step_one_clk() {
     top_ptr->clock = 0; top_ptr->eval();
     top_ptr->clock = 1; top_ptr->eval();
-    
 }
 
+
 void exec_one_cycle_cpp() {
-    last_pc = get_pc_cpp();
-    while (get_pc_cpp() == last_pc && npc_state.state == NPC_RUNNING) {
+    // 1. 重置提交标志
+    g_has_committed = false;
+
+    // 2. 循环单步执行，直到硬件报告“指令已提交”
+    // 注意：npc_state.state 的判断是为了防止仿真中途出错（如 ebreak）死循环
+    while (!g_has_committed && npc_state.state == NPC_RUNNING) {
         step_one_clk();
         cycle_count++;
     }
-
+    
     if (npc_state.state == NPC_RUNNING) {
         instr_count++;
     }
-    
 }
+
 
 void reset_cpu(int n) {
-    top_ptr->reset = 1; // Assert reset
+    top_ptr->reset = 1; 
     for (int i = 0; i < n; ++i) {
-        step_one_clk(); // Step n clock cycles while reset is high
+        step_one_clk(); 
     }
-    top_ptr->reset = 0; // De-assert reset
-    top_ptr->eval();    // Evaluate once with rst=0 to propagate the change
+    top_ptr->reset = 0; 
+    top_ptr->eval();    
 }
 
+// 这里的路径 u_ifu->blank 可能也需要调整，建议直接根据 PC 变化判断启动
 void init_cpu() {
-    while (!top_ptr->rootp->Top->u_ifu->blank)
-        step_one_clk();
+    // 简单起见，reset后直接认为启动，或者检查 PC 是否重置到 START_ADDR
+    // while (get_pc_cpp() != 0x80000000) step_one_clk();
+    g_cpu_state.pc = 0x80000000;
+    g_cpu_state.dnpc = 0x80000000; // [新增]
+    g_cpu_state.csrs.mstatus = 0x1800; // Reset value
 }
 
-// ======================= FINAL VERSION =======================
-// The loader now simply copies the program data into the C++ memory model.
-// No Verilog interaction is needed.
 void load_data_to_rom(const uint8_t* data, size_t size) {
     assert(size <= PMEM_SIZE);
     memcpy(pmem, data, size);
 }
-// ===========================================================
 
-
-// Correct hierarchical path
+// [修复] 从全局状态读取 GPR
 uint32_t isa_reg_read_cpp(int reg_num) {
     if (reg_num >= 0 && reg_num < 32) {
-        return top_ptr->rootp->Top->u_idu->u_regfile->reg_file[reg_num];
+        return g_cpu_state.gpr[reg_num];
     }
     return 0;
 }
 
-
+// [修复] 从全局状态读取 CSR
 uint32_t isa_get_csrs(int csr_num) {
     switch (csr_num) {
-        case 0x300: return top_ptr->rootp->Top->u_exu->u_csr->mstatus;
-        case 0x305: return top_ptr->rootp->Top->u_exu->u_csr->mtvec;
-        case 0x341: return top_ptr->rootp->Top->u_exu->u_csr->mepc;
-        case 0x342: return top_ptr->rootp->Top->u_exu->u_csr->mcause;
-        default: return 0; // 未实现其他 CSR
+        case 0x300: return g_cpu_state.csrs.mstatus;
+        case 0x305: return g_cpu_state.csrs.mtvec;
+        case 0x341: return g_cpu_state.csrs.mepc;
+        case 0x342: return g_cpu_state.csrs.mcause;
+        default: return 0;
     }
 }
-
-
 
 uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
     static const std::map<std::string, int> reg_map = {
@@ -217,23 +236,19 @@ uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
     if (str.length() > 1 && str[0] == 'x') { try { int reg_num = std::stoi(str.substr(1)); if (reg_num >= 0 && reg_num < 32) return isa_reg_read_cpp(reg_num); } catch (...) { } }
     *success = false; return 0;
 }
-
-void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
-    top_ptr->eval();
+extern "C" void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     if (!dut) return;
-    for (int i = 0; i < 32; i++) {
-        // Correct hierarchical path
-        dut->gpr[i] = isa_reg_read_cpp(i);
-    }
-    // This signal is now at the top level
-    dut->pc = get_pc_cpp();
-    
-    dut->csrs.mtvec = top_ptr->rootp->Top->u_exu->u_csr->mtvec;
-    dut->csrs.mepc = top_ptr->rootp->Top->u_exu->u_csr->mepc;
-    dut->csrs.mstatus = top_ptr->rootp->Top->u_exu->u_csr->mstatus;
-    dut->csrs.mcause = top_ptr->rootp->Top->u_exu->u_csr->mcause;
-    
+
+    // [关键修改] Difftest 比较的是执行后的状态，即 Next PC
+    dut->pc = g_cpu_state.dnpc; 
+
+    memcpy(dut->gpr, g_cpu_state.gpr, sizeof(dut->gpr));
+    dut->csrs.mtvec   = g_cpu_state.csrs.mtvec;
+    dut->csrs.mepc    = g_cpu_state.csrs.mepc;
+    dut->csrs.mstatus = g_cpu_state.csrs.mstatus;
+    dut->csrs.mcause  = g_cpu_state.csrs.mcause;
 }
+
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
     long offset = (unsigned int)addr - PMEM_BASE;
     if (offset < 0 || offset + n > PMEM_SIZE || !buf) return;
@@ -241,22 +256,21 @@ void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
 }
 }
 
-
 static int pmem_read_commit_flag = 0;
 
 extern "C" int pmem_read(int raddr) {
     // --- Execution Guard ---
     // On the first call by Verilator (flag=0), do nothing but toggle the flag.
     // On the second call (flag=1), execute the full logic.
-    if (pmem_read_commit_flag == 0) {
-        pmem_read_commit_flag = 1;
-        // Read from memory without side effects for the "probe" call.
-        // This ensures Verilator gets a consistent value during its evaluation.
-        long offset = (unsigned int)raddr - PMEM_BASE;
-        long align_offset = offset & ~0x3u;
-        if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
-        return (*(uint32_t*)(pmem + align_offset));
-    }
+    // if (pmem_read_commit_flag == 0) {
+    //     pmem_read_commit_flag = 1;
+    //     // Read from memory without side effects for the "probe" call.
+    //     // This ensures Verilator gets a consistent value during its evaluation.
+    //     long offset = (unsigned int)raddr - PMEM_BASE;
+    //     long align_offset = offset & ~0x3u;
+    //     if (align_offset < 0 || align_offset + 4 > PMEM_SIZE) return 0;
+    //     return (*(uint32_t*)(pmem + align_offset));
+    // }
     // This is the "commit" call. Reset the flag for the next logical access.
     pmem_read_commit_flag = 0;
 
@@ -271,7 +285,7 @@ extern "C" int pmem_read(int raddr) {
 
     // Debug Printing
     //printf("pmem_read at 0x%08x, aligned_addr = 0x%08lx, result = 0x%08x\n",
-    //       raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
+    //      raddr, align_offset + PMEM_BASE, *(uint32_t*)(pmem + align_offset));
 
     // Device Access Logic
     if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
@@ -317,10 +331,7 @@ static int pmem_write_commit_flag = 0;
 
 extern "C" void pmem_write(int waddr, int wdata, char wmask) {
     // --- Execution Guard ---
-    if (pmem_write_commit_flag == 0) {
-        pmem_write_commit_flag = 1;
-        return; // For the "probe" write call, do nothing.
-    }
+
     // This is the "commit" call.
     pmem_write_commit_flag = 0;
 
@@ -344,7 +355,7 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
     // Debug Printing
     //printf("pc = 0x%08x, cycle = %lld\n", get_pc_cpp(), cycle_count);
     //printf("pmem_write at 0x%08x, aligned_addr = 0x%08lx, data = 0x%08x, wmask = 0b%04b, written_data = 0x%08x\n",
-    //       waddr, (long)align_offset + PMEM_BASE, wdata, (unsigned char)wmask, new_data);
+    //      waddr, (long)align_offset + PMEM_BASE, wdata, (unsigned char)wmask, new_data);
 
     // Device Access Logic
     if (align_offset + PMEM_BASE == SERIAL_PORT) {
@@ -363,23 +374,14 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
     *paddr = new_data;
 }
 
-
-
-
 int main(int argc, char** argv) {
-
     init_monitor(argc, argv);
-    rl_catch_signals = 0;             // 告诉 readline 不要管信号。
-    signal(SIGINT, handle_sigint);  // 强制安装我们自己的处理器，覆盖掉 init_monitor 可能设置的任何处理器。
-    reset_cpu(100);
-    init_cpu();
+    rl_catch_signals = 0;             
+    signal(SIGINT, handle_sigint);  
     sdb_mainloop();
-
     print_stats();
-
     delete top_ptr;
     free(pmem);
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
     return is_exit_status_bad();
 }
-

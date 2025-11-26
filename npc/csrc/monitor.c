@@ -23,6 +23,7 @@ void reset_cpu(int n);
 void load_data_to_rom(const uint8_t* data, size_t size);
 // The new synchronization function
 void sync_after_load();
+void init_cpu();
 
 // --- Command-line arguments ---
 char *img_file = NULL;
@@ -89,7 +90,8 @@ void init_monitor(int argc, char *argv[]) {
     
     long img_size = load_program(img_file);
     sync_after_load();
-    reset_cpu(5);
+    reset_cpu(100);
+    init_cpu();
     printf("CPU reset complete.\n");
 
 #ifdef CONFIG_DIFFTEST

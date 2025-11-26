@@ -5,6 +5,10 @@ SHELL := /bin/bash
 export NPC_HOME ?= $(shell pwd)
 export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 
+
+
+DEBUG=0
+
 TARGET := npc
 TOP_MODULE := Top
 IMG ?= ./load-store-riscv32e-npc.bin
@@ -17,56 +21,67 @@ IMG ?= ./load-store-riscv32e-npc.bin
 # Directories and Source Files
 # =============================================================================
 VSRC_DIR := $(NPC_HOME)/src/main/verilog
+# [新增] 定义生成目录路径
+GEN_DIR  := $(VSRC_DIR)/gen
 CSRC_DIR := $(NPC_HOME)/csrc
 BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir
 TOOLS_DIR := $(NPC_HOME)/csrc/tools
 
 # --- Verilog/SystemVerilog Sources ---
-# 1. Packages must come first.
+# 1. Packages must come first (SystemVerilog requirement)
 VSRC_PKG := $(shell find $(VSRC_DIR)/include -name "*pkg.sv")
 
-# 2. Interface definitions must come after packages but before modules.
+# 2. Interface definitions
 VSRC_INTERFACES := $(shell find $(VSRC_DIR)/include -name "interfaces.sv")
 
-# 3. Opcode definitions (can be anywhere, but let's keep them separate).
+# 3. Opcodes
 VSRC_OPCODES := $(shell find $(VSRC_DIR)/include -name "*opcodes.sv")
 
-# 4. All other modules and files.
-#    CRITICAL: We must filter out ALL definition files we've already listed.
-VSRC_OTHERS := $(filter-out $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES), \
-               $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv"))
+# 4. Generated Verification Sources & Layers
+#    (Must cover gen/verification, gen/verification/assert, etc.)
+VSRC_VERI := $(shell find $(GEN_DIR)/verification -name "*.sv")
 
-# 5. Assemble the final list in the CORRECT order.
-VSRC := $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OTHERS) $(VSRC_OPCODES)
+# 5. Main Source Files (Top.sv, generated modules, handwritten files)
+#    We use find on VSRC_DIR but filter out what we already found to avoid duplicates.
+#    Also explicitly look in GEN_DIR to ensure Top.sv is found.
+VSRC_ALL_RAW := $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv")
+VSRC_OTHERS  := $(filter-out $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES) $(VSRC_VERI), $(VSRC_ALL_RAW))
+
+# 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
+VSRC := $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES) $(VSRC_VERI) $(VSRC_OTHERS)
+
+# --- Verilog Include Paths (Critical Fix) ---
+# Add generated directories to include paths so Verilator can resolve `include "layers-..."`
+VERILOG_INC_DIRS := $(VSRC_DIR)/include \
+                    $(GEN_DIR) \
+                    $(GEN_DIR)/verification \
+                    $(GEN_DIR)/verification/assert \
+                    $(GEN_DIR)/verification/assume \
+                    $(GEN_DIR)/verification/cover
+
+# Format them for Verilator (+incdir+path)
+VERILATOR_INC_FLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
 
 # --- C/C++ Sources ---
-# Start with base lists of all source files found.
 CXX_SRCS_BASE := $(shell find $(CSRC_DIR) -name "*.cpp")
 C_SRCS_BASE   := $(shell find $(CSRC_DIR) -name "*.c")
+C_SRCS_BASE   := $(filter-out %/disasm.c, $(C_SRCS_BASE))
 
-# Explicitly remove conditionally compiled files from the base list.
-C_SRCS_BASE := $(filter-out %/disasm.c, $(C_SRCS_BASE))
-
-# Initialize final source lists. They will be appended to based on config.
 CXX_SRCS := $(CXX_SRCS_BASE)
 C_SRCS   := $(C_SRCS_BASE)
 
 # =============================================================================
 # Compilation and Linking Flags
 # =============================================================================
-# --- Include Directories ---
-# Project's own include paths
+# --- Include Directories (C++) ---
 INC_DIRS_BASE := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
                  $(CSRC_DIR)/trace $(CSRC_DIR)/log
 
-# Manually specified paths for Verilator (replaces `verilator --cflags`)
-# CRITICAL FIX: Add the `vltstd` subdirectory, which often contains svdpi.h or other standard headers.
 VERILATOR_INC_DIRS := /usr/local/share/verilator/include \
                       /usr/local/share/verilator/include/vltstd
 VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
 
-# Combine all include directories into the final flag list
 INC_DIRS  := $(VERILATOR_OBJ_DIR) $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS)
 INC_FLAGS := $(addprefix -I, $(INC_DIRS))
 
@@ -75,18 +90,13 @@ COMMON_FLAGS := -g -Wall -pthread
 CC := gcc
 CXX := g++
 
-# Define CFLAGS and CXXFLAGS using the combined include flags.
 CFLAGS   := $(INC_FLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 CXXFLAGS := $(INC_FLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
 
 # --- Linker Flags ---
-#LDFLAGS := -lreadline -pthread -ldl
-# --- Linker Flags ---
-LDFLAGS := --static -static-libgcc -static-libstdc++ -lreadline -pthread -ldl -ltinfo
+LDFLAGS := -lreadline -pthread -ldl
 
 # --- Kconfig Conditional Flags ---
-# Use `strip` to be robust against whitespace in .config file.
-# Append flags using `+=`.
 ifeq ($(strip $(CONFIG_TRACE)),y)
     CFLAGS   += -DCONFIG_TRACE
     CXXFLAGS += -DCONFIG_TRACE
@@ -132,18 +142,12 @@ VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 # =============================================================================
 .PHONY: all npc run rundiff gdb-diff clean menuconfig check_config
 
-# --- Core Dependencies ---
-# 1. Any change in configuration requires recompiling all C/C++ files.
 $(ALL_OBJS): .config
-
-# 2. All C++ files depend on Verilator's output.
 $(CXX_OBJS): $(VERILATED_LIB)
 
-# --- Main Targets ---
 all: npc
 npc: $(TARGET)
 
-# 3. A phony target to check for .config's existence before building.
 check_config:
 	@if [ ! -f .config ]; then \
 		echo "ERROR: Configuration file .config is missing."; \
@@ -151,9 +155,6 @@ check_config:
 		exit 1; \
 	fi
 
-# --- Build Rules ---
-# The final executable depends on all objects and the verilated library.
-# It uses an order-only prerequisite `| check_config` to run the check first.
 $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 	@echo "### Linking executable: $(TARGET) ###"
 	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJS) $(VERILATED_LIB) \
@@ -162,29 +163,26 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 		$(firstword $(VERILATOR_INC_DIRS))/verilated_threads.cpp \
 		$(LDFLAGS)
 
-
-		
-# Rule to run Verilator and build its output library.
+# [关键修改] Verilator 编译规则
+# 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
 $(VERILATED_LIB): $(VSRC) | $(BUILD_DIR)
 	@echo "### Running Verilator... ###"
-	verilator --cc --sv --top-module $(TOP_MODULE) +incdir+$(VSRC_DIR)/include \
+	verilator --cc --sv -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
+		$(VERILATOR_INC_FLAGS) \
 		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
 	@echo "### Compiling Verilated library... ###"
 	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
 
-# Generic rule to compile a C file.
 $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.c | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C: $< ###"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Generic rule to compile a C++ file.
 $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C++: $< ###"
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-# Rule to create the build directory.
 $(BUILD_DIR):
 	@mkdir -p $@
 
@@ -192,16 +190,11 @@ $(BUILD_DIR):
 # User-facing Targets
 # =============================================================================
 
-
-
-
 rundiff: CFLAGS += -DCONFIG_DIFFTEST
 rundiff: CXXFLAGS += -DCONFIG_DIFFTEST
 
 gdb-diff: CFLAGS += -DCONFIG_DIFFTEST
 gdb-diff: CXXFLAGS += -DCONFIG_DIFFTEST
-
-
 
 menuconfig:
 	@echo "### Launching Kconfig menu... ###"
@@ -213,7 +206,6 @@ run:
 	$(MAKE) npc
 	@echo "### Starting NPC Simulation (config from menuconfig) ###"
 	./$(TARGET) -l log.txt --ftrace=load-store-riscv32e-npc.elf $(IMG)
-
 
 rundiff: npc
 	$(call git_commit, "sim RTL")

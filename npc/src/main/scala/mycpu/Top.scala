@@ -60,8 +60,7 @@ object Main extends App {
     args = Array("--target-dir", "src/main/verilog/gen"),
     firtoolOpts = Array(
       "--disable-all-randomization", // 可选：禁用随机初始化，让波形更干净
-      "--strip-debug-info",          // 可选：减小体积
-      "--disable-layers=Verification" // [关键] 禁用验证层，防止生成额外文件
+      //"--disable-layers=Verification" // [关键] 禁用验证层，防止生成额外文件
     )
   )
 }

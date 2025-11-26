@@ -9,6 +9,8 @@
 !*.cc
 !*.cpp
 !*.scala
+!*.json
+!*.sbt
 !.gitignore
 !Kconfig
 !.config
