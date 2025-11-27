@@ -6,12 +6,12 @@ import mycpu.core.frontend.Fetch
 import mycpu.core.backend._
 import mycpu.core.bundles._
 import mycpu.core.components.SimState
-import mycpu.memory.AXI4LiteMasterIO
+import mycpu.utils._
 
 class Core extends Module {
   val io = IO(new Bundle {
-    val imem = new AXI4LiteMasterIO()
-    val dmem = new AXI4LiteMasterIO()
+    val imem = new AXI4LiteBundle()
+    val dmem = new AXI4LiteBundle()
   })
 
   val fetch   = Module(new Fetch)

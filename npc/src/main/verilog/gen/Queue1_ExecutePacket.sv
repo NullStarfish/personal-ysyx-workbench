@@ -31,6 +31,7 @@ module Queue1_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
                 io_deq_bits_dnpc,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_aluResult,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_memWData,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_pcTarget,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [4:0]  io_deq_bits_rdAddr,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output        io_deq_bits_ctrl_regWen,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_ctrl_memEn,	// src/main/scala/chisel3/util/Queue.scala:72:14
@@ -78,6 +79,7 @@ module Queue1_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   assign io_deq_bits_dnpc = ram[184:153];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_aluResult = ram[152:121];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_memWData = ram[120:89];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_pcTarget = ram[88:57];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_rdAddr = ram[56:52];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_ctrl_regWen = ram[45];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_ctrl_memEn = ram[44];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91

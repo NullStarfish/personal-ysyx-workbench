@@ -1,4 +1,4 @@
-package mycpu.memory
+package mycpu.peripherals
 
 import chisel3._
 

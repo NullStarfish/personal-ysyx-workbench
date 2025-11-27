@@ -7,7 +7,7 @@ export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 
 
 
-DEBUG=0
+DEBUG=1
 
 TARGET := npc
 TOP_MODULE := Top

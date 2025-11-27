@@ -2,7 +2,8 @@ package mycpu
 
 import chisel3._
 import mycpu.core.Core
-import mycpu.memory.{SimpleAXIArbiter, SRAM}
+import mycpu.peripherals.{SRAM}
+import mycpu.utils._
 // [新增] 引入 CIRCT 阶段生成器
 import circt.stage.ChiselStage 
 

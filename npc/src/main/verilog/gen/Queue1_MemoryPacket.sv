@@ -10,6 +10,7 @@ module Queue1_MemoryPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
                 io_enq_bits_wbData,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [4:0]  io_enq_bits_rdAddr,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input         io_enq_bits_regWen,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  input  [31:0] io_enq_bits_pcTarget,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output        io_deq_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [31:0] io_deq_bits_pc,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_inst,	// src/main/scala/chisel3/util/Queue.scala:72:14
@@ -36,7 +37,7 @@ module Queue1_MemoryPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
          io_enq_bits_wbData,
          io_enq_bits_rdAddr,
          io_enq_bits_regWen,
-         32'h0};	// src/main/scala/chisel3/util/Queue.scala:73:91
+         io_enq_bits_pcTarget};	// src/main/scala/chisel3/util/Queue.scala:73:91
   end // always @(posedge)
   assign io_enq_ready = ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27, :103:19
   assign io_deq_valid = maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27
