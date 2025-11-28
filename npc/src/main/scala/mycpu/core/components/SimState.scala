@@ -13,7 +13,6 @@ class SimState extends BlackBox {
     val mepc    = Input(UInt(32.W))
     val mstatus = Input(UInt(32.W))
     val mcause  = Input(UInt(32.W))
-    val inst    = Input(UInt(32.W)) 
-
+    val inst    = Input(UInt(32.W))
   })
 }

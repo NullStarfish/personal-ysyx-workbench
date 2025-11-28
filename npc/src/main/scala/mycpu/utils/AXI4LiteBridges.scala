@@ -61,7 +61,18 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
     }
     is(State.sReadAddr) {
       io.axi.ar.valid := true.B
-      when(io.axi.ar.fire) { state := State.sReadData }
+      io.axi.r.ready := true.B
+
+      when(io.axi.ar.fire) { 
+        when(io.axi.r.fire) {
+          respQueue.io.enq.valid        := true.B
+          respQueue.io.enq.bits.rdata   := io.axi.r.bits.data
+          respQueue.io.enq.bits.isError := (io.axi.r.bits.resp =/= 0.U)
+          when(respQueue.io.enq.ready) { state := State.sIdle }
+        }.otherwise {
+          state := State.sReadData
+        }
+      }
     }
     is(State.sReadData) {
       io.axi.r.ready := true.B
