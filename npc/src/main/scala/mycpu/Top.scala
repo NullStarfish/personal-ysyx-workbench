@@ -11,17 +11,17 @@ class Top extends Module {
 
     // 1. 实例化模块
     val core    = Module(new Core)
-    val arbiter = Module(new SimpleAXIArbiter)
+    val memArbiter = Module(new SimpleAXIArbiter)
     val xbar    = Module(new Xbar(MemMap.devices)) // 实例化 Xbar
     val sram    = Module(new SRAM)                 // BlackBox
     val serial  = Module(new Serial)               // Chisel Module
 
     // 2. Core -> Arbiter
-    arbiter.io.ifu <> core.io.imem
-    arbiter.io.lsu <> core.io.dmem
+    memArbiter.io.left <> core.io.imem
+    memArbiter.io.right <> core.io.dmem
 
     // 3. Arbiter -> Xbar
-    xbar.io.in <> arbiter.io.mem
+    xbar.io.in <> memArbiter.io.out
 
     // 4. Xbar -> Peripherals
     // 获取设备索引
