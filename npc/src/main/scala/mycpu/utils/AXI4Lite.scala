@@ -5,6 +5,15 @@ import chisel3.util._
 import mycpu.common.XLEN
 
 
+//======================================================
+//注意： addrWidth为byte寻址，dataWidth为bit位宽
+//=====================================================
+
+
+
+
+
+
 // ==============================================================================
 // 1. 基础 Payload 定义
 // ==============================================================================
@@ -56,7 +65,7 @@ class AXI4LiteReadBundle(val addrWidth: Int = XLEN, val dataWidth: Int = XLEN)
   extends Bundle with HasAXI4LiteRead
 
 // [New] 纯写接口 Bundle (用于 WriteBridge)
-class AXI4LiteWriteBundle(val addrWidth: Int, val dataWidth: Int) 
+class AXI4LiteWriteBundle(val addrWidth: Int = XLEN, val dataWidth: Int = XLEN) 
   extends Bundle with HasAXI4LiteWrite
 
 // [Legacy/Top] 完整接口 Bundle (用于 Fetch/LSU IO 和 Top IO)

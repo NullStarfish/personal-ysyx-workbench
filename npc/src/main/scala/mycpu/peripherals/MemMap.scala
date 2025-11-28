@@ -19,7 +19,7 @@ object MemMap {
 
   // 定义所有外设的映射列表
   val devices = List(
-    DeviceConfig("SERIAL", DEVICE_BASE_ADDR + 0x3f8, 0x100), // 串口
+    DeviceConfig("SERIAL", DEVICE_BASE_ADDR + 0x3f8, 0x4), // 串口
     DeviceConfig("RTC",    DEVICE_BASE_ADDR + 0x048, 0x008), // RTC
     DeviceConfig("GPIO",   DEVICE_BASE_ADDR + 0x1000, 0x100) // 示例：GPIO
   )
