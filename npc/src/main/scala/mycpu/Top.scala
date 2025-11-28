@@ -2,66 +2,104 @@ package mycpu
 
 import chisel3._
 import mycpu.core.Core
-import mycpu.peripherals.{SRAM}
+import mycpu.peripherals.{SRAM, Serial, Xbar} // 引入新增的模块
 import mycpu.utils._
-// [新增] 引入 CIRCT 阶段生成器
 import circt.stage.ChiselStage 
 
 class Top extends Module {
-  // ... (Top 的内容保持不变) ...
     val io = IO(new Bundle {})
 
-    val core = Module(new Core)
+    // 1. 实例化模块
+    val core    = Module(new Core)
     val arbiter = Module(new SimpleAXIArbiter)
-    val sram = Module(new SRAM)
+    val xbar    = Module(new Xbar(MemMap.devices)) // 实例化 Xbar
+    val sram    = Module(new SRAM)                 // BlackBox
+    val serial  = Module(new Serial)               // Chisel Module
 
-    // Core -> Arbiter
+    // 2. Core -> Arbiter
     arbiter.io.ifu <> core.io.imem
     arbiter.io.lsu <> core.io.dmem
 
-    // Arbiter -> SRAM (BlackBox 连接)
+    // 3. Arbiter -> Xbar
+    xbar.io.in <> arbiter.io.mem
+
+    // 4. Xbar -> Peripherals
+    // 获取设备索引
+    val sramIdx   = MemMap.devices.indexWhere(_.name == "SRAM")
+    val serialIdx = MemMap.devices.indexWhere(_.name == "SERIAL")
+    
+    // ==============================================================================
+    // 连接 SRAM (BlackBox, 需要手动连线)
+    // ==============================================================================
+    val sramPort = xbar.io.slaves(sramIdx)
+
     sram.io.clk := clock
     sram.io.rst := reset.asBool
 
-    sram.io.sram_axi_if_awaddr  := arbiter.io.mem.aw.bits.addr
-    sram.io.sram_axi_if_awvalid := arbiter.io.mem.aw.valid
-    arbiter.io.mem.aw.ready     := sram.io.sram_axi_if_awready
+    // AW Channel
+    sram.io.sram_axi_if_awaddr  := sramPort.aw.bits.addr
+    sram.io.sram_axi_if_awvalid := sramPort.aw.valid
+    sramPort.aw.ready           := sram.io.sram_axi_if_awready
 
-    sram.io.sram_axi_if_wdata   := arbiter.io.mem.w.bits.data
-    sram.io.sram_axi_if_wstrb   := arbiter.io.mem.w.bits.strb
-    sram.io.sram_axi_if_wvalid  := arbiter.io.mem.w.valid
-    arbiter.io.mem.w.ready      := sram.io.sram_axi_if_wready
+    // W Channel
+    sram.io.sram_axi_if_wdata   := sramPort.w.bits.data
+    sram.io.sram_axi_if_wstrb   := sramPort.w.bits.strb
+    sram.io.sram_axi_if_wvalid  := sramPort.w.valid
+    sramPort.w.ready            := sram.io.sram_axi_if_wready
 
-    arbiter.io.mem.b.bits.resp  := sram.io.sram_axi_if_bresp
-    arbiter.io.mem.b.valid      := sram.io.sram_axi_if_bvalid
-    sram.io.sram_axi_if_bready  := arbiter.io.mem.b.ready
+    // B Channel
+    sramPort.b.bits.resp        := sram.io.sram_axi_if_bresp
+    sramPort.b.valid            := sram.io.sram_axi_if_bvalid
+    sram.io.sram_axi_if_bready  := sramPort.b.ready
 
-    sram.io.sram_axi_if_araddr  := arbiter.io.mem.ar.bits.addr
-    sram.io.sram_axi_if_arvalid := arbiter.io.mem.ar.valid
-    arbiter.io.mem.ar.ready     := sram.io.sram_axi_if_arready
+    // AR Channel
+    sram.io.sram_axi_if_araddr  := sramPort.ar.bits.addr
+    sram.io.sram_axi_if_arvalid := sramPort.ar.valid
+    sramPort.ar.ready           := sram.io.sram_axi_if_arready
 
-    arbiter.io.mem.r.bits.data  := sram.io.sram_axi_if_rdata
-    arbiter.io.mem.r.bits.resp  := sram.io.sram_axi_if_rresp
-    arbiter.io.mem.r.valid      := sram.io.sram_axi_if_rvalid
-    sram.io.sram_axi_if_rready  := arbiter.io.mem.r.ready
+    // R Channel
+    sramPort.r.bits.data        := sram.io.sram_axi_if_rdata
+    sramPort.r.bits.resp        := sram.io.sram_axi_if_rresp
+    sramPort.r.valid            := sram.io.sram_axi_if_rvalid
+    sram.io.sram_axi_if_rready  := sramPort.r.ready
 
-    // Fire 信号连接
-    sram.io.sram_axi_if_aw_fire := arbiter.io.mem.aw.fire
-    sram.io.sram_axi_if_w_fire  := arbiter.io.mem.w.fire
-    sram.io.sram_axi_if_b_fire  := arbiter.io.mem.b.fire
-    sram.io.sram_axi_if_ar_fire := arbiter.io.mem.ar.fire
-    sram.io.sram_axi_if_r_fire  := arbiter.io.mem.r.fire
+    // Fire Signals (SRAM BlackBox 需要的辅助信号)
+    sram.io.sram_axi_if_aw_fire := sramPort.aw.fire
+    sram.io.sram_axi_if_w_fire  := sramPort.w.fire
+    sram.io.sram_axi_if_b_fire  := sramPort.b.fire
+    sram.io.sram_axi_if_ar_fire := sramPort.ar.fire
+    sram.io.sram_axi_if_r_fire  := sramPort.r.fire
+
+    // ==============================================================================
+    // 连接 Serial (Chisel Module, 需要地址截断)
+    // ==============================================================================
+    val serialPort = xbar.io.slaves(serialIdx)
+    val serialBus  = serial.io.bus
+
+    // AR Channel (地址截断)
+    serialBus.ar.valid     := serialPort.ar.valid
+    serialBus.ar.bits.prot := serialPort.ar.bits.prot
+    serialBus.ar.bits.addr := serialPort.ar.bits.addr(serial.localAddrWidth - 1, 0)
+    serialPort.ar.ready    := serialBus.ar.ready
+
+    // AW Channel (地址截断)
+    serialBus.aw.valid     := serialPort.aw.valid
+    serialBus.aw.bits.prot := serialPort.aw.bits.prot
+    serialBus.aw.bits.addr := serialPort.aw.bits.addr(serial.localAddrWidth - 1, 0)
+    serialPort.aw.ready    := serialBus.aw.ready
+
+    // W, B, R Channels (数据位宽一致，直接连接)
+    serialBus.w   <> serialPort.w
+    serialPort.b  <> serialBus.b
+    serialPort.r  <> serialBus.r
 }
 
 object Main extends App {
-  // 使用 ChiselStage.emitSystemVerilogFile
-  // 它可以接受两个参数数组：args (给 Chisel 的) 和 firtoolOpts (直接透传给 firtool 的)
   ChiselStage.emitSystemVerilogFile(
     new Top,
     args = Array("--target-dir", "src/main/verilog/gen"),
     firtoolOpts = Array(
-      "--disable-all-randomization", // 可选：禁用随机初始化，让波形更干净
-      //"--disable-layers=Verification" // [关键] 禁用验证层，防止生成额外文件
+      "--disable-all-randomization"
     )
   )
 }

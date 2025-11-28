@@ -76,9 +76,12 @@ class Serial extends Peripheral(mycpu.MemMap.devices(1)) {
             maskedBytes(i) := Mux(wStrb(i), wData(i * 8 + 7, i * 8), 0.U(8.W))
           }
           
+
           // 将 Vec 转换回 UInt
           printReg := maskedBytes.asUInt
         }
+
+        printf(p"[Serial DEBUG] Write Data: 0x${Hexadecimal(wBus.w.bits.data)}\n") 
         
         state := State.sWaitResp
       }
