@@ -99,8 +99,13 @@ class LSU extends Module {
   val shiftedData = rawReadData >> shiftAmount
   val finalLoadData = Wire(UInt(32.W))
 
+
+
+  when(readBridge.io.resp.fire) {
+    printf("[DEBUG] [LSU] Read Resp: rdata: %x, isError: %x\n", readBridge.io.resp.bits.rdata, readBridge.io.resp.bits.isError)
+  }
   when(writeBridge.io.resp.fire) {
-    printf("[DEBUG] [LSU] Write Resp: %x")
+    printf("[DEBUG] [LSU] Write Resp: isError: %x\n", writeBridge.io.resp.bits.isError)
   }
 
 

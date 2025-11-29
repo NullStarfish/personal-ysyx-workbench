@@ -18,6 +18,7 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   input  [3:0]  io_in_w_bits_strb,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_in_b_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_in_b_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
+  output [1:0]  io_in_b_bits_resp,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_0_ar_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_slaves_0_ar_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output [31:0] io_slaves_0_ar_bits_addr,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
@@ -34,6 +35,7 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   output [3:0]  io_slaves_0_w_bits_strb,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_slaves_0_b_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_0_b_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
+  input  [1:0]  io_slaves_0_b_bits_resp,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_slaves_1_ar_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_1_r_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
                 io_slaves_1_aw_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
@@ -90,6 +92,7 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_in_w_ready =
     aw_hits_0 & io_slaves_0_w_ready | aw_hits_1 & io_slaves_1_w_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :113:26
   assign io_in_b_valid = io_in_b_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :56:18, :128:16, :129:13
+  assign io_in_b_bits_resp = w_slave_sel ? 2'h0 : io_slaves_0_b_bits_resp;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :116:28, :129:13
   assign io_slaves_0_ar_valid = ar_hits_0 & io_in_ar_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :68:21
   assign io_slaves_0_ar_bits_addr = io_in_ar_bits_addr;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_slaves_0_r_ready = r_busy & ~r_slave_sel & io_in_r_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :44:26, :77:28, :78:28, :89:16, :93:13

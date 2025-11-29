@@ -16,8 +16,11 @@ class SimpleWriteReq(val addrWidth: Int = XLEN, val dataWidth: Int = XLEN) exten
   val wstrb = UInt((dataWidth/8).W)
 }
 
-class SimpleBusResp(val dataWidth: Int = XLEN) extends Bundle {
+class SimpleReadBusResp(val dataWidth: Int = XLEN) extends Bundle {
   val rdata   = UInt(dataWidth.W)
   val isError = Bool() 
 }
 
+class SimpleWriteBusResp(val dataWidth: Int = XLEN) extends  Bundle {
+  val isError = Bool()
+}

@@ -24,7 +24,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
   output [31:0] io_dmem_w_bits_data,	// src/main/scala/mycpu/core/Core.scala:12:14
   output [3:0]  io_dmem_w_bits_strb,	// src/main/scala/mycpu/core/Core.scala:12:14
   output        io_dmem_b_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input         io_dmem_b_valid	// src/main/scala/mycpu/core/Core.scala:12:14
+  input         io_dmem_b_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
+  input  [1:0]  io_dmem_b_bits_resp	// src/main/scala/mycpu/core/Core.scala:12:14
 );
 
   wire        _q4_io_enq_ready;	// src/main/scala/mycpu/core/Core.scala:44:18
@@ -361,7 +362,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
     .io_axi_w_bits_data        (io_dmem_w_bits_data),
     .io_axi_w_bits_strb        (io_dmem_w_bits_strb),
     .io_axi_b_ready            (io_dmem_b_ready),
-    .io_axi_b_valid            (io_dmem_b_valid)
+    .io_axi_b_valid            (io_dmem_b_valid),
+    .io_axi_b_bits_resp        (io_dmem_b_bits_resp)
   );	// src/main/scala/mycpu/core/Core.scala:20:23
   WriteBack wb (	// src/main/scala/mycpu/core/Core.scala:21:23
     .reset             (reset),

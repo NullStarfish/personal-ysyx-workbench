@@ -13,16 +13,19 @@ import mycpu.utils._
 class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends Module {
   val io = IO(new Bundle {
     val req  = Flipped(Decoupled(new SimpleReadReq(addrWidth)))
-    val resp = Decoupled(new SimpleBusResp(dataWidth))
+    val resp = Decoupled(new SimpleReadBusResp(dataWidth))
     // [关键] 只有读通道，没有多余引脚
     val axi  = new AXI4LiteReadBundle(addrWidth, dataWidth)
   })
+  
+
+
 
   object State extends ChiselEnum { val sIdle, sReadAddr, sReadData = Value }
   val state = RegInit(State.sIdle)
   val addrReg = Reg(UInt(addrWidth.W))
 
-  val respQueue = Module(new Queue(new SimpleBusResp(dataWidth), 1))
+  val respQueue = Module(new Queue(new SimpleReadBusResp(dataWidth), 1))
   io.resp <> respQueue.io.deq
 
   // Default Outputs
@@ -35,7 +38,18 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
   respQueue.io.enq.bits  := DontCare
 
 
-
+  when(io.req.fire) {
+    printf("[DEBUG] [AXIReadBridge]: req received: raddr: %x\n ", io.req.bits.addr)
+  }
+  when(io.axi.ar.fire) {
+    printf("[DEBUG] [AXIReadBridge]: axi ar successfully sent\n")
+  }
+  when(io.axi.r.fire) {
+    printf("[DEBUG] [AXIReadBridge]: axi r received: rdata: %x, resp: %x\n", io.axi.r.bits.data, io.axi.r.bits.resp)
+  }
+  when(io.resp.fire) {
+    printf("[DEBUG] [AXIReadBridge]: resp successfully sent: data: %x, isError: %x\n", io.resp.bits.rdata, io.resp.bits.isError)
+  }
 
   //施工：
   //我们需要把两个通道事务改为可以并发的：
@@ -84,6 +98,10 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
       }
     }
   }
+
+
+
+
 }
 
 
@@ -100,9 +118,26 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
 class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends Module {
   val io = IO(new Bundle {
     val req  = Flipped(Decoupled(new SimpleWriteReq(addrWidth, dataWidth)))
-    val resp = Decoupled(Bool()) // True = Error
+    val resp = Decoupled(new SimpleWriteBusResp()) // True = Error
     val axi  = new AXI4LiteWriteBundle(addrWidth, dataWidth)
   })
+
+  when(io.req.fire) {
+    printf("[DEBUG] [AXIWriteBridge]: req received: waddr: %x wdata: %x, wstrb: %x\n ", io.req.bits.addr, io.req.bits.wdata, io.req.bits.wstrb)
+  }
+  when(io.axi.aw.fire) {
+    printf("[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n")
+  }
+  when(io.axi.w.fire) {
+    printf("[DEBUG] [AXIWriteBridge]: axi w sent: wdata: %x, wstrb: %x\n", io.axi.w.bits.data, io.axi.w.bits.strb)
+  }
+  when(io.axi.b.fire) {
+    printf("[DEBUG] [AXIWriteBridge]: axi b successfully received: resp: %x\n", io.axi.b.bits.resp)
+  }
+  when(io.resp.fire) {
+    printf("[DEBUG] [AXIWriteBridge]: resp sent: isError: %x\n", io.resp.bits.isError)
+  }
+
 
   object State extends ChiselEnum { val sIdle, sIssue, sWaitAXIResp, sReplyLSU = Value }
   val state = RegInit(State.sIdle)
@@ -114,7 +149,7 @@ class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends 
   // Default Outputs
   io.req.ready        := false.B
   io.resp.valid       := false.B
-  io.resp.bits        := bError
+  io.resp.bits.isError        := bError
   
   io.axi.aw.valid     := false.B
   io.axi.aw.bits.addr := reqReg.addr
