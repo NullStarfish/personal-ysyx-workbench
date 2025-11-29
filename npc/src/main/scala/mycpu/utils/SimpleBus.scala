@@ -20,3 +20,4 @@ class SimpleBusResp(val dataWidth: Int = XLEN) extends Bundle {
   val rdata   = UInt(dataWidth.W)
   val isError = Bool() 
 }
+

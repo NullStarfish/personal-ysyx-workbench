@@ -6,13 +6,18 @@ import mycpu.utils._
 import mycpu.DeviceConfig
 import mycpu.common.XLEN
 
+
+//Xbar实际上是一种switch
+//ifu, lsu发送的数据包实际上已经带有标识符（就是内存地址本身）
+//Xbar分配这些数据包，并且对这个数据包进行解码，解码成offset
+
 class Xbar(devices: List[DeviceConfig]) extends Module {
   val numSlaves = devices.length
   require(numSlaves > 0, "Xbar must have at least one slave device")
 
   val io = IO(new Bundle {
-    val in = Flipped(new AXI4LiteBundle(XLEN, XLEN))      
-    val slaves = Vec(numSlaves, new AXI4LiteBundle(XLEN, XLEN)) 
+    val in = Flipped(new AXI4LiteBundle(XLEN, XLEN))
+    val slaves = Vec(numSlaves, new AXI4LiteBundle(XLEN, XLEN))
   })
 
   def isHit(addr: UInt, dev: DeviceConfig): Bool = {

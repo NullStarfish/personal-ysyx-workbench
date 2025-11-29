@@ -7,7 +7,7 @@ export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 
 
 
-DEBUG=1
+
 
 TARGET := npc
 TOP_MODULE := Top
@@ -29,14 +29,16 @@ OBJ_DIR := $(BUILD_DIR)/obj_dir
 TOOLS_DIR := $(NPC_HOME)/csrc/tools
 
 # --- Verilog/SystemVerilog Sources ---
-# 1. Packages must come first (SystemVerilog requirement)
-VSRC_PKG := $(shell find $(VSRC_DIR)/include -name "*pkg.sv")
+DEBUG=1
+# 定义一个存储 DEBUG 状态的文件
+DEBUG_FLAG_FILE := $(BUILD_DIR)/.debug_flag
 
-# 2. Interface definitions
-VSRC_INTERFACES := $(shell find $(VSRC_DIR)/include -name "interfaces.sv")
+$(DEBUG_FLAG_FILE): FORCE
+	@mkdir -p $(dir $@)
+	@# 将当前的 DEBUG 变量写入临时比较
+	@echo "$(DEBUG)" | cmp -s - $@ || echo "$(DEBUG)" > $@
 
-# 3. Opcodes
-VSRC_OPCODES := $(shell find $(VSRC_DIR)/include -name "*opcodes.sv")
+
 
 # 4. Generated Verification Sources & Layers
 #    (Must cover gen/verification, gen/verification/assert, etc.)
@@ -46,10 +48,10 @@ VSRC_VERI := $(shell find $(GEN_DIR)/verification -name "*.sv")
 #    We use find on VSRC_DIR but filter out what we already found to avoid duplicates.
 #    Also explicitly look in GEN_DIR to ensure Top.sv is found.
 VSRC_ALL_RAW := $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv")
-VSRC_OTHERS  := $(filter-out $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES) $(VSRC_VERI), $(VSRC_ALL_RAW))
+VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
 
 # 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
-VSRC := $(VSRC_PKG) $(VSRC_INTERFACES) $(VSRC_OPCODES) $(VSRC_VERI) $(VSRC_OTHERS)
+VSRC := $(VSRC_VERI) $(VSRC_OTHERS)
 
 # --- Verilog Include Paths (Critical Fix) ---
 # Add generated directories to include paths so Verilator can resolve `include "layers-..."`
@@ -140,7 +142,7 @@ VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 # =============================================================================
 # Makefile Rules
 # =============================================================================
-.PHONY: all npc run rundiff gdb-diff clean menuconfig check_config
+.PHONY: all npc run rundiff gdb-diff clean menuconfig check_config FORCE
 
 $(ALL_OBJS): .config
 $(CXX_OBJS): $(VERILATED_LIB)
@@ -165,7 +167,7 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 
 # [关键修改] Verilator 编译规则
 # 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
-$(VERILATED_LIB): $(VSRC) | $(BUILD_DIR)
+$(VERILATED_LIB): $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
 	@echo "### Running Verilator... ###"
 	verilator --cc --sv -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INC_FLAGS) \
@@ -218,4 +220,4 @@ gdb-diff: npc
 	gdb --args ./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) .config .config.old
+	rm -rf $(BUILD_DIR) $(TARGET) $(GEN_DIR)

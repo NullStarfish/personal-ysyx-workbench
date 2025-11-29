@@ -52,6 +52,19 @@ class LSU extends Module {
   writeBridge.io.req.bits.wdata := inWdata
   writeBridge.io.req.bits.wstrb := inWstrb
 
+
+  //DEBUG: Bridge请求debug信息
+  when(readBridge.io.req.fire) {
+    printf("LSU : read req: addr: %x\n",readBridge.io.req.bits.addr)
+  }
+
+  when(writeBridge.io.req.fire) {
+    printf("LSU : write req: addr: %x, data: %x, wstrb: %x\n", writeBridge.io.req.bits.addr, writeBridge.io.req.bits.wdata, writeBridge.io.req.bits.wstrb)
+  }
+
+
+
+
   // 握手判断
   val isMemRead  = io.in.bits.ctrl.memEn && !io.in.bits.ctrl.memWen
   val isMemWrite = io.in.bits.ctrl.memEn && io.in.bits.ctrl.memWen
@@ -85,6 +98,12 @@ class LSU extends Module {
   val shiftAmount = addrOffset << 3 
   val shiftedData = rawReadData >> shiftAmount
   val finalLoadData = Wire(UInt(32.W))
+
+  when(writeBridge.io.resp.fire) {
+    printf("[DEBUG] [LSU] Write Resp: %x")
+  }
+
+
   
   finalLoadData := 0.U 
   switch(reqReg.ctrl.memFunct3) {

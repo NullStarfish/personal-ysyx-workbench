@@ -38,26 +38,26 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
   wire [31:0] _xbar_io_slaves_1_w_bits_data;	// src/main/scala/mycpu/Top.scala:15:25
   wire [3:0]  _xbar_io_slaves_1_w_bits_strb;	// src/main/scala/mycpu/Top.scala:15:25
   wire        _xbar_io_slaves_1_b_ready;	// src/main/scala/mycpu/Top.scala:15:25
-  wire        _arbiter_io_ifu_ar_ready;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_ifu_r_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [31:0] _arbiter_io_ifu_r_bits_data;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [1:0]  _arbiter_io_ifu_r_bits_resp;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_lsu_ar_ready;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_lsu_r_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [31:0] _arbiter_io_lsu_r_bits_data;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [1:0]  _arbiter_io_lsu_r_bits_resp;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_lsu_aw_ready;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_lsu_w_ready;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_lsu_b_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_mem_ar_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [31:0] _arbiter_io_mem_ar_bits_addr;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_mem_r_ready;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_mem_aw_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [31:0] _arbiter_io_mem_aw_bits_addr;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_mem_w_valid;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [31:0] _arbiter_io_mem_w_bits_data;	// src/main/scala/mycpu/Top.scala:14:25
-  wire [3:0]  _arbiter_io_mem_w_bits_strb;	// src/main/scala/mycpu/Top.scala:14:25
-  wire        _arbiter_io_mem_b_ready;	// src/main/scala/mycpu/Top.scala:14:25
+  wire        _memArbiter_io_left_ar_ready;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_left_r_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [31:0] _memArbiter_io_left_r_bits_data;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [1:0]  _memArbiter_io_left_r_bits_resp;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_right_ar_ready;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_right_r_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [31:0] _memArbiter_io_right_r_bits_data;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [1:0]  _memArbiter_io_right_r_bits_resp;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_right_aw_ready;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_right_w_ready;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_right_b_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_out_ar_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [31:0] _memArbiter_io_out_ar_bits_addr;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_out_r_ready;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_out_aw_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [31:0] _memArbiter_io_out_aw_bits_addr;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_out_w_valid;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [31:0] _memArbiter_io_out_w_bits_data;	// src/main/scala/mycpu/Top.scala:14:28
+  wire [3:0]  _memArbiter_io_out_w_bits_strb;	// src/main/scala/mycpu/Top.scala:14:28
+  wire        _memArbiter_io_out_b_ready;	// src/main/scala/mycpu/Top.scala:14:28
   wire        _core_io_imem_ar_valid;	// src/main/scala/mycpu/Top.scala:13:25
   wire [31:0] _core_io_imem_ar_bits_addr;	// src/main/scala/mycpu/Top.scala:13:25
   wire        _core_io_imem_r_ready;	// src/main/scala/mycpu/Top.scala:13:25
@@ -73,91 +73,91 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
   Core core (	// src/main/scala/mycpu/Top.scala:13:25
     .clock                (clock),
     .reset                (reset),
-    .io_imem_ar_ready     (_arbiter_io_ifu_ar_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_imem_ar_ready     (_memArbiter_io_left_ar_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_imem_ar_valid     (_core_io_imem_ar_valid),
     .io_imem_ar_bits_addr (_core_io_imem_ar_bits_addr),
     .io_imem_r_ready      (_core_io_imem_r_ready),
-    .io_imem_r_valid      (_arbiter_io_ifu_r_valid),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_imem_r_bits_data  (_arbiter_io_ifu_r_bits_data),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_imem_r_bits_resp  (_arbiter_io_ifu_r_bits_resp),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_dmem_ar_ready     (_arbiter_io_lsu_ar_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_imem_r_valid      (_memArbiter_io_left_r_valid),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_imem_r_bits_data  (_memArbiter_io_left_r_bits_data),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_imem_r_bits_resp  (_memArbiter_io_left_r_bits_resp),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_dmem_ar_ready     (_memArbiter_io_right_ar_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_dmem_ar_valid     (_core_io_dmem_ar_valid),
     .io_dmem_ar_bits_addr (_core_io_dmem_ar_bits_addr),
     .io_dmem_r_ready      (_core_io_dmem_r_ready),
-    .io_dmem_r_valid      (_arbiter_io_lsu_r_valid),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_dmem_r_bits_data  (_arbiter_io_lsu_r_bits_data),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_dmem_r_bits_resp  (_arbiter_io_lsu_r_bits_resp),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_dmem_aw_ready     (_arbiter_io_lsu_aw_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_dmem_r_valid      (_memArbiter_io_right_r_valid),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_dmem_r_bits_data  (_memArbiter_io_right_r_bits_data),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_dmem_r_bits_resp  (_memArbiter_io_right_r_bits_resp),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_dmem_aw_ready     (_memArbiter_io_right_aw_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_dmem_aw_valid     (_core_io_dmem_aw_valid),
     .io_dmem_aw_bits_addr (_core_io_dmem_aw_bits_addr),
-    .io_dmem_w_ready      (_arbiter_io_lsu_w_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_dmem_w_ready      (_memArbiter_io_right_w_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_dmem_w_valid      (_core_io_dmem_w_valid),
     .io_dmem_w_bits_data  (_core_io_dmem_w_bits_data),
     .io_dmem_w_bits_strb  (_core_io_dmem_w_bits_strb),
     .io_dmem_b_ready      (_core_io_dmem_b_ready),
-    .io_dmem_b_valid      (_arbiter_io_lsu_b_valid)	// src/main/scala/mycpu/Top.scala:14:25
+    .io_dmem_b_valid      (_memArbiter_io_right_b_valid)	// src/main/scala/mycpu/Top.scala:14:28
   );	// src/main/scala/mycpu/Top.scala:13:25
-  SimpleAXIArbiter arbiter (	// src/main/scala/mycpu/Top.scala:14:25
-    .clock               (clock),
-    .reset               (reset),
-    .io_ifu_ar_ready     (_arbiter_io_ifu_ar_ready),
-    .io_ifu_ar_valid     (_core_io_imem_ar_valid),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_ifu_ar_bits_addr (_core_io_imem_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_ifu_r_ready      (_core_io_imem_r_ready),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_ifu_r_valid      (_arbiter_io_ifu_r_valid),
-    .io_ifu_r_bits_data  (_arbiter_io_ifu_r_bits_data),
-    .io_ifu_r_bits_resp  (_arbiter_io_ifu_r_bits_resp),
-    .io_lsu_ar_ready     (_arbiter_io_lsu_ar_ready),
-    .io_lsu_ar_valid     (_core_io_dmem_ar_valid),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_ar_bits_addr (_core_io_dmem_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_r_ready      (_core_io_dmem_r_ready),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_r_valid      (_arbiter_io_lsu_r_valid),
-    .io_lsu_r_bits_data  (_arbiter_io_lsu_r_bits_data),
-    .io_lsu_r_bits_resp  (_arbiter_io_lsu_r_bits_resp),
-    .io_lsu_aw_ready     (_arbiter_io_lsu_aw_ready),
-    .io_lsu_aw_valid     (_core_io_dmem_aw_valid),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_aw_bits_addr (_core_io_dmem_aw_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_w_ready      (_arbiter_io_lsu_w_ready),
-    .io_lsu_w_valid      (_core_io_dmem_w_valid),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_w_bits_data  (_core_io_dmem_w_bits_data),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_w_bits_strb  (_core_io_dmem_w_bits_strb),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_b_ready      (_core_io_dmem_b_ready),	// src/main/scala/mycpu/Top.scala:13:25
-    .io_lsu_b_valid      (_arbiter_io_lsu_b_valid),
-    .io_mem_ar_ready     (_xbar_io_in_ar_ready),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_ar_valid     (_arbiter_io_mem_ar_valid),
-    .io_mem_ar_bits_addr (_arbiter_io_mem_ar_bits_addr),
-    .io_mem_r_ready      (_arbiter_io_mem_r_ready),
-    .io_mem_r_valid      (_xbar_io_in_r_valid),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_r_bits_data  (_xbar_io_in_r_bits_data),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_r_bits_resp  (_xbar_io_in_r_bits_resp),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_aw_ready     (_xbar_io_in_aw_ready),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_aw_valid     (_arbiter_io_mem_aw_valid),
-    .io_mem_aw_bits_addr (_arbiter_io_mem_aw_bits_addr),
-    .io_mem_w_ready      (_xbar_io_in_w_ready),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_mem_w_valid      (_arbiter_io_mem_w_valid),
-    .io_mem_w_bits_data  (_arbiter_io_mem_w_bits_data),
-    .io_mem_w_bits_strb  (_arbiter_io_mem_w_bits_strb),
-    .io_mem_b_ready      (_arbiter_io_mem_b_ready),
-    .io_mem_b_valid      (_xbar_io_in_b_valid)	// src/main/scala/mycpu/Top.scala:15:25
-  );	// src/main/scala/mycpu/Top.scala:14:25
+  SimpleAXIArbiter memArbiter (	// src/main/scala/mycpu/Top.scala:14:28
+    .clock                 (clock),
+    .reset                 (reset),
+    .io_left_ar_ready      (_memArbiter_io_left_ar_ready),
+    .io_left_ar_valid      (_core_io_imem_ar_valid),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_left_ar_bits_addr  (_core_io_imem_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_left_r_ready       (_core_io_imem_r_ready),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_left_r_valid       (_memArbiter_io_left_r_valid),
+    .io_left_r_bits_data   (_memArbiter_io_left_r_bits_data),
+    .io_left_r_bits_resp   (_memArbiter_io_left_r_bits_resp),
+    .io_right_ar_ready     (_memArbiter_io_right_ar_ready),
+    .io_right_ar_valid     (_core_io_dmem_ar_valid),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_ar_bits_addr (_core_io_dmem_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_r_ready      (_core_io_dmem_r_ready),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_r_valid      (_memArbiter_io_right_r_valid),
+    .io_right_r_bits_data  (_memArbiter_io_right_r_bits_data),
+    .io_right_r_bits_resp  (_memArbiter_io_right_r_bits_resp),
+    .io_right_aw_ready     (_memArbiter_io_right_aw_ready),
+    .io_right_aw_valid     (_core_io_dmem_aw_valid),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_aw_bits_addr (_core_io_dmem_aw_bits_addr),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_w_ready      (_memArbiter_io_right_w_ready),
+    .io_right_w_valid      (_core_io_dmem_w_valid),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_w_bits_data  (_core_io_dmem_w_bits_data),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_w_bits_strb  (_core_io_dmem_w_bits_strb),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_b_ready      (_core_io_dmem_b_ready),	// src/main/scala/mycpu/Top.scala:13:25
+    .io_right_b_valid      (_memArbiter_io_right_b_valid),
+    .io_out_ar_ready       (_xbar_io_in_ar_ready),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_ar_valid       (_memArbiter_io_out_ar_valid),
+    .io_out_ar_bits_addr   (_memArbiter_io_out_ar_bits_addr),
+    .io_out_r_ready        (_memArbiter_io_out_r_ready),
+    .io_out_r_valid        (_xbar_io_in_r_valid),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_r_bits_data    (_xbar_io_in_r_bits_data),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_r_bits_resp    (_xbar_io_in_r_bits_resp),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_aw_ready       (_xbar_io_in_aw_ready),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_aw_valid       (_memArbiter_io_out_aw_valid),
+    .io_out_aw_bits_addr   (_memArbiter_io_out_aw_bits_addr),
+    .io_out_w_ready        (_xbar_io_in_w_ready),	// src/main/scala/mycpu/Top.scala:15:25
+    .io_out_w_valid        (_memArbiter_io_out_w_valid),
+    .io_out_w_bits_data    (_memArbiter_io_out_w_bits_data),
+    .io_out_w_bits_strb    (_memArbiter_io_out_w_bits_strb),
+    .io_out_b_ready        (_memArbiter_io_out_b_ready),
+    .io_out_b_valid        (_xbar_io_in_b_valid)	// src/main/scala/mycpu/Top.scala:15:25
+  );	// src/main/scala/mycpu/Top.scala:14:28
   Xbar xbar (	// src/main/scala/mycpu/Top.scala:15:25
     .clock                    (clock),
     .reset                    (reset),
     .io_in_ar_ready           (_xbar_io_in_ar_ready),
-    .io_in_ar_valid           (_arbiter_io_mem_ar_valid),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_ar_bits_addr       (_arbiter_io_mem_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_r_ready            (_arbiter_io_mem_r_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_in_ar_valid           (_memArbiter_io_out_ar_valid),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_ar_bits_addr       (_memArbiter_io_out_ar_bits_addr),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_r_ready            (_memArbiter_io_out_r_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_in_r_valid            (_xbar_io_in_r_valid),
     .io_in_r_bits_data        (_xbar_io_in_r_bits_data),
     .io_in_r_bits_resp        (_xbar_io_in_r_bits_resp),
     .io_in_aw_ready           (_xbar_io_in_aw_ready),
-    .io_in_aw_valid           (_arbiter_io_mem_aw_valid),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_aw_bits_addr       (_arbiter_io_mem_aw_bits_addr),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_in_aw_valid           (_memArbiter_io_out_aw_valid),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_aw_bits_addr       (_memArbiter_io_out_aw_bits_addr),	// src/main/scala/mycpu/Top.scala:14:28
     .io_in_w_ready            (_xbar_io_in_w_ready),
-    .io_in_w_valid            (_arbiter_io_mem_w_valid),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_w_bits_data        (_arbiter_io_mem_w_bits_data),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_w_bits_strb        (_arbiter_io_mem_w_bits_strb),	// src/main/scala/mycpu/Top.scala:14:25
-    .io_in_b_ready            (_arbiter_io_mem_b_ready),	// src/main/scala/mycpu/Top.scala:14:25
+    .io_in_w_valid            (_memArbiter_io_out_w_valid),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_w_bits_data        (_memArbiter_io_out_w_bits_data),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_w_bits_strb        (_memArbiter_io_out_w_bits_strb),	// src/main/scala/mycpu/Top.scala:14:28
+    .io_in_b_ready            (_memArbiter_io_out_b_ready),	// src/main/scala/mycpu/Top.scala:14:28
     .io_in_b_valid            (_xbar_io_in_b_valid),
     .io_slaves_0_ar_ready     (_sram_sram_axi_if_arready),	// src/main/scala/mycpu/Top.scala:16:25
     .io_slaves_0_ar_valid     (_xbar_io_slaves_0_ar_valid),

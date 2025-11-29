@@ -3,4 +3,5 @@
   `define layers_Core_Verification
   `include "layers-Decode-Verification.sv"	// src/main/scala/mycpu/core/Core.scala:11:7
   `include "layers-Execute-Verification.sv"	// src/main/scala/mycpu/core/Core.scala:11:7
+  `include "layers-LSU-Verification.sv"	// src/main/scala/mycpu/core/Core.scala:11:7
 `endif // not def layers_Core_Verification
