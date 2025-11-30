@@ -55,11 +55,11 @@ class LSU extends Module {
 
   //DEBUG: Bridge请求debug信息
   when(readBridge.io.req.fire) {
-    printf("LSU : read req: addr: %x\n",readBridge.io.req.bits.addr)
+    Debug.log("LSU : read req: addr: %x\n",readBridge.io.req.bits.addr)
   }
 
   when(writeBridge.io.req.fire) {
-    printf("LSU : write req: addr: %x, data: %x, wstrb: %x\n", writeBridge.io.req.bits.addr, writeBridge.io.req.bits.wdata, writeBridge.io.req.bits.wstrb)
+    Debug.log("LSU : write req: addr: %x, data: %x, wstrb: %x\n", writeBridge.io.req.bits.addr, writeBridge.io.req.bits.wdata, writeBridge.io.req.bits.wstrb)
   }
 
 
@@ -102,10 +102,10 @@ class LSU extends Module {
 
 
   when(readBridge.io.resp.fire) {
-    printf("[DEBUG] [LSU] Read Resp: rdata: %x, isError: %x\n", readBridge.io.resp.bits.rdata, readBridge.io.resp.bits.isError)
+    Debug.log("[DEBUG] [LSU] Read Resp: rdata: %x, isError: %x\n", readBridge.io.resp.bits.rdata, readBridge.io.resp.bits.isError)
   }
   when(writeBridge.io.resp.fire) {
-    printf("[DEBUG] [LSU] Write Resp: isError: %x\n", writeBridge.io.resp.bits.isError)
+    Debug.log("[DEBUG] [LSU] Write Resp: isError: %x\n", writeBridge.io.resp.bits.isError)
   }
 
 

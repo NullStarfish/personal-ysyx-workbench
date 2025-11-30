@@ -6,6 +6,7 @@ import mycpu.common._
 import mycpu.common.Instructions._
 import mycpu.core.bundles._
 import mycpu.core.components.{RegFile, ImmGen}
+import mycpu.utils._
 
 class Decode extends Module {
   val io = IO(new Bundle {
@@ -115,7 +116,7 @@ class Decode extends Module {
   val ctrlSignals = ListLookup(inst, defaultCtrl, map)
 
   when (io.out.fire) {
-    printf("decode: pc : %x, inst: %x, ctrl.aluop: %x\n", io.in.bits.pc, io.in.bits.inst, io.out.bits.ctrl.aluOp.asUInt)
+    Debug.log("decode: pc : %x, inst: %x, ctrl.aluop: %x\n", io.in.bits.pc, io.in.bits.inst, io.out.bits.ctrl.aluOp.asUInt)
   }
 
   immType        := ctrlSignals(0)

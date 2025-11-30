@@ -3,6 +3,7 @@ package mycpu.core.backend
 import chisel3._
 import chisel3.util._
 import mycpu.common._
+import mycpu.utils._
 import mycpu.core.bundles._
 import mycpu.core.components._
 
@@ -40,7 +41,7 @@ class Execute extends Module {
   
   // 打印调试
   when (io.out.fire) {
-      printf("EXECUTE: pc=0x%x inst=0x%x op1=0x%x op2=0x%x aluOp=%d aluOut=0x%x\n",
+      Debug.log("EXECUTE: pc=0x%x inst=0x%x op1=0x%x op2=0x%x aluOp=%d aluOut=0x%x\n",
         data.pc, data.inst, op1, op2, ctrl.aluOp.asUInt, alu.io.out)
   }
 

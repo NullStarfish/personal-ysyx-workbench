@@ -57,6 +57,22 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   io.in.b.bits   := DontCare
 
 
+
+
+
+  when(ar_req_valid) {
+    Debug.log("[DEBUG] [Xbar]: ar req: numslaves: %x  ar_hits: %x\n", numSlaves.asUInt, ar_hits.asUInt)
+  }
+
+  when(io.in.ar.ready) {
+    Debug.log("[DEBUG] [Xbar]: slave ar ready\n")
+  }
+
+  when(io.in.r.fire) {
+    Debug.log("[DEBUG] [Xbar]: read received: data: %x, resp: %x\n", io.in.r.bits.data, io.in.r.bits.resp)
+  }
+
+
   // ==================================================================
   // 2. 读通道逻辑 (AR & R)
   // ==================================================================
@@ -96,6 +112,21 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   // ==================================================================
   // 3. 写通道逻辑 (AW & W & B)
   // ==================================================================
+
+  when(io.in.aw.fire) {
+    Debug.log("[DEBUG] [Xbar]: write addr req: waddr: %x, proc: %x\n", io.in.aw.bits.addr, io.in.aw.bits.prot)
+  }
+  when(io.in.w.fire) {
+    Debug.log("[DEBUG] [Xbar]: write data req: wdata: %x, strb: %x\n", io.in.w.bits.data, io.in.w.bits.strb)
+  }
+
+  when(io.in.b.fire) {
+    Debug.log("[DEBUG] [Xbar]: write success: resp: %x\n", io.in.b.bits.resp)
+  }
+
+
+
+
   val aw_hits = VecInit(devices.map(dev => isHit(io.in.aw.bits.addr, dev)))
   val aw_req_valid = io.in.aw.valid
 

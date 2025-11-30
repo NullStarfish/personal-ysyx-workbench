@@ -31,4 +31,8 @@ package object common {
   object ImmType extends ChiselEnum {
     val I, S, B, U, J, Z = Value
   }
+
+
+
+  
 }

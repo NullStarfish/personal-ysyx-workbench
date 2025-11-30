@@ -39,16 +39,16 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
 
 
   when(io.req.fire) {
-    printf("[DEBUG] [AXIReadBridge]: req received: raddr: %x\n ", io.req.bits.addr)
+    Debug.log("[DEBUG] [AXIReadBridge]: req received: raddr: %x\n ", io.req.bits.addr)
   }
   when(io.axi.ar.fire) {
-    printf("[DEBUG] [AXIReadBridge]: axi ar successfully sent\n")
+    Debug.log("[DEBUG] [AXIReadBridge]: axi ar successfully sent\n")
   }
   when(io.axi.r.fire) {
-    printf("[DEBUG] [AXIReadBridge]: axi r received: rdata: %x, resp: %x\n", io.axi.r.bits.data, io.axi.r.bits.resp)
+    Debug.log("[DEBUG] [AXIReadBridge]: axi r received: rdata: %x, resp: %x\n", io.axi.r.bits.data, io.axi.r.bits.resp)
   }
   when(io.resp.fire) {
-    printf("[DEBUG] [AXIReadBridge]: resp successfully sent: data: %x, isError: %x\n", io.resp.bits.rdata, io.resp.bits.isError)
+    Debug.log("[DEBUG] [AXIReadBridge]: resp successfully sent: data: %x, isError: %x\n", io.resp.bits.rdata, io.resp.bits.isError)
   }
 
   //施工：
@@ -123,19 +123,19 @@ class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends 
   })
 
   when(io.req.fire) {
-    printf("[DEBUG] [AXIWriteBridge]: req received: waddr: %x wdata: %x, wstrb: %x\n ", io.req.bits.addr, io.req.bits.wdata, io.req.bits.wstrb)
+    Debug.log("[DEBUG] [AXIWriteBridge]: req received: waddr: %x wdata: %x, wstrb: %x\n ", io.req.bits.addr, io.req.bits.wdata, io.req.bits.wstrb)
   }
   when(io.axi.aw.fire) {
-    printf("[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n")
+    Debug.log("[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n")
   }
   when(io.axi.w.fire) {
-    printf("[DEBUG] [AXIWriteBridge]: axi w sent: wdata: %x, wstrb: %x\n", io.axi.w.bits.data, io.axi.w.bits.strb)
+    Debug.log("[DEBUG] [AXIWriteBridge]: axi w sent: wdata: %x, wstrb: %x\n", io.axi.w.bits.data, io.axi.w.bits.strb)
   }
   when(io.axi.b.fire) {
-    printf("[DEBUG] [AXIWriteBridge]: axi b successfully received: resp: %x\n", io.axi.b.bits.resp)
+    Debug.log("[DEBUG] [AXIWriteBridge]: axi b successfully received: resp: %x\n", io.axi.b.bits.resp)
   }
   when(io.resp.fire) {
-    printf("[DEBUG] [AXIWriteBridge]: resp sent: isError: %x\n", io.resp.bits.isError)
+    Debug.log("[DEBUG] [AXIWriteBridge]: resp sent: isError: %x\n", io.resp.bits.isError)
   }
 
 
