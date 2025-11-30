@@ -8,16 +8,16 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module Execute_Verification();	// src/main/scala/mycpu/core/backend/Execute.scala:43:13
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/core/backend/Execute.scala:43:13
-    always @(posedge Execute.clock) begin	// src/main/scala/mycpu/core/backend/Execute.scala:9:7, :43:13
+module Execute_Verification();	// src/main/scala/mycpu/utils/Debug.scala:13:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Debug.scala:13:13
+    always @(posedge Execute.clock) begin	// src/main/scala/mycpu/core/backend/Execute.scala:10:7, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & Execute.io_out_ready & Execute.io_out_valid_0
-          & ~Execute.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :10:14, :43:13
+          & ~Execute.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Execute.scala:10:7, :11:14, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002,
                 "EXECUTE: pc=0x%x inst=0x%x op1=0x%x op2=0x%x aluOp=%d aluOut=0x%x\n",
                 Execute.inQueue_q_io_deq_bits_pc, Execute.inQueue_q_io_deq_bits_inst,
                 Execute.op1, Execute.op2, Execute.inQueue_q_io_deq_bits_ctrl_aluOp,
-                Execute.alu_io_out);	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:33:16, :34:16, :36:19, :43:13
+                Execute.alu_io_out);	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:34:16, :35:16, :37:19, src/main/scala/mycpu/utils/Debug.scala:13:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

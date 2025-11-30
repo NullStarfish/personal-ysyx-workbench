@@ -1,14 +1,16 @@
 package mycpu.utils
 
-object Debug {
-  // 必须是 final val，这样编译器将其视为常量
-  final val isDebug: Boolean = true 
-  // 或者从系统属性读取 (注意：这种方式无法在编译期完全剔除代码，但在运行时会有判断)
-  // final val isDebug = System.getProperty("DEBUG") == "1"
+import chisel3._
 
-  def log(format: String, args: Any*): Unit = {
+object Debug {
+  // 定义你的宏开关
+  val isDebug = true 
+
+  // [修改点]：将 args: Any* 改为 args: Data*
+  def log(format: String, args: Bits*): Unit = {
     if (isDebug) {
-      scala.Predef.printf(format, args: _*)
+      // 这里的 printf 是 chisel3.printf
+      printf(format, args: _*)
     }
   }
 }

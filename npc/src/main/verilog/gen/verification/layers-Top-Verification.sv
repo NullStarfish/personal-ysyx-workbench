@@ -3,5 +3,6 @@
   `define layers_Top_Verification
   `include "layers-Core-Verification.sv"	// src/main/scala/mycpu/Top.scala:9:7
   `include "layers-SimpleAXIArbiter-Verification.sv"	// src/main/scala/mycpu/Top.scala:9:7
+  `include "layers-Xbar-Verification.sv"	// src/main/scala/mycpu/Top.scala:9:7
   `include "layers-Serial-Verification.sv"	// src/main/scala/mycpu/Top.scala:9:7
 `endif // not def layers_Top_Verification

@@ -8,13 +8,13 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module Decode_Verification();	// src/main/scala/mycpu/core/backend/Decode.scala:118:11
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/core/backend/Decode.scala:118:11
-    always @(posedge Decode.clock) begin	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :118:11
-      if ((`PRINTF_COND_) & Decode.io_out_ready & Decode.io_in_valid & ~Decode.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Decode.scala:10:7, :11:14, :118:11
+module Decode_Verification();	// src/main/scala/mycpu/utils/Debug.scala:13:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Debug.scala:13:13
+    always @(posedge Decode.clock) begin	// src/main/scala/mycpu/core/backend/Decode.scala:11:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & Decode.io_out_ready & Decode.io_in_valid & ~Decode.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Decode.scala:11:7, :12:14, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002, "decode: pc : %x, inst: %x, ctrl.aluop: %x\n",
                 Decode.io_in_bits_pc, Decode.io_in_bits_inst,
-                Decode.io_out_bits_ctrl_aluOp_0);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :11:14, :118:11
+                Decode.io_out_bits_ctrl_aluOp_0);	// src/main/scala/mycpu/core/backend/Decode.scala:11:7, :12:14, src/main/scala/mycpu/utils/Debug.scala:13:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

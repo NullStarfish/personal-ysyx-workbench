@@ -8,25 +8,25 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module LSU_Verification();	// src/main/scala/mycpu/core/backend/LSU.scala:108:11
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/core/backend/LSU.scala:58:11
-    always @(posedge LSU.clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :58:11
+module LSU_Verification();	// src/main/scala/mycpu/utils/Debug.scala:13:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Debug.scala:13:13
+    always @(posedge LSU.clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & LSU.readBridge_io_req_ready & LSU.readBridge_io_req_valid
-          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :16:27, :58:11
-        $fwrite(32'h80000002, "LSU : read req: addr: %x\n", LSU.io_in_bits_aluResult);	// src/main/scala/mycpu/core/backend/LSU.scala:10:14, :58:11
+          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :16:27, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "LSU : read req: addr: %x\n", LSU.io_in_bits_aluResult);	// src/main/scala/mycpu/core/backend/LSU.scala:10:14, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & LSU.writeBridge_io_req_ready & LSU.writeBridge_io_req_valid
-          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:27, :58:11, :62:11
+          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:27, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002, "LSU : write req: addr: %x, data: %x, wstrb: %x\n",
                 LSU.io_in_bits_aluResult, LSU.writeBridge_io_req_bits_wdata,
-                LSU.writeBridge_io_req_bits_wstrb);	// src/main/scala/mycpu/core/backend/LSU.scala:10:14, :17:27, :62:11
+                LSU.writeBridge_io_req_bits_wstrb);	// src/main/scala/mycpu/core/backend/LSU.scala:10:14, :17:27, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & LSU.readBridge_io_resp_ready & LSU.readBridge_io_resp_valid
-          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :16:27, :58:11, :105:11
+          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :16:27, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002, "[DEBUG] [LSU] Read Resp: rdata: %x, isError: %x\n",
-                LSU.readBridge_io_resp_bits_rdata, LSU.readBridge_io_resp_bits_isError);	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :105:11
+                LSU.readBridge_io_resp_bits_rdata, LSU.readBridge_io_resp_bits_isError);	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & LSU.writeBridge_io_resp_ready & LSU.writeBridge_io_resp_valid
-          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:27, :58:11, :108:11
+          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:27, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002, "[DEBUG] [LSU] Write Resp: isError: %x\n",
-                LSU.writeBridge_io_resp_bits_isError);	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, :108:11
+                LSU.writeBridge_io_resp_bits_isError);	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, src/main/scala/mycpu/utils/Debug.scala:13:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

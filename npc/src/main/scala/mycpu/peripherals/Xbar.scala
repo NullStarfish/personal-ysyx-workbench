@@ -60,9 +60,7 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
 
 
 
-  when(ar_req_valid) {
-    Debug.log("[DEBUG] [Xbar]: ar req: numslaves: %x  ar_hits: %x\n", numSlaves.asUInt, ar_hits.asUInt)
-  }
+
 
   when(io.in.ar.ready) {
     Debug.log("[DEBUG] [Xbar]: slave ar ready\n")
@@ -78,6 +76,11 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   // ==================================================================
   val ar_hits = VecInit(devices.map(dev => isHit(io.in.ar.bits.addr, dev)))
   val ar_req_valid = io.in.ar.valid
+
+
+  when(ar_req_valid) {
+    Debug.log("[DEBUG] [Xbar]: ar req: numslaves: %x  ar_hits: %x\n", numSlaves.asUInt, ar_hits.asUInt)
+  }
 
   // 2.1 AR 分发 (覆盖上面的默认值)
   for (i <- 0 until numSlaves) {

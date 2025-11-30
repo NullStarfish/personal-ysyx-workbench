@@ -8,33 +8,33 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module AXI4LiteWriteBridge_Verification();	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:138:11
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:126:11
-    always @(posedge AXI4LiteWriteBridge.clock) begin	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :126:11
-      if ((`PRINTF_COND_) & AXI4LiteWriteBridge._layer_probe & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :126:11
+module AXI4LiteWriteBridge_Verification();	// src/main/scala/mycpu/utils/Debug.scala:13:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Debug.scala:13:13
+    always @(posedge AXI4LiteWriteBridge.clock) begin	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & AXI4LiteWriteBridge._layer_probe & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002,
                 "[DEBUG] [AXIWriteBridge]: req received: waddr: %x wdata: %x, wstrb: %x\n ",
                 AXI4LiteWriteBridge.io_req_bits_addr,
                 AXI4LiteWriteBridge.io_req_bits_wdata,
-                AXI4LiteWriteBridge.io_req_bits_wstrb);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14, :126:11
+                AXI4LiteWriteBridge.io_req_bits_wstrb);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & AXI4LiteWriteBridge._layer_probe_0
-          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :126:11, :129:11
-        $fwrite(32'h80000002, "[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n");	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:129:11
+          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & AXI4LiteWriteBridge._layer_probe_1
-          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :126:11, :132:11
+          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002,
                 "[DEBUG] [AXIWriteBridge]: axi w sent: wdata: %x, wstrb: %x\n",
                 AXI4LiteWriteBridge.io_axi_w_bits_data_0,
-                AXI4LiteWriteBridge.io_axi_w_bits_strb_0);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :132:11
+                AXI4LiteWriteBridge.io_axi_w_bits_strb_0);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & AXI4LiteWriteBridge._layer_probe_2
-          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :126:11, :135:11
+          & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002,
                 "[DEBUG] [AXIWriteBridge]: axi b successfully received: resp: %x\n",
-                AXI4LiteWriteBridge.io_axi_b_bits_resp);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14, :135:11
+                AXI4LiteWriteBridge.io_axi_b_bits_resp);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14, src/main/scala/mycpu/utils/Debug.scala:13:13
       if ((`PRINTF_COND_) & AXI4LiteWriteBridge.io_resp_ready
-          & AXI4LiteWriteBridge.io_resp_valid_0 & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :119:14, :126:11, :138:11
+          & AXI4LiteWriteBridge.io_resp_valid_0 & ~AXI4LiteWriteBridge.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :119:14, src/main/scala/mycpu/utils/Debug.scala:13:13
         $fwrite(32'h80000002, "[DEBUG] [AXIWriteBridge]: resp sent: isError: %x\n",
-                AXI4LiteWriteBridge.io_resp_bits_isError_0);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :138:11
+                AXI4LiteWriteBridge.io_resp_bits_isError_0);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, src/main/scala/mycpu/utils/Debug.scala:13:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

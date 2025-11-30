@@ -8,13 +8,21 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module SimpleAXIArbiter_Verification();	// src/main/scala/mycpu/utils/Arbiter.scala:30:11
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Arbiter.scala:27:11
-    always @(posedge SimpleAXIArbiter.clock) begin	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :27:11
-      if ((`PRINTF_COND_) & SimpleAXIArbiter.io_left_ar_valid & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :27:11
-        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: leftReq received\n");	// src/main/scala/mycpu/utils/Arbiter.scala:27:11
-      if ((`PRINTF_COND_) & SimpleAXIArbiter.rightReq & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :22:36, :27:11, :30:11
-        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: rightReq received\n");	// src/main/scala/mycpu/utils/Arbiter.scala:30:11
+module SimpleAXIArbiter_Verification();	// src/main/scala/mycpu/utils/Debug.scala:13:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/Debug.scala:13:13
+    always @(posedge SimpleAXIArbiter.clock) begin	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter.io_left_ar_valid & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: leftReq received\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter.rightReq & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :22:36, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: rightReq received\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter._layer_probe & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :32:14, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: route change to left\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter._layer_probe_0 & ~SimpleAXIArbiter.reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :35:14, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter]: route change to right\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter.writeDone & ~SimpleAXIArbiter.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/Arbiter.scala:8:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter] write Done\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
+      if ((`PRINTF_COND_) & SimpleAXIArbiter.readDone & ~SimpleAXIArbiter.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/Arbiter.scala:8:7, src/main/scala/mycpu/utils/Debug.scala:13:13
+        $fwrite(32'h80000002, "[DEBUG] [Arbiter] read Done\n");	// src/main/scala/mycpu/utils/Debug.scala:13:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

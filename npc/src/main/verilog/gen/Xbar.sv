@@ -49,65 +49,76 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   input         io_slaves_1_b_valid	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
 );
 
-  wire ar_hits_0 = io_in_ar_bits_addr[31] & io_in_ar_bits_addr < 32'h84000000;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
-  wire ar_hits_1 = io_in_ar_bits_addr > 32'hA00003F7 & io_in_ar_bits_addr < 32'hA0000400;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
-  wire io_in_ar_ready_0 = ar_hits_0 & io_slaves_0_ar_ready | ar_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :74:26
-  reg  r_slave_sel;	// src/main/scala/mycpu/peripherals/Xbar.scala:77:28
-  reg  r_busy;	// src/main/scala/mycpu/peripherals/Xbar.scala:78:28
-  wire io_in_r_valid_0 =
-    r_busy & (r_slave_sel ? io_slaves_1_r_valid : io_slaves_0_r_valid);	// src/main/scala/mycpu/peripherals/Xbar.scala:53:18, :77:28, :78:28, :89:16, :93:13
-  wire aw_hits_0 = io_in_aw_bits_addr[31] & io_in_aw_bits_addr < 32'h84000000;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
-  wire aw_hits_1 = io_in_aw_bits_addr > 32'hA00003F7 & io_in_aw_bits_addr < 32'hA0000400;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
-  wire io_slaves_0_aw_valid_0 = aw_hits_0 & io_in_aw_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :104:21
-  wire io_slaves_1_aw_valid_0 = aw_hits_1 & io_in_aw_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :104:21
-  wire io_in_aw_ready_0 =
-    aw_hits_0 & io_slaves_0_aw_ready | aw_hits_1 & io_slaves_1_aw_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :112:26
-  reg  w_slave_sel;	// src/main/scala/mycpu/peripherals/Xbar.scala:116:28
-  reg  w_busy;	// src/main/scala/mycpu/peripherals/Xbar.scala:117:28
-  wire io_in_b_valid_0 =
-    w_busy & (w_slave_sel ? io_slaves_1_b_valid : io_slaves_0_b_valid);	// src/main/scala/mycpu/peripherals/Xbar.scala:56:18, :116:28, :117:28, :128:16, :129:13
+  wire        io_in_b_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:56:18, :162:16, :163:13
+  wire        io_in_aw_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:146:26
+  wire        io_in_r_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:53:18, :108:16, :112:13
+  wire        _layer_probe = io_in_r_ready & io_in_r_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:53:18, :108:16, :112:13
+  wire        ar_hits_0 = io_in_ar_bits_addr[31] & io_in_ar_bits_addr < 32'h84000000;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
+  wire        ar_hits_1 =
+    io_in_ar_bits_addr > 32'hA00003F7 & io_in_ar_bits_addr < 32'hA0000400;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
+  wire        io_in_ar_ready_0 = ar_hits_0 & io_slaves_0_ar_ready | ar_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :93:26
+  reg         r_slave_sel;	// src/main/scala/mycpu/peripherals/Xbar.scala:96:28
+  reg         r_busy;	// src/main/scala/mycpu/peripherals/Xbar.scala:97:28
+  wire [31:0] io_in_r_bits_data_0 = r_slave_sel ? 32'h0 : io_slaves_0_r_bits_data;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :96:28, :112:13
+  wire [1:0]  io_in_r_bits_resp_0 = r_slave_sel ? 2'h0 : io_slaves_0_r_bits_resp;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :96:28, :112:13
+  assign io_in_r_valid_0 =
+    r_busy & (r_slave_sel ? io_slaves_1_r_valid : io_slaves_0_r_valid);	// src/main/scala/mycpu/peripherals/Xbar.scala:53:18, :96:28, :97:28, :108:16, :112:13
+  wire        _layer_probe_0 = io_in_aw_ready_0 & io_in_aw_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:146:26
+  wire        _layer_probe_1 = io_in_b_ready & io_in_b_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:56:18, :162:16, :163:13
+  wire        aw_hits_0 = io_in_aw_bits_addr[31] & io_in_aw_bits_addr < 32'h84000000;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
+  wire        aw_hits_1 =
+    io_in_aw_bits_addr > 32'hA00003F7 & io_in_aw_bits_addr < 32'hA0000400;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
+  wire        io_slaves_0_aw_valid_0 = aw_hits_0 & io_in_aw_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :138:21
+  wire        io_slaves_1_aw_valid_0 = aw_hits_1 & io_in_aw_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :138:21
+  assign io_in_aw_ready_0 =
+    aw_hits_0 & io_slaves_0_aw_ready | aw_hits_1 & io_slaves_1_aw_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :146:26
+  wire        io_in_w_ready_0 =
+    aw_hits_0 & io_slaves_0_w_ready | aw_hits_1 & io_slaves_1_w_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :147:26
+  reg         w_slave_sel;	// src/main/scala/mycpu/peripherals/Xbar.scala:150:28
+  reg         w_busy;	// src/main/scala/mycpu/peripherals/Xbar.scala:151:28
+  wire [1:0]  io_in_b_bits_resp_0 = w_slave_sel ? 2'h0 : io_slaves_0_b_bits_resp;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :150:28, :163:13
+  assign io_in_b_valid_0 =
+    w_busy & (w_slave_sel ? io_slaves_1_b_valid : io_slaves_0_b_valid);	// src/main/scala/mycpu/peripherals/Xbar.scala:56:18, :150:28, :151:28, :162:16, :163:13
   always @(posedge clock) begin	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
     if (reset) begin	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-      r_slave_sel <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:77:28
-      r_busy <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:78:28
-      w_slave_sel <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:116:28
-      w_busy <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:117:28
+      r_slave_sel <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:96:28
+      r_busy <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:97:28
+      w_slave_sel <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:150:28
+      w_busy <= 1'h0;	// src/main/scala/mycpu/peripherals/Xbar.scala:151:28
     end
     else begin	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-      automatic logic _GEN = io_in_ar_ready_0 & io_in_ar_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:74:26
-      automatic logic _GEN_0 = io_in_aw_ready_0 & io_in_aw_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:112:26
+      automatic logic _GEN = io_in_ar_ready_0 & io_in_ar_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:14:7
       if (_GEN)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        r_slave_sel <= ar_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :77:28
-      r_busy <= ~(io_in_r_ready & io_in_r_valid_0) & (_GEN | r_busy);	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:53:18, :78:28, :80:23, :82:17, :84:22, :85:12, :89:16, :93:13
-      if (_GEN_0)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        w_slave_sel <= aw_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :116:28
-      w_busy <= ~(io_in_b_ready & io_in_b_valid_0) & (_GEN_0 | w_busy);	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:56:18, :117:28, :119:23, :121:17, :123:22, :124:12, :128:16, :129:13
+        r_slave_sel <= ar_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :96:28
+      r_busy <= ~_layer_probe & (_GEN | r_busy);	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:97:28, :99:23, :101:17, :103:22, :104:12
+      if (_layer_probe_0)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+        w_slave_sel <= aw_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :150:28
+      w_busy <= ~_layer_probe_1 & (_layer_probe_0 | w_busy);	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Xbar.scala:151:28, :153:23, :155:17, :157:22, :158:12
     end
   end // always @(posedge)
-  assign io_in_ar_ready = io_in_ar_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :74:26
-  assign io_in_r_valid = io_in_r_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :53:18, :89:16, :93:13
-  assign io_in_r_bits_data = r_slave_sel ? 32'h0 : io_slaves_0_r_bits_data;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :77:28, :93:13
-  assign io_in_r_bits_resp = r_slave_sel ? 2'h0 : io_slaves_0_r_bits_resp;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :77:28, :93:13
-  assign io_in_aw_ready = io_in_aw_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :112:26
-  assign io_in_w_ready =
-    aw_hits_0 & io_slaves_0_w_ready | aw_hits_1 & io_slaves_1_w_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :113:26
-  assign io_in_b_valid = io_in_b_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :56:18, :128:16, :129:13
-  assign io_in_b_bits_resp = w_slave_sel ? 2'h0 : io_slaves_0_b_bits_resp;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :18:14, :116:28, :129:13
-  assign io_slaves_0_ar_valid = ar_hits_0 & io_in_ar_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :68:21
+  assign io_in_ar_ready = io_in_ar_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
+  assign io_in_r_valid = io_in_r_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :53:18, :108:16, :112:13
+  assign io_in_r_bits_data = io_in_r_bits_data_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
+  assign io_in_r_bits_resp = io_in_r_bits_resp_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
+  assign io_in_aw_ready = io_in_aw_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :146:26
+  assign io_in_w_ready = io_in_w_ready_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
+  assign io_in_b_valid = io_in_b_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :56:18, :162:16, :163:13
+  assign io_in_b_bits_resp = io_in_b_bits_resp_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
+  assign io_slaves_0_ar_valid = ar_hits_0 & io_in_ar_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :87:21
   assign io_slaves_0_ar_bits_addr = io_in_ar_bits_addr;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_0_r_ready = r_busy & ~r_slave_sel & io_in_r_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :44:26, :77:28, :78:28, :89:16, :93:13
-  assign io_slaves_0_aw_valid = io_slaves_0_aw_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :104:21
+  assign io_slaves_0_r_ready = r_busy & ~r_slave_sel & io_in_r_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :44:26, :96:28, :97:28, :108:16, :112:13
+  assign io_slaves_0_aw_valid = io_slaves_0_aw_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :138:21
   assign io_slaves_0_aw_bits_addr = io_in_aw_bits_addr;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_0_w_valid = io_slaves_0_aw_valid_0 & io_in_w_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :39:27, :104:{21,38}, :107:29
+  assign io_slaves_0_w_valid = io_slaves_0_aw_valid_0 & io_in_w_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :39:27, :138:{21,38}, :141:29
   assign io_slaves_0_w_bits_data = io_in_w_bits_data;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_slaves_0_w_bits_strb = io_in_w_bits_strb;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_0_b_ready = w_busy & ~w_slave_sel & io_in_b_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :45:26, :116:28, :117:28, :128:16, :129:13
-  assign io_slaves_1_ar_valid = ar_hits_1 & io_in_ar_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :68:21
-  assign io_slaves_1_aw_valid = io_slaves_1_aw_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :104:21
+  assign io_slaves_0_b_ready = w_busy & ~w_slave_sel & io_in_b_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :45:26, :150:28, :151:28, :162:16, :163:13
+  assign io_slaves_1_ar_valid = ar_hits_1 & io_in_ar_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :24:29, :87:21
+  assign io_slaves_1_aw_valid = io_slaves_1_aw_valid_0;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :138:21
   assign io_slaves_1_aw_bits_addr = io_in_aw_bits_addr;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_1_w_valid = io_slaves_1_aw_valid_0 & io_in_w_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :39:27, :104:{21,38}, :107:29
+  assign io_slaves_1_w_valid = io_slaves_1_aw_valid_0 & io_in_w_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :39:27, :138:{21,38}, :141:29
   assign io_slaves_1_w_bits_data = io_in_w_bits_data;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_slaves_1_w_bits_strb = io_in_w_bits_strb;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_1_b_ready = w_busy & w_slave_sel & io_in_b_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :45:26, :116:28, :117:28, :128:16, :129:13
+  assign io_slaves_1_b_ready = w_busy & w_slave_sel & io_in_b_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :45:26, :150:28, :151:28, :162:16, :163:13
 endmodule
 
