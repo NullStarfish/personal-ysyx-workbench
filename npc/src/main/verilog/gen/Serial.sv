@@ -15,18 +15,20 @@ module Serial(	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
   output        io_bus_b_valid	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
 );
 
+  wire       wBus_b_valid;	// src/main/scala/mycpu/peripherals/Serial.scala:39:20, :58:17
+  wire       wBus_w_ready;	// src/main/scala/mycpu/peripherals/Serial.scala:38:20, :58:17
   reg        rBus_r_valid_REG;	// src/main/scala/mycpu/peripherals/Serial.scala:19:27
   reg  [1:0] state;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22
   wire [1:0] state_0 = state;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22
-  wire       _layer_probe = |state;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-  wire       _layer_probe_0 = ~(|state);	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-  wire       _layer_probe_1 = ~(|state) & io_bus_aw_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-  wire       _layer_probe_2 = state == 2'h1;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-  wire       wBus_w_ready = (|state) & _layer_probe_2;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :38:20, :42:17
-  wire       _layer_probe_3 = wBus_w_ready & io_bus_w_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:38:20, :42:17
-  wire       _layer_probe_4 = state == 2'h2;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-  wire       wBus_b_valid = ~(~(|state) | _layer_probe_2) & _layer_probe_4;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :39:20, :42:17
-  wire       _layer_probe_5 = io_bus_b_ready & wBus_b_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:39:20, :42:17
+  wire       _layer_probe = ~(|state) & io_bus_aw_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+  wire       _layer_probe_0 = wBus_w_ready & io_bus_w_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:38:20, :58:17
+  wire       _layer_probe_1 = io_bus_b_ready & wBus_b_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:39:20, :58:17
+  wire       _layer_probe_2 = |state;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+  wire       _layer_probe_3 = ~(|state);	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+  wire       _layer_probe_4 = state == 2'h1;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+  assign wBus_w_ready = (|state) & _layer_probe_4;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :38:20, :58:17
+  wire       _layer_probe_5 = state == 2'h2;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+  assign wBus_b_valid = ~(~(|state) | _layer_probe_4) & _layer_probe_5;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :39:20, :58:17
   always @(posedge clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
     if (reset) begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
       rBus_r_valid_REG <= 1'h0;	// src/main/scala/mycpu/peripherals/Serial.scala:19:27
@@ -34,21 +36,21 @@ module Serial(	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
     end
     else begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
       rBus_r_valid_REG <= io_bus_ar_valid;	// src/main/scala/mycpu/peripherals/Serial.scala:19:27
-      if (|state) begin	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17
-        if (_layer_probe_2) begin	// src/main/scala/mycpu/peripherals/Serial.scala:42:17
-          if (_layer_probe_3)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      if (|state) begin	// src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17
+        if (_layer_probe_4) begin	// src/main/scala/mycpu/peripherals/Serial.scala:58:17
+          if (_layer_probe_0)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
             state <= 2'h2;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22
         end
-        else if (_layer_probe_4 & _layer_probe_5)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:30:22, :42:17, :97:25, :103:15
+        else if (_layer_probe_5 & _layer_probe_1)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:30:22, :58:17, :112:25, :118:15
           state <= 2'h0;	// src/main/scala/mycpu/peripherals/Serial.scala:21:20, :30:22
       end
-      else if (_layer_probe_1)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      else if (_layer_probe)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
         state <= 2'h1;	// src/main/scala/mycpu/peripherals/Serial.scala:30:22
     end
   end // always @(posedge)
   assign io_bus_r_valid = rBus_r_valid_REG;	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :19:27
-  assign io_bus_aw_ready = ~(|state);	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :30:22, :42:17
-  assign io_bus_w_ready = wBus_w_ready;	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :38:20, :42:17
-  assign io_bus_b_valid = wBus_b_valid;	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :39:20, :42:17
+  assign io_bus_aw_ready = ~(|state);	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :30:22, :58:17
+  assign io_bus_w_ready = wBus_w_ready;	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :38:20, :58:17
+  assign io_bus_b_valid = wBus_b_valid;	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :39:20, :58:17
 endmodule
 

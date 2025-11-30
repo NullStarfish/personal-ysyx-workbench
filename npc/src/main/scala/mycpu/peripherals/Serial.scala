@@ -39,6 +39,22 @@ class Serial extends Peripheral(mycpu.MemMap.devices(1)) {
   wBus.b.valid     := false.B
   wBus.b.bits.resp := 0.U // OKAY
 
+
+
+  when(wBus.aw.fire) {
+    Debug.log("[DEBUG] [Serial]: aw req: addr: %x, prot: %x\n", wBus.aw.bits.addr, wBus.aw.bits.prot)
+  }
+  when(wBus.w.fire) {
+    Debug.log("[DEBUG] [Serial]: w req: data: %x, strb: %x\n", wBus.w.bits.data, wBus.w.bits.strb)
+  }
+  when(wBus.b.fire) {
+    Debug.log("[DEBUG] [Serial]: write success b: resp : %x\n", wBus.b.bits.resp)
+  }
+
+  val lastState = RegNext(state, State.sIdle)
+  when(state =/= lastState) {
+    Debug.log("[DEBUG] State transition: %x -> %x\n", lastState.asUInt, state.asUInt)
+  }
   switch(state) {
     // ------------------------------------------------------------------
     // State: Idle - 等待写地址 (AW)
@@ -81,7 +97,6 @@ class Serial extends Peripheral(mycpu.MemMap.devices(1)) {
           printReg := maskedBytes.asUInt
         }
 
-        printf(p"[Serial DEBUG] Write Data: 0x${Hexadecimal(wBus.w.bits.data)}\n") 
         
         state := State.sWaitResp
       }

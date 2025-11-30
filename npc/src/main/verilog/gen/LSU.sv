@@ -39,12 +39,9 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
   output [31:0] io_axi_w_bits_data,	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
   output [3:0]  io_axi_w_bits_strb,	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
   output        io_axi_b_ready,	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
-  input         io_axi_b_valid,	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
-  input  [1:0]  io_axi_b_bits_resp	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
+  input         io_axi_b_valid	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
 );
 
-  wire             writeBridge_io_resp_bits_isError;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-  wire             readBridge_io_resp_bits_isError;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
   wire             _writeBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
   wire             _writeBridge_io_resp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
   wire             _readBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
@@ -69,12 +66,6 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
   wire [46:0]      _inWdata_T_5 =
     {31'h0, io_in_bits_memWData[15:0]} << {42'h0, io_in_bits_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:36:42, :40:37, :41:89, :42:{83,90}
   wire             _GEN_1 = io_in_bits_ctrl_memFunct3 == 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:40:37
-  wire [3:0]       writeBridge_io_req_bits_wstrb =
-    _GEN ? 4'h1 << io_in_bits_aluResult[1:0] : _GEN_0 ? _inWstrb_T_1[3:0] : {4{_GEN_1}};	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, :36:42, :37:28, :40:37, :41:{23,36}, :42:{23,36}, :43:23
-  wire [31:0]      writeBridge_io_req_bits_wdata =
-    _GEN
-      ? _inWdata_T_2[31:0]
-      : _GEN_0 ? _inWdata_T_5[31:0] : _GEN_1 ? io_in_bits_memWData : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, :38:28, :40:37, :41:{61,89}, :42:{61,90}, :43:62
   wire             isMemRead = io_in_bits_ctrl_memEn & ~io_in_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:69:{42,45}
   wire             isMemWrite = io_in_bits_ctrl_memEn & io_in_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:70:42
   wire             io_in_ready_0 =
@@ -82,8 +73,6 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     & (~io_in_bits_ctrl_memEn | isMemRead & _readBridge_io_req_ready | isMemWrite
        & _writeBridge_io_req_ready);	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :17:27, :32:22, :69:42, :70:42, :71:20, :73:{25,42}, :74:16, :75:{16,44}, :76:17
   wire             _GEN_2 = ~state & io_in_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:32:22, :47:33, :79:17, :81:26, :86:26
-  wire             readBridge_io_req_valid = _GEN_2 & isMemRead;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :47:33, :69:42, :79:17, :81:26, :86:26
-  wire             writeBridge_io_req_valid = _GEN_2 & ~isMemRead & isMemWrite;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, :47:33, :50:33, :69:42, :70:42, :79:17, :81:26, :86:26, :87:32
   wire [31:0]      shiftedData =
     _readBridge_io_resp_bits_rdata >> {27'h0, reqReg_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :33:19, :40:37, :97:37, :99:33
   wire [7:0][31:0] _GEN_3 =
@@ -97,9 +86,6 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
      {{{24{shiftedData[7]}}, shiftedData[7:0]}}};	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :99:33, :113:17, :114:33, :115:{29,35,40,56,73}, :116:{29,35,40,56,74}, :117:29, :118:{29,43}, :119:{29,43}
   wire             isMemReadOp = reqReg_ctrl_memEn & ~reqReg_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:33:19, :131:52, :134:42
   wire             isMemWriteOp = reqReg_ctrl_memEn & reqReg_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:33:19, :135:42
-  wire             readBridge_io_resp_ready = state & isMemReadOp & io_out_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27, :32:22, :123:29, :133:36, :134:42, :137:24, :139:32
-  wire             writeBridge_io_resp_ready =
-    state & ~isMemReadOp & isMemWriteOp & io_out_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27, :32:22, :124:29, :133:36, :134:42, :135:42, :137:24, :140:32, :142:33
   wire             io_out_valid_0 =
     state
     & (isMemReadOp
@@ -131,12 +117,12 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     .clock                (clock),
     .reset                (reset),
     .io_req_ready         (_readBridge_io_req_ready),
-    .io_req_valid         (readBridge_io_req_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
+    .io_req_valid         (_GEN_2 & isMemRead),	// src/main/scala/mycpu/core/backend/LSU.scala:47:33, :69:42, :79:17, :81:26, :86:26
     .io_req_bits_addr     (io_in_bits_aluResult),
-    .io_resp_ready        (readBridge_io_resp_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
+    .io_resp_ready        (state & isMemReadOp & io_out_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:32:22, :123:29, :133:36, :134:42, :137:24, :139:32
     .io_resp_valid        (_readBridge_io_resp_valid),
     .io_resp_bits_rdata   (_readBridge_io_resp_bits_rdata),
-    .io_resp_bits_isError (readBridge_io_resp_bits_isError),
+    .io_resp_bits_isError (/* unused */),
     .io_axi_ar_ready      (io_axi_ar_ready),
     .io_axi_ar_valid      (io_axi_ar_valid),
     .io_axi_ar_bits_addr  (io_axi_ar_bits_addr),
@@ -145,38 +131,32 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     .io_axi_r_bits_data   (io_axi_r_bits_data),
     .io_axi_r_bits_resp   (io_axi_r_bits_resp)
   );	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  wire [31:0]      readBridge_io_resp_bits_rdata;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  assign readBridge_io_resp_bits_rdata = _readBridge_io_resp_bits_rdata;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  wire             readBridge_io_resp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  assign readBridge_io_resp_valid = _readBridge_io_resp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  wire             readBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
-  assign readBridge_io_req_ready = _readBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:16:27
   AXI4LiteWriteBridge writeBridge (	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-    .clock                (clock),
-    .reset                (reset),
-    .io_req_ready         (_writeBridge_io_req_ready),
-    .io_req_valid         (writeBridge_io_req_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-    .io_req_bits_addr     (io_in_bits_aluResult),
-    .io_req_bits_wdata    (writeBridge_io_req_bits_wdata),	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-    .io_req_bits_wstrb    (writeBridge_io_req_bits_wstrb),	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-    .io_resp_ready        (writeBridge_io_resp_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-    .io_resp_valid        (_writeBridge_io_resp_valid),
-    .io_resp_bits_isError (writeBridge_io_resp_bits_isError),
-    .io_axi_aw_ready      (io_axi_aw_ready),
-    .io_axi_aw_valid      (io_axi_aw_valid),
-    .io_axi_aw_bits_addr  (io_axi_aw_bits_addr),
-    .io_axi_w_ready       (io_axi_w_ready),
-    .io_axi_w_valid       (io_axi_w_valid),
-    .io_axi_w_bits_data   (io_axi_w_bits_data),
-    .io_axi_w_bits_strb   (io_axi_w_bits_strb),
-    .io_axi_b_ready       (io_axi_b_ready),
-    .io_axi_b_valid       (io_axi_b_valid),
-    .io_axi_b_bits_resp   (io_axi_b_bits_resp)
+    .clock               (clock),
+    .reset               (reset),
+    .io_req_ready        (_writeBridge_io_req_ready),
+    .io_req_valid        (_GEN_2 & ~isMemRead & isMemWrite),	// src/main/scala/mycpu/core/backend/LSU.scala:47:33, :50:33, :69:42, :70:42, :79:17, :81:26, :86:26, :87:32
+    .io_req_bits_addr    (io_in_bits_aluResult),
+    .io_req_bits_wdata
+      (_GEN
+         ? _inWdata_T_2[31:0]
+         : _GEN_0 ? _inWdata_T_5[31:0] : _GEN_1 ? io_in_bits_memWData : 32'h0),	// src/main/scala/mycpu/core/backend/LSU.scala:38:28, :40:37, :41:{61,89}, :42:{61,90}, :43:62
+    .io_req_bits_wstrb
+      (_GEN
+         ? 4'h1 << io_in_bits_aluResult[1:0]
+         : _GEN_0 ? _inWstrb_T_1[3:0] : {4{_GEN_1}}),	// src/main/scala/mycpu/core/backend/LSU.scala:36:42, :37:28, :40:37, :41:{23,36}, :42:{23,36}, :43:23
+    .io_resp_ready       (state & ~isMemReadOp & isMemWriteOp & io_out_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:32:22, :124:29, :133:36, :134:42, :135:42, :137:24, :140:32, :142:33
+    .io_resp_valid       (_writeBridge_io_resp_valid),
+    .io_axi_aw_ready     (io_axi_aw_ready),
+    .io_axi_aw_valid     (io_axi_aw_valid),
+    .io_axi_aw_bits_addr (io_axi_aw_bits_addr),
+    .io_axi_w_ready      (io_axi_w_ready),
+    .io_axi_w_valid      (io_axi_w_valid),
+    .io_axi_w_bits_data  (io_axi_w_bits_data),
+    .io_axi_w_bits_strb  (io_axi_w_bits_strb),
+    .io_axi_b_ready      (io_axi_b_ready),
+    .io_axi_b_valid      (io_axi_b_valid)
   );	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-  wire             writeBridge_io_resp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-  assign writeBridge_io_resp_valid = _writeBridge_io_resp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-  wire             writeBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
-  assign writeBridge_io_req_ready = _writeBridge_io_req_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:17:27
   assign io_in_ready = io_in_ready_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :73:42
   assign io_out_valid = io_out_valid_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :126:16, :133:36, :137:24
   assign io_out_bits_pc = reqReg_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :33:19

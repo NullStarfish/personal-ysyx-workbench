@@ -62,8 +62,8 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
 
 
 
-  when(io.in.ar.ready) {
-    Debug.log("[DEBUG] [Xbar]: slave ar ready\n")
+  when(io.in.ar.fire) {
+    Debug.log("[DEBUG] [Xbar]: slave ar fire\n")
   }
 
   when(io.in.r.fire) {
@@ -133,20 +133,7 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   val aw_hits = VecInit(devices.map(dev => isHit(io.in.aw.bits.addr, dev)))
   val aw_req_valid = io.in.aw.valid
 
-  // 3.1 AW & W 分发
-  for (i <- 0 until numSlaves) {
-    when(aw_hits(i) && aw_req_valid) {
-      io.slaves(i).aw.valid := true.B
-      // 简化假设：W 数据总是伴随 AW
-      io.slaves(i).w.valid  := io.in.w.valid 
-    }
-  }
 
-  // 3.2 Ready 聚合
-  io.in.aw.ready := Mux1H(aw_hits, io.slaves.map(_.aw.ready))
-  io.in.w.ready  := Mux1H(aw_hits, io.slaves.map(_.w.ready))
-
-  // 3.3 B 通道状态机
   val w_slave_sel = RegInit(0.U(log2Ceil(numSlaves).max(1).W))
   val w_busy      = RegInit(false.B)
 
@@ -157,6 +144,33 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   when(io.in.b.fire) {
     w_busy := false.B
   }
+
+  // 1. 类型统一：将 aw_hits (Vec) 转为 UInt，以便和 UIntToOH 兼容
+  val aw_hits_uint = aw_hits.asUInt 
+  val sel_oh_uint  = UIntToOH(w_slave_sel)
+
+  // 2. Mux 选择：现在两个输入都是 UInt 类型了
+  val w_target_oh = Mux(w_busy, sel_oh_uint, aw_hits_uint)
+
+  // 3. 遍历 Slaves 进行连线
+  // 使用你建议的 zipWithIndex foreach 写法，更加 Scala 风格
+  io.slaves.zipWithIndex.foreach { case (slave, i) =>
+    // 3.1 AW 分发 (AW 只看当前地址命中情况)
+    when(aw_hits(i) && aw_req_valid) {
+      slave.aw.valid := true.B
+    }
+
+    // 3.2 W 分发 (看路由结果)
+    // w_target_oh 是 UInt，使用 (i) 进行按位提取(Bit Extraction)，得到 Bool
+    when(w_target_oh(i)) {
+      slave.w.valid := io.in.w.valid
+    }
+  }
+
+  // 3.2 Ready 聚合 (注意这里也要用 w_target_oh)
+  // map 返回的是 Seq[Bool]，Mux1H 支持接收 (UInt, Seq[Bool])
+  io.in.aw.ready := Mux1H(aw_hits, io.slaves.map(_.aw.ready))
+  io.in.w.ready  := Mux1H(w_target_oh, io.slaves.map(_.w.ready))
 
   // 3.4 B 通道连接
   when(w_busy) {

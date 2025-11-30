@@ -29,12 +29,6 @@ class SimpleAXIArbiter extends Module {
   when(rightReq) {
     Debug.log("[DEBUG] [Arbiter]: rightReq received\n")
   }
-  when(state === Owner.left) {
-    Debug.log("[DEBUG] [Arbiter]: route change to left\n")
-  }
-  when(state === Owner.right) {
-    Debug.log("[DEBUG] [Arbiter]: route change to right\n" )
-  }
 
   
 
@@ -76,19 +70,22 @@ class SimpleAXIArbiter extends Module {
 
   }
 
-  // 路由连接
-  when(state === Owner.right || (state === Owner.None && rightReq)) {
+
+
+  when (state === Owner.left || (state === Owner.None && leftReq)) {
+    io.out.ar <> io.left.ar
+    io.out.aw <> io.left.aw
+    io.out.w  <> io.left.w
+    io.left.r  <> io.out.r
+    io.left.b  <> io.out.b
+  } .elsewhen(state === Owner.right || (state === Owner.None && rightReq)) {
     // right <-> out
     io.out.ar <> io.right.ar
     io.out.aw <> io.right.aw
     io.out.w  <> io.right.w
     io.right.r  <> io.out.r
     io.right.b  <> io.out.b
-  } .elsewhen (state === Owner.left || (state === Owner.None && leftReq)) {
-    io.out.ar <> io.left.ar
-    io.out.aw <> io.left.aw
-    io.out.w  <> io.left.w
-    io.left.r  <> io.out.r
-    io.left.b  <> io.out.b
-  }
+  } 
+
+
 }

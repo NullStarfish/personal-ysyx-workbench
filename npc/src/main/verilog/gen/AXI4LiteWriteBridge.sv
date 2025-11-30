@@ -9,7 +9,6 @@ module AXI4LiteWriteBridge(	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:
   input  [3:0]  io_req_bits_wstrb,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   input         io_resp_ready,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   output        io_resp_valid,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
-                io_resp_bits_isError,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   input         io_axi_aw_ready,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   output        io_axi_aw_valid,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   output [31:0] io_axi_aw_bits_addr,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
@@ -18,65 +17,50 @@ module AXI4LiteWriteBridge(	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:
   output [31:0] io_axi_w_bits_data,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   output [3:0]  io_axi_w_bits_strb,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
   output        io_axi_b_ready,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
-  input         io_axi_b_valid,	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
-  input  [1:0]  io_axi_b_bits_resp	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
+  input         io_axi_b_valid	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:119:14
 );
 
-  wire        io_axi_b_ready_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:162:23, :164:17
-  wire        io_axi_w_valid_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:158:23, :164:17, :179:20
-  wire        io_axi_aw_valid_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:154:23, :164:17, :175:21
-  wire        io_req_ready_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:164:17
-  wire        _layer_probe = io_req_ready_0 & io_req_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:164:17
-  wire        _layer_probe_0 = io_axi_aw_ready & io_axi_aw_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:154:23, :164:17, :175:21
-  wire        _layer_probe_1 = io_axi_w_ready & io_axi_w_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:158:23, :164:17, :179:20
-  wire        _layer_probe_2 = io_axi_b_ready_0 & io_axi_b_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:162:23, :164:17
   reg  [1:0]  state;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22
   reg  [31:0] reqReg_addr;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
   reg  [31:0] reqReg_wdata;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
-  wire [31:0] io_axi_w_bits_data_0 = reqReg_wdata;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :144:19
   reg  [3:0]  reqReg_wstrb;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
-  wire [3:0]  io_axi_w_bits_strb_0 = reqReg_wstrb;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :144:19
   reg         awSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23
   reg         wSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:146:23
-  reg         bError;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:147:19
-  wire        io_resp_bits_isError_0 = bError;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :147:19
-  assign io_req_ready_0 = state == 2'h0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17
+  wire        io_req_ready_0 = state == 2'h0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17
   wire        _GEN = state == 2'h1;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17
-  assign io_axi_aw_valid_0 = ~io_req_ready_0 & _GEN & ~awSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :154:23, :164:17, :175:{12,21}
-  assign io_axi_w_valid_0 = ~io_req_ready_0 & _GEN & ~wSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:146:23, :154:23, :158:23, :164:17, :179:{12,20}
+  wire        io_axi_aw_valid_0 = ~io_req_ready_0 & _GEN & ~awSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :154:23, :164:17, :175:{12,21}
+  wire        io_axi_w_valid_0 = ~io_req_ready_0 & _GEN & ~wSent;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:146:23, :154:23, :158:23, :164:17, :179:{12,20}
   wire        _GEN_0 = state == 2'h2;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17
-  wire        _GEN_1 = io_req_ready_0 | _GEN;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:162:23, :164:17
-  assign io_axi_b_ready_0 = ~_GEN_1 & _GEN_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:162:23, :164:17
-  wire        io_resp_valid_0 = ~(io_req_ready_0 | _GEN | _GEN_0) & (&state);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :143:22, :151:23, :164:17
+  wire        io_axi_b_ready_0 = ~(io_req_ready_0 | _GEN) & _GEN_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:162:23, :164:17
   always @(posedge clock) begin	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7
+    automatic logic _GEN_1;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    _GEN_1 = io_req_ready_0 & io_req_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:164:17
     if (reset) begin	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7
       state <= 2'h0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22
       awSent <= 1'h0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23
       wSent <= 1'h0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:146:23
     end
     else begin	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7
-      automatic logic [3:0][1:0] _GEN_2 =
+      automatic logic            _GEN_2 = io_axi_aw_ready & io_axi_aw_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:154:23, :164:17, :175:21
+      automatic logic            _GEN_3 = io_axi_w_ready & io_axi_w_valid_0;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:158:23, :164:17, :179:20
+      automatic logic [3:0][1:0] _GEN_4;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:164:17, :167:25, :183:68, :190:27
+      _GEN_4 =
         {{(&state) & io_resp_ready ? 2'h0 : state},
-         {_layer_probe_2 ? 2'h3 : state},
-         {(awSent | _layer_probe_0) & (wSent | _layer_probe_1) ? 2'h2 : state},
-         {_layer_probe ? 2'h1 : state}};	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :145:23, :146:23, :164:17, :167:25, :170:16, :183:{20,39,49,68}, :184:15, :190:27, :192:16, :198:27, :199:15
-      state <= _GEN_2[state];	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17, :167:25, :183:68, :190:27
-      awSent <= io_req_ready_0 ? ~_layer_probe & awSent : _GEN & _layer_probe_0 | awSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :164:17, :167:25, :169:16, :176:{28,37}
-      wSent <= io_req_ready_0 ? ~_layer_probe & wSent : _GEN & _layer_probe_1 | wSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :146:23, :164:17, :167:25, :169:{16,34}, :180:{27,35}
+         {io_axi_b_ready_0 & io_axi_b_valid ? 2'h3 : state},
+         {(awSent | _GEN_2) & (wSent | _GEN_3) ? 2'h2 : state},
+         {_GEN_1 ? 2'h1 : state}};	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :145:23, :146:23, :162:23, :164:17, :167:25, :170:16, :183:{20,39,49,68}, :184:15, :190:27, :192:16, :198:27, :199:15
+      state <= _GEN_4[state];	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:143:22, :164:17, :167:25, :183:68, :190:27
+      awSent <= io_req_ready_0 ? ~_GEN_1 & awSent : _GEN & _GEN_2 | awSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :164:17, :167:25, :169:16, :176:{28,37}
+      wSent <= io_req_ready_0 ? ~_GEN_1 & wSent : _GEN & _GEN_3 | wSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:145:23, :146:23, :164:17, :167:25, :169:{16,34}, :180:{27,35}
     end
-    if (_layer_probe) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    if (_GEN_1) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
       reqReg_addr <= io_req_bits_addr;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
       reqReg_wdata <= io_req_bits_wdata;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
       reqReg_wstrb <= io_req_bits_wstrb;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:144:19
     end
-    if (_GEN_1 | ~(_GEN_0 & _layer_probe_2)) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4LiteBridges.scala:147:19, :162:23, :164:17, :190:27, :191:16
-    end
-    else	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:147:19, :164:17
-      bError <= |io_axi_b_bits_resp;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:147:19, :191:39
   end // always @(posedge)
   assign io_req_ready = io_req_ready_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :164:17
-  assign io_resp_valid = io_resp_valid_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7
-  assign io_resp_bits_isError = bError;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :147:19
+  assign io_resp_valid = ~(io_req_ready_0 | _GEN | _GEN_0) & (&state);	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :143:22, :151:23, :164:17
   assign io_axi_aw_valid = io_axi_aw_valid_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :154:23, :164:17, :175:21
   assign io_axi_aw_bits_addr = reqReg_addr;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :144:19
   assign io_axi_w_valid = io_axi_w_valid_0;	// src/main/scala/mycpu/utils/AXI4LiteBridges.scala:118:7, :158:23, :164:17, :179:20
