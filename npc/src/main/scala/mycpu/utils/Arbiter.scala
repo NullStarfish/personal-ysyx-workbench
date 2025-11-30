@@ -8,20 +8,27 @@ import mycpu.utils._
 class SimpleAXIArbiter extends Module {
   val io = IO(new Bundle {
     val left = Flipped(new AXI4LiteBundle) // 来自 left
-    val right = Flipped(new AXI4LiteBundle) // 来自 LSU
+    val right = Flipped(new AXI4LiteBundle) // 来自 right
     val out = new AXI4LiteBundle        // 去往 SRAM
   })
 
   object Owner extends ChiselEnum {
-    val None, left, Lsu = Value
+    val None, left, right = Value
   }
   val state = RegInit(Owner.None)
 
   // --- 请求检测 ---
-  val lsuReq = io.right.ar.valid || io.right.aw.valid
-  val leftReq = io.left.ar.valid
+  val leftReq = io.left.ar.valid   || io.left.aw.valid
+  val rightReq = io.right.ar.valid || io.right.aw.valid
 
 
+
+  when(leftReq) {
+    printf("[DEBUG] [Arbiter]: leftReq received\n")
+  }
+  when(rightReq) {
+    printf("[DEBUG] [Arbiter]: rightReq received\n")
+  }
 
 
   io.out.setAsMaster();
@@ -29,42 +36,44 @@ class SimpleAXIArbiter extends Module {
   io.right.setAsSlave();
 
 
-
   switch(state) {
     is(Owner.None) {
-      when(lsuReq) {
-        state := Owner.Lsu
-      } .elsewhen(leftReq) {
+      when(leftReq) {
         state := Owner.left
-      }
-    }
-    is(Owner.Lsu) {
-      val writeDone = io.out.b.fire
-      val readDone  = io.out.r.fire 
-      when(writeDone || readDone) {
-        state := Owner.None
+      } .elsewhen(rightReq) {
+        state := Owner.right
       }
     }
     is(Owner.left) {
-      val readDone = io.out.r.fire
+      val writeDone = io.out.b.fire
+      val readDone  = io.out.r.fire
       when(readDone) {
         state := Owner.None
       }
     }
+    is(Owner.right) {
+      val writeDone = io.out.b.fire
+      val readDone  = io.out.r.fire
+      when(writeDone || readDone) {
+        state := Owner.None
+      }
+    }
+
   }
 
   // 路由连接
-  when(state === Owner.Lsu || (state === Owner.None && lsuReq)) {
-    // LSU <-> out
+  when(state === Owner.right || (state === Owner.None && rightReq)) {
+    // right <-> out
     io.out.ar <> io.right.ar
     io.out.aw <> io.right.aw
     io.out.w  <> io.right.w
     io.right.r  <> io.out.r
     io.right.b  <> io.out.b
   } .elsewhen (state === Owner.left || (state === Owner.None && leftReq)) {
-    // left <-> out (仅读通道)
     io.out.ar <> io.left.ar
+    io.out.aw <> io.left.aw
+    io.out.w  <> io.left.w
     io.left.r  <> io.out.r
-    // 注意：left 的写通道在上面已经赋了默认值 (ready=0)，所以这里不用管
+    io.left.b  <> io.out.b
   }
 }

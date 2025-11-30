@@ -46,48 +46,50 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
 );
 
   reg  [1:0] state;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22
-  wire       lsuReq = io_right_ar_valid | io_right_aw_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:21:34
-  wire       _GEN = state == 2'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :33:17
-  wire       _GEN_0 = state == 2'h2;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :33:17
-  wire       _GEN_1 = state == 2'h1;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :33:17, :64:22
-  wire       _GEN_2 = _GEN_0 | _GEN & lsuReq;	// src/main/scala/mycpu/utils/Arbiter.scala:21:34, :33:17, :57:{28,53}
-  wire       io_out_b_ready_0 = _GEN_2 & io_right_b_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:81:14, src/main/scala/mycpu/utils/Arbiter.scala:57:{28,65}, :63:17
-  wire       _GEN_3 = _GEN_1 | _GEN & io_left_ar_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:33:17, :64:{37,62}
-  wire       io_out_r_ready_0 = _GEN_2 ? io_right_r_ready : _GEN_3 & io_left_r_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:80:14, src/main/scala/mycpu/utils/Arbiter.scala:57:{28,65}, :62:17, :64:{37,75}, :67:16
+  wire       rightReq = io_right_ar_valid | io_right_aw_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:22:36
+  wire       _GEN = state == 2'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :39:17
+  wire       _GEN_0 = state == 2'h1;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :39:17, :72:22
+  wire       _GEN_1 = state == 2'h2;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :39:17
+  wire       _GEN_2 = _GEN_1 | _GEN & rightReq;	// src/main/scala/mycpu/utils/Arbiter.scala:22:36, :39:17, :65:{30,55}
+  wire       _GEN_3 = _GEN_0 | _GEN & io_left_ar_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:39:17, :72:{37,62}
+  wire       io_out_r_ready_0 = _GEN_2 ? io_right_r_ready : _GEN_3 & io_left_r_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:80:14, src/main/scala/mycpu/utils/Arbiter.scala:65:{30,69}, :70:17, :72:{37,75}, :76:16
+  wire       io_out_b_ready_0 = _GEN_2 & io_right_b_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:65:{30,69}, :71:17, :72:75
   always @(posedge clock) begin	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
     if (reset)	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
       state <= 2'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22
-    else if (_GEN) begin	// src/main/scala/mycpu/utils/Arbiter.scala:33:17
-      if (lsuReq)	// src/main/scala/mycpu/utils/Arbiter.scala:21:34
+    else if (_GEN) begin	// src/main/scala/mycpu/utils/Arbiter.scala:39:17
+      if (io_left_ar_valid)	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
+        state <= 2'h1;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :72:22
+      else if (rightReq)	// src/main/scala/mycpu/utils/Arbiter.scala:22:36
         state <= 2'h2;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22
-      else if (io_left_ar_valid)	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-        state <= 2'h1;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22, :64:22
     end
     else if (_GEN_0
-               ? io_out_b_ready_0 & io_out_b_valid | io_out_r_ready_0 & io_out_r_valid
-               : _GEN_1 & io_out_r_ready_0 & io_out_r_valid)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/AXI4Lite.scala:81:14, src/main/scala/mycpu/utils/Arbiter.scala:18:22, :33:17, :44:{22,35}, :45:15, :50:22, :51:15, :57:65, :62:17, :63:17, :64:75
+               ? io_out_r_ready_0 & io_out_r_valid
+               : _GEN_1
+                 & (io_out_b_ready_0 & io_out_b_valid | io_out_r_ready_0
+                    & io_out_r_valid))	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/utils/Arbiter.scala:18:22, :39:17, :50:22, :51:15, :57:{22,35}, :58:15, :65:69, :70:17, :71:17, :72:75
       state <= 2'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:18:22
   end // always @(posedge)
-  assign io_left_ar_ready = ~_GEN_2 & _GEN_3 & io_out_ar_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :64:{37,75}, :66:15
-  assign io_left_r_valid = ~_GEN_2 & _GEN_3 & io_out_r_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, :88:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :64:{37,75}, :67:16
+  assign io_left_ar_ready = ~_GEN_2 & _GEN_3 & io_out_ar_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :72:{37,75}, :73:15
+  assign io_left_r_valid = ~_GEN_2 & _GEN_3 & io_out_r_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, :88:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :72:{37,75}, :76:16
   assign io_left_r_bits_data = io_out_r_bits_data;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_left_r_bits_resp = io_out_r_bits_resp;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_right_ar_ready = _GEN_2 & io_out_ar_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :59:15
-  assign io_right_r_valid = _GEN_2 & io_out_r_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:88:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :62:17
+  assign io_right_ar_ready = _GEN_2 & io_out_ar_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:85:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :67:15
+  assign io_right_r_valid = _GEN_2 & io_out_r_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:88:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :70:17
   assign io_right_r_bits_data = io_out_r_bits_data;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_right_r_bits_resp = io_out_r_bits_resp;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_right_aw_ready = _GEN_2 & io_out_aw_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:86:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :60:15
-  assign io_right_w_ready = _GEN_2 & io_out_w_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:87:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :61:15
-  assign io_right_b_valid = _GEN_2 & io_out_b_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:89:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :63:17
+  assign io_right_aw_ready = _GEN_2 & io_out_aw_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:86:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :68:15
+  assign io_right_w_ready = _GEN_2 & io_out_w_ready;	// src/main/scala/mycpu/utils/AXI4Lite.scala:87:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :69:15
+  assign io_right_b_valid = _GEN_2 & io_out_b_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:89:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :71:17
   assign io_right_b_bits_resp = io_out_b_bits_resp;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_out_ar_valid = _GEN_2 ? io_right_ar_valid : _GEN_3 & io_left_ar_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:77:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :59:15, :64:{37,75}, :66:15
-  assign io_out_ar_bits_addr = _GEN_2 ? io_right_ar_bits_addr : io_left_ar_bits_addr;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :59:15, :64:75
-  assign io_out_r_ready = io_out_r_ready_0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:65, :62:17, :64:75
-  assign io_out_aw_valid = _GEN_2 & io_right_aw_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:78:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :60:15
-  assign io_out_aw_bits_addr = io_right_aw_bits_addr;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_out_w_valid = _GEN_2 & io_right_w_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:79:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:{28,65}, :61:15
-  assign io_out_w_bits_data = io_right_w_bits_data;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_out_w_bits_strb = io_right_w_bits_strb;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_out_b_ready = io_out_b_ready_0;	// src/main/scala/mycpu/utils/AXI4Lite.scala:81:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :57:65, :63:17
+  assign io_out_ar_valid = _GEN_2 ? io_right_ar_valid : _GEN_3 & io_left_ar_valid;	// src/main/scala/mycpu/utils/AXI4Lite.scala:77:14, src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :67:15, :72:{37,75}, :73:15
+  assign io_out_ar_bits_addr = _GEN_2 ? io_right_ar_bits_addr : io_left_ar_bits_addr;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :67:15, :72:75
+  assign io_out_r_ready = io_out_r_ready_0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:69, :70:17, :72:75
+  assign io_out_aw_valid = _GEN_2 & io_right_aw_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :68:15, :72:75
+  assign io_out_aw_bits_addr = _GEN_2 ? io_right_aw_bits_addr : 32'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :65:{30,69}, :68:15, :72:75
+  assign io_out_w_valid = _GEN_2 & io_right_w_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:{30,69}, :69:15, :72:75
+  assign io_out_w_bits_data = _GEN_2 ? io_right_w_bits_data : 32'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :65:{30,69}, :69:15, :72:75
+  assign io_out_w_bits_strb = _GEN_2 ? io_right_w_bits_strb : 4'h0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :65:{30,69}, :69:15, :72:75
+  assign io_out_b_ready = io_out_b_ready_0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :65:69, :71:17, :72:75
 endmodule
 
