@@ -29,12 +29,27 @@ class SimpleAXIArbiter extends Module {
   when(rightReq) {
     printf("[DEBUG] [Arbiter]: rightReq received\n")
   }
+  when(state === Owner.left) {
+    printf("[DEBUG] [Arbiter]: 连线改接到left\n")
+  }
+  when(state === Owner.right) {
+    printf("[DEBUG] [Arbiter]: 连线改接到right\n" )
+  }
+  when(writeDone) {
+    printf("[DEBUG] [Arbiter] write Done\n")
+  }
 
+  when(readDone) {
+    printf("[DEBUG] [Arbiter] read Done\n")
+  }
 
   io.out.setAsMaster();
   io.left.setAsSlave();
   io.right.setAsSlave();
 
+
+  val writeDone = io.out.b.fire
+  val readDone  = io.out.r.fire
 
   switch(state) {
     is(Owner.None) {
@@ -45,15 +60,12 @@ class SimpleAXIArbiter extends Module {
       }
     }
     is(Owner.left) {
-      val writeDone = io.out.b.fire
-      val readDone  = io.out.r.fire
-      when(readDone) {
+      when(readDone || writeDone) {
         state := Owner.None
       }
     }
     is(Owner.right) {
-      val writeDone = io.out.b.fire
-      val readDone  = io.out.r.fire
+
       when(writeDone || readDone) {
         state := Owner.None
       }
