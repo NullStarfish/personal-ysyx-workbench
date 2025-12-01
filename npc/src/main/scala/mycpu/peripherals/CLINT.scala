@@ -39,11 +39,11 @@ class CLINT extends Peripheral(MemMap.devices(getIndex("CLINT"))) {
 
 
 
-    val mtime = RegInit(UInt((2*XLEN).W))
+    val mtime = RegInit(0.U((2* XLEN).W))
     val mtimeVec = mtime.asTypeOf(Vec(2, UInt(XLEN.W)))
     mtime := mtime + 1.U
 
-    readBridge.io.resp.bits.rdata := mtimeVec(reqAddrOffset(localAddrWidth))//只有一位决定
+    readBridge.io.resp.bits.rdata := mtimeVec(reqAddrOffset(localAddrWidth - 1))//只有一位决定
 
 
 

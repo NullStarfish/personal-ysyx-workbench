@@ -5,7 +5,8 @@ module Serial(	// src/main/scala/mycpu/peripherals/Serial.scala:10:7
   output        io_bus_ar_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
   input         io_bus_ar_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
   output        io_bus_r_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
-                io_bus_aw_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  output [31:0] io_bus_r_bits_data,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  output        io_bus_aw_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
   input         io_bus_aw_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
   input  [31:0] io_bus_aw_bits_addr,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
   output        io_bus_w_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
@@ -33,13 +34,15 @@ module Serial(	// src/main/scala/mycpu/peripherals/Serial.scala:10:7
     end
   end // always @(posedge)
   AXI4LiteReadSlaveBridge readBridge (	// src/main/scala/mycpu/peripherals/Serial.scala:19:27
-    .clock           (clock),
-    .reset           (reset),
-    .io_axi_ar_ready (io_bus_ar_ready),
-    .io_axi_ar_valid (io_bus_ar_valid),
-    .io_axi_r_valid  (io_bus_r_valid),
-    .io_req_valid    (_readBridge_io_req_valid),
-    .io_resp_valid   (rValid)	// src/main/scala/mycpu/peripherals/Serial.scala:34:23
+    .clock              (clock),
+    .reset              (reset),
+    .io_axi_ar_ready    (io_bus_ar_ready),
+    .io_axi_ar_valid    (io_bus_ar_valid),
+    .io_axi_r_valid     (io_bus_r_valid),
+    .io_axi_r_bits_data (io_bus_r_bits_data),
+    .io_req_valid       (_readBridge_io_req_valid),
+    .io_resp_valid      (rValid),	// src/main/scala/mycpu/peripherals/Serial.scala:34:23
+    .io_resp_bits_rdata (32'h0)	// src/main/scala/mycpu/peripherals/Serial.scala:37:35
   );	// src/main/scala/mycpu/peripherals/Serial.scala:19:27
   AXI4LiteWriteSlaveBridge writeBridge (	// src/main/scala/mycpu/peripherals/Serial.scala:20:27
     .clock               (clock),
