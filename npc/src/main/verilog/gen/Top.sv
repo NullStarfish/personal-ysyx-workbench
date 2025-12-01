@@ -220,7 +220,7 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
     .io_bus_r_valid      (_serial_io_bus_r_valid),
     .io_bus_aw_ready     (_serial_io_bus_aw_ready),
     .io_bus_aw_valid     (_xbar_io_slaves_1_aw_valid),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_bus_aw_bits_addr (_xbar_io_slaves_1_aw_bits_addr[2:0]),	// src/main/scala/mycpu/Top.scala:15:25, :88:54
+    .io_bus_aw_bits_addr ({29'h0, _xbar_io_slaves_1_aw_bits_addr[2:0]}),	// src/main/scala/mycpu/Top.scala:15:25, :88:{28,54}
     .io_bus_w_ready      (_serial_io_bus_w_ready),
     .io_bus_w_valid      (_xbar_io_slaves_1_w_valid),	// src/main/scala/mycpu/Top.scala:15:25
     .io_bus_w_bits_data  (_xbar_io_slaves_1_w_bits_data),	// src/main/scala/mycpu/Top.scala:15:25

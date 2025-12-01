@@ -20,7 +20,7 @@ module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:1
   `endif // not def SYNTHESIS
   always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
     if (Serial._layer_probe_3 & Serial._layer_probe)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:33:23, :58:17, :65:26, :67:20
-      reqAddrReg <= Serial.io_bus_aw_bits_addr;	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14, src/main/scala/mycpu/peripherals/Serial.scala:33:23
+      reqAddrReg <= Serial.io_bus_aw_bits_addr[2:0];	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14, :21:59, src/main/scala/mycpu/peripherals/Serial.scala:33:23
     if (Serial._layer_probe_3
         | ~(Serial._layer_probe_4 & Serial._layer_probe_0 & reqAddrReg == 3'h0)) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:33:23, :34:23, :58:17, :78:25, :80:{25,34}, :97:20
     end
@@ -29,7 +29,7 @@ module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:1
         {Serial.io_bus_w_bits_strb[3] ? Serial.io_bus_w_bits_data[31:24] : 8'h0,
          Serial.io_bus_w_bits_strb[2] ? Serial.io_bus_w_bits_data[23:16] : 8'h0,
          Serial.io_bus_w_bits_strb[1] ? Serial.io_bus_w_bits_data[15:8] : 8'h0,
-         Serial.io_bus_w_bits_strb[0] ? Serial.io_bus_w_bits_data[7:0] : 8'h0};	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14, src/main/scala/mycpu/peripherals/Serial.scala:34:23, :92:{34,40,50}, :97:35
+         Serial.io_bus_w_bits_strb[0] ? Serial.io_bus_w_bits_data[7:0] : 8'h0};	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14, src/main/scala/mycpu/peripherals/Serial.scala:34:23, :92:{34,40,50}, :97:35
   end // always @(posedge)
 endmodule
 

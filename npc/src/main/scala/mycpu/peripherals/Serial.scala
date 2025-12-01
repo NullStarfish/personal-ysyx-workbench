@@ -64,7 +64,7 @@ class Serial extends Peripheral(mycpu.MemMap.devices(1)) {
       
       when(wBus.aw.fire) {
         // 截取需要的地址位 (使用 Peripheral 中的方法或直接截取)
-        reqAddrReg := wBus.aw.bits.addr(localAddrWidth - 1, 0)
+        reqAddrReg := getWriteOffset
         state := State.sIssue
       }
     }

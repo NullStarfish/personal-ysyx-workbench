@@ -3,27 +3,28 @@ package mycpu.peripherals
 import chisel3._
 import chisel3.util._
 import mycpu.utils._
+import mycpu.common.XLEN // 确保导入了全局的 XLEN 定义
 
 abstract class Peripheral(val deviceConfig: mycpu.DeviceConfig) extends Module {
   
-  // 1. 预先计算好该外设需要的地址位宽 (例如 size=0x100 -> width=8)
+  // 1. 计算该外设实际需要的内部地址位宽 (逻辑用)
   val localAddrWidth = log2Ceil(deviceConfig.size)
 
   val io = IO(new Bundle {
-    val bus = Flipped(new AXI4LiteBundle(addrWidth = localAddrWidth))
+    // [关键修改]：物理接口必须是 XLEN，以便与 Xbar 连接
+    val bus = Flipped(new AXI4LiteBundle(XLEN, XLEN))
   })
 
   io.bus.setAsSlave()
 
-  // 辅助函数：获取当前请求相对于外设基地址的偏移量
-  def getOffset(addr: UInt): UInt = {
-    // 直接截取低位，只取 localAddrWidth 这么多位
-    addr(localAddrWidth - 1, 0)
-  }
 
-  // 提取写地址和读地址的 Offset
-  // 注意：io.bus.aw.bits.addr 的位宽已经是 localAddrWidth 了，
-  // 但为了安全起见或逻辑复用，截取也是可以的，或者直接使用。
-  val writeOffset = io.bus.aw.bits.addr
-  val readOffset  = io.bus.ar.bits.addr
+  protected def getWriteOffset: UInt = io.bus.aw.bits.addr(localAddrWidth - 1, 0)
+  protected def getReadOffset:  UInt = io.bus.ar.bits.addr(localAddrWidth - 1, 0)
+
+
+  val writeOffset = Wire(UInt(localAddrWidth.W))
+  writeOffset := getWriteOffset
+
+  val readOffset = Wire(UInt(localAddrWidth.W))
+  readOffset := getReadOffset
 }

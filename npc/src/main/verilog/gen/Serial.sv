@@ -2,17 +2,17 @@
 module Serial(	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
   input         clock,	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
                 reset,	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
-                io_bus_ar_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  output        io_bus_r_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-                io_bus_aw_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input         io_bus_aw_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input  [2:0]  io_bus_aw_bits_addr,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  output        io_bus_w_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input         io_bus_w_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input  [31:0] io_bus_w_bits_data,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input  [3:0]  io_bus_w_bits_strb,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  input         io_bus_b_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
-  output        io_bus_b_valid	// src/main/scala/mycpu/peripherals/Peripherals.scala:12:14
+                io_bus_ar_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  output        io_bus_r_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+                io_bus_aw_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input         io_bus_aw_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input  [31:0] io_bus_aw_bits_addr,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  output        io_bus_w_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input         io_bus_w_valid,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input  [31:0] io_bus_w_bits_data,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input  [3:0]  io_bus_w_bits_strb,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  input         io_bus_b_ready,	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
+  output        io_bus_b_valid	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14
 );
 
   wire       wBus_b_valid;	// src/main/scala/mycpu/peripherals/Serial.scala:39:20, :58:17
