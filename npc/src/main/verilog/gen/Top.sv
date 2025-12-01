@@ -4,6 +4,7 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
         reset	// src/main/scala/mycpu/Top.scala:9:7
 );
 
+  wire        _serial_io_bus_ar_ready;	// src/main/scala/mycpu/Top.scala:17:25
   wire        _serial_io_bus_r_valid;	// src/main/scala/mycpu/Top.scala:17:25
   wire        _serial_io_bus_aw_ready;	// src/main/scala/mycpu/Top.scala:17:25
   wire        _serial_io_bus_w_ready;	// src/main/scala/mycpu/Top.scala:17:25
@@ -37,7 +38,6 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
   wire        _xbar_io_slaves_1_w_valid;	// src/main/scala/mycpu/Top.scala:15:25
   wire [31:0] _xbar_io_slaves_1_w_bits_data;	// src/main/scala/mycpu/Top.scala:15:25
   wire [3:0]  _xbar_io_slaves_1_w_bits_strb;	// src/main/scala/mycpu/Top.scala:15:25
-  wire        _xbar_io_slaves_1_b_ready;	// src/main/scala/mycpu/Top.scala:15:25
   wire        _memArbiter_io_left_ar_ready;	// src/main/scala/mycpu/Top.scala:14:28
   wire        _memArbiter_io_left_r_valid;	// src/main/scala/mycpu/Top.scala:14:28
   wire [31:0] _memArbiter_io_left_r_bits_data;	// src/main/scala/mycpu/Top.scala:14:28
@@ -175,6 +175,7 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
     .io_slaves_0_w_bits_strb  (_xbar_io_slaves_0_w_bits_strb),
     .io_slaves_0_b_ready      (_xbar_io_slaves_0_b_ready),
     .io_slaves_0_b_valid      (_sram_sram_axi_if_bvalid),	// src/main/scala/mycpu/Top.scala:16:25
+    .io_slaves_1_ar_ready     (_serial_io_bus_ar_ready),	// src/main/scala/mycpu/Top.scala:17:25
     .io_slaves_1_ar_valid     (_xbar_io_slaves_1_ar_valid),
     .io_slaves_1_r_valid      (_serial_io_bus_r_valid),	// src/main/scala/mycpu/Top.scala:17:25
     .io_slaves_1_aw_ready     (_serial_io_bus_aw_ready),	// src/main/scala/mycpu/Top.scala:17:25
@@ -184,7 +185,6 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
     .io_slaves_1_w_valid      (_xbar_io_slaves_1_w_valid),
     .io_slaves_1_w_bits_data  (_xbar_io_slaves_1_w_bits_data),
     .io_slaves_1_w_bits_strb  (_xbar_io_slaves_1_w_bits_strb),
-    .io_slaves_1_b_ready      (_xbar_io_slaves_1_b_ready),
     .io_slaves_1_b_valid      (_serial_io_bus_b_valid)	// src/main/scala/mycpu/Top.scala:17:25
   );	// src/main/scala/mycpu/Top.scala:15:25
   SRAM sram (	// src/main/scala/mycpu/Top.scala:16:25
@@ -216,6 +216,7 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
   Serial serial (	// src/main/scala/mycpu/Top.scala:17:25
     .clock               (clock),
     .reset               (reset),
+    .io_bus_ar_ready     (_serial_io_bus_ar_ready),
     .io_bus_ar_valid     (_xbar_io_slaves_1_ar_valid),	// src/main/scala/mycpu/Top.scala:15:25
     .io_bus_r_valid      (_serial_io_bus_r_valid),
     .io_bus_aw_ready     (_serial_io_bus_aw_ready),
@@ -225,7 +226,6 @@ module Top(	// src/main/scala/mycpu/Top.scala:9:7
     .io_bus_w_valid      (_xbar_io_slaves_1_w_valid),	// src/main/scala/mycpu/Top.scala:15:25
     .io_bus_w_bits_data  (_xbar_io_slaves_1_w_bits_data),	// src/main/scala/mycpu/Top.scala:15:25
     .io_bus_w_bits_strb  (_xbar_io_slaves_1_w_bits_strb),	// src/main/scala/mycpu/Top.scala:15:25
-    .io_bus_b_ready      (_xbar_io_slaves_1_b_ready),	// src/main/scala/mycpu/Top.scala:15:25
     .io_bus_b_valid      (_serial_io_bus_b_valid)
   );	// src/main/scala/mycpu/Top.scala:17:25
 endmodule

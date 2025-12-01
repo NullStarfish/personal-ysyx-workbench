@@ -34,6 +34,7 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   output [3:0]  io_slaves_0_w_bits_strb,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_slaves_0_b_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_0_b_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
+                io_slaves_1_ar_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output        io_slaves_1_ar_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_1_r_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
                 io_slaves_1_aw_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
@@ -43,7 +44,6 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   output        io_slaves_1_w_valid,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output [31:0] io_slaves_1_w_bits_data,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   output [3:0]  io_slaves_1_w_bits_strb,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
-  output        io_slaves_1_b_ready,	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
   input         io_slaves_1_b_valid	// src/main/scala/mycpu/peripherals/Xbar.scala:18:14
 );
 
@@ -54,7 +54,8 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   wire       _ar_hits_T_3 = io_in_ar_bits_addr > 32'hA00003F7;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:10
   wire       _ar_hits_T_4 = io_in_ar_bits_addr < 32'hA0000400;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:37
   wire       ar_hits_1 = _ar_hits_T_3 & _ar_hits_T_4;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:{10,29,37}
-  assign io_in_ar_ready_0 = ar_hits_0 & io_slaves_0_ar_ready | ar_hits_1;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :93:26
+  assign io_in_ar_ready_0 =
+    ar_hits_0 & io_slaves_0_ar_ready | ar_hits_1 & io_slaves_1_ar_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:24:29, :93:26
   reg        r_slave_sel;	// src/main/scala/mycpu/peripherals/Xbar.scala:96:28
   reg        r_busy;	// src/main/scala/mycpu/peripherals/Xbar.scala:97:28
   wire       io_in_r_valid_0 =
@@ -114,6 +115,5 @@ module Xbar(	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_slaves_1_w_valid = w_target_oh[1] & io_in_w_valid;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :39:27, :153:24, :165:{21,26}, :166:21
   assign io_slaves_1_w_bits_data = io_in_w_bits_data;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
   assign io_slaves_1_w_bits_strb = io_in_w_bits_strb;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7
-  assign io_slaves_1_b_ready = w_busy & w_slave_sel & io_in_b_ready;	// src/main/scala/mycpu/peripherals/Xbar.scala:14:7, :45:26, :137:28, :138:28, :176:16, :177:13
 endmodule
 

@@ -8,28 +8,16 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:116:15
-  reg [2:0]  reqAddrReg;	// src/main/scala/mycpu/peripherals/Serial.scala:33:23
-  reg [31:0] printReg;	// src/main/scala/mycpu/peripherals/Serial.scala:34:23
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/peripherals/Serial.scala:116:15
-    always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7, :116:15
-      if ((`PRINTF_COND_) & Serial._layer_probe_2 & Serial.state_0 != 2'h1
-          & Serial._layer_probe_5 & Serial._layer_probe_1 & ~Serial.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:8:7, :30:22, :58:17, :112:25, :116:15
-        $fwrite(32'h80000002, "%c", printReg[7:0]);	// src/main/scala/mycpu/peripherals/Serial.scala:34:23, :116:{15,30}
+module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:76:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/peripherals/Serial.scala:76:13
+    always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:10:7, :76:13
+      if ((`PRINTF_COND_) & Serial.writeBridge_io_req_valid
+          & Serial.writeBridge_io_req_bits_addr[2:0] == 3'h0 & ~Serial.reset)	// src/main/scala/mycpu/peripherals/Serial.scala:10:7, :20:27, :55:23, :62:{17,26}, :76:13
+        $fwrite(32'h80000002, "%c",
+                Serial.writeBridge_io_req_bits_wstrb[0]
+                  ? Serial.writeBridge_io_req_bits_wdata[7:0]
+                  : 8'h0);	// src/main/scala/mycpu/peripherals/Serial.scala:20:27, :68:{30,38,50}, :76:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
-  always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:8:7
-    if (Serial._layer_probe_3 & Serial._layer_probe)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:33:23, :58:17, :65:26, :67:20
-      reqAddrReg <= Serial.io_bus_aw_bits_addr[2:0];	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14, :21:59, src/main/scala/mycpu/peripherals/Serial.scala:33:23
-    if (Serial._layer_probe_3
-        | ~(Serial._layer_probe_4 & Serial._layer_probe_0 & reqAddrReg == 3'h0)) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/peripherals/Serial.scala:33:23, :34:23, :58:17, :78:25, :80:{25,34}, :97:20
-    end
-    else	// src/main/scala/mycpu/peripherals/Serial.scala:34:23, :58:17
-      printReg <=
-        {Serial.io_bus_w_bits_strb[3] ? Serial.io_bus_w_bits_data[31:24] : 8'h0,
-         Serial.io_bus_w_bits_strb[2] ? Serial.io_bus_w_bits_data[23:16] : 8'h0,
-         Serial.io_bus_w_bits_strb[1] ? Serial.io_bus_w_bits_data[15:8] : 8'h0,
-         Serial.io_bus_w_bits_strb[0] ? Serial.io_bus_w_bits_data[7:0] : 8'h0};	// src/main/scala/mycpu/peripherals/Peripherals.scala:13:14, src/main/scala/mycpu/peripherals/Serial.scala:34:23, :92:{34,40,50}, :97:35
-  end // always @(posedge)
 endmodule
 
