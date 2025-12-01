@@ -2,7 +2,7 @@ package mycpu
 
 import chisel3._
 import mycpu.core.Core
-import mycpu.peripherals.{SRAM, Serial, Xbar} // 引入新增的模块
+import mycpu.peripherals.{SRAM, Serial, CLINT, Xbar} // 引入新增的模块
 import mycpu.utils._
 import circt.stage.ChiselStage 
 
@@ -15,6 +15,7 @@ class Top extends Module {
     val xbar    = Module(new Xbar(MemMap.devices)) // 实例化 Xbar
     val sram    = Module(new SRAM)                 // BlackBox
     val serial  = Module(new Serial)               // Chisel Module
+    val CLINT   = Module(new CLINT)
 
     // 2. Core -> Arbiter
     memArbiter.io.left <> core.io.imem
@@ -27,6 +28,7 @@ class Top extends Module {
     // 获取设备索引
     val sramIdx   = MemMap.devices.indexWhere(_.name == "SRAM")
     val serialIdx = MemMap.devices.indexWhere(_.name == "SERIAL")
+    val CLINTIdx  = MemMap.getIndex(("CLINT"))
     
     // ==============================================================================
     // 连接 SRAM (BlackBox, 需要手动连线)

@@ -18,6 +18,7 @@ object MemMap {
   val devices = List(
     DeviceConfig("SRAM",   SRAM_BASE,             SRAM_SIZE), // 0
     DeviceConfig("SERIAL", MMIO_BASE + 0x3f8,     0x8,      true),       // 1
+    DeviceConfig("CLINT",  MMIO_BASE + 0x48,      0x8,      true)
     // 你可以继续添加 RTC, GPIO 等
   )
   
