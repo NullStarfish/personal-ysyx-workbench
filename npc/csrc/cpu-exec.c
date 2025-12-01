@@ -48,6 +48,7 @@ static void exec_once() {
   // 1. 先让硬件跑，直到有一条指令在 WB 阶段提交
   //    此时 DPI 函数会被调用，更新 C++ 侧的 g_cpu_state
   exec_one_cycle_cpp();
+  if (npc_state.state != NPC_RUNNING) return;
 
   // 2. 此时读取的才是刚刚执行完的那条指令的 PC 和机器码
   uint32_t pc = get_pc_cpp();

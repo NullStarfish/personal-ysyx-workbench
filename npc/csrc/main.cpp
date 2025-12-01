@@ -78,6 +78,14 @@ extern "C" void dpi_update_state(int pc, int dnpc, const svBitVecVal* gprs,
 // =========================================================================
 
 
+extern "C" void difftest_skip_ref_cpp(){
+#ifdef CONFIG_DIFFTEST
+    difftest_skip_ref();
+#endif
+    return;
+} // 声明 Difftest 跳过函数
+
+
 // [修复] ebreak 现在读取全局状态中的 a0 (gpr[10])
 extern "C" void ebreak() {
     uint32_t a0_val = g_cpu_state.gpr[10];

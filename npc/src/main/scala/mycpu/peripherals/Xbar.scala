@@ -176,4 +176,40 @@ class Xbar(devices: List[DeviceConfig]) extends Module {
   when(w_busy) {
     io.in.b <> io.slaves(w_slave_sel).b
   }
+
+
+
+
+
+//=====================difftest skip==========================
+  val difftest_skip = Wire(Bool())
+  difftest_skip := false.B
+
+  when(io.in.ar.fire) {
+    val addr = io.in.ar.bits.addr
+    for (dev <- devices) {
+      if (dev.isDifftestSkip) {
+        when(isHit(addr, dev)) {
+          difftest_skip := true.B
+          Debug.log("[DEBUG] [Xbar]: difftest skip on read addr: %x\n", addr)
+        }
+      }
+    }
+  }
+
+  when(io.in.aw.fire) {
+    val addr = io.in.aw.bits.addr
+    for (dev <- devices) {
+      if (dev.isDifftestSkip) {
+        when(isHit(addr, dev)) {
+          difftest_skip := true.B
+          Debug.log("[DEBUG] [Xbar]: difftest skip on write addr: %x\n", addr)
+        }
+      }
+    }
+  }
+
+  val difftest_skip_module = Module(new DifftestSkip)
+  difftest_skip_module.io.skip := difftest_skip
+  difftest_skip_module.io.clock  := clock // 复用一个信号作为时钟输入
 }

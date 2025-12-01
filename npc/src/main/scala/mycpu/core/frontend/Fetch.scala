@@ -59,6 +59,10 @@ class Fetch extends Module {
   io.out.bits.pc          := pc
   io.out.bits.dnpc        := pc + 4.U
   io.out.bits.isException := readBridge.io.resp.bits.isError
+
+
+  
+
   
   readBridge.io.resp.ready := io.out.ready
 }

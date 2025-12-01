@@ -3,7 +3,7 @@ package mycpu
 import chisel3._
 import chisel3.util._
 
-case class DeviceConfig(name: String, startAddr: BigInt, size: BigInt) {
+case class DeviceConfig(name: String, startAddr: BigInt, size: BigInt, isDifftestSkip: Boolean = false) {
   def endAddr: BigInt = startAddr + size
 }
 
@@ -17,7 +17,7 @@ object MemMap {
   // 设备列表
   val devices = List(
     DeviceConfig("SRAM",   SRAM_BASE,             SRAM_SIZE), // 0
-    DeviceConfig("SERIAL", MMIO_BASE + 0x3f8,     0x8),       // 1
+    DeviceConfig("SERIAL", MMIO_BASE + 0x3f8,     0x8,      true),       // 1
     // 你可以继续添加 RTC, GPIO 等
   )
   
