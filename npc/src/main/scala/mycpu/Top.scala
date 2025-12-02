@@ -14,7 +14,7 @@ class Top extends Module {
     val xbar       = Module(new Xbar(MemMap.devices))
     
     // 1. 实例化外设 (使用封装后的 Wrapper)
-    val sram   = Module(new SRAMAXIWrapper) 
+    val sram   = Module(new SRAMAXIWrapper)
     val serial = Module(new Serial)
     val clint  = Module(new CLINT)
 
