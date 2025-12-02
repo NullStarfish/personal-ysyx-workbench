@@ -10,7 +10,7 @@ case class DeviceConfig(name: String, startAddr: BigInt, size: BigInt, isDifftes
 object MemMap {
   // 定义区域
   val SRAM_BASE   = BigInt("80000000", 16) // 常见的 MIPS/RISC-V 物理起始地址
-  val SRAM_SIZE   = BigInt("04000000", 16) // 64MB
+  val SRAM_SIZE   = BigInt("00400000", 16) // 64MB
 
   val MMIO_BASE   = BigInt("a0000000", 16)
 
@@ -19,6 +19,7 @@ object MemMap {
     DeviceConfig("SRAM",   SRAM_BASE,             SRAM_SIZE), // 0
     DeviceConfig("SERIAL", MMIO_BASE + 0x3f8,     0x8,      true),       // 1
     DeviceConfig("CLINT",  MMIO_BASE + 0x50,      0x8,      true)
+  
     // 你可以继续添加 RTC, GPIO 等
   )
   

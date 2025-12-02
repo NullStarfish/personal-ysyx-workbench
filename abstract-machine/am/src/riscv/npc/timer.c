@@ -13,6 +13,13 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
+  rtc->second = 0;
+  rtc->minute = 0;
+  rtc->hour   = 0;
+  rtc->day    = 0;
+  rtc->month  = 0;
+  rtc->year   = 1900;
+  return ;
   // Read the packed RTC words produced by main.cpp:
   // word0 @ RTC_ADDR: (sec) | (min << 6) | (hour << 12)
   // word1 @ SERIAL_PORT+4: (year) | (month << 12) | (day << 16)

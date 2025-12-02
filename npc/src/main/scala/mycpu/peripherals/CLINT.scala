@@ -45,6 +45,11 @@ class CLINT extends Peripheral(MemMap.devices(getIndex("CLINT"))) {
 
     readBridge.io.resp.bits.rdata := mtimeVec(reqAddrOffset(localAddrWidth - 1))//只有一位决定
 
-
+    when(readBridge.io.req.fire) {
+        Debug.log("[DEBUG] [CLINT]: req received\n")
+    }
+    when(readBridge.io.resp.fire) {
+        Debug.log("[DEBUG] [CLINT]: resp sent: data: %x\n", readBridge.io.resp.bits.rdata)
+    }
 
 }

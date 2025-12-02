@@ -20,6 +20,15 @@
 #include <sys/time.h>
 #include <csignal>
 
+#include <unistd.h> // for usleep
+
+
+
+const long long TARGET_SIM_FREQ = 1000000; 
+
+
+
+
 extern "C" {
     #include "monitor.h"
     #include "state.h"
@@ -33,6 +42,10 @@ extern "C" {
     #include "difftest/dut.h"
 #endif
 }
+
+
+
+
 
 VTop* top_ptr = NULL;
 long long cycle_count = 0;
@@ -166,8 +179,31 @@ uint32_t get_inst_cpp() {
 void set_dpi_scope() {}
 
 void step_one_clk() {
+    // 1. 执行硬件逻辑
     top_ptr->clock = 0; top_ptr->eval();
     top_ptr->clock = 1; top_ptr->eval();
+
+    // 2. 速度控制逻辑 (复用你的 get_time)
+    // 使用 static 变量记录该函数被调用的总次数
+    static uint64_t total_sim_cycles = 0;
+    total_sim_cycles++;
+
+    // 每 1000 个周期 (1ms) 同步一次，避免频繁调用 get_time 拖慢速度
+    if (total_sim_cycles % 1000 == 0) {
+        
+        // 获取从仿真启动开始经过的真实时间 (us)
+        uint64_t real_time_us = get_time();
+        
+        // 计算理论上应该经过的仿真时间 (us)
+        // 因为我们设定频率是 1MHz，所以 1 cycle = 1 us
+        uint64_t expected_sim_us = total_sim_cycles; 
+
+        // 如果仿真跑得比真实时间快 (Expected > Real)，就睡一会
+        if (expected_sim_us > real_time_us) {
+            usleep(expected_sim_us - real_time_us);
+        }
+        // 如果仿真跑得慢 (Expected < Real)，不 sleep，全速追赶
+    }
 }
 
 
@@ -297,7 +333,7 @@ extern "C" int pmem_read(int raddr) {
 
     // Device Access Logic
     if (align_offset + PMEM_BASE == RTC_ADDR || align_offset + PMEM_BASE == RTC_UP_ADDR) {
-        //printf("  (RTC device access)\n");
+        printf("  (RTC device access)\n");
         if (align_offset + PMEM_BASE == RTC_ADDR) {
             time_t timep;
             struct tm *p;
