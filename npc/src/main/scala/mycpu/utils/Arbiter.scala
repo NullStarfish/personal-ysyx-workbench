@@ -7,85 +7,71 @@ import mycpu.utils._
 
 class SimpleAXIArbiter extends Module {
   val io = IO(new Bundle {
-    val left = Flipped(new AXI4LiteBundle) // 来自 left
-    val right = Flipped(new AXI4LiteBundle) // 来自 right
-    val out = new AXI4LiteBundle        // 去往 SRAM
+    val left  = Flipped(new AXI4LiteBundle(XLEN, XLEN))
+    val right = Flipped(new AXI4LiteBundle(XLEN, XLEN))
+    val out   = new AXI4LiteBundle(XLEN, XLEN)
   })
 
-  object Owner extends ChiselEnum {
-    val None, left, right = Value
-  }
+  object Owner extends ChiselEnum { val None, Left, Right = Value }
   val state = RegInit(Owner.None)
 
-  // --- 请求检测 ---
-  val leftReq = io.left.ar.valid   || io.left.aw.valid
+  // 默认断开所有 Ready，防止误握手
+  io.left.setAsSlaveInit()  // 辅助函数: ready=false, valid=false
+  io.right.setAsSlaveInit()
+  io.out.setAsMasterInit()  // 辅助函数: valid=false, ready=false
+
+  // 辅助函数：手动置 Slave 输出默认值 (如果 AXI4Defs 中没有 setAsSlaveInit，请使用下面的代码)
+  def setSlaveDefault(p: AXI4LiteBundle): Unit = {
+    p.ar.ready := false.B
+    p.aw.ready := false.B
+    p.w.ready  := false.B
+    p.r.valid  := false.B; p.r.bits := DontCare
+    p.b.valid  := false.B; p.b.bits := DontCare
+  }
+  // def setMasterDefault ... (同理，Output valid=false)
+
+  // 重新覆盖默认值逻辑，确保安全
+  setSlaveDefault(io.left)
+  setSlaveDefault(io.right)
+  
+  // Output 默认不发请求
+  io.out.ar.valid := false.B; io.out.ar.bits := DontCare
+  io.out.aw.valid := false.B; io.out.aw.bits := DontCare
+  io.out.w.valid  := false.B; io.out.w.bits  := DontCare
+  io.out.r.ready  := false.B
+  io.out.b.ready  := false.B
+
+  // --- 仲裁逻辑 ---
+  val leftReq  = io.left.ar.valid || io.left.aw.valid
   val rightReq = io.right.ar.valid || io.right.aw.valid
 
-
-
-  when(leftReq) {
-    Debug.log("[DEBUG] [Arbiter]: leftReq received\n")
-  }
-  when(rightReq) {
-    Debug.log("[DEBUG] [Arbiter]: rightReq received\n")
-  }
-
-  
-
-  io.out.setAsMaster();
-  io.left.setAsSlave();
-  io.right.setAsSlave();
-
-
+  // 简单的事务结束判定
   val writeDone = io.out.b.fire
-  val readDone  = io.out.r.fire
-
-  when(writeDone) {
-    Debug.log("[DEBUG] [Arbiter] write Done\n")
-  }
-
-  when(readDone) {
-    Debug.log("[DEBUG] [Arbiter] read Done\n")
-  }
+  val readDone  = io.out.r.fire // 注意：AXI4Last 处理，这里简化为 Lite 单拍
 
   switch(state) {
     is(Owner.None) {
-      when(leftReq) {
-        state := Owner.left
-      } .elsewhen(rightReq) {
-        state := Owner.right
-      }
+      when(leftReq) { state := Owner.Left }
+      .elsewhen(rightReq) { state := Owner.Right }
     }
-    is(Owner.left) {
-      when(readDone || writeDone) {
-        state := Owner.None
-      }
+    is(Owner.Left) {
+      when(readDone || writeDone) { state := Owner.None }
     }
-    is(Owner.right) {
-
-      when(writeDone || readDone) {
-        state := Owner.None
-      }
+    is(Owner.Right) {
+      when(readDone || writeDone) { state := Owner.None }
     }
-
   }
 
-
-
-  when (state === Owner.left || (state === Owner.None && leftReq)) {
-    io.out.ar <> io.left.ar
-    io.out.aw <> io.left.aw
-    io.out.w  <> io.left.w
-    io.left.r  <> io.out.r
-    io.left.b  <> io.out.b
-  } .elsewhen(state === Owner.right || (state === Owner.None && rightReq)) {
-    // right <-> out
-    io.out.ar <> io.right.ar
-    io.out.aw <> io.right.aw
-    io.out.w  <> io.right.w
-    io.right.r  <> io.out.r
-    io.right.b  <> io.out.b
+  // --- 物理连接 ---
+  // 只有当持有锁时才接通线路
+  when(state === Owner.Left || (state === Owner.None && leftReq)) {
+    io.out <> io.left
   } 
-
-
+  .elsewhen(state === Owner.Right || (state === Owner.None && rightReq)) {
+    io.out <> io.right
+  }
+  
+  // Debug
+  when(leftReq && state === Owner.None) { Debug.log("[Arbiter] Grant Left\n") }
+  when(rightReq && !leftReq && state === Owner.None) { Debug.log("[Arbiter] Grant Right\n") }
 }

@@ -19,26 +19,26 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
   output        io_out_bits_isException	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
 );
 
-  reg         reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:41:24
-  wire        _readBridge_io_req_ready;	// src/main/scala/mycpu/core/frontend/Fetch.scala:18:26
-  reg  [31:0] pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:40:19
+  reg         reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24
+  wire        _readBridge_io_req_ready;	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  reg  [31:0] pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
   always @(posedge clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     if (reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
-      pc <= 32'h80000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:40:19
-      reqSent <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:41:24
+      pc <= 32'h80000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
+      reqSent <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24
     end
     else begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
       if (io_pc_update_en)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
-        pc <= io_next_pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:40:19
-      reqSent <= _readBridge_io_req_ready & ~reqSent | ~io_pc_update_en & reqSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:18:26, :41:24, :43:26, :45:13, :49:34, :52:33, :53:13
+        pc <= io_next_pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
+      reqSent <= _readBridge_io_req_ready & ~reqSent | ~io_pc_update_en & reqSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:17:26, :34:24, :36:26, :38:13, :41:34, :44:{33,43}
     end
   end // always @(posedge)
-  AXI4LiteReadBridge readBridge (	// src/main/scala/mycpu/core/frontend/Fetch.scala:18:26
+  AXI4LiteReadBridge readBridge (	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
     .clock                (clock),
     .reset                (reset),
     .io_req_ready         (_readBridge_io_req_ready),
-    .io_req_valid         (~reqSent),	// src/main/scala/mycpu/core/frontend/Fetch.scala:41:24, :49:34
-    .io_req_bits_addr     (pc),	// src/main/scala/mycpu/core/frontend/Fetch.scala:40:19
+    .io_req_valid         (~reqSent),	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24, :41:34
+    .io_req_bits_addr     (pc),	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
     .io_resp_ready        (io_out_ready),
     .io_resp_valid        (io_out_valid),
     .io_resp_bits_rdata   (io_out_bits_inst),
@@ -50,8 +50,8 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     .io_axi_r_valid       (io_axi_r_valid),
     .io_axi_r_bits_data   (io_axi_r_bits_data),
     .io_axi_r_bits_resp   (io_axi_r_bits_resp)
-  );	// src/main/scala/mycpu/core/frontend/Fetch.scala:18:26
-  assign io_out_bits_pc = pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :40:19
-  assign io_out_bits_dnpc = pc + 32'h4;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :40:19, :60:33
+  );	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  assign io_out_bits_pc = pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :33:19
+  assign io_out_bits_dnpc = pc + 32'h4;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :33:19, :49:33
 endmodule
 

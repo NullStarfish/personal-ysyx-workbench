@@ -8,15 +8,15 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:76:13
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/peripherals/Serial.scala:76:13
-    always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:10:7, :76:13
+module Serial_Verification();	// src/main/scala/mycpu/peripherals/Serial.scala:57:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/peripherals/Serial.scala:57:13
+    always @(posedge Serial.clock) begin	// src/main/scala/mycpu/peripherals/Serial.scala:9:7, :57:13
       if ((`PRINTF_COND_) & Serial.writeBridge_io_req_valid
-          & Serial.writeBridge_io_req_bits_addr[2:0] == 3'h0 & ~Serial.reset)	// src/main/scala/mycpu/peripherals/Serial.scala:10:7, :20:27, :55:23, :62:{17,26}, :76:13
+          & Serial.writeBridge_io_req_bits_addr[2:0] == 3'h0 & ~Serial.reset)	// src/main/scala/mycpu/peripherals/Serial.scala:9:7, :17:27, :45:23, :50:{17,26}, :57:13
         $fwrite(32'h80000002, "%c",
                 Serial.writeBridge_io_req_bits_wstrb[0]
                   ? Serial.writeBridge_io_req_bits_wdata[7:0]
-                  : 8'h0);	// src/main/scala/mycpu/peripherals/Serial.scala:20:27, :68:{30,38,50}, :76:13
+                  : 8'h0);	// src/main/scala/mycpu/peripherals/Serial.scala:17:27, :52:{12,20,32}, :57:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
 endmodule

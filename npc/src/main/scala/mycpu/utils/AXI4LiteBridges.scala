@@ -3,23 +3,20 @@ package mycpu.utils
 import chisel3._
 import chisel3.util._
 import mycpu.common._
-import mycpu.utils._
-
-
 
 // ==============================================================================
-// Read Bridge (使用 AXI4LiteReadBundle)
+// Read Bridge
 // ==============================================================================
 class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends Module {
+  // 计算 Size (比如 32bit -> 2^2=4 bytes -> size=2)
+  private val sizeConst = log2Ceil(dataWidth / 8).U(3.W)
+
   val io = IO(new Bundle {
     val req  = Flipped(Decoupled(new SimpleReadReq(addrWidth)))
     val resp = Decoupled(new SimpleReadBusResp(dataWidth))
-    // [关键] 只有读通道，没有多余引脚
-    val axi  = new AXI4LiteReadBundle(addrWidth, dataWidth)
+    // 使用拆分后的 ReadOnly Bundle
+    val axi  = new AXI4ReadOnly(idWidth = 1, addrWidth, dataWidth)
   })
-  
-
-
 
   object State extends ChiselEnum { val sIdle, sReadAddr, sReadData = Value }
   val state = RegInit(State.sIdle)
@@ -28,43 +25,37 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
   val respQueue = Module(new Queue(new SimpleReadBusResp(dataWidth), 1))
   io.resp <> respQueue.io.deq
 
-  // Default Outputs
+  // ---------------------------------------------
+  // Default Outputs (AXI Full Logic for Lite)
+  // ---------------------------------------------
   io.req.ready           := false.B
+  
+  // AR Channel Defaults
   io.axi.ar.valid        := false.B
+  io.axi.ar.bits.id      := 0.U
   io.axi.ar.bits.addr    := addrReg
-  io.axi.ar.bits.prot    := 0.U
+  io.axi.ar.bits.len     := 0.U                      // Burst Length = 1
+  io.axi.ar.bits.size    := sizeConst                // Full Width
+  io.axi.ar.bits.burst   := AXI4Parameters.BURST_INCR
+  io.axi.ar.bits.lock    := false.B
+  io.axi.ar.bits.cache   := AXI4Parameters.CACHE_DEVICE_NOBUF
+  io.axi.ar.bits.prot    := AXI4Parameters.PROT_PRIVILEGED
+  io.axi.ar.bits.qos     := 0.U
+
+  // R Channel Defaults
   io.axi.r.ready         := false.B
+  
   respQueue.io.enq.valid := false.B
   respQueue.io.enq.bits  := DontCare
 
+  // Debug Prints
+  when(io.req.fire) { Debug.log("[AXIRead] Req: addr=%x\n", io.req.bits.addr) }
+  when(io.axi.ar.fire) { Debug.log("[AXIRead] AR Sent\n") }
+  when(io.resp.fire) { Debug.log("[AXIRead] Resp Done: data=%x\n", io.resp.bits.rdata) }
 
-  when(io.req.fire) {
-    Debug.log("[DEBUG] [AXIReadBridge]: req received: raddr: %x\n ", io.req.bits.addr)
-  }
-  when(io.axi.ar.fire) {
-    Debug.log("[DEBUG] [AXIReadBridge]: axi ar successfully sent\n")
-  }
-  when(io.axi.r.fire) {
-    Debug.log("[DEBUG] [AXIReadBridge]: axi r received: rdata: %x, resp: %x\n", io.axi.r.bits.data, io.axi.r.bits.resp)
-  }
-  when(io.resp.fire) {
-    Debug.log("[DEBUG] [AXIReadBridge]: resp successfully sent: data: %x, isError: %x\n", io.resp.bits.rdata, io.resp.bits.isError)
-  }
-
-  //施工：
-  //我们需要把两个通道事务改为可以并发的：
-
-  //respQueue: 回复队列，对于bridge端，我们enq resp ,使用侧发出ready请求，对deq侧进行拿去
-
-
-  //req，我们需要对deq端进行操作，发出ready进行拿取。并没有使用Queue来存储待处理指令，因为流水线是全阻塞的
-
-
-
-  //说并行处理：假如req valid请求到达，而且ar.valid和r.valid同时到达，就可以直接进入handle模式
-  //假如仅仅只有arvalid，我们呢还需要等待一个r.valid
-
-  //两个区别在于，我们需要存储addr, 
+  // ---------------------------------------------
+  // FSM
+  // ---------------------------------------------
   switch(state) {
     is(State.sIdle) {
       io.req.ready := true.B
@@ -75,13 +66,16 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
     }
     is(State.sReadAddr) {
       io.axi.ar.valid := true.B
-      io.axi.r.ready := true.B
+      // 优化：如果地址握手且数据没来，进 sReadData；如果同时来，直接完成
+      // 这里支持 outstanding 但逻辑简单化处理
+      io.axi.r.ready := true.B // 允许 AR 和 R 在同一拍 (极少数 Slave 支持，但协议允许)
 
       when(io.axi.ar.fire) { 
         when(io.axi.r.fire) {
+          // Address accepted AND Data arrived same cycle
           respQueue.io.enq.valid        := true.B
           respQueue.io.enq.bits.rdata   := io.axi.r.bits.data
-          respQueue.io.enq.bits.isError := (io.axi.r.bits.resp =/= 0.U)
+          respQueue.io.enq.bits.isError := (io.axi.r.bits.resp =/= AXI4Parameters.RESP_OKAY)
           when(respQueue.io.enq.ready) { state := State.sIdle }
         }.otherwise {
           state := State.sReadData
@@ -90,54 +84,27 @@ class AXI4LiteReadBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends M
     }
     is(State.sReadData) {
       io.axi.r.ready := true.B
-      when(io.axi.r.valid) {
-        respQueue.io.enq.valid      := true.B
-        respQueue.io.enq.bits.rdata := io.axi.r.bits.data
-        respQueue.io.enq.bits.isError := (io.axi.r.bits.resp =/= 0.U)
+      when(io.axi.r.fire) {
+        respQueue.io.enq.valid        := true.B
+        respQueue.io.enq.bits.rdata   := io.axi.r.bits.data
+        respQueue.io.enq.bits.isError := (io.axi.r.bits.resp =/= AXI4Parameters.RESP_OKAY)
         when(respQueue.io.enq.ready) { state := State.sIdle }
       }
     }
   }
-
-
-
-
 }
 
-
-
-
-
-
-
-
-
 // ==============================================================================
-// Write Bridge (使用 AXI4LiteWriteBundle)
+// Write Bridge
 // ==============================================================================
 class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends Module {
+  private val sizeConst = log2Ceil(dataWidth / 8).U(3.W)
+
   val io = IO(new Bundle {
     val req  = Flipped(Decoupled(new SimpleWriteReq(addrWidth, dataWidth)))
-    val resp = Decoupled(new SimpleWriteBusResp()) // True = Error
-    val axi  = new AXI4LiteWriteBundle(addrWidth, dataWidth)
+    val resp = Decoupled(new SimpleWriteBusResp(dataWidth))
+    val axi  = new AXI4WriteOnly(idWidth = 1, addrWidth, dataWidth)
   })
-
-  when(io.req.fire) {
-    Debug.log("[DEBUG] [AXIWriteBridge]: req received: waddr: %x wdata: %x, wstrb: %x\n ", io.req.bits.addr, io.req.bits.wdata, io.req.bits.wstrb)
-  }
-  when(io.axi.aw.fire) {
-    Debug.log("[DEBUG] [AXIWriteBridge]: axi aw successfully sent\n")
-  }
-  when(io.axi.w.fire) {
-    Debug.log("[DEBUG] [AXIWriteBridge]: axi w sent: wdata: %x, wstrb: %x\n", io.axi.w.bits.data, io.axi.w.bits.strb)
-  }
-  when(io.axi.b.fire) {
-    Debug.log("[DEBUG] [AXIWriteBridge]: axi b successfully received: resp: %x\n", io.axi.b.bits.resp)
-  }
-  when(io.resp.fire) {
-    Debug.log("[DEBUG] [AXIWriteBridge]: resp sent: isError: %x\n", io.resp.bits.isError)
-  }
-
 
   object State extends ChiselEnum { val sIdle, sIssue, sWaitAXIResp, sReplyLSU = Value }
   val state = RegInit(State.sIdle)
@@ -146,21 +113,40 @@ class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends 
   val wSent  = RegInit(false.B)
   val bError = Reg(Bool())
 
+  // ---------------------------------------------
   // Default Outputs
+  // ---------------------------------------------
   io.req.ready        := false.B
   io.resp.valid       := false.B
-  io.resp.bits.isError        := bError
+  io.resp.bits.isError := bError
   
+  // AW Channel
   io.axi.aw.valid     := false.B
+  io.axi.aw.bits.id   := 0.U
   io.axi.aw.bits.addr := reqReg.addr
-  io.axi.aw.bits.prot := 0.U
+  io.axi.aw.bits.len  := 0.U
+  io.axi.aw.bits.size := sizeConst
+  io.axi.aw.bits.burst:= AXI4Parameters.BURST_INCR
+  io.axi.aw.bits.lock := false.B
+  io.axi.aw.bits.cache:= AXI4Parameters.CACHE_DEVICE_NOBUF
+  io.axi.aw.bits.prot := AXI4Parameters.PROT_PRIVILEGED
+  io.axi.aw.bits.qos  := 0.U
   
+  // W Channel
   io.axi.w.valid      := false.B
   io.axi.w.bits.data  := reqReg.wdata
   io.axi.w.bits.strb  := reqReg.wstrb
+  io.axi.w.bits.last  := true.B // Lite 总是 Last
   
+  // B Channel
   io.axi.b.ready      := false.B
 
+  when(io.req.fire) { Debug.log("[AXIWrite] Req: addr=%x data=%x\n", io.req.bits.addr, io.req.bits.wdata) }
+  when(io.axi.b.fire) { Debug.log("[AXIWrite] B Resp received\n") }
+
+  // ---------------------------------------------
+  // FSM
+  // ---------------------------------------------
   switch(state) {
     is(State.sIdle) {
       io.req.ready := true.B
@@ -171,29 +157,25 @@ class AXI4LiteWriteBridge(addrWidth: Int = XLEN, dataWidth: Int = XLEN) extends 
       }
     }
     is(State.sIssue) {
-      // 发送 AW
+      // 并行发送 AW 和 W
       when(!awSent) { io.axi.aw.valid := true.B }
       when(io.axi.aw.fire) { awSent := true.B }
       
-      // 发送 W
       when(!wSent) { io.axi.w.valid := true.B }
       when(io.axi.w.fire) { wSent := true.B }
 
-      // 两个都发完了，进入等待响应状态
       when((awSent || io.axi.aw.fire) && (wSent || io.axi.w.fire)) {
         state := State.sWaitAXIResp
       }
     }
     is(State.sWaitAXIResp) {
-      // 这里的握手必须非常干净，只跟 AXI 有关
       io.axi.b.ready := true.B
       when(io.axi.b.fire) {
-        bError := (io.axi.b.bits.resp =/= 0.U)
+        bError := (io.axi.b.bits.resp =/= AXI4Parameters.RESP_OKAY)
         state  := State.sReplyLSU
       }
     }
     is(State.sReplyLSU) {
-      // 这一步只跟 LSU 有关
       io.resp.valid := true.B
       when(io.resp.ready) {
         state := State.sIdle

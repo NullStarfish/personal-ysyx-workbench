@@ -9,13 +9,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
   input         io_imem_r_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
   input  [31:0] io_imem_r_bits_data,	// src/main/scala/mycpu/core/Core.scala:12:14
   input  [1:0]  io_imem_r_bits_resp,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input         io_dmem_ar_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
-  output        io_dmem_ar_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
-  output [31:0] io_dmem_ar_bits_addr,	// src/main/scala/mycpu/core/Core.scala:12:14
-  output        io_dmem_r_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input         io_dmem_r_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input  [31:0] io_dmem_r_bits_data,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input  [1:0]  io_dmem_r_bits_resp,	// src/main/scala/mycpu/core/Core.scala:12:14
   input         io_dmem_aw_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
   output        io_dmem_aw_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
   output [31:0] io_dmem_aw_bits_addr,	// src/main/scala/mycpu/core/Core.scala:12:14
@@ -24,7 +17,14 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
   output [31:0] io_dmem_w_bits_data,	// src/main/scala/mycpu/core/Core.scala:12:14
   output [3:0]  io_dmem_w_bits_strb,	// src/main/scala/mycpu/core/Core.scala:12:14
   output        io_dmem_b_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
-  input         io_dmem_b_valid	// src/main/scala/mycpu/core/Core.scala:12:14
+  input         io_dmem_b_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
+                io_dmem_ar_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
+  output        io_dmem_ar_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
+  output [31:0] io_dmem_ar_bits_addr,	// src/main/scala/mycpu/core/Core.scala:12:14
+  output        io_dmem_r_ready,	// src/main/scala/mycpu/core/Core.scala:12:14
+  input         io_dmem_r_valid,	// src/main/scala/mycpu/core/Core.scala:12:14
+  input  [31:0] io_dmem_r_bits_data,	// src/main/scala/mycpu/core/Core.scala:12:14
+  input  [1:0]  io_dmem_r_bits_resp	// src/main/scala/mycpu/core/Core.scala:12:14
 );
 
   wire        _q4_io_enq_ready;	// src/main/scala/mycpu/core/Core.scala:44:18
@@ -346,13 +346,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
     .io_out_bits_rdAddr        (_lsu_io_out_bits_rdAddr),
     .io_out_bits_regWen        (_lsu_io_out_bits_regWen),
     .io_out_bits_pcTarget      (_lsu_io_out_bits_pcTarget),
-    .io_axi_ar_ready           (io_dmem_ar_ready),
-    .io_axi_ar_valid           (io_dmem_ar_valid),
-    .io_axi_ar_bits_addr       (io_dmem_ar_bits_addr),
-    .io_axi_r_ready            (io_dmem_r_ready),
-    .io_axi_r_valid            (io_dmem_r_valid),
-    .io_axi_r_bits_data        (io_dmem_r_bits_data),
-    .io_axi_r_bits_resp        (io_dmem_r_bits_resp),
     .io_axi_aw_ready           (io_dmem_aw_ready),
     .io_axi_aw_valid           (io_dmem_aw_valid),
     .io_axi_aw_bits_addr       (io_dmem_aw_bits_addr),
@@ -361,7 +354,14 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:11:7
     .io_axi_w_bits_data        (io_dmem_w_bits_data),
     .io_axi_w_bits_strb        (io_dmem_w_bits_strb),
     .io_axi_b_ready            (io_dmem_b_ready),
-    .io_axi_b_valid            (io_dmem_b_valid)
+    .io_axi_b_valid            (io_dmem_b_valid),
+    .io_axi_ar_ready           (io_dmem_ar_ready),
+    .io_axi_ar_valid           (io_dmem_ar_valid),
+    .io_axi_ar_bits_addr       (io_dmem_ar_bits_addr),
+    .io_axi_r_ready            (io_dmem_r_ready),
+    .io_axi_r_valid            (io_dmem_r_valid),
+    .io_axi_r_bits_data        (io_dmem_r_bits_data),
+    .io_axi_r_bits_resp        (io_dmem_r_bits_resp)
   );	// src/main/scala/mycpu/core/Core.scala:20:23
   WriteBack wb (	// src/main/scala/mycpu/core/Core.scala:21:23
     .reset             (reset),

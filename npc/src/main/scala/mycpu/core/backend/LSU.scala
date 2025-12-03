@@ -10,40 +10,36 @@ class LSU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new ExecutePacket))
     val out = Decoupled(new MemoryPacket)
-    val axi = new AXI4LiteBundle(XLEN, XLEN) // 完整接口
+    val axi = new AXI4LiteBundle(XLEN, XLEN) // 统一接口
   })
 
   val readBridge  = Module(new AXI4LiteReadBridge(XLEN, XLEN))
   val writeBridge = Module(new AXI4LiteWriteBridge(XLEN, XLEN))
 
-  // ==============================================================================
-  // [魔法] 自动拆分并连接
-  // ==============================================================================
+  // [魔法拆分] 自动生成 rBus 和 wBus (类型为 AXI4ReadOnly / AXI4WriteOnly)
   val AXI4Split(rBus, wBus) = io.axi
 
-  // 直接连接，清爽干净！
+  // 一一对应连接
   readBridge.io.axi  <> rBus
   writeBridge.io.axi <> wBus
 
-  // ==============================================================================
-  // 核心业务逻辑
-  // ==============================================================================
+  // ... 剩余 LSU 逻辑保持不变 ...
   object State extends ChiselEnum { val sIdle, sWaitResp = Value }
   val state = RegInit(State.sIdle)
   val reqReg = Reg(new ExecutePacket)
-
-  // 辅助信号生成
+  
+  // (辅助逻辑略: wstrb/wdata生成)
   val inAddrOffset = io.in.bits.aluResult(1, 0)
   val inWstrb = WireDefault(0.U(4.W))
   val inWdata = WireDefault(0.U(XLEN.W))
-
+  // ... switch case for wstrb ...
   switch(io.in.bits.ctrl.memFunct3) {
     is(0.U) { inWstrb := "b0001".U << inAddrOffset; inWdata := io.in.bits.memWData(7,0) << (inAddrOffset << 3) } 
     is(1.U) { inWstrb := "b0011".U << inAddrOffset; inWdata := io.in.bits.memWData(15,0) << (inAddrOffset << 3) } 
     is(2.U) { inWstrb := "b1111".U;                  inWdata := io.in.bits.memWData } 
   }
 
-  // Bridge 输入配置
+  // Bridge Req 连接
   readBridge.io.req.valid       := false.B
   readBridge.io.req.bits.addr   := io.in.bits.aluResult
 
@@ -52,20 +48,7 @@ class LSU extends Module {
   writeBridge.io.req.bits.wdata := inWdata
   writeBridge.io.req.bits.wstrb := inWstrb
 
-
-  //DEBUG: Bridge请求debug信息
-  when(readBridge.io.req.fire) {
-    Debug.log("LSU : read req: addr: %x\n",readBridge.io.req.bits.addr)
-  }
-
-  when(writeBridge.io.req.fire) {
-    Debug.log("LSU : write req: addr: %x, data: %x, wstrb: %x\n", writeBridge.io.req.bits.addr, writeBridge.io.req.bits.wdata, writeBridge.io.req.bits.wstrb)
-  }
-
-
-
-
-  // 握手判断
+  // 握手逻辑
   val isMemRead  = io.in.bits.ctrl.memEn && !io.in.bits.ctrl.memWen
   val isMemWrite = io.in.bits.ctrl.memEn && io.in.bits.ctrl.memWen
   val isNonMem   = !io.in.bits.ctrl.memEn
@@ -91,26 +74,13 @@ class LSU extends Module {
       when (io.out.fire) { state := State.sIdle }
     }
   }
-
-  // 读数据后处理
-  val rawReadData = readBridge.io.resp.bits.rdata
-  val addrOffset  = reqReg.aluResult(1, 0)
-  val shiftAmount = addrOffset << 3 
-  val shiftedData = rawReadData >> shiftAmount
-  val finalLoadData = Wire(UInt(32.W))
-
-
-
-  when(readBridge.io.resp.fire) {
-    Debug.log("[DEBUG] [LSU] Read Resp: rdata: %x, isError: %x\n", readBridge.io.resp.bits.rdata, readBridge.io.resp.bits.isError)
-  }
-  when(writeBridge.io.resp.fire) {
-    Debug.log("[DEBUG] [LSU] Write Resp: isError: %x\n", writeBridge.io.resp.bits.isError)
-  }
-
-
   
-  finalLoadData := 0.U 
+  // 输出处理 (读取数据对齐等)
+  val rawReadData = readBridge.io.resp.bits.rdata
+  val finalLoadData = Wire(UInt(32.W))
+  val shiftedData = rawReadData >> (reqReg.aluResult(1, 0) << 3)
+  finalLoadData := 0.U
+  // ... switch case for load data ...
   switch(reqReg.ctrl.memFunct3) {
     is(0.U) { finalLoadData := Cat(Fill(24, shiftedData(7)), shiftedData(7,0)) }
     is(1.U) { finalLoadData := Cat(Fill(16, shiftedData(15)), shiftedData(15,0)) }
@@ -119,7 +89,6 @@ class LSU extends Module {
     is(5.U) { finalLoadData := shiftedData(15,0) }
   }
 
-  // 输出汇聚
   readBridge.io.resp.ready  := false.B
   writeBridge.io.resp.ready := false.B
 
@@ -131,13 +100,10 @@ class LSU extends Module {
   io.out.bits.wbData   := Mux(reqReg.ctrl.memEn && !reqReg.ctrl.memWen, finalLoadData, reqReg.aluResult)
 
   when (state === State.sWaitResp) {
-    val isMemReadOp  = reqReg.ctrl.memEn && !reqReg.ctrl.memWen
-    val isMemWriteOp = reqReg.ctrl.memEn && reqReg.ctrl.memWen
-    
-    when (isMemReadOp) {
+    when (reqReg.ctrl.memEn && !reqReg.ctrl.memWen) {
       io.out.valid := readBridge.io.resp.valid
       readBridge.io.resp.ready := io.out.ready
-    } .elsewhen (isMemWriteOp) {
+    } .elsewhen (reqReg.ctrl.memEn && reqReg.ctrl.memWen) {
       io.out.valid := writeBridge.io.resp.valid
       writeBridge.io.resp.ready := io.out.ready
     } .otherwise {
