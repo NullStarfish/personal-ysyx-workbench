@@ -10,7 +10,6 @@ class Top extends Module {
     val io = IO(new Bundle {})
 
     val core       = Module(new Core)
-    val memArbiter = Module(new SimpleAXIArbiter)
     val xbar       = Module(new Xbar(MemMap.devices))
     
     // 1. 实例化外设 (使用封装后的 Wrapper)
@@ -19,9 +18,8 @@ class Top extends Module {
     val clint  = Module(new CLINT)
 
     // 2. Core -> Arbiter -> Xbar
-    memArbiter.io.left <> core.io.imem
-    memArbiter.io.right <> core.io.dmem
-    xbar.io.in <> memArbiter.io.out
+
+    xbar.io.in <> core.io.master
 
     // 3. 极速连接外设 (核心优化点)
     // 定义一个辅助函数，或者直接写

@@ -5,15 +5,11 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
                 io_master_aw_ready,	// src/main/scala/mycpu/core/Core.scala:14:14
   output        io_master_aw_valid,	// src/main/scala/mycpu/core/Core.scala:14:14
   output [31:0] io_master_aw_bits_addr,	// src/main/scala/mycpu/core/Core.scala:14:14
-  output [2:0]  io_master_aw_bits_size,	// src/main/scala/mycpu/core/Core.scala:14:14
-  output [1:0]  io_master_aw_bits_burst,	// src/main/scala/mycpu/core/Core.scala:14:14
-  output [2:0]  io_master_aw_bits_prot,	// src/main/scala/mycpu/core/Core.scala:14:14
   input         io_master_w_ready,	// src/main/scala/mycpu/core/Core.scala:14:14
   output        io_master_w_valid,	// src/main/scala/mycpu/core/Core.scala:14:14
   output [31:0] io_master_w_bits_data,	// src/main/scala/mycpu/core/Core.scala:14:14
   output [3:0]  io_master_w_bits_strb,	// src/main/scala/mycpu/core/Core.scala:14:14
-  output        io_master_w_bits_last,	// src/main/scala/mycpu/core/Core.scala:14:14
-                io_master_b_ready,	// src/main/scala/mycpu/core/Core.scala:14:14
+  output        io_master_b_ready,	// src/main/scala/mycpu/core/Core.scala:14:14
   input         io_master_b_valid,	// src/main/scala/mycpu/core/Core.scala:14:14
                 io_master_ar_ready,	// src/main/scala/mycpu/core/Core.scala:14:14
   output        io_master_ar_valid,	// src/main/scala/mycpu/core/Core.scala:14:14
@@ -474,14 +470,10 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .io_out_aw_ready       (io_master_aw_ready),
     .io_out_aw_valid       (io_master_aw_valid),
     .io_out_aw_bits_addr   (io_master_aw_bits_addr),
-    .io_out_aw_bits_size   (io_master_aw_bits_size),
-    .io_out_aw_bits_burst  (io_master_aw_bits_burst),
-    .io_out_aw_bits_prot   (io_master_aw_bits_prot),
     .io_out_w_ready        (io_master_w_ready),
     .io_out_w_valid        (io_master_w_valid),
     .io_out_w_bits_data    (io_master_w_bits_data),
     .io_out_w_bits_strb    (io_master_w_bits_strb),
-    .io_out_w_bits_last    (io_master_w_bits_last),
     .io_out_b_ready        (io_master_b_ready),
     .io_out_b_valid        (io_master_b_valid),
     .io_out_ar_ready       (io_master_ar_ready),

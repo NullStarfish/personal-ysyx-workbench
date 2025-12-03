@@ -7,11 +7,12 @@ import mycpu.core.backend._
 import mycpu.core.bundles._
 import mycpu.core.components.SimState
 import mycpu.utils._
+import mycpu.MemMap
+import mycpu.peripherals.Xbar
 
 class Core extends Module {
   val io = IO(new Bundle {
-    val imem = new AXI4LiteBundle()
-    val dmem = new AXI4LiteBundle()
+  val master = new AXI4LiteBundle()
   })
 
   val fetch   = Module(new Fetch)
@@ -20,6 +21,11 @@ class Core extends Module {
   val lsu     = Module(new LSU)
   val wb      = Module(new WriteBack)
   val simState = Module(new SimState)
+  val arbiter  = Module(new SimpleAXIArbiter)
+
+
+
+
 
   // === 1. 构建流水线数据通路 (Pipeline/Chain) ===
   // 使用 Queue(1) 实现你期望的 "Ready 依赖" 和全解耦握手。
@@ -53,6 +59,18 @@ class Core extends Module {
   fetch.io.next_pc      := wb.io.debug_out.dnpc
   fetch.io.pc_update_en := wb.io.debug_valid 
 
+
+  val imem = Wire(new AXI4LiteBundle())
+  val dmem = Wire(new AXI4LiteBundle())
+  imem <> fetch.io.axi
+  dmem <> lsu.io.axi
+  arbiter.io.left <> imem
+  arbiter.io.right <> dmem
+  io.master <> arbiter.io.out
+
+
+
+
   // === 3. 其他连接 ===
   
   // 寄存器回写 (Forwarding 不需要在单周期模式下考虑，只要 WB 写完再 Fetch 下一条)
@@ -79,6 +97,5 @@ class Core extends Module {
   simState.io.mcause    := execute.io.debug_csrs.mcause
 
   // 内存接口连接
-  io.imem <> fetch.io.axi
-  io.dmem <> lsu.io.axi
+
 }
