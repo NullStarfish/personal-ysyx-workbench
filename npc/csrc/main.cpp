@@ -418,6 +418,7 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 }
 
 int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
     init_monitor(argc, argv);
     rl_catch_signals = 0;             
     signal(SIGINT, handle_sigint);  
