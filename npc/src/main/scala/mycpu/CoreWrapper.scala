@@ -15,8 +15,6 @@ class myCore extends Module {
   override val desiredName = "myCore"
 
   val io = IO(new Bundle {
-    val clock     = Input(Clock())
-    val reset     = Input(Bool())
     val interrupt = Input(Bool())
 
     // ---------------------------------------------------------
@@ -102,8 +100,8 @@ class myCore extends Module {
   // 实例化你的 Core
   val core = Module(new Core)
 
-  core.clock := io.clock
-  core.reset := io.reset
+  core.clock := clock
+  core.reset := reset
   // core.io.interrupt := io.interrupt // 如果未来支持中断请解开
 
   // ==============================================================================

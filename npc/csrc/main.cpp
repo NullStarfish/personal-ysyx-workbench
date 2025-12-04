@@ -3,10 +3,9 @@
 #include <ctime>
 #include <sys/types.h>
 #include <verilated.h>
-#include "VTop.h"
-
+#include "VysyxSoCFull.h"
 #include "svdpi.h" 
-#include "VTop__Dpi.h" // 确保包含 Verilator 生成的 DPI 头文件
+//#include "VTop__Dpi.h" // 确保包含 Verilator 生成的 DPI 头文件
 
 #include <cassert>
 #include <cstdio>
@@ -43,11 +42,11 @@ extern "C" {
 #endif
 }
 
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = 1048691; return ;}
 
 
-
-
-VTop* top_ptr = NULL;
+VysyxSoCFull* top_ptr = NULL;
 long long cycle_count = 0;
 long long instr_count = 0;
 
@@ -164,7 +163,7 @@ void init_verilator(int argc, char *argv[]) {
     pmem = (uint8_t*)malloc(PMEM_SIZE);
     assert(pmem);
     Verilated::commandArgs(argc, argv);
-    top_ptr = new VTop;
+    top_ptr = new VysyxSoCFull;
 }
 
 // [修复] 从全局状态读取 PC
@@ -237,8 +236,8 @@ void reset_cpu(int n) {
 void init_cpu() {
     // 简单起见，reset后直接认为启动，或者检查 PC 是否重置到 START_ADDR
     // while (get_pc_cpp() != 0x80000000) step_one_clk();
-    g_cpu_state.pc = 0x80000000;
-    g_cpu_state.dnpc = 0x80000000; // [新增]
+    g_cpu_state.pc = 0x20000000;
+    g_cpu_state.dnpc = 0x20000000; // [新增]
     g_cpu_state.csrs.mstatus = 0x1800; // Reset value
 }
 

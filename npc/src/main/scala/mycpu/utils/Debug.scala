@@ -4,7 +4,7 @@ import chisel3._
 
 object Debug {
   // 定义你的宏开关
-  val isDebug = false 
+  val isDebug = true 
 
   // [修改点]：将 args: Any* 改为 args: Data*
   def log(format: String, args: Bits*): Unit = {

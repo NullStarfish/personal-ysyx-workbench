@@ -24,7 +24,7 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
   reg  [31:0] pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
   always @(posedge clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     if (reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
-      pc <= 32'h80000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
+      pc <= 32'h20000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
       reqSent <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24
     end
     else begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7

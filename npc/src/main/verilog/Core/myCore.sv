@@ -2,8 +2,6 @@
 module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:13:7
   input         clock,	// src/main/scala/mycpu/CoreWrapper.scala:13:7
                 reset,	// src/main/scala/mycpu/CoreWrapper.scala:13:7
-                io_clock,	// src/main/scala/mycpu/CoreWrapper.scala:17:14
-                io_reset,	// src/main/scala/mycpu/CoreWrapper.scala:17:14
                 io_interrupt,	// src/main/scala/mycpu/CoreWrapper.scala:17:14
                 io_master_awready,	// src/main/scala/mycpu/CoreWrapper.scala:17:14
   output        io_master_awvalid,	// src/main/scala/mycpu/CoreWrapper.scala:17:14
@@ -65,9 +63,9 @@ module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:13:7
   output [3:0]  io_slave_rid	// src/main/scala/mycpu/CoreWrapper.scala:17:14
 );
 
-  Core core (	// src/main/scala/mycpu/CoreWrapper.scala:103:20
-    .clock                  (io_clock),
-    .reset                  (io_reset),
+  Core core (	// src/main/scala/mycpu/CoreWrapper.scala:101:20
+    .clock                  (clock),
+    .reset                  (reset),
     .io_master_aw_ready     (io_master_awready),
     .io_master_aw_valid     (io_master_awvalid),
     .io_master_aw_bits_addr (io_master_awaddr),
@@ -84,26 +82,26 @@ module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:13:7
     .io_master_r_valid      (io_master_rvalid),
     .io_master_r_bits_data  (io_master_rdata),
     .io_master_r_bits_resp  (io_master_rresp)
-  );	// src/main/scala/mycpu/CoreWrapper.scala:103:20
-  assign io_master_awid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
-  assign io_master_awlen = 8'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :120:21
-  assign io_master_awsize = 3'h2;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :121:21
-  assign io_master_awburst = 2'h1;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :122:21
+  );	// src/main/scala/mycpu/CoreWrapper.scala:101:20
+  assign io_master_awid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :117:21
+  assign io_master_awlen = 8'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :118:21
+  assign io_master_awsize = 3'h2;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
+  assign io_master_awburst = 2'h1;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :120:21
   assign io_master_wlast = 1'h1;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
-  assign io_master_arid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
-  assign io_master_arlen = 8'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :120:21
-  assign io_master_arsize = 3'h2;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :121:21
-  assign io_master_arburst = 2'h1;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :122:21
+  assign io_master_arid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :117:21
+  assign io_master_arlen = 8'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :118:21
+  assign io_master_arsize = 3'h2;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
+  assign io_master_arburst = 2'h1;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :120:21
   assign io_slave_awready = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
   assign io_slave_wready = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
   assign io_slave_bvalid = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
-  assign io_slave_bresp = 2'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :170:20
-  assign io_slave_bid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
+  assign io_slave_bresp = 2'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :168:20
+  assign io_slave_bid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :117:21
   assign io_slave_arready = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
   assign io_slave_rvalid = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
-  assign io_slave_rresp = 2'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :170:20
-  assign io_slave_rdata = 32'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :176:20
+  assign io_slave_rresp = 2'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :168:20
+  assign io_slave_rdata = 32'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :174:20
   assign io_slave_rlast = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7
-  assign io_slave_rid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :119:21
+  assign io_slave_rid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:13:7, :117:21
 endmodule
 

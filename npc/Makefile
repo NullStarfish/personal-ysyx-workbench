@@ -4,13 +4,13 @@
 SHELL := /bin/bash
 export NPC_HOME ?= $(shell pwd)
 export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
-
+export SOC_HOME ?= $(shell realpath $(NPC_HOME)/../ysyxSoC)
 
 
 
 
 TARGET := npc
-TOP_MODULE := Top
+TOP_MODULE := ysyxSoCFull
 IMG ?= ./load-store-riscv32e-npc.bin
 
 # Include Kconfig generated configuration and parent Makefile if they exist.
@@ -21,8 +21,11 @@ IMG ?= ./load-store-riscv32e-npc.bin
 # Directories and Source Files
 # =============================================================================
 VSRC_DIR := $(NPC_HOME)/src/main/verilog
+VPERIP_DIR := $(SOC_HOME)/perip
+VSOC_DIR := $(SOC_HOME)/build
+
 # [新增] 定义生成目录路径
-GEN_DIR  := $(VSRC_DIR)/gen
+GEN_DIR  := $(VSRC_DIR)/Core
 CSRC_DIR := $(NPC_HOME)/csrc
 BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir
@@ -47,7 +50,7 @@ VSRC_VERI := $(shell find $(GEN_DIR)/verification -name "*.sv")
 # 5. Main Source Files (Top.sv, generated modules, handwritten files)
 #    We use find on VSRC_DIR but filter out what we already found to avoid duplicates.
 #    Also explicitly look in GEN_DIR to ensure Top.sv is found.
-VSRC_ALL_RAW := $(shell find $(VSRC_DIR) -name "*.v" -o -name "*.sv")
+VSRC_ALL_RAW := $(shell find $(VSRC_DIR) $(VPERIP_DIR) $(VSOC_DIR) -name "*.v" -o -name "*.sv")
 VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
 
 # 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
@@ -60,7 +63,9 @@ VERILOG_INC_DIRS := $(VSRC_DIR)/include \
                     $(GEN_DIR)/verification \
                     $(GEN_DIR)/verification/assert \
                     $(GEN_DIR)/verification/assume \
-                    $(GEN_DIR)/verification/cover
+                    $(GEN_DIR)/verification/cover \
+					$(SOC_HOME)/perip/uart16550/rtl \
+					$(SOC_HOME)/perip/spi/rtl
 
 # Format them for Verilator (+incdir+path)
 VERILATOR_INC_FLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
@@ -169,7 +174,7 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 # 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
 $(VERILATED_LIB): $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
 	@echo "### Running Verilator... ###"
-	verilator --cc --sv -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
+	verilator --cc --sv --timescale "1ns/1ns" --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INC_FLAGS) \
 		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
 	@echo "### Compiling Verilated library... ###"
