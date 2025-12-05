@@ -20,3 +20,45 @@
 2025.12.04 11:24:32 INFO  no build target found for /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/SoC.scala. Using presentation compiler with project's scala-library version: 3.3.6
 2025.12.04 11:24:33 INFO  no build target found for /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/SoC.scala. Using presentation compiler with project's scala-library version: 3.3.6
 2025.12.04 11:24:41 INFO  no build target found for /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/SoC.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.12.04 11:32:41 INFO  Shutting down server
+2025.12.04 11:32:41 INFO  shutting down Metals
+2025.12.04 11:32:41 INFO  Exiting server
+2025.12.04 22:25:23 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.04 22:25:25 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.04 22:25:25 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.2.
+2025.12.04 22:25:26 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.04 23:00:34 INFO  Shutting down server
+2025.12.04 23:00:34 INFO  shutting down Metals
+2025.12.04 23:00:34 INFO  Exiting server
+2025.12.05 10:12:31 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.05 10:12:32 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.05 10:12:32 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.3.
+2025.12.05 10:12:33 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.05 10:20:15 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.05 10:20:16 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.05 10:20:16 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.3.
+2025.12.05 10:20:16 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+12月 05, 2025 10:50:49 上午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+2025.12.05 13:19:06 INFO  Shutting down server
+2025.12.05 13:19:06 INFO  shutting down Metals
+2025.12.05 13:19:06 INFO  Exiting server
+2025.12.05 13:19:06 ERROR Unexpected error initializing server: 
+org.eclipse.lsp4j.jsonrpc.ResponseErrorException: Request window/showMessageRequest failed with message: Canceled
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleResponse(RemoteEndpoint.java:220)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:204)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:185)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:114)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+
+2025.12.05 13:31:08 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.05 13:31:09 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.05 13:31:09 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.3.
+2025.12.05 13:31:10 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+12月 05, 2025 1:31:10 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
