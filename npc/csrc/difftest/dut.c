@@ -69,8 +69,8 @@ void init_difftest(char *ref_so_file, long img_size) {
   ref_difftest_init(0);
 
   uint8_t *guest_mem = (uint8_t*)malloc(img_size);
-  pmem_read_chunk(0x80000000, guest_mem, img_size);
-  ref_difftest_memcpy(0x80000000, guest_mem, img_size, DIFFTEST_TO_REF);
+  pmem_read_chunk(0x20000000, guest_mem, img_size);
+  ref_difftest_memcpy(0x20000000, guest_mem, img_size, DIFFTEST_TO_REF);
   free(guest_mem);
 
   riscv32_CPU_state dut_regs;
