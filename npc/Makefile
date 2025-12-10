@@ -11,7 +11,7 @@ export SOC_HOME ?= $(shell realpath $(NPC_HOME)/../ysyxSoC)
 
 TARGET := npc
 TOP_MODULE := ysyxSoCFull
-IMG ?= ./load-store-riscv32e-npc.bin
+IMG ?= ./dummy-riscv32e-ysyxsoc.bin
 
 # Include Kconfig generated configuration and parent Makefile if they exist.
 -include .config
@@ -212,7 +212,7 @@ run:
 	$(call git_commit, "sim RTL")
 	$(MAKE) npc
 	@echo "### Starting NPC Simulation (config from menuconfig) ###"
-	./$(TARGET) -l log.txt --ftrace=load-store-riscv32e-npc.elf $(IMG)
+	./$(TARGET) -l log.txt  $(IMG)
 
 rundiff: npc
 	$(call git_commit, "sim RTL")

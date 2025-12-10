@@ -44,7 +44,7 @@ extern "C" {
 
 /*temp loader*/
 #define MEM_SIZE (1024 * 1024) 
-const char *filename = "char-test.bin";
+//const char *filename = "char-test.bin";
 
 
 uint8_t *ram = (uint8_t *)malloc(MEM_SIZE);
@@ -54,16 +54,7 @@ uint8_t *ram = (uint8_t *)malloc(MEM_SIZE);
 
 /////////////////
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) { 
-    int pc_offset = addr - 0x20000000L;
-    uint32_t inst = 
-    (uint32_t)ram[pc_offset + 0] |
-    (uint32_t)ram[pc_offset + 1] << 8  |
-    (uint32_t)ram[pc_offset + 2] << 16 |
-    (uint32_t)ram[pc_offset + 3] << 24;
-    *data = inst;
-}
+
 
 
 VysyxSoCFull* top_ptr = NULL;
@@ -129,9 +120,22 @@ extern "C" void ebreak() {
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
 static const long PMEM_SIZE = 0x70000000; // 128MB
-static const long PMEM_BASE = 0x80000000;
+static const long PMEM_BASE = 0x20000000L;
 
 static long last_pc = -1;
+
+
+
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { 
+    int pc_offset = addr - 0x20000000L;
+    uint32_t inst = 
+    (uint32_t)pmem[pc_offset + 0] |
+    (uint32_t)pmem[pc_offset + 1] << 8  |
+    (uint32_t)pmem[pc_offset + 2] << 16 |
+    (uint32_t)pmem[pc_offset + 3] << 24;
+    *data = inst;
+}
 
 void print_stats() {
     printf("\nExecution Statistics:\n");
@@ -439,44 +443,7 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
 
 int main(int argc, char** argv) {
-/////////////tmep loader
-    FILE *fp = fopen(filename, "rb");
-    if (!fp) {
-        perror("无法打开文件");
-        return 1;
-    }
 
-    // 1. 获取文件大小
-    fseek(fp, 0, SEEK_END);
-    long filesize = ftell(fp);
-    rewind(fp);
-
-    printf("文件大小: %ld 字节\n", filesize);
-
-    // 2. 准备模拟内存 (使用 uint8_t 数组)
-
-    if (!ram) {
-        printf("内存分配失败\n");
-        fclose(fp);
-        return 1;
-    }
-    
-    // 初始化内存为 0
-    // (通常不需要，但为了仿真严谨性建议做)
-    for(int i=0; i< MEM_SIZE; i++) ram[i] = 0;
-
-    // 3. 将文件加载到内存中
-    // 注意：fread 读取的是字节流，这模拟了 DMA 或 Bootloader 将代码搬运到 RAM 的过程
-    size_t result = fread(ram, 1, filesize, fp);
-    if (result != filesize) {
-        printf("读取错误\n");
-    }
-    fclose(fp);
-
-    printf("代码加载完成。开始模拟取指 (Fetch)...\n\n");
-
-
-////////////////////////////////
 
 
     Verilated::commandArgs(argc, argv);

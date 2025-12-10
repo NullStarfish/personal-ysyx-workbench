@@ -1,0 +1,132 @@
+{
+    "version": "1.4.0",
+    "project": {
+        "name": "mill-build-",
+        "directory": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/mill-build",
+        "workspaceDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC",
+        "sources": [
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/build.sc",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/common.sc",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/common.sc",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/common.sc",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/hardfloat/common.sc",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/out/generateScriptSources.dest"
+        ],
+        "dependencies": [
+            
+        ],
+        "classpath": [
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/mill-build/compile-resources",
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/out/mill-launcher/0.12.4.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-runner-linenumbers_2.13/0.12.4/mill-runner-linenumbers_2.13-0.12.4.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-main-client/0.12.4/mill-main-client-0.12.4.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.15/scala-reflect-2.13.15.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/io/github/java-diff-utils/java-diff-utils/4.12/java-diff-utils-4.12.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/jline/jline/3.26.3/jline-3.26.3.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar",
+            "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/sourcecode_2.13/0.3.0/sourcecode_2.13-0.3.0.jar"
+        ],
+        "out": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/mill-build-",
+        "classesDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/mill-build-/classes",
+        "resources": [
+            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/mill-build/compile-resources"
+        ],
+        "scala": {
+            "organization": "org.scala-lang",
+            "name": "scala-compiler",
+            "version": "2.13.15",
+            "options": [
+                "-Xplugin:/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/scalac-mill-moduledefs-plugin_2.13.15/0.11.1/scalac-mill-moduledefs-plugin_2.13.15-0.11.1.jar",
+                "-Xplugin:/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-runner-linenumbers_2.13/0.12.4/mill-runner-linenumbers_2.13-0.12.4.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-main-client/0.12.4/mill-main-client-0.12.4.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.15/scala-reflect-2.13.15.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/io/github/java-diff-utils/java-diff-utils/4.12/java-diff-utils-4.12.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/jline/jline/3.26.3/jline-3.26.3.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar,/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/sourcecode_2.13/0.3.0/sourcecode_2.13-0.3.0.jar",
+                "-deprecation",
+                "-Xplugin-require:mill-linenumber-plugin",
+                "-Xplugin-require:auto-override-plugin"
+            ],
+            "jars": [
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.15/scala-reflect-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar"
+            ]
+        },
+        "java": {
+            "options": [
+                
+            ]
+        },
+        "platform": {
+            "name": "jvm",
+            "config": {
+                "home": "/usr/lib/jvm/java-21-openjdk-amd64",
+                "options": [
+                    "-Duser.dir=/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC"
+                ]
+            },
+            "mainClass": [
+                
+            ],
+            "classpath": [
+                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/mill-build-/classes",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-contrib-bloop_2.13/0.12.4/mill-contrib-bloop_2.13-0.12.4.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/ch/epfl/scala/bloop-config_2.13/1.5.5/bloop-config_2.13-1.5.5.jar",
+                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/out/mill-launcher/0.12.4.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-runner-linenumbers_2.13/0.12.4/mill-runner-linenumbers_2.13-0.12.4.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-compiler/2.13.15/scala-compiler-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-main-client/0.12.4/mill-main-client-0.12.4.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.15/scala-reflect-2.13.15.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/io/github/java-diff-utils/java-diff-utils/4.12/java-diff-utils-4.12.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/jline/jline/3.26.3/jline-3.26.3.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/sourcecode_2.13/0.3.0/sourcecode_2.13-0.3.0.jar"
+            ],
+            "resources": [
+                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/mill-build/compile-resources"
+            ]
+        },
+        "resolution": {
+            "modules": [
+                {
+                    "organization": "org.scala-lang",
+                    "name": "scala-library",
+                    "version": "2.13.15",
+                    "artifacts": [
+                        {
+                            "name": "scala-library",
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15.jar"
+                        },
+                        {
+                            "name": "scala-library",
+                            "classifier": "sources",
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "com.lihaoyi",
+                    "name": "mill-moduledefs_2.13",
+                    "version": "0.11.1",
+                    "artifacts": [
+                        {
+                            "name": "mill-moduledefs_2.13",
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1.jar"
+                        },
+                        {
+                            "name": "mill-moduledefs_2.13",
+                            "classifier": "sources",
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar"
+                        }
+                    ]
+                }
+            ]
+        },
+        "tags": [
+            "library"
+        ]
+    }
+}
