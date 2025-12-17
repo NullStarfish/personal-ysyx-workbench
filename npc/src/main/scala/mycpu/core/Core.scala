@@ -69,6 +69,9 @@ class Core extends Module {
   io.master <> arbiter.io.out
 
 
+  //temp : 区分4bytes aligned的perip和其他直接寻址的外设：默认都是4bytes aligned
+  
+
 
 
   // === 3. 其他连接 ===

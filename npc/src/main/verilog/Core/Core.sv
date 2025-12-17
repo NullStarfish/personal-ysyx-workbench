@@ -434,7 +434,7 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
         _decode_io_debug_regs_3,
         _decode_io_debug_regs_2,
         _decode_io_debug_regs_1,
-        _decode_io_debug_regs_0}),	// src/main/scala/mycpu/core/Core.scala:19:23, :93:49
+        _decode_io_debug_regs_0}),	// src/main/scala/mycpu/core/Core.scala:19:23, :96:49
     .mtvec     (_execute_io_debug_csrs_mtvec),	// src/main/scala/mycpu/core/Core.scala:20:23
     .mepc      (_execute_io_debug_csrs_mepc),	// src/main/scala/mycpu/core/Core.scala:20:23
     .mstatus   (_execute_io_debug_csrs_mstatus),	// src/main/scala/mycpu/core/Core.scala:20:23

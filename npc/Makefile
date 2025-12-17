@@ -174,7 +174,7 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 # 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
 $(VERILATED_LIB): $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
 	@echo "### Running Verilator... ###"
-	verilator --cc --sv --timescale "1ns/1ns" --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
+	verilator --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INC_FLAGS) \
 		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
 	@echo "### Compiling Verilated library... ###"

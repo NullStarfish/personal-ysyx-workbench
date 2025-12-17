@@ -5,6 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.utils._
+import os.read
 
 class LSU extends Module {
   val io = IO(new Bundle {
@@ -29,21 +30,31 @@ class LSU extends Module {
   val reqReg = Reg(new ExecutePacket)
   
   // (辅助逻辑略: wstrb/wdata生成)
+  //temp，移到core外面
+
+  
   val inAddrOffset = io.in.bits.aluResult(1, 0)
   val inWstrb = WireDefault(0.U(4.W))
   val inWdata = WireDefault(0.U(XLEN.W))
   // ... switch case for wstrb ...
+
   switch(io.in.bits.ctrl.memFunct3) {
     is(0.U) { inWstrb := "b0001".U << inAddrOffset; inWdata := io.in.bits.memWData(7,0) << (inAddrOffset << 3) } 
     is(1.U) { inWstrb := "b0011".U << inAddrOffset; inWdata := io.in.bits.memWData(15,0) << (inAddrOffset << 3) } 
     is(2.U) { inWstrb := "b1111".U;                  inWdata := io.in.bits.memWData } 
   }
+  when(writeBridge.io.req.valid) {
+    Debug.log("[DEBUG] [LSU] [[[[[[[[[[[CURRENT]]]]]]]]]]]] write addr sent: %x, inWdata: %x, inWstrb: %x. pc: %x, original data: %x\n", io.in.bits.aluResult, inWdata, inWstrb, io.in.bits.pc, io.in.bits.memWData)
+  }
+
 
   // Bridge Req 连接
   readBridge.io.req.valid       := false.B
   readBridge.io.req.bits.addr   := io.in.bits.aluResult
+  //readBridge.io.req.bits.addr   := Cat(io.in.bits.aluResult(XLEN - 1, 2), "b00".U(2.W))
 
   writeBridge.io.req.valid      := false.B
+  //writeBridge.io.req.bits.addr  := Cat(io.in.bits.aluResult(XLEN -1, 2), "b00".U(2.W))
   writeBridge.io.req.bits.addr  := io.in.bits.aluResult
   writeBridge.io.req.bits.wdata := inWdata
   writeBridge.io.req.bits.wstrb := inWstrb
@@ -81,6 +92,13 @@ class LSU extends Module {
   val shiftedData = rawReadData >> (reqReg.aluResult(1, 0) << 3)
   finalLoadData := 0.U
   // ... switch case for load data ...
+
+  when(readBridge.io.resp.valid) {
+    Debug.log("[DEBUG] [LSU] [[[[[[[[[[[CURRENT]]]]]]]]]]]] read addr sent: %x, rdata: %x, read processed: %x. pc: %x,", io.in.bits.aluResult, readBridge.io.resp.bits.rdata, finalLoadData, io.in.bits.pc)
+  }
+
+
+
   switch(reqReg.ctrl.memFunct3) {
     is(0.U) { finalLoadData := Cat(Fill(24, shiftedData(7)), shiftedData(7,0)) }
     is(1.U) { finalLoadData := Cat(Fill(16, shiftedData(15)), shiftedData(15,0)) }

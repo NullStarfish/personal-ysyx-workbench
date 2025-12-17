@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import mycpu.core.Core
+import mycpu.utils._
 import mycpu.utils.AXI4Parameters
 import _root_.circt.stage.ChiselStage
 
@@ -174,6 +175,9 @@ class myCore extends Module {
   io.slave_rdata   := 0.U
   io.slave_rlast   := false.B
   io.slave_rid     := 0.U
+  when(io.master_awready && io.master_awvalid) {
+    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]: waddr: %x\n", io.master_awaddr)
+  }
 }
 
 // ==============================================================================
