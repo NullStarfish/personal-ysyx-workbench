@@ -57,14 +57,7 @@ module uart_top_apb (
      reg_dat8_w_reg <= reg_dat8_w;
    end
 
-   always @ (posedge clock) begin
-    if(in_pwrite) begin
-      $display("in_paddr: %x, in_pwdata: %x", in_paddr, in_pwdata);
-    end
-    // else if(in_paddr != 0) begin
-    //   $display("in_paddr: %x, rdata: %x", in_paddr, in_prdata);
-    // end
-   end
+
    //--------------------------------------------------------
    // Registers
    // As shown below reg_dat_i should be stable

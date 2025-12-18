@@ -33,7 +33,7 @@ static bool init_uart = false;
 void putch_blocking(char ch) {
     // 1. 一直等待，直到发送保持寄存器为空 (FIFO Empty)
     // 如果卡在这里，说明波特率设置错误或时钟未使能
-    while ((inb(SERIAL_PORT + 5) & UART_LSR_THRE) == 0 && (inb(SERIAL_PORT + 5) & 0x40) == 0 );
+    while ((inb(SERIAL_PORT + 5) & UART_LSR_THRE) == 0  );
     
     // 2. 发送数据
     outb(SERIAL_PORT, ch);

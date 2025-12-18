@@ -1074,3 +1074,22 @@ Caused by: java.io.IOException: error=2, 没有那个文件或目录
 信息: Unsupported notification method: $/setTrace
 12月 17, 2025 3:53:42 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 信息: Unsupported notification method: $/setTrace
+2025.12.17 17:09:39 INFO  Shutting down server
+2025.12.17 17:09:39 INFO  shutting down Metals
+2025.12.17 17:09:39 INFO  Shut down connection with build server.
+2025.12.17 17:09:39 INFO  Exiting server
+2025.12.18 12:13:20 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.18 12:13:21 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.18 12:13:21 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.2.
+2025.12.18 12:13:22 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.18 12:13:22 INFO  Attempting to connect to the build server...
+2025.12.18 12:13:22 INFO  Found a Bloop server running
+2025.12.18 12:13:22 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.18 12:13:22 INFO  time: Connected to build server in 0.72s
+2025.12.18 12:13:22 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.18 12:13:22 INFO  time: Imported build in 0.17s
+2025.12.18 12:13:23 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.18 12:13:27 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.18 12:13:27 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_12-13-27-163.md")
+2025.12.18 12:13:27 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.18 12:13:27 INFO  time: indexed workspace in 4.41s

@@ -7,6 +7,7 @@ package object common {
   // === 全局配置 ===
   val XLEN = 32
   val START_ADDR = 0x20000000L
+  val AXI_ID_WIDTH = 3
 
   def XLenU = UInt(XLEN.W)
 

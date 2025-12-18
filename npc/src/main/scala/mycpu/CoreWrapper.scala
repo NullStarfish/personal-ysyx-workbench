@@ -111,54 +111,52 @@ class myCore extends Module {
   
   // --- AW Channel (Output) ---
   io.master_awvalid := core.io.master.aw.valid
-  io.master_awaddr  := core.io.master.aw.bits.addr
   core.io.master.aw.ready := io.master_awready
-  
-  // 适配 Lite 缺少的信号
-  io.master_awid    := 0.U           // 固定 ID = 0
-  io.master_awlen   := 0.U           // 固定 1 Beat
-  io.master_awsize  := "b010".U      // 固定 4 Bytes
-  io.master_awburst := 1.U           // INCR
+
+  io.master_awaddr  := core.io.master.aw.bits.addr
+  io.master_awid    := core.io.master.aw.bits.id           // 固定 ID = 0
+  io.master_awlen   := core.io.master.aw.bits.len           // 固定 1 Beat
+  io.master_awsize  := core.io.master.aw.bits.size      // 固定 4 Bytes
+  io.master_awburst := core.io.master.aw.bits.burst          // INCR
+
 
   // --- W Channel (Output) ---
   io.master_wvalid  := core.io.master.w.valid
+  core.io.master.w.ready := io.master_wready
+
   io.master_wdata   := core.io.master.w.bits.data
   io.master_wstrb   := core.io.master.w.bits.strb
-  core.io.master.w.ready := io.master_wready
+  io.master_wlast   := core.io.master.w.bits.last
   
-  io.master_wlast   := true.B        // Lite 总是单拍
+
 
   // --- B Channel (Input) ---
   // [修复] 必须驱动 core.io.master.b 的所有输入信号
   core.io.master.b.valid     := io.master_bvalid
-  core.io.master.b.bits.resp := io.master_bresp
-  
-  // Core 内部 idWidth=1，外部 master_bid=4。只取低位或填 0。
-  // 因为我们发出的 awid=0，从机返回的 bid 也应该是 0，所以这里直接填 0 也是安全的。
-  // 或者：core.io.master.b.bits.id := io.master_bid(0)
-  core.io.master.b.bits.id   := 0.U 
-
   io.master_bready := core.io.master.b.ready
+  core.io.master.b.bits.resp := io.master_bresp
+  core.io.master.b.bits.id   := io.master_bid
+
+
 
   // --- AR Channel (Output) ---
   io.master_arvalid := core.io.master.ar.valid
-  io.master_araddr  := core.io.master.ar.bits.addr
   core.io.master.ar.ready := io.master_arready
-  
-  io.master_arid    := 0.U
-  io.master_arlen   := 0.U
-  io.master_arsize  := "b010".U
-  io.master_arburst := 1.U
+  io.master_araddr  := core.io.master.ar.bits.addr
+  io.master_arid    := core.io.master.ar.bits.id
+  io.master_arlen   := core.io.master.ar.bits.len
+  io.master_arsize  := core.io.master.ar.bits.size
+  io.master_arburst := core.io.master.ar.bits.burst
 
   // --- R Channel (Input) ---
-  // [修复] 必须驱动 core.io.master.r 的所有输入信号
   core.io.master.r.valid     := io.master_rvalid
+  io.master_rready := core.io.master.r.ready
   core.io.master.r.bits.data := io.master_rdata
   core.io.master.r.bits.resp := io.master_rresp
   core.io.master.r.bits.last := io.master_rlast
-  core.io.master.r.bits.id   := 0.U // 同上，连接到 Core 内部 ID 端口
+  core.io.master.r.bits.id   := io.master_rid
 
-  io.master_rready := core.io.master.r.ready
+
 
   // ==============================================================================
   // 2. Slave 接口 Termination (未使用但需驱动)
@@ -176,7 +174,10 @@ class myCore extends Module {
   io.slave_rlast   := false.B
   io.slave_rid     := 0.U
   when(io.master_awready && io.master_awvalid) {
-    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]: waddr: %x\n", io.master_awaddr)
+    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]: wid: %x, waddr: %x, wsize: %x, wlen: %x\n", io.master_awid, io.master_awaddr, io.master_awsize, io.master_awlen)
+  }
+  when(io.master_wvalid && io.master_wready) {
+    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]: wdata: %x, wstrb: %x, wlast: %x\n", io.master_wdata, io.master_wstrb, io.master_wlast)
   }
 }
 

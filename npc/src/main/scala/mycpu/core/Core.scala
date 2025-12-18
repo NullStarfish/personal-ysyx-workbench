@@ -7,8 +7,9 @@ import mycpu.core.backend._
 import mycpu.core.bundles._
 import mycpu.core.components.SimState
 import mycpu.utils._
-import mycpu.MemMap
-import mycpu.peripherals.Xbar
+import mycpu.common._
+import mycpu.common.AXI_ID_WIDTH
+
 
 class Core extends Module {
   val io = IO(new Bundle {
@@ -60,8 +61,8 @@ class Core extends Module {
   fetch.io.pc_update_en := wb.io.debug_valid 
 
 
-  val imem = Wire(new AXI4LiteBundle())
-  val dmem = Wire(new AXI4LiteBundle())
+  val imem = Wire(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
+  val dmem = Wire(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
   imem <> fetch.io.axi
   dmem <> lsu.io.axi
   arbiter.io.left <> imem

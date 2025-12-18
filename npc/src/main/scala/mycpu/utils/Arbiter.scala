@@ -7,13 +7,15 @@ import mycpu.utils._
 
 class SimpleAXIArbiter extends Module {
   val io = IO(new Bundle {
-    val left  = Flipped(new AXI4LiteBundle(XLEN, XLEN))
-    val right = Flipped(new AXI4LiteBundle(XLEN, XLEN))
-    val out   = new AXI4LiteBundle(XLEN, XLEN)
+    val left  = Flipped(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
+    val right = Flipped(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
+    val out   = new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN)
   })
 
   object Owner extends ChiselEnum { val None, Left, Right = Value }
   val state = RegInit(Owner.None)
+
+
 
   // 默认断开所有 Ready，防止误握手
   io.left.setAsSlaveInit()  // 辅助函数: ready=false, valid=false
@@ -21,7 +23,7 @@ class SimpleAXIArbiter extends Module {
   io.out.setAsMasterInit()  // 辅助函数: valid=false, ready=false
 
   // 辅助函数：手动置 Slave 输出默认值 (如果 AXI4Defs 中没有 setAsSlaveInit，请使用下面的代码)
-  def setSlaveDefault(p: AXI4LiteBundle): Unit = {
+  def setSlaveDefault(p: AXI4Bundle): Unit = {
     p.ar.ready := false.B
     p.aw.ready := false.B
     p.w.ready  := false.B

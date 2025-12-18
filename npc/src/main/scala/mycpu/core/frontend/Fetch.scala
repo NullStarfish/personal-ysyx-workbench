@@ -14,7 +14,7 @@ class Fetch extends Module {
     val out          = Decoupled(new FetchPacket()) 
   })
 
-  val readBridge = Module(new AXI4LiteReadBridge(XLEN, XLEN))
+  val readBridge = Module(new AXI4ReadBridge(XLEN, XLEN))
 
   // [魔法拆分] 
   val AXI4Split(rBus, wBus) = io.axi
@@ -38,16 +38,34 @@ class Fetch extends Module {
     reqSent := false.B 
   }
 
-  readBridge.io.req.valid     := !reqSent
-  readBridge.io.req.bits.addr := pc
+  val instReq = WireDefault(new AXI4BundleA(AXI_ID_WIDTH, XLEN), {
+    val w = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
+    // 这里设置通用的“安全”默认值
+    w.id    := 0.U
+    w.addr  := pc
+    w.len   := 0.U
+    w.size  := 2.U
+    w.burst := 0.U
+    w.lock  := false.B
+    w.cache := 0.U
+    w.prot  := 0.U
+    w.qos   := 0.U
+    w // 返回这个 wire
+  })
+  
 
-  when (readBridge.io.req.fire) { reqSent := true.B }
+  readBridge.io.rReq.valid     := !reqSent
+  readBridge.io.rReq.bits      := instReq
 
-  io.out.valid            := readBridge.io.resp.valid
-  io.out.bits.inst        := readBridge.io.resp.bits.rdata
+  when (readBridge.io.rReq.fire) { reqSent := true.B }
+
+  
+
+  io.out.valid            := readBridge.io.rStream.valid
+  io.out.bits.inst        := readBridge.io.rStream.bits.data
   io.out.bits.pc          := pc
   io.out.bits.dnpc        := pc + 4.U
-  io.out.bits.isException := readBridge.io.resp.bits.isError
+  io.out.bits.isException := readBridge.io.rStream.bits.resp =/= 0.U
   
-  readBridge.io.resp.ready := io.out.ready
+  readBridge.io.rStream.ready := io.out.ready
 }

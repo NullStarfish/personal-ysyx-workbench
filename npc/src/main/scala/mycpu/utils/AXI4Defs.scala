@@ -28,7 +28,7 @@ class AXI4BundleA(val idWidth: Int, val addrWidth: Int) extends Bundle {
   val id    = UInt(idWidth.W)
   val addr  = UInt(addrWidth.W)
   val len   = UInt(8.W)
-  val size  = UInt(3.W)
+  val size  = UInt(3.W)//注意，实际size为2^size个字节
   val burst = UInt(2.W)
   val lock  = Bool()
   val cache = UInt(4.W)

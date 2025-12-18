@@ -4,11 +4,17 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
                 reset,	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
                 io_axi_ar_ready,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   output        io_axi_ar_valid,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+                io_axi_ar_bits_id,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   output [31:0] io_axi_ar_bits_addr,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+  output [7:0]  io_axi_ar_bits_len,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+  output [2:0]  io_axi_ar_bits_size,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+  output [1:0]  io_axi_ar_bits_burst,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   output        io_axi_r_ready,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   input         io_axi_r_valid,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+                io_axi_r_bits_id,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   input  [31:0] io_axi_r_bits_data,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   input  [1:0]  io_axi_r_bits_resp,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
+  input         io_axi_r_bits_last,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   input  [31:0] io_next_pc,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
   input         io_pc_update_en,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
                 io_out_ready,	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
@@ -20,7 +26,9 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
 );
 
   reg         reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24
-  wire        _readBridge_io_req_ready;	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  wire        _readBridge_io_rReq_ready;	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  wire [1:0]  _readBridge_io_rStream_bits_resp;	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  wire [2:0]  _readBridge_io_axi_ar_bits_id;	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
   reg  [31:0] pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
   always @(posedge clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     if (reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
@@ -30,28 +38,37 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     else begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
       if (io_pc_update_en)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:14
         pc <= io_next_pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
-      reqSent <= _readBridge_io_req_ready & ~reqSent | ~io_pc_update_en & reqSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:17:26, :34:24, :36:26, :38:13, :41:34, :44:{33,43}
+      reqSent <= _readBridge_io_rReq_ready & ~reqSent | ~io_pc_update_en & reqSent;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:17:26, :34:24, :36:26, :38:13, :57:35, :60:{34,44}
     end
   end // always @(posedge)
-  AXI4LiteReadBridge readBridge (	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  AXI4ReadBridge readBridge (	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
     .clock                (clock),
     .reset                (reset),
-    .io_req_ready         (_readBridge_io_req_ready),
-    .io_req_valid         (~reqSent),	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24, :41:34
-    .io_req_bits_addr     (pc),	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
-    .io_resp_ready        (io_out_ready),
-    .io_resp_valid        (io_out_valid),
-    .io_resp_bits_rdata   (io_out_bits_inst),
-    .io_resp_bits_isError (io_out_bits_isException),
+    .io_rReq_ready        (_readBridge_io_rReq_ready),
+    .io_rReq_valid        (~reqSent),	// src/main/scala/mycpu/core/frontend/Fetch.scala:34:24, :57:35
+    .io_rReq_bits_addr    (pc),	// src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
+    .io_rReq_bits_size    (3'h2),	// src/main/scala/mycpu/core/frontend/Fetch.scala:47:13
+    .io_rStream_ready     (io_out_ready),
+    .io_rStream_valid     (io_out_valid),
+    .io_rStream_bits_data (io_out_bits_inst),
+    .io_rStream_bits_resp (_readBridge_io_rStream_bits_resp),
     .io_axi_ar_ready      (io_axi_ar_ready),
     .io_axi_ar_valid      (io_axi_ar_valid),
+    .io_axi_ar_bits_id    (_readBridge_io_axi_ar_bits_id),
     .io_axi_ar_bits_addr  (io_axi_ar_bits_addr),
+    .io_axi_ar_bits_len   (io_axi_ar_bits_len),
+    .io_axi_ar_bits_size  (io_axi_ar_bits_size),
+    .io_axi_ar_bits_burst (io_axi_ar_bits_burst),
     .io_axi_r_ready       (io_axi_r_ready),
     .io_axi_r_valid       (io_axi_r_valid),
+    .io_axi_r_bits_id     ({2'h0, io_axi_r_bits_id}),	// src/main/scala/mycpu/core/frontend/Fetch.scala:23:21
     .io_axi_r_bits_data   (io_axi_r_bits_data),
-    .io_axi_r_bits_resp   (io_axi_r_bits_resp)
+    .io_axi_r_bits_resp   (io_axi_r_bits_resp),
+    .io_axi_r_bits_last   (io_axi_r_bits_last)
   );	// src/main/scala/mycpu/core/frontend/Fetch.scala:17:26
+  assign io_axi_ar_bits_id = _readBridge_io_axi_ar_bits_id[0];	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :17:26, :23:21
   assign io_out_bits_pc = pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :33:19
-  assign io_out_bits_dnpc = pc + 32'h4;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :33:19, :49:33
+  assign io_out_bits_dnpc = pc + 32'h4;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :33:19, :67:33
+  assign io_out_bits_isException = |_readBridge_io_rStream_bits_resp;	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7, :17:26, :68:62
 endmodule
 
