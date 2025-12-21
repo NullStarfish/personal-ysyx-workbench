@@ -134,6 +134,56 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:11:7
     | _ctrlSignals_T_17 | _ctrlSignals_T_455;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
   wire        _GEN_7 = _ctrlSignals_T_1 | _ctrlSignals_T_3;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
   wire        _GEN_8 = _ctrlSignals_T_3 | _ctrlSignals_T_210 | _ctrlSignals_T_503;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire [3:0]  io_out_bits_ctrl_aluOp_0 =
+    _ctrlSignals_T_1
+      ? 4'hB
+      : _GEN_8
+          ? 4'h0
+          : _GEN_6
+              ? 4'hC
+              : _ctrlSignals_T_21 | _ctrlSignals_T_23 | _ctrlSignals_T_25
+                | _ctrlSignals_T_27 | _ctrlSignals_T_29 | _ctrlSignals_T_31
+                | _ctrlSignals_T_33 | _ctrlSignals_T_363 | _ctrlSignals_T_37
+                  ? 4'h0
+                  : _ctrlSignals_T_39
+                      ? 4'h2
+                      : _ctrlSignals_T_41
+                          ? 4'h3
+                          : _ctrlSignals_T_43
+                              ? 4'h4
+                              : _ctrlSignals_T_45
+                                  ? 4'h5
+                                  : _ctrlSignals_T_47
+                                      ? 4'h6
+                                      : _ctrlSignals_T_49
+                                          ? 4'h7
+                                          : _ctrlSignals_T_51
+                                              ? 4'h8
+                                              : _ctrlSignals_T_53
+                                                  ? 4'h9
+                                                  : _ctrlSignals_T_55
+                                                      ? 4'h0
+                                                      : _ctrlSignals_T_57
+                                                          ? 4'h1
+                                                          : _ctrlSignals_T_59
+                                                              ? 4'h2
+                                                              : _ctrlSignals_T_61
+                                                                  ? 4'h3
+                                                                  : _ctrlSignals_T_63
+                                                                      ? 4'h4
+                                                                      : _ctrlSignals_T_65
+                                                                          ? 4'h5
+                                                                          : _ctrlSignals_T_67
+                                                                              ? 4'h6
+                                                                              : _ctrlSignals_T_69
+                                                                                  ? 4'h7
+                                                                                  : _ctrlSignals_T_71
+                                                                                      ? 4'h8
+                                                                                      : _ctrlSignals_T_73
+                                                                                          ? 4'h9
+                                                                                          : _GEN_1
+                                                                                              ? 4'hA
+                                                                                              : 4'hC;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/backend/Decode.scala:11:7
   wire        _GEN_9 = _ctrlSignals_T_81 | _ctrlSignals_T_83;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
   wire        _GEN_10 = _ctrlSignals_T_1 | _GEN_8;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
   wire        _GEN_11 = _ctrlSignals_T_31 | _ctrlSignals_T_33;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
@@ -203,56 +253,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:11:7
   assign io_out_bits_dnpc = io_in_bits_dnpc;	// src/main/scala/mycpu/core/backend/Decode.scala:11:7
   assign io_out_bits_rdAddr = io_in_bits_inst[11:7];	// src/main/scala/mycpu/core/backend/Decode.scala:11:7, :26:21
   assign io_out_bits_rs1Addr = io_in_bits_inst[19:15];	// src/main/scala/mycpu/core/backend/Decode.scala:11:7, :24:21
-  assign io_out_bits_ctrl_aluOp =
-    _ctrlSignals_T_1
-      ? 4'hB
-      : _GEN_8
-          ? 4'h0
-          : _GEN_6
-              ? 4'hC
-              : _ctrlSignals_T_21 | _ctrlSignals_T_23 | _ctrlSignals_T_25
-                | _ctrlSignals_T_27 | _ctrlSignals_T_29 | _ctrlSignals_T_31
-                | _ctrlSignals_T_33 | _ctrlSignals_T_363 | _ctrlSignals_T_37
-                  ? 4'h0
-                  : _ctrlSignals_T_39
-                      ? 4'h2
-                      : _ctrlSignals_T_41
-                          ? 4'h3
-                          : _ctrlSignals_T_43
-                              ? 4'h4
-                              : _ctrlSignals_T_45
-                                  ? 4'h5
-                                  : _ctrlSignals_T_47
-                                      ? 4'h6
-                                      : _ctrlSignals_T_49
-                                          ? 4'h7
-                                          : _ctrlSignals_T_51
-                                              ? 4'h8
-                                              : _ctrlSignals_T_53
-                                                  ? 4'h9
-                                                  : _ctrlSignals_T_55
-                                                      ? 4'h0
-                                                      : _ctrlSignals_T_57
-                                                          ? 4'h1
-                                                          : _ctrlSignals_T_59
-                                                              ? 4'h2
-                                                              : _ctrlSignals_T_61
-                                                                  ? 4'h3
-                                                                  : _ctrlSignals_T_63
-                                                                      ? 4'h4
-                                                                      : _ctrlSignals_T_65
-                                                                          ? 4'h5
-                                                                          : _ctrlSignals_T_67
-                                                                              ? 4'h6
-                                                                              : _ctrlSignals_T_69
-                                                                                  ? 4'h7
-                                                                                  : _ctrlSignals_T_71
-                                                                                      ? 4'h8
-                                                                                      : _ctrlSignals_T_73
-                                                                                          ? 4'h9
-                                                                                          : _GEN_1
-                                                                                              ? 4'hA
-                                                                                              : 4'hC;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/backend/Decode.scala:11:7
+  assign io_out_bits_ctrl_aluOp = io_out_bits_ctrl_aluOp_0;	// src/main/scala/mycpu/core/backend/Decode.scala:11:7
   assign io_out_bits_ctrl_csrOp =
     _ctrlSignals_T_1 | _ctrlSignals_T_3 | _ctrlSignals_T_210 | _ctrlSignals_T_503
     | _ctrlSignals_T_9 | _ctrlSignals_T_11 | _ctrlSignals_T_13 | _ctrlSignals_T_15

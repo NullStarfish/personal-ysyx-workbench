@@ -66,7 +66,7 @@ uint8_t* guest_to_host(paddr_t paddr) {
 #ifdef CONFIG_ENGINE_INTERPRETER
     // 如果是 Difftest 模式，先尝试转换 SoC 地址
     uint8_t *ret = soc_guest_to_host(paddr);
-    if (ret) return ret;
+    return ret;
 #endif
     return pmem + paddr - CONFIG_MBASE; 
 }
@@ -85,6 +85,7 @@ paddr_t host_to_guest(uint8_t *haddr) {
         return SOC_MROM_BASE + (haddr - soc_mrom);
     if (haddr >= soc_sram && haddr < soc_sram + SOC_SRAM_SIZE) 
         return SOC_SRAM_BASE + (haddr - soc_sram);
+    return 0;
 #endif
     return haddr - pmem + CONFIG_MBASE; 
 }
@@ -165,6 +166,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     IFDEF(CONFIG_MTRACE, Log("paddr write success: " FMT_WORD, data);)
     return;
   }
+  return;//防止device报错
 #else
   // 原有 NEMU 模式
   if (likely(in_pmem(addr))) { 

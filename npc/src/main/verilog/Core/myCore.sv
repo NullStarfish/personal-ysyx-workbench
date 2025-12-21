@@ -63,25 +63,36 @@ module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:14:7
   output [3:0]  io_slave_rid	// src/main/scala/mycpu/CoreWrapper.scala:18:14
 );
 
-  wire _core_io_master_aw_bits_id;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
-  wire _core_io_master_ar_bits_id;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire        _core_io_master_aw_valid;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire        _core_io_master_aw_bits_id;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [31:0] _core_io_master_aw_bits_addr;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [7:0]  _core_io_master_aw_bits_len;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [2:0]  _core_io_master_aw_bits_size;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire        _core_io_master_w_valid;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [31:0] _core_io_master_w_bits_data;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [3:0]  _core_io_master_w_bits_strb;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire        _core_io_master_w_bits_last;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire        _core_io_master_ar_bits_id;	// src/main/scala/mycpu/CoreWrapper.scala:102:20
+  wire [3:0]  io_master_awid_0 = {3'h0, _core_io_master_aw_bits_id};	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20, :117:21
   Core core (	// src/main/scala/mycpu/CoreWrapper.scala:102:20
     .clock                   (clock),
     .reset                   (reset),
     .io_master_aw_ready      (io_master_awready),
-    .io_master_aw_valid      (io_master_awvalid),
+    .io_master_aw_valid      (_core_io_master_aw_valid),
     .io_master_aw_bits_id    (_core_io_master_aw_bits_id),
-    .io_master_aw_bits_addr  (io_master_awaddr),
-    .io_master_aw_bits_len   (io_master_awlen),
-    .io_master_aw_bits_size  (io_master_awsize),
+    .io_master_aw_bits_addr  (_core_io_master_aw_bits_addr),
+    .io_master_aw_bits_len   (_core_io_master_aw_bits_len),
+    .io_master_aw_bits_size  (_core_io_master_aw_bits_size),
     .io_master_aw_bits_burst (io_master_awburst),
     .io_master_w_ready       (io_master_wready),
-    .io_master_w_valid       (io_master_wvalid),
-    .io_master_w_bits_data   (io_master_wdata),
-    .io_master_w_bits_strb   (io_master_wstrb),
-    .io_master_w_bits_last   (io_master_wlast),
+    .io_master_w_valid       (_core_io_master_w_valid),
+    .io_master_w_bits_data   (_core_io_master_w_bits_data),
+    .io_master_w_bits_strb   (_core_io_master_w_bits_strb),
+    .io_master_w_bits_last   (_core_io_master_w_bits_last),
     .io_master_b_ready       (io_master_bready),
     .io_master_b_valid       (io_master_bvalid),
+    .io_master_b_bits_id     (io_master_bid[0]),	// src/main/scala/mycpu/CoreWrapper.scala:138:30
+    .io_master_b_bits_resp   (io_master_bresp),
     .io_master_ar_ready      (io_master_arready),
     .io_master_ar_valid      (io_master_arvalid),
     .io_master_ar_bits_id    (_core_io_master_ar_bits_id),
@@ -96,7 +107,31 @@ module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:14:7
     .io_master_r_bits_resp   (io_master_rresp),
     .io_master_r_bits_last   (io_master_rlast)
   );	// src/main/scala/mycpu/CoreWrapper.scala:102:20
-  assign io_master_awid = {3'h0, _core_io_master_aw_bits_id};	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20, :117:21
+  wire        io_master_awvalid_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_awvalid_0 = _core_io_master_aw_valid;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire [31:0] io_master_awaddr_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_awaddr_0 = _core_io_master_aw_bits_addr;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire [7:0]  io_master_awlen_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_awlen_0 = _core_io_master_aw_bits_len;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire [2:0]  io_master_awsize_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_awsize_0 = _core_io_master_aw_bits_size;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire        io_master_wvalid_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_wvalid_0 = _core_io_master_w_valid;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire [31:0] io_master_wdata_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_wdata_0 = _core_io_master_w_bits_data;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire [3:0]  io_master_wstrb_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_wstrb_0 = _core_io_master_w_bits_strb;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  wire        io_master_wlast_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_wlast_0 = _core_io_master_w_bits_last;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_awvalid = _core_io_master_aw_valid;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_awaddr = _core_io_master_aw_bits_addr;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_awid = io_master_awid_0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  assign io_master_awlen = _core_io_master_aw_bits_len;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_awsize = _core_io_master_aw_bits_size;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_wvalid = _core_io_master_w_valid;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_wdata = _core_io_master_w_bits_data;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_wstrb = _core_io_master_w_bits_strb;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
+  assign io_master_wlast = _core_io_master_w_bits_last;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20
   assign io_master_arid = {3'h0, _core_io_master_ar_bits_id};	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20, :117:21, :146:21
   assign io_slave_awready = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
   assign io_slave_wready = 1'h0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7

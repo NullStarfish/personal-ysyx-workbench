@@ -128,7 +128,7 @@ static long last_pc = -1;
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
-    int pc_offset = addr - 0x20000000L;
+    uint32_t pc_offset = (addr - 0x20000000L) & 0xfffffffc;
     uint32_t inst = 
     (uint32_t)pmem[pc_offset + 0] |
     (uint32_t)pmem[pc_offset + 1] << 8  |

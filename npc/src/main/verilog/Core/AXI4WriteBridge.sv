@@ -6,6 +6,7 @@ module AXI4WriteBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
   input         io_wReq_valid,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   input  [31:0] io_wReq_bits_addr,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   input  [2:0]  io_wReq_bits_size,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
+  output        io_wStream_ready,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   input         io_wStream_valid,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   input  [31:0] io_wStream_bits_data,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   input  [3:0]  io_wStream_bits_strb,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
@@ -24,9 +25,18 @@ module AXI4WriteBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
   output [3:0]  io_axi_w_bits_strb,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
   output        io_axi_w_bits_last,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
                 io_axi_b_ready,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
-  input         io_axi_b_valid	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
+  input         io_axi_b_valid,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
+  input  [2:0]  io_axi_b_bits_id,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
+  input  [1:0]  io_axi_b_bits_resp	// src/main/scala/mycpu/utils/AXI4Bridges.scala:46:14
 );
 
+  wire        _bQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:54:22
+  wire        _wQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:53:23
+  wire [31:0] _wQueue_io_deq_bits_data;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:53:23
+  wire        _wQueue_io_deq_bits_last;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:53:23
+  wire        _awQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:52:23
+  wire [2:0]  _awQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:52:23
+  wire [31:0] _awQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:52:23
   Queue4_AXI4BundleA awQueue (	// src/main/scala/mycpu/utils/AXI4Bridges.scala:52:23
     .clock             (clock),
     .reset             (reset),
@@ -35,32 +45,54 @@ module AXI4WriteBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
     .io_enq_bits_addr  (io_wReq_bits_addr),
     .io_enq_bits_size  (io_wReq_bits_size),
     .io_deq_ready      (io_axi_aw_ready),
-    .io_deq_valid      (io_axi_aw_valid),
-    .io_deq_bits_id    (io_axi_aw_bits_id),
-    .io_deq_bits_addr  (io_axi_aw_bits_addr),
+    .io_deq_valid      (_awQueue_io_deq_valid),
+    .io_deq_bits_id    (_awQueue_io_deq_bits_id),
+    .io_deq_bits_addr  (_awQueue_io_deq_bits_addr),
     .io_deq_bits_len   (io_axi_aw_bits_len),
     .io_deq_bits_size  (io_axi_aw_bits_size),
     .io_deq_bits_burst (io_axi_aw_bits_burst)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:52:23
+  wire        io_axi_aw_valid_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_aw_valid_0 = _awQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
+  wire [2:0]  io_axi_aw_bits_id_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_aw_bits_id_0 = _awQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
+  wire [31:0] io_axi_aw_bits_addr_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_aw_bits_addr_0 = _awQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
   Queue4_AXI4BundleW wQueue (	// src/main/scala/mycpu/utils/AXI4Bridges.scala:53:23
     .clock            (clock),
     .reset            (reset),
+    .io_enq_ready     (io_wStream_ready),
     .io_enq_valid     (io_wStream_valid),
     .io_enq_bits_data (io_wStream_bits_data),
     .io_enq_bits_strb (io_wStream_bits_strb),
     .io_deq_ready     (io_axi_w_ready),
-    .io_deq_valid     (io_axi_w_valid),
-    .io_deq_bits_data (io_axi_w_bits_data),
+    .io_deq_valid     (_wQueue_io_deq_valid),
+    .io_deq_bits_data (_wQueue_io_deq_bits_data),
     .io_deq_bits_strb (io_axi_w_bits_strb),
-    .io_deq_bits_last (io_axi_w_bits_last)
+    .io_deq_bits_last (_wQueue_io_deq_bits_last)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:53:23
+  wire        io_axi_w_valid_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_w_valid_0 = _wQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
+  wire [31:0] io_axi_w_bits_data_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_w_bits_data_0 = _wQueue_io_deq_bits_data;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
+  wire        io_axi_w_bits_last_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_w_bits_last_0 = _wQueue_io_deq_bits_last;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
   Queue4_AXI4BundleB bQueue (	// src/main/scala/mycpu/utils/AXI4Bridges.scala:54:22
     .clock        (clock),
     .reset        (reset),
-    .io_enq_ready (io_axi_b_ready),
+    .io_enq_ready (_bQueue_io_enq_ready),
     .io_enq_valid (io_axi_b_valid),
     .io_deq_ready (io_bResp_ready),
     .io_deq_valid (io_bResp_valid)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:54:22
+  wire        io_axi_b_ready_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7
+  assign io_axi_b_ready_0 = _bQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :54:22
+  assign io_axi_aw_valid = _awQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
+  assign io_axi_aw_bits_id = _awQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
+  assign io_axi_aw_bits_addr = _awQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :52:23
+  assign io_axi_w_valid = _wQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
+  assign io_axi_w_bits_data = _wQueue_io_deq_bits_data;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
+  assign io_axi_w_bits_last = _wQueue_io_deq_bits_last;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :53:23
+  assign io_axi_b_ready = _bQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:45:7, :54:22
 endmodule
 

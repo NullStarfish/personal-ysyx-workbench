@@ -6,6 +6,6 @@
 //#define __ISA__ "riscv32"
 int main() {
   for (int i = 0; i < 10; i ++) {
-    putstr("Hello, AM World @  riscv32 \n");
+    putstr("Hello, AM World @ " __ISA__ "\n");
   }
 }

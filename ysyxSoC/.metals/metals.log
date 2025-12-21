@@ -1093,3 +1093,227 @@ Caused by: java.io.IOException: error=2, 没有那个文件或目录
 2025.12.18 12:13:27 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_12-13-27-163.md")
 2025.12.18 12:13:27 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
 2025.12.18 12:13:27 INFO  time: indexed workspace in 4.41s
+2025.12.18 15:06:56 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.18 15:06:58 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.18 15:06:58 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.107.0.
+2025.12.18 15:06:59 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.18 15:07:00 INFO  Attempting to connect to the build server...
+2025.12.18 15:07:00 INFO  No running Bloop server found, starting one.
+2025.12.18 15:07:00 ERROR Running process '/usr/lib/jvm/java-21-openjdk-amd64/bin/jps -l' failed
+java.io.IOException: Cannot run program "/usr/lib/jvm/java-21-openjdk-amd64/bin/jps" (in directory "/home/nullstarfish/.local/share/scalacli/bloop"): error=2, 没有那个文件或目录
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1170)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner$.runSync(ShellRunner.scala:153)
+	at scala.meta.internal.metals.BloopServers.$anonfun$checkOldBloopRunning$1(BloopServers.scala:268)
+	at scala.Option.flatMap(Option.scala:283)
+	at scala.meta.internal.metals.BloopServers.checkOldBloopRunning(BloopServers.scala:266)
+	at scala.meta.internal.metals.BloopServers.connect(BloopServers.scala:395)
+	at scala.meta.internal.metals.BloopServers.$anonfun$newServer$1(BloopServers.scala:104)
+	at scala.meta.internal.metals.BuildServerConnection$.setupServer$1(BuildServerConnection.scala:631)
+	at scala.meta.internal.metals.BuildServerConnection$.fromSockets(BuildServerConnection.scala:700)
+	at scala.meta.internal.metals.BloopServers.newServer(BloopServers.scala:96)
+	at scala.meta.internal.bsp.BspConnector.connect$1(BspConnector.scala:137)
+	at scala.meta.internal.bsp.BspConnector.connect(BspConnector.scala:260)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$createSession$7(ConnectionProvider.scala:586)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: error=2, 没有那个文件或目录
+	at java.lang.ProcessImpl.forkAndExec(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:295)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:225)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1126)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner$.runSync(ShellRunner.scala:153)
+	at scala.meta.internal.metals.BloopServers.$anonfun$checkOldBloopRunning$1(BloopServers.scala:268)
+	at scala.Option.flatMap(Option.scala:283)
+	at scala.meta.internal.metals.BloopServers.checkOldBloopRunning(BloopServers.scala:266)
+	at scala.meta.internal.metals.BloopServers.connect(BloopServers.scala:395)
+	at scala.meta.internal.metals.BloopServers.$anonfun$newServer$1(BloopServers.scala:104)
+	at scala.meta.internal.metals.BuildServerConnection$.setupServer$1(BuildServerConnection.scala:631)
+	at scala.meta.internal.metals.BuildServerConnection$.fromSockets(BuildServerConnection.scala:700)
+	at scala.meta.internal.metals.BloopServers.newServer(BloopServers.scala:96)
+	at scala.meta.internal.bsp.BspConnector.connect$1(BspConnector.scala:137)
+	at scala.meta.internal.bsp.BspConnector.connect(BspConnector.scala:260)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$createSession$7(ConnectionProvider.scala:586)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+
+2025.12.18 15:07:02 INFO  Starting compilation server
+2025.12.18 15:07:07 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.18 15:07:09 INFO  time: Connected to build server in 9.18s
+2025.12.18 15:07:09 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.18 15:07:10 INFO  time: Imported build in 1.03s
+2025.12.18 15:07:10 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.18 15:07:17 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.18 15:07:17 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_15-07-17-083.md")
+2025.12.18 15:07:17 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.18 15:07:19 INFO  time: indexed workspace in 8.74s
+12月 18, 2025 3:08:11 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+2025.12.18 15:40:11 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.18 15:40:12 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.18 15:40:12 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.107.0.
+2025.12.18 15:40:13 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.18 15:40:13 INFO  Attempting to connect to the build server...
+2025.12.18 15:40:13 INFO  Found a Bloop server running
+2025.12.18 15:40:13 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.18 15:40:13 INFO  time: Connected to build server in 0.2s
+2025.12.18 15:40:13 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.18 15:40:13 INFO  time: Imported build in 0.18s
+2025.12.18 15:40:13 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.18 15:40:17 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.18 15:40:17 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_15-40-17-416.md")
+2025.12.18 15:40:17 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.18 15:40:17 INFO  time: indexed workspace in 4.4s
+2025.12.18 15:45:09 INFO  Shutting down server
+2025.12.18 15:45:09 INFO  shutting down Metals
+2025.12.18 15:45:09 INFO  Shut down connection with build server.
+2025.12.18 15:45:09 INFO  Exiting server
+12月 18, 2025 4:22:04 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 18, 2025 6:12:37 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 18, 2025 6:32:44 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 18, 2025 6:32:44 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+2025.12.18 18:34:13 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.18 18:34:14 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.18 18:34:14 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.2.
+2025.12.18 18:34:15 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.18 18:34:15 INFO  Attempting to connect to the build server...
+2025.12.18 18:34:15 INFO  Found a Bloop server running
+2025.12.18 18:34:15 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.18 18:34:15 INFO  time: Connected to build server in 0.25s
+2025.12.18 18:34:15 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.18 18:34:16 INFO  time: Imported build in 0.13s
+2025.12.18 18:34:15 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.18 18:34:21 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.18 18:34:21 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_18-34-21-530.md")
+2025.12.18 18:34:21 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.18 18:34:21 INFO  time: indexed workspace in 6.23s
+12月 18, 2025 6:47:33 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 18, 2025 6:48:48 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+2025.12.18 18:53:00 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.18 18:53:01 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.18 18:53:01 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.107.0.
+2025.12.18 18:53:02 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.18 18:53:02 INFO  Attempting to connect to the build server...
+2025.12.18 18:53:02 INFO  Found a Bloop server running
+2025.12.18 18:53:02 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.18 18:53:02 INFO  time: Connected to build server in 0.24s
+2025.12.18 18:53:02 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.18 18:53:02 INFO  time: Imported build in 0.11s
+2025.12.18 18:53:02 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.18 18:53:06 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.18 18:53:06 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-18/r_scala-toplevel-mtags_18-53-06-311.md")
+2025.12.18 18:53:06 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.18 18:53:06 INFO  time: indexed workspace in 4.15s
+2025.12.18 18:57:40 INFO  Shutting down server
+2025.12.18 18:57:40 INFO  shutting down Metals
+2025.12.18 18:57:40 INFO  Shut down connection with build server.
+2025.12.18 18:57:40 INFO  Exiting server
+12月 18, 2025 9:07:53 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 18, 2025 9:14:36 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+2025.12.18 21:24:49 INFO  Shutting down server
+2025.12.18 21:24:49 INFO  shutting down Metals
+2025.12.18 21:24:49 INFO  Shut down connection with build server.
+2025.12.18 21:24:49 INFO  Exiting server
+2025.12.18 22:59:00 INFO  compiling rocketchip.macros (1 scala source)
+2025.12.18 22:59:00 INFO  compiling rocketchip.cde (1 scala source)
+2025.12.18 22:59:00 INFO  compiling rocketchip.hardfloat (20 scala sources)
+12月 18, 2025 10:59:01 下午 org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+警告: Unmatched cancel notification for request id 10
+2025.12.18 22:59:04 INFO  time: compiled rocketchip.macros in 3.75s
+2025.12.18 22:59:04 INFO  time: compiled rocketchip.cde in 3.76s
+2025.12.18 22:59:04 INFO  compiling rocketchip.diplomacy (36 scala sources)
+2025.12.18 22:59:10 INFO  time: compiled rocketchip.diplomacy in 5.59s
+2025.12.18 22:59:10 INFO  time: compiled rocketchip.hardfloat in 9.76s
+2025.12.18 22:59:13 INFO  compiling rocketchip (317 scala sources)
+2025.12.18 22:59:53 WARN  7 deprecations
+2025.12.18 22:59:53 WARN  78 deprecations (since 2.13.0)
+2025.12.18 22:59:53 WARN  1 deprecation (since 2.13.7)
+2025.12.18 22:59:53 WARN  1 deprecation (since 9)
+2025.12.18 22:59:53 WARN  27 deprecations (since CDE 0.1)
+2025.12.18 22:59:53 WARN  10 deprecations (since diplomacy 1.0.0)
+2025.12.18 22:59:53 WARN  1 deprecation (since rocket-chip 1.2)
+2025.12.18 22:59:53 WARN  36 deprecations (since rocketchip 2.0.0)
+2025.12.18 22:59:53 WARN  161 deprecations in total; re-run with -deprecation for details
+2025.12.18 22:59:53 WARN  20 feature warnings; re-run with -feature for details
+2025.12.18 22:59:54 INFO  time: compiled rocketchip in 40s
+2025.12.18 23:00:00 INFO  compiling ysyxsoc (35 scala sources)
+2025.12.18 23:00:04 WARN  1 deprecation (since 2.13.0)
+2025.12.18 23:00:04 WARN  1 deprecation (since 2.13.3)
+2025.12.18 23:00:04 WARN  90 deprecations (since rocketchip 2.0.0)
+2025.12.18 23:00:04 WARN  92 deprecations in total; re-run with -deprecation for details
+2025.12.18 23:00:04 INFO  time: compiled ysyxsoc in 4.38s
+2025.12.19 00:08:21 INFO  Shutting down server
+2025.12.19 00:08:21 INFO  shutting down Metals
+2025.12.19 00:08:21 INFO  Shut down connection with build server.
+2025.12.19 00:08:21 INFO  Exiting server
+2025.12.21 16:59:00 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/lsp.trace.json
+2025.12.21 16:59:00 INFO  logging to files /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/metals.log
+2025.12.21 16:59:00 INFO  Started: Metals version 1.6.4 in folders '/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.106.2.
+2025.12.21 16:59:00 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.12.21 16:59:00 INFO  no build target found for /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.12.21 16:59:01 INFO  Attempting to connect to the build server...
+2025.12.21 16:59:01 INFO  Found a Bloop server running
+2025.12.21 16:59:01 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/bsp.trace.json
+2025.12.21 16:59:02 INFO  no build target found for /home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.12.21 16:59:02 INFO  time: Connected to build server in 0.87s
+2025.12.21 16:59:01 INFO  Connected to Build server: Bloop v2.0.17
+2025.12.21 16:59:02 INFO  time: Imported build in 0.23s
+2025.12.21 16:59:02 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3
+2025.12.21 16:59:07 INFO  Created report: Optional[file:///home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/file:/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala]
+2025.12.21 16:59:07 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.metals/.reports/metals/2025-12-21/r_scala-toplevel-mtags_16-59-07-230.md")
+2025.12.21 16:59:07 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.
+2025.12.21 16:59:07 INFO  time: indexed workspace in 5.23s
+2025.12.21 16:59:08 INFO  compiling rocketchip.cde (1 scala source)
+2025.12.21 16:59:08 INFO  compiling rocketchip.macros (1 scala source)
+2025.12.21 16:59:08 INFO  compiling rocketchip.hardfloat (20 scala sources)
+2025.12.21 16:59:12 INFO  time: compiled rocketchip.macros in 3.47s
+2025.12.21 16:59:12 INFO  time: compiled rocketchip.cde in 3.48s
+2025.12.21 16:59:12 INFO  compiling rocketchip.diplomacy (36 scala sources)
+2025.12.21 16:59:17 INFO  time: compiled rocketchip.diplomacy in 5.17s
+2025.12.21 16:59:17 INFO  time: compiled rocketchip.hardfloat in 8.88s
+2025.12.21 16:59:21 INFO  compiling rocketchip (317 scala sources)
+2025.12.21 17:00:00 WARN  7 deprecations
+2025.12.21 17:00:00 WARN  78 deprecations (since 2.13.0)
+2025.12.21 17:00:00 WARN  1 deprecation (since 2.13.7)
+2025.12.21 17:00:00 WARN  1 deprecation (since 9)
+2025.12.21 17:00:00 WARN  27 deprecations (since CDE 0.1)
+2025.12.21 17:00:00 WARN  10 deprecations (since diplomacy 1.0.0)
+2025.12.21 17:00:00 WARN  1 deprecation (since rocket-chip 1.2)
+2025.12.21 17:00:00 WARN  36 deprecations (since rocketchip 2.0.0)
+2025.12.21 17:00:00 WARN  161 deprecations in total; re-run with -deprecation for details
+2025.12.21 17:00:00 WARN  20 feature warnings; re-run with -feature for details
+2025.12.21 17:00:00 INFO  compiling ysyxsoc (35 scala sources)
+2025.12.21 17:00:01 INFO  time: compiled rocketchip in 40s
+2025.12.21 17:00:05 WARN  1 deprecation (since 2.13.0)
+2025.12.21 17:00:05 WARN  1 deprecation (since 2.13.3)
+2025.12.21 17:00:05 WARN  90 deprecations (since rocketchip 2.0.0)
+2025.12.21 17:00:05 WARN  92 deprecations in total; re-run with -deprecation for details
+2025.12.21 17:00:05 INFO  time: compiled ysyxsoc in 4.04s
+12月 21, 2025 5:02:29 下午 org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+警告: Unmatched cancel notification for request id 89
+Exception in thread "pool-6-thread-1" java.lang.InterruptedException
+	at scala.meta.internal.metals.FutureCancelToken.checkCanceled(FutureCancelToken.scala:29)
+	at scala.meta.internal.pc.CompilerAccess.$anonfun$onCompilerJobQueue$1(CompilerAccess.scala:207)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:152)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+12月 21, 2025 5:51:17 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace
+12月 21, 2025 5:51:18 下午 org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+信息: Unsupported notification method: $/setTrace

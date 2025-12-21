@@ -174,10 +174,10 @@ class myCore extends Module {
   io.slave_rlast   := false.B
   io.slave_rid     := 0.U
   when(io.master_awready && io.master_awvalid) {
-    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]: wid: %x, waddr: %x, wsize: %x, wlen: %x\n", io.master_awid, io.master_awaddr, io.master_awsize, io.master_awlen)
+    Debug.log("[DEBUG] [CoreWrapper]: wid: %x, waddr: %x, wsize: %x, wlen: %x\n", io.master_awid, io.master_awaddr, io.master_awsize, io.master_awlen)
   }
   when(io.master_wvalid && io.master_wready) {
-    Debug.log("[DEBUG] [CoreWrapper] [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[CURRENT]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]: wdata: %x, wstrb: %x, wlast: %x\n", io.master_wdata, io.master_wstrb, io.master_wlast)
+    Debug.log("[DEBUG] [CoreWrapper]: wdata: %x, wstrb: %x, wlast: %x\n", io.master_wdata, io.master_wstrb, io.master_wlast)
   }
 }
 

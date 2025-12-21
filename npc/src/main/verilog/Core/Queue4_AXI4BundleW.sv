@@ -2,7 +2,8 @@
 module Queue4_AXI4BundleW(	// src/main/scala/chisel3/util/Queue.scala:60:7
   input         clock,	// src/main/scala/chisel3/util/Queue.scala:60:7
                 reset,	// src/main/scala/chisel3/util/Queue.scala:60:7
-                io_enq_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output        io_enq_ready,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  input         io_enq_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [31:0] io_enq_bits_data,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [3:0]  io_enq_bits_strb,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input         io_deq_ready,	// src/main/scala/chisel3/util/Queue.scala:72:14
@@ -12,15 +13,14 @@ module Queue4_AXI4BundleW(	// src/main/scala/chisel3/util/Queue.scala:60:7
   output        io_deq_bits_last	// src/main/scala/chisel3/util/Queue.scala:72:14
 );
 
-  wire        io_enq_ready;	// src/main/scala/chisel3/util/Queue.scala:103:19
   wire [36:0] _ram_ext_R0_data;	// src/main/scala/chisel3/util/Queue.scala:73:91
   reg  [1:0]  enq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40
   reg  [1:0]  deq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40
   reg         maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27
   wire        ptr_match = enq_ptr_value == deq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40, src/main/scala/chisel3/util/Queue.scala:77:33
   wire        empty = ptr_match & ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :78:{25,28}
-  wire        do_enq = io_enq_ready & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-  assign io_enq_ready = ~(ptr_match & maybe_full);	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :79:24, :103:19
+  wire        full = ptr_match & maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :79:24
+  wire        do_enq = ~full & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:79:24, :103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
     if (reset) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
       enq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40
@@ -47,6 +47,7 @@ module Queue4_AXI4BundleW(	// src/main/scala/chisel3/util/Queue.scala:60:7
     .W0_clk  (clock),
     .W0_data ({io_enq_bits_data, io_enq_bits_strb, 1'h1})	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   );	// src/main/scala/chisel3/util/Queue.scala:73:91
+  assign io_enq_ready = ~full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :79:24, :103:19
   assign io_deq_valid = ~empty;	// src/main/scala/chisel3/util/Queue.scala:60:7, :78:25, :102:19
   assign io_deq_bits_data = _ram_ext_R0_data[36:5];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_strb = _ram_ext_R0_data[4:1];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91

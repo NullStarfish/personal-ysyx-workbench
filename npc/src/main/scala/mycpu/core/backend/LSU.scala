@@ -55,7 +55,6 @@ class LSU extends Module {
   val inWstrb = WireDefault(0.U(4.W))
   val inWdata = WireDefault(0.U(XLEN.W))
   val size    = WireDefault(0.U(3.W))
-
   switch(io.in.bits.ctrl.memFunct3) {
     is(0.U) { inWstrb := "b0001".U << inAddrOffset; inWdata := io.in.bits.memWData(7,0) << (inAddrOffset << 3);  size := 0.U } 
     is(1.U) { inWstrb := "b0011".U << inAddrOffset; inWdata := io.in.bits.memWData(15,0) << (inAddrOffset << 3); size := 1.U } 
@@ -74,6 +73,7 @@ class LSU extends Module {
     // 这里设置通用的“安全”默认值
     w.id    := 0.U
     w.addr  := io.in.bits.aluResult
+    //w.addr  := Cat(io.in.bits.aluResult(XLEN -1, 2), "b00".U(2.W)) // 地址对齐
     w.len   := 0.U
     w.size  := size
     w.burst := 0.U
@@ -201,13 +201,18 @@ class LSU extends Module {
   // 握手逻辑
 
 
-
-
-  when(readBridge.io.rStream.valid) {
-    Debug.log("[DEBUG] [LSU] [[[[[[[[[[[CURRENT]]]]]]]]]]]] read addr sent: %x, size : %x, rdata: %x, read processed: %x. pc: %x,", memReq.addr, memReq.size, loadPack.data, finalLoadData, io.in.bits.pc)
+  when(readBridge.io.rReq.fire) {
+    Debug.log("[DEBUG] [LSU]  read req: addr: %x, size: %x\n", memReq.addr, memReq.size)
   }
-  when(writeBridge.io.wReq.valid) {
-    Debug.log("[DEBUG] [LSU] [[[[[[[[[[[CURRENT]]]]]]]]]]]] write addr sent: %x, inWdata: %x, inWstrb: %x. size: %x, pc: %x, original data: %x\n", memReq.addr, inWdata, inWstrb, memReq.size, io.in.bits.pc, io.in.bits.memWData)
+
+  when(readBridge.io.rStream.fire) {
+    Debug.log("[DEBUG] [LSU]  read stream: rdata: %x, resp: %x\n", loadPack.data, loadPack.resp)
+  }
+  when(writeBridge.io.wReq.fire) {
+    Debug.log("[DEBUG] [LSU]  write req: addr: %x, size: %x\n", memReq.addr, memReq.size)
+  }
+  when(writeBridge.io.wStream.fire) {
+    Debug.log("[DEBUG] [LSU]: write stream: data: %x, wstrb: %x\n", storePack.data, storePack.strb)
   }
 
 

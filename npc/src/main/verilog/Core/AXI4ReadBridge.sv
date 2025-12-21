@@ -25,6 +25,12 @@ module AXI4ReadBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
   input         io_axi_r_bits_last	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
 );
 
+  wire        _rQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:21:23
+  wire        _arQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
+  wire [2:0]  _arQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
+  wire [31:0] _arQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
+  wire [7:0]  _arQueue_io_deq_bits_len;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
+  wire [2:0]  _arQueue_io_deq_bits_size;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
   Queue4_AXI4BundleA arQueue (	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
     .clock             (clock),
     .reset             (reset),
@@ -33,17 +39,27 @@ module AXI4ReadBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
     .io_enq_bits_addr  (io_rReq_bits_addr),
     .io_enq_bits_size  (io_rReq_bits_size),
     .io_deq_ready      (io_axi_ar_ready),
-    .io_deq_valid      (io_axi_ar_valid),
-    .io_deq_bits_id    (io_axi_ar_bits_id),
-    .io_deq_bits_addr  (io_axi_ar_bits_addr),
-    .io_deq_bits_len   (io_axi_ar_bits_len),
-    .io_deq_bits_size  (io_axi_ar_bits_size),
+    .io_deq_valid      (_arQueue_io_deq_valid),
+    .io_deq_bits_id    (_arQueue_io_deq_bits_id),
+    .io_deq_bits_addr  (_arQueue_io_deq_bits_addr),
+    .io_deq_bits_len   (_arQueue_io_deq_bits_len),
+    .io_deq_bits_size  (_arQueue_io_deq_bits_size),
     .io_deq_bits_burst (io_axi_ar_bits_burst)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:20:23
+  wire        io_axi_ar_valid_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_ar_valid_0 = _arQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  wire [2:0]  io_axi_ar_bits_id_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_ar_bits_id_0 = _arQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  wire [31:0] io_axi_ar_bits_addr_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_ar_bits_addr_0 = _arQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  wire [7:0]  io_axi_ar_bits_len_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_ar_bits_len_0 = _arQueue_io_deq_bits_len;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  wire [2:0]  io_axi_ar_bits_size_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_ar_bits_size_0 = _arQueue_io_deq_bits_size;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
   Queue4_AXI4BundleR rQueue (	// src/main/scala/mycpu/utils/AXI4Bridges.scala:21:23
     .clock            (clock),
     .reset            (reset),
-    .io_enq_ready     (io_axi_r_ready),
+    .io_enq_ready     (_rQueue_io_enq_ready),
     .io_enq_valid     (io_axi_r_valid),
     .io_enq_bits_id   (io_axi_r_bits_id),
     .io_enq_bits_data (io_axi_r_bits_data),
@@ -54,5 +70,13 @@ module AXI4ReadBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
     .io_deq_bits_data (io_rStream_bits_data),
     .io_deq_bits_resp (io_rStream_bits_resp)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:21:23
+  wire        io_axi_r_ready_0;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
+  assign io_axi_r_ready_0 = _rQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :21:23
+  assign io_axi_ar_valid = _arQueue_io_deq_valid;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  assign io_axi_ar_bits_id = _arQueue_io_deq_bits_id;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  assign io_axi_ar_bits_addr = _arQueue_io_deq_bits_addr;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  assign io_axi_ar_bits_len = _arQueue_io_deq_bits_len;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  assign io_axi_ar_bits_size = _arQueue_io_deq_bits_size;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :20:23
+  assign io_axi_r_ready = _rQueue_io_enq_ready;	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7, :21:23
 endmodule
 

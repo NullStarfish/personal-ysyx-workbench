@@ -58,7 +58,7 @@ void putch(char ch) {
         // uint16_t divisor = 0x28B; 
         
         outb(SERIAL_PORT + 1, (divisor >> 8) & 0xFF); // High byte
-        outb(SERIAL_PORT + 0, divisor & 0xFF);        // Low byte
+        outb(SERIAL_PORT + 0, divisor & 0x0F);        // Low byte
 
         // 4. 设置 LCR (8位数据, 1停止位, 无校验) 并 **清除 DLAB**
         // 0x03 = 0000 0011 (DLAB=0)

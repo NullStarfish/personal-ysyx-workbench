@@ -2,6 +2,7 @@ package mycpu.core
 
 import chisel3._
 import chisel3.util._
+import mycpu._
 import mycpu.core.frontend.Fetch
 import mycpu.core.backend._
 import mycpu.core.bundles._
@@ -9,6 +10,7 @@ import mycpu.core.components.SimState
 import mycpu.utils._
 import mycpu.common._
 import mycpu.common.AXI_ID_WIDTH
+import mycpu.peripherals.DifftestSkip
 
 
 class Core extends Module {
@@ -68,6 +70,11 @@ class Core extends Module {
   arbiter.io.left <> imem
   arbiter.io.right <> dmem
   io.master <> arbiter.io.out
+
+  val skip = Module(new DifftestSkip())
+  skip.io.clock := clock
+  val validAddr : UInt= Mux(arbiter.io.out.ar.fire, arbiter.io.out.ar.bits.addr, Mux(arbiter.io.out.aw.fire, arbiter.io.out.aw.bits.addr, 0.U))
+  skip.io.skip := MemMap.isDifftestSkip(validAddr)
 
 
   //temp : 区分4bytes aligned的perip和其他直接寻址的外设：默认都是4bytes aligned
