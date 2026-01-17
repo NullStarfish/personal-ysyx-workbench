@@ -125,8 +125,24 @@ static const long PMEM_BASE = 0x20000000L;
 static long last_pc = -1;
 
 
+uint8_t *flash_mem;
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+void init_flash() {
+    flash_mem = (uint8_t*)malloc(sizeof(uint8_t) * 0x100000);
+    for (int i = 0; i < 100; i ++) {
+        flash_mem[i] = (uint8_t)i;
+    }
+}
+
+
+extern "C" void flash_read(int32_t addr, int32_t *data) { 
+    uint32_t offset = addr & 0xfffffffc;
+    uint32_t res = (uint32_t)flash_mem[offset] | 
+                   (uint32_t)flash_mem[offset + 1] << 8 |
+                   (uint32_t)flash_mem[offset + 2] << 16 |
+                   (uint32_t)flash_mem[offset + 3] << 24;
+    *data = res;
+}
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
     uint32_t pc_offset = (addr - 0x20000000L) & 0xfffffffc;
     uint32_t inst = 
@@ -444,7 +460,7 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
 int main(int argc, char** argv) {
 
-
+    init_flash();
 
     Verilated::commandArgs(argc, argv);
     init_monitor(argc, argv);

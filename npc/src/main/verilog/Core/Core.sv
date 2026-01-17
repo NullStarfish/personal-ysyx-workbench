@@ -16,9 +16,7 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   output        io_master_w_bits_last,	// src/main/scala/mycpu/core/Core.scala:17:14
                 io_master_b_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   input         io_master_b_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
-                io_master_b_bits_id,	// src/main/scala/mycpu/core/Core.scala:17:14
-  input  [1:0]  io_master_b_bits_resp,	// src/main/scala/mycpu/core/Core.scala:17:14
-  input         io_master_ar_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
+                io_master_ar_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   output        io_master_ar_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
                 io_master_ar_bits_id,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [31:0] io_master_ar_bits_addr,	// src/main/scala/mycpu/core/Core.scala:17:14
@@ -92,8 +90,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   wire        _arbiter_io_right_aw_ready;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_w_ready;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_b_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [2:0]  _arbiter_io_right_b_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [1:0]  _arbiter_io_right_b_bits_resp;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_ar_ready;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_r_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire [2:0]  _arbiter_io_right_r_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:24
@@ -426,8 +422,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_axi_w_bits_last        (_lsu_io_axi_w_bits_last),
     .io_axi_b_ready            (_lsu_io_axi_b_ready),
     .io_axi_b_valid            (_arbiter_io_right_b_valid),	// src/main/scala/mycpu/core/Core.scala:27:24
-    .io_axi_b_bits_id          (_arbiter_io_right_b_bits_id[0]),	// src/main/scala/mycpu/core/Core.scala:27:24, :69:8
-    .io_axi_b_bits_resp        (_arbiter_io_right_b_bits_resp),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_ar_ready           (_arbiter_io_right_ar_ready),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_ar_valid           (_lsu_io_axi_ar_valid),
     .io_axi_ar_bits_id         (_lsu_io_axi_ar_bits_id),
@@ -534,8 +528,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_right_w_bits_last   (_lsu_io_axi_w_bits_last),	// src/main/scala/mycpu/core/Core.scala:24:23
     .io_right_b_ready       (_lsu_io_axi_b_ready),	// src/main/scala/mycpu/core/Core.scala:24:23
     .io_right_b_valid       (_arbiter_io_right_b_valid),
-    .io_right_b_bits_id     (_arbiter_io_right_b_bits_id),
-    .io_right_b_bits_resp   (_arbiter_io_right_b_bits_resp),
     .io_right_ar_ready      (_arbiter_io_right_ar_ready),
     .io_right_ar_valid      (_lsu_io_axi_ar_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
     .io_right_ar_bits_id    ({2'h0, _lsu_io_axi_ar_bits_id}),	// src/main/scala/mycpu/core/Core.scala:24:23, :69:8
@@ -563,8 +555,6 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_out_w_bits_last     (io_master_w_bits_last),
     .io_out_b_ready         (io_master_b_ready),
     .io_out_b_valid         (io_master_b_valid),
-    .io_out_b_bits_id       ({2'h0, io_master_b_bits_id}),	// src/main/scala/mycpu/core/Core.scala:72:13
-    .io_out_b_bits_resp     (io_master_b_bits_resp),
     .io_out_ar_ready        (io_master_ar_ready),
     .io_out_ar_valid        (_arbiter_io_out_ar_valid),
     .io_out_ar_bits_id      (_arbiter_io_out_ar_bits_id),

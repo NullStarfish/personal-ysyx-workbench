@@ -54,7 +54,6 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:10:7
                 io_debug_csrs_mcause	// src/main/scala/mycpu/core/backend/Execute.scala:11:14
 );
 
-  wire [31:0] inQueue_q_io_deq_bits_inst;	// src/main/scala/chisel3/util/Queue.scala:200:21
   wire [31:0] _csr_io_rdata;	// src/main/scala/mycpu/core/backend/Execute.scala:48:19
   wire [31:0] _csr_io_evec;	// src/main/scala/mycpu/core/backend/Execute.scala:48:19
   wire [31:0] _csr_io_epc;	// src/main/scala/mycpu/core/backend/Execute.scala:48:19
@@ -80,10 +79,6 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:10:7
     _inQueue_q_io_deq_bits_ctrl_op1Sel
       ? _inQueue_q_io_deq_bits_pc
       : _inQueue_q_io_deq_bits_rs1Data;	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:34:16
-  wire [31:0] op2 =
-    _inQueue_q_io_deq_bits_ctrl_op2Sel
-      ? _inQueue_q_io_deq_bits_imm
-      : _inQueue_q_io_deq_bits_rs2Data;	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:35:16
   wire        _branchCondition_T_4 =
     _inQueue_q_io_deq_bits_ctrl_memFunct3 == 3'h0
     & _inQueue_q_io_deq_bits_rs1Data == _inQueue_q_io_deq_bits_rs2Data;	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:68:28, :72:59
@@ -135,7 +130,7 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:10:7
     .io_deq_ready               (io_out_ready),
     .io_deq_valid               (_inQueue_q_io_deq_valid),
     .io_deq_bits_pc             (_inQueue_q_io_deq_bits_pc),
-    .io_deq_bits_inst           (inQueue_q_io_deq_bits_inst),
+    .io_deq_bits_inst           (/* unused */),
     .io_deq_bits_dnpc           (/* unused */),
     .io_deq_bits_rs1Data        (_inQueue_q_io_deq_bits_rs1Data),
     .io_deq_bits_rs2Data        (_inQueue_q_io_deq_bits_rs2Data),
@@ -157,20 +152,15 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:10:7
     .io_deq_bits_ctrl_isEbreak  (_inQueue_q_io_deq_bits_ctrl_isEbreak),
     .io_deq_bits_csrAddr        (_inQueue_q_io_deq_bits_csrAddr)
   );	// src/main/scala/chisel3/util/Queue.scala:200:21
-  wire        io_out_valid_0;	// src/main/scala/mycpu/core/backend/Execute.scala:10:7
-  assign io_out_valid_0 = _inQueue_q_io_deq_valid;	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:10:7
-  wire [3:0]  inQueue_q_io_deq_bits_ctrl_aluOp;	// src/main/scala/chisel3/util/Queue.scala:200:21
-  assign inQueue_q_io_deq_bits_ctrl_aluOp = _inQueue_q_io_deq_bits_ctrl_aluOp;	// src/main/scala/chisel3/util/Queue.scala:200:21
-  wire [31:0] inQueue_q_io_deq_bits_pc;	// src/main/scala/chisel3/util/Queue.scala:200:21
-  assign inQueue_q_io_deq_bits_pc = _inQueue_q_io_deq_bits_pc;	// src/main/scala/chisel3/util/Queue.scala:200:21
   ALU alu (	// src/main/scala/mycpu/core/backend/Execute.scala:37:19
     .io_a   (op1),	// src/main/scala/mycpu/core/backend/Execute.scala:34:16
-    .io_b   (op2),	// src/main/scala/mycpu/core/backend/Execute.scala:35:16
+    .io_b
+      (_inQueue_q_io_deq_bits_ctrl_op2Sel
+         ? _inQueue_q_io_deq_bits_imm
+         : _inQueue_q_io_deq_bits_rs2Data),	// src/main/scala/chisel3/util/Queue.scala:200:21, src/main/scala/mycpu/core/backend/Execute.scala:35:16
     .io_op  (_inQueue_q_io_deq_bits_ctrl_aluOp),	// src/main/scala/chisel3/util/Queue.scala:200:21
     .io_out (_alu_io_out)
   );	// src/main/scala/mycpu/core/backend/Execute.scala:37:19
-  wire [31:0] alu_io_out;	// src/main/scala/mycpu/core/backend/Execute.scala:37:19
-  assign alu_io_out = _alu_io_out;	// src/main/scala/mycpu/core/backend/Execute.scala:37:19
   CSR csr (	// src/main/scala/mycpu/core/backend/Execute.scala:48:19
     .clock            (clock),
     .reset            (reset),

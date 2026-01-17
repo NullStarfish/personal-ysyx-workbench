@@ -1,0 +1,41 @@
+error id: nqtM59jUHI8QBKKZy+gvZg==
+### Bloop error:
+
+java.nio.file.NoSuchFileException: <WORKSPACE>/.bloop/out/ysyxsoc/bloop-internal-classes/classes-Metals-sFv8myuQRly50n5wrrEvUw==-faBOrnDJTI-UyHFiSZlWMg==/sifive/blocks/devices/chiplink/SourceD.class
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystem.move(UnixFileSystem.java:892)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.move(UnixFileSystemProvider.java:309)
+	at java.base/java.nio.file.Files.move(Files.java:1431)
+	at bloop.BloopClassFileManager.move(BloopClassFileManager.scala:346)
+	at bloop.BloopClassFileManager.$anonfun$delete$6(BloopClassFileManager.scala:160)
+	at bloop.BloopClassFileManager.$anonfun$delete$6$adapted(BloopClassFileManager.scala:158)
+	at scala.collection.TraversableLike$WithFilter.$anonfun$foreach$1(TraversableLike.scala:985)
+	at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+	at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+	at scala.collection.TraversableLike$WithFilter.foreach(TraversableLike.scala:984)
+	at bloop.BloopClassFileManager.delete(BloopClassFileManager.scala:158)
+	at xsbti.compile.ClassFileManager.delete(ClassFileManager.java:36)
+	at bloop.BloopClassFileManager.delete(BloopClassFileManager.scala:23)
+	at sbt.internal.inc.IncrementalCommon$.pruneClassFilesOfInvalidations(IncrementalCommon.scala:884)
+	at sbt.internal.inc.bloop.internal.BloopNameHashing.recompileClasses(BloopNameHashing.scala:253)
+	at sbt.internal.inc.bloop.internal.BloopNameHashing.entrypoint(BloopNameHashing.scala:98)
+	at sbt.internal.inc.bloop.internal.BloopIncremental$.compileIncremental(BloopIncremental.scala:121)
+	at sbt.internal.inc.bloop.internal.BloopIncremental$.compile(BloopIncremental.scala:62)
+	at sbt.internal.inc.bloop.BloopZincCompiler$.$anonfun$compileIncrementally$1(BloopZincCompiler.scala:154)
+	at bloop.task.Task.$anonfun$runAsync$8(Task.scala:268)
+	at monix.eval.internal.TaskRunLoop$.startFull(TaskRunLoop.scala:170)
+	at monix.eval.internal.TaskRestartCallback.syncOnSuccess(TaskRestartCallback.scala:101)
+	at monix.eval.internal.TaskRestartCallback.onSuccess(TaskRestartCallback.scala:74)
+	at monix.eval.internal.TaskExecuteOn$AsyncRegister$$anon$1.run(TaskExecuteOn.scala:71)
+	at java.base/java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1423)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+#### Short summary: 
+
+java.nio.file.NoSuchFileException: <WORKSPACE>/.bloop/out/ysyxsoc/bloop-internal-classes/classes-Met...
