@@ -18,6 +18,11 @@ MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here
 CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAINARGS_PLACEHOLDER)"\"
 
 
+npc: 
+    @echo -e "\033m[32m MAKING NPC! \033[32m\n"
+    $(MAKE) -C $(NPC_HOME) all
+
+
 NPC_BIN = $(NPC_HOME)/npc
 
 ARGS =  --ftrace=$(IMAGE).elf --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt
@@ -30,13 +35,13 @@ image: image-dep
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
-run: insert-arg
+run: npc insert-arg 
 	$(NPC_BIN) $(ARGS) $(IMAGE).bin
     
-gdb: insert-arg
+gdb: insert-arg npc 
 	gdb --args $(NPC_BIN) $(ARGS) $(IMAGE).bin
 
-.PHONY: insert-arg
+.PHONY: insert-arg npc
 
 
 

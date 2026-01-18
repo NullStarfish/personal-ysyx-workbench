@@ -20,6 +20,9 @@ CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAI
 NPC_HOME=$(NEMU_HOME)/../npc
 YSYXSOC_BIN = $(NPC_HOME)/npc
 
+ysyxsoc:
+	$(MAKE) -C $(NPC_HOME)
+
 ARGS =  --ftrace=$(IMAGE).elf --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt
 
 insert-arg: image
@@ -30,14 +33,14 @@ image: image-dep
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
-run: insert-arg
+run: insert-arg ysyxsoc
 	@echo + $(YSYXSOC_BIN) $(ARGS) $(IMAGE)
 	$(YSYXSOC_BIN) $(ARGS) $(IMAGE).bin
     
-gdb: insert-arg
+gdb: insert-arg ysyxsoc
 	gdb --args $(YSYXSOC_BIN) $(ARGS) $(IMAGE).bin
 
-.PHONY: insert-arg
+.PHONY: insert-arg ysyxsoc
 
 
 

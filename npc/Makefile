@@ -56,6 +56,9 @@ VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
 # 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
 VSRC := $(VSRC_VERI) $(VSRC_OTHERS)
 
+
+SCALASRC := $(shell find ./src -name "*.scala" )
+
 # --- Verilog Include Paths (Critical Fix) ---
 # Add generated directories to include paths so Verilator can resolve `include "layers-..."`
 VERILOG_INC_DIRS := $(VSRC_DIR)/include \
@@ -147,13 +150,24 @@ VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 # =============================================================================
 # Makefile Rules
 # =============================================================================
-.PHONY: all npc run rundiff gdb-diff clean menuconfig check_config FORCE
+.PHONY: all npc  ysyxsoc_scala local_scala run rundiff gdb-diff clean menuconfig check_config FORCE
 
 $(ALL_OBJS): .config
 $(CXX_OBJS): $(VERILATED_LIB)
 
-all: npc
-npc: $(TARGET)
+all: npc 
+npc: $(TARGET)  
+
+ysyxsoc_scala:
+	@echo -e "\033[31mhello\033[0m\n"
+	$(MAKE) -C ../ysyxSoC verilog
+
+local_scala:
+	@echo -e "\033[31m SCALA!!! \033[0m\n"
+	sbt run
+
+scala: ysyxsoc_scala local_scala
+
 
 check_config:
 	@if [ ! -f .config ]; then \
@@ -170,9 +184,13 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 		$(firstword $(VERILATOR_INC_DIRS))/verilated_threads.cpp \
 		$(LDFLAGS)
 
+
+
+
+
 # [关键修改] Verilator 编译规则
 # 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
-$(VERILATED_LIB): $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
+$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
 	@echo "### Running Verilator... ###"
 	verilator --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INC_FLAGS) \

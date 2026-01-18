@@ -37,7 +37,7 @@ object MemMap {
         // 只要有一个命中了且需要 skip，就返回 true
         VecInit(hitSignals).asUInt.orR
     }
-
+  
   
   // 辅助函数：通过名字获取索引，方便连线
   def getIndex(name: String): Int = devices.indexWhere(_.name == name)

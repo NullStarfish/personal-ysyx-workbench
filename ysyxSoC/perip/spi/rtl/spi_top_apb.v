@@ -47,7 +47,7 @@ assign in_pready  = in_penable && in_psel && !in_pwrite;
 assign in_prdata  = data[31:0];
 
 `else
-
+/*
 always@(posedge clock) begin
   if (in_psel && in_penable ) begin
     if (in_pwrite)
@@ -56,6 +56,7 @@ always@(posedge clock) begin
       $display("[DEBUG] [SPI_MASTER]: read: addr: %h, data: %h", in_paddr, in_prdata);
   end
 end
+
 always@(posedge clock) begin
   if (!spi_ss[0] && spi_sck) begin
     $display("[DEBUG] [SPI_MASTER]: spiss begin");
@@ -63,7 +64,7 @@ always@(posedge clock) begin
     $display("in:  %b", spi_miso);
   end
 end
-
+*/
 spi_top u0_spi_top (
   .wb_clk_i(clock),
   .wb_rst_i(reset),

@@ -29,6 +29,101 @@ class flash extends BlackBox {
   val io = IO(Flipped(new SPIIO(1)))
 }
 
+// 定义一个标准的硬件函数模板
+abstract class HwFunction[T <: Data, R <: Data](argType: T, retType: R) {
+  // 这就是 a0 (参数)
+  val args = Wire(argType) 
+  // 这就是 v0 (返回值)
+  val ret  = Wire(retType)
+  
+  // 控制信号
+  val enable = Wire(Bool()) // Caller 发出的 start
+  val done   = Wire(Bool()) // Callee 返回的 return
+
+  // 默认不启动，防止多驱动冲突
+  args   := DontCare
+  enable := false.B
+
+  // 实现具体的硬件逻辑，返回 done 信号
+  def impl(): Unit  
+}
+
+class HardwareThread {
+  // 物理寄存器：程序计数器
+  val pc = RegInit(0.U(32.W)) 
+  
+  // 编译期计数器：用来给每一行代码分配行号
+  private var stepId = 0
+
+  // 定义“入口”：也就是 main 函数
+  def entry(block: => Unit): Unit = {
+    block // 执行传入的代码块，生成所有硬件
+    // 自动循环：最后一步跳回 0 (类似 while(1))
+    when (pc === stepId.U) { pc := 0.U }
+  }
+
+  // 核心魔法：CALL 指令
+  // 泛型 T: 参数类型, R: 返回值类型
+  def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
+    val currentStep = stepId.U
+    val resultReg = Reg(chiselTypeOf(func.ret)) // 这里的 Reg 相当于保存返回值的寄存器
+
+    // 生成当前步骤的硬件逻辑
+    when (pc === currentStep) {
+      // 1. 传参 (a0)
+      func.args := input
+      // 2. 启动 (jal)
+      func.enable := true.B
+      
+      // 3. 等待返回 (check ra/done)
+      when (func.done) {
+        resultReg := func.ret // 捕获返回值
+        pc := pc + 1.U        // PC++，进入下一行代码
+      }
+    }
+
+    // 编译期行号 + 1
+    stepId += 1
+    
+    // 返回那个寄存器，供下一行代码使用
+    resultReg
+  }
+  
+  // 普通的顺序逻辑 (比如赋值操作)
+  def Step(block: => Unit): Unit = {
+    val currentStep = stepId.U
+    when (pc === currentStep) {
+      pc := pc + 1.U
+      block
+    }
+    stepId += 1
+  }
+}
+
+
+// 1. 定义操作指令包 (Bundle)
+class XIPOp extends Bundle {
+  val addr  = UInt(32.W)
+  val wdata = UInt(32.W)
+  val write = Bool()
+  val strb  = UInt(4.W) 
+}
+
+// 伴生对象，辅助构建 Wire
+object XIPOp {
+  def apply(addr: UInt, wdata: UInt, write: Bool = true.B, strb: UInt = "hF".U) = {
+    val res = Wire(new XIPOp)
+    res.addr  := addr
+    res.wdata := wdata
+    res.write := write
+    res.strb  := strb
+    res
+  } 
+}
+
+
+
+
 class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
   val node = APBSlaveNode(Seq(APBSlavePortParameters(
     Seq(APBSlaveParameters(
@@ -39,240 +134,173 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
     beatBytes  = 4)))
 
   lazy val module = new Impl
-  //if hit flash, turn into XIP execute
+
   class Impl extends LazyModuleImp(this) {
     val (in, _) = node.in(0)
     val spi_bundle = IO(new SPIIO)
-
     val mspi = Module(new spi_top_apb)
-    /* 
-      apb: CPU interface
-      mspi: SPI Controller:
-        inside mspi, we have flash and other slaves mounted on 
-        mspi is just a translator
-     */
-
-    //We need to catch apb flash hit on apb, 
-    //let the xip logic control the spi_top_apb logic
-    //send apb packet
-    //when done exit xip mode
-
-    //the whole logic relies on the packet send to mspi
-      
-    //The arbiter: decide whose packet can go into mspi:
-      //the two sources:
-        //XIP logic;
-        //standard in;
-      //when in XIP mode: we also need to take over the utter apb reply: do not send ready!
-      //when in common mode: let the spi_top_apb slaves to control
-    //the standard in
     
 
+    val mspi_proxy = Wire(new APBBundle(in.params))
+    
 
-    //Here XIP works as a blocking function
-    //inout: APBSPI ready for begin, valid for done
-    class XIP {
-      class XIPOp extends Bundle/* what is Bundle? why we need Bundle for XIPOp to be Wire?*/{
-        val addr = UInt(32.W)
-        val data = UInt(32.W)
-        val write = Bool()
-      }
-      object XIPOp {
-        def apply(addr: UInt,/* what is UInt? An apply method? what is UInt(32.W)? */ data: UInt, write: Bool = true.B) = {
-          val res = Wire(new XIPOp)
-          res.addr := addr
-          res.data := data
-          res.write := write 
-          res
-        }
-      }
-      val spiBase = 0x10001000
-      
-      // APBHelper: manage apb send.
-      object APBHelper {
-        def driveAPB(req: DecoupledIO[XIPOp]/* what is this? */, apb: APBBundle): Bool = {
-          val sIdle :: sSetup :: sAccess :: Nil = Enum(3)// Enum in Chisel?
-          val state = RegInit(sIdle)
-          val activeReq = req.bits
+    mspi.io.clock := clock
+    mspi.io.reset := reset
+    mspi.io.in <> mspi_proxy
+    spi_bundle <> mspi.io.spi
+
+
+    class XIPAPBDriver extends HwFunction(new XIPOp, UInt(32.W)) {
+      // 捕获 mspi_proxy
+      val apb = mspi_proxy
+
+      override def impl(): Unit = {
+        val sSetup :: sAccess :: Nil = Enum(2)
+        val state = RegInit(sSetup)
+        
+        // 默认返回值：本身属性，不在when中写
+        ret := 0.U
+        done := false.B
+
+        when (enable) {
           switch (state) {
-            is (sIdle) {
-              when (req.valid) {
-                state := sSetup
-              }
-            }
-            is (sSetup) { // used to get psel
+            is (sSetup) {
               state := sAccess
             }
-            is (sAccess) { //the Setup and Access realize continuly write & read
-              when (apb.pready){
-                state := Mux(req.valid, sSetup, sIdle)
+            is (sAccess) {
+              when (apb.pready) {
+                state := sSetup
+                done  := true.B
+                ret   := apb.prdata // 捕获数据
               }
             }
           }
-          apb.psel := (state === sSetup) || (state === sAccess) 
-          apb.penable := (state === sAccess )
-          apb.paddr := activeReq.addr
-          apb.pwdata := activeReq.data
-          apb.pwrite := activeReq.write
-          apb.pstrb := 0xF.U
-          val done = (state === sAccess) && (apb.pready) // A PULSE
-          req.ready := done
-          done
+
+          apb.paddr   := args.addr
+          apb.pwdata  := args.wdata
+          apb.pwrite  := args.write
+          apb.pstrb   := args.strb
+          apb.psel    := true.B
+          apb.penable := (state === sAccess)
         }
       }
-      
-      val upc = RegInit(0.U(3.W))
-      val busy = RegInit(false.B)
-      val targetAddr = Reg(UInt(32.W))
-        
-
-      val dataReg  = Reg(UInt(32.W))
-      def execute (start: Bool, apb: APBBundle): (Bool, UInt) = {
-        /* start : the functions's start sign
-          apb: the XIP proxy the in APB
-          Bool: seqDone
-          UInt: flash out */
-        
-        // IN.paddr is OUTSIDE the XIP!!!
-        when(start) {
-          targetAddr := in.paddr
-        }       
-        val opSeq = VecInit(Seq(
-          XIPOp((spiBase + 0x00).U, 0x00.U), 
-          XIPOp((spiBase + 0x04).U, (0x03.U << 24) | (targetAddr & 0x00FFFFFF.U)),
-          XIPOp((spiBase + 0x14).U, 0.U),
-          XIPOp((spiBase + 0x18).U, 1.U),
-          XIPOp((spiBase + 0x10).U, 0x2540.U),
-          XIPOp((spiBase + 0x10).U, 0.U, false.B),             
-          XIPOp((spiBase + 0x00).U, 0.U, false.B)   
-        ))
-
-        //IT'S WRONG !!!j 
-        //val inst = Wire(Decoupled(opSeq(upc)))
-        val inst = Wire(Decoupled(new XIPOp))
-        inst.bits := opSeq(upc)
-        inst.valid := busy
-
-
-        val stepDone = APBHelper.driveAPB(inst, apb)
-        val seqDone  = WireDefault(false.B)
-
-        when (!busy && start) {
-          busy := true.B
-          inst.valid := true.B
-          upc := 0.U
-        }
-        when (busy && stepDone) {
-          when (upc === 5.U) {
-            val isFinished = (apb.prdata & 0x100.U) === 0.U
-            when (isFinished) {upc := upc + 1.U}
-          } .elsewhen (upc < 6.U) {
-            upc := upc + 1.U
-          } .otherwise {
-            seqDone := true.B
-            upc := 0.U
-            busy := false.B
-
-            dataReg := apb.prdata
-          }
-        }
-        /* cause we are driving outter signals,
-            INCOMPLETELY!!!  */
-
-        (seqDone, dataReg)
-
-
-      }
-
-
     }
 
 
-    val mspi_proxy = Wire(new APBBundle(in.params))
+    class XIP extends HwFunction(UInt(32.W), UInt(32.W)) {
+      // 资源引用
+      val spiBase = 0x10001000
+      val flashBase = 0x30000000
 
-    //mspi_proxy := in //Default, execute will cover it
-    /* this is not correct:
-      compare:
-        1. out := 1.U
-        when (cond) {
-        out := 2.U}
+      override def impl(): Unit = {
+        // 1. 实例化驱动
+        val driver = new XIPAPBDriver()
+        driver.impl() // 生成驱动电路
+
+        // 2. 实例化线程
+        val thread = new HardwareThread
         
-        2.when (cond) {
-          out := 2.U
-        } .otherwise {
-          out := 1.U
+        
+        val targetAddr = RegEnable(args - flashBase.U, enable) 
+
+        // 默认输出:这是Funciton本身的属性，不能留到when里面
+        this.done := false.B
+        this.ret  := 0.U
+
+
+        when (enable) {
+
+          // 4. 微码流程
+          thread.entry {
+            // 等待启动
+
+            // Step 1: TX0 = 0
+            thread.Call(driver, XIPOp((spiBase + 0x00).U, 0.U))
+            
+            // Step 2: TX1 = CMD(0x03) + ADDR
+            val cmdVal = (0x03.U(8.W) ## targetAddr(23, 0))
+            thread.Call(driver, XIPOp((spiBase + 0x04).U, cmdVal))
+
+            // Step 3: DIV = 0
+            thread.Call(driver, XIPOp((spiBase + 0x14).U, 0.U))
+
+            // Step 4: SS = 1
+            thread.Call(driver, XIPOp((spiBase + 0x18).U, 1.U))
+
+            // Step 5: CTRL = Start (0x2540)
+            thread.Call(driver, XIPOp((spiBase + 0x10).U, 0x2540.U))
+
+            // Step 6: Polling Loop (while CTRL & 0x100)
+            val driverState = thread.Call(driver, XIPOp((spiBase + 0x10).U, 0.U, write = false.B, strb = 0xF.U))
+            val isSpiBusy = (driver.ret & 0x100.U) =/= 0.U
+            when (isSpiBusy) {
+              thread.pc := thread.pc
+            }
+            // cover the pc update logic in thread.Call
+            
+
+            // Step 7: Read RX0
+            val finalData = thread.Call(driver, XIPOp((spiBase + 0x00).U, 0.U, write = false.B, strb = 0.U))
+
+            // Finish
+            thread.Step {
+              this.ret  := finalData
+              this.done := true.B
+            }
+          }
         }
 
-        the two forms are equal
+        // 5. 顶层仲裁与 Hold 逻辑
+        // 当 XIP 忙碌时，接管对 CPU 的响应
+        when (enable) {
+          // 欺骗 CPU：让它一直等待 (Ready=0)，直到 done 为真
+          in.pready := this.done
+          in.prdata := this.ret
+          in.pslverr := false.B
 
-
-        BUT!!!!!
-
-        the driveAPB is a stateMACHINE!!!!
-        when sIdle, it still holds the mspi_proxy        
-         */
-    mspi.io.in <> mspi_proxy
-  
-
-    val xip = new XIP
-
-
-
-    
-    //Shall we use flashData? Actually execute has sent flashData on APB
-    
+          
+          // 注意：mspi_proxy 的驱动已经在 driver.impl() 里通过 when(enable) 处理了
+          // 这里不需要再次赋值，driver 内部的逻辑会覆盖外面的默认逻辑
+        }
+      }
+    }
 
 
     val flashHit = in.psel && (in.paddr >= 0x30000000.U && in.paddr < 0x40000000.U)
 
+    // 1. 默认连接 (CPU 直连)
 
-
-
-    val sNormal :: sXIP :: Nil = Enum(2)
-    val state = RegInit(sNormal)
-    //val (xipDone, flashData) = xip.execute(state === sXIP, mspi_proxy)
-    val xipDone = WireDefault(false.B)
-    val flashData = WireDefault(0.U(32.W))
-    switch(state) {
-      is (sNormal) {
-        when (flashHit && in.penable) {
-          state := sXIP
-        }
-      }
-      is (sXIP) {
-        when (xipDone) {
-          state := sNormal
-        }
-      }
-    }
     mspi_proxy.paddr   := in.paddr
     mspi_proxy.pwdata  := in.pwdata
     mspi_proxy.pwrite  := in.pwrite
-    mspi_proxy.psel    := in.psel && !flashHit // 默认屏蔽 Flash 区域
+    mspi_proxy.psel    := in.psel && !flashHit 
     mspi_proxy.penable := in.penable
-    mspi_proxy.pprot   := in.pprot   // 解决初始化报错
-    mspi_proxy.pstrb   := in.pstrb   // 解决初始化报错
-    when(state === sXIP) {
-      val (done, data) = xip.execute(true.B, mspi_proxy)
-      xipDone := done
-      flashData := data
+    mspi_proxy.pprot   := in.pprot
+    mspi_proxy.pstrb   := in.pstrb
 
-    } .otherwise {
 
+    in.pready := mspi_proxy.pready
+    in.prdata := mspi_proxy.prdata
+    in.pslverr := mspi_proxy.pslverr
+
+
+
+
+
+
+
+
+    // 2. 实例化 XIP 逻辑
+    val xipFunc = new XIP
+    xipFunc.impl()
+
+    val xipThread = new HardwareThread
+    when(flashHit && in.penable) {
+      xipThread.entry {
+        xipThread.Call(xipFunc, in.paddr)
+      }
     }
 
-
-    in.pready := Mux(flashHit, xipDone, mspi_proxy.pready)
-    in.prdata := Mux(flashHit, flashData, mspi_proxy.prdata)
-
-
-    mspi.io.clock := clock
-    mspi.io.reset := reset
-    
-
-
-
-    spi_bundle <> mspi.io.spi
 
   }
 }
