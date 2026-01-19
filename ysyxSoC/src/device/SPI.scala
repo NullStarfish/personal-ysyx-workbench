@@ -48,60 +48,120 @@ abstract class HwFunction[T <: Data, R <: Data](argType: T, retType: R) {
   def impl(): Unit  
 }
 
-class HardwareThread {
-  // 物理寄存器：程序计数器
-  val pc = RegInit(0.U(32.W)) 
-  
-  // 编译期计数器：用来给每一行代码分配行号
-  private var stepId = 0
+import chisel3._
+import chisel3.util._
+import scala.collection.mutable.ArrayBuffer
 
-  // 定义“入口”：也就是 main 函数
-  def entry(block: => Unit): Unit = {
-    block // 执行传入的代码块，生成所有硬件
-    // 自动循环：最后一步跳回 0 (类似 while(1))
-    when (pc === stepId.U) { pc := 0.U }
+class HardwareThread {
+  // 1. 存储逻辑闭包
+  private val steps = ArrayBuffer[() => Unit]()
+  private val globals = ArrayBuffer[() => Unit]()
+  
+  // 2. 物理实体 (延迟创建)
+  private var pcEntity: UInt = _
+  private var isCombinational = false
+  
+  // 3. 供外部读取/写入 PC 的接口
+  //    必须在 impl/entry 阶段调用，否则报错
+  def pc: UInt = {
+    require(pcEntity != null, "Error: Cannot access 'thread.pc' outside of Step/Call/Global logic! Hardware not generated yet.")
+    pcEntity
   }
 
-  // 核心魔法：CALL 指令
-  // 泛型 T: 参数类型, R: 返回值类型
-  def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
-    val currentStep = stepId.U
-    val resultReg = Reg(chiselTypeOf(func.ret)) // 这里的 Reg 相当于保存返回值的寄存器
+  // =================================================================
+  // 入口函数
+  // =================================================================
+  def entry(block: => Unit): Unit = {
+    // Phase 1: 收集 (Collection)
+    // 执行用户的 block，把 Step/Call/Global 里的闭包收集起来
+    block
 
-    // 生成当前步骤的硬件逻辑
-    when (pc === currentStep) {
-      // 1. 传参 (a0)
-      func.args := input
-      // 2. 启动 (jal)
-      func.enable := true.B
+    // Phase 2: 资源分配 (Allocation)
+    val totalSteps = steps.length
+    
+    // 处理 Corner Case (0 或 1 步)
+    if (totalSteps <= 1) {
+      // 退化为 Wire，支持组合逻辑
+      pcEntity = WireInit(0.U)
+      isCombinational = true
       
-      // 3. 等待返回 (check ra/done)
-      when (func.done) {
-        resultReg := func.ret // 捕获返回值
-        pc := pc + 1.U        // PC++，进入下一行代码
+      // 回放逻辑 (只执行第0步，如果有)
+      if (totalSteps == 1) steps(0)()
+      // 回放全局逻辑 (依然有效)
+      globals.foreach(_())
+      
+    } else {
+      // Normal Case: 创建寄存器
+      val width = log2Ceil(totalSteps)
+      // 我们创建一个 Reg，但类型标记为 UInt，方便统一处理
+      val pcReg = RegInit(0.U(width.W))
+      pcEntity = pcReg
+      
+      // Phase 3: 生成 Step 逻辑 (Generation)
+      for ((stepFunc, idx) <- steps.zipWithIndex) {
+        when (pcReg === idx.U) {
+          // A. 默认行为：PC++
+          pcReg := pcReg + 1.U
+          
+          // B. 用户 Step 行为 (可覆盖 A)
+          stepFunc()
+        }
+      }
+      
+      // Phase 4: 生成 Global 逻辑 (Highest Priority)
+      // C. 全局行为 (可覆盖 A 和 B)
+      //    这在生成的 Verilog 中位于最下方，拥有最高优先级
+      globals.foreach(_())
+
+      // Phase 5: 循环回绕保护
+      //    如果 Global 逻辑没有强制跳转，且 PC 超界，归零
+      when (pcReg >= totalSteps.U) {
+        pcReg := 0.U
       }
     }
+  }
 
-    // 编译期行号 + 1
-    stepId += 1
-    
-    // 返回那个寄存器，供下一行代码使用
-    resultReg
+  def Step(block: => Unit): Unit = {
+    steps += { () => block }
   }
   
-  // 普通的顺序逻辑 (比如赋值操作)
-  def Step(block: => Unit): Unit = {
-    val currentStep = stepId.U
-    when (pc === currentStep) {
-      pc := pc + 1.U
-      block
+  // 新增：全局逻辑
+  // 这里的代码会在每个时钟周期执行，拥有最高修改 PC 的权限
+  def Label: UInt = steps.length.U
+
+
+  def Global(block: => Unit): Unit = {
+    globals += { () => block }
+  }
+
+  def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
+    // 这里的 Wire 用于在生成前占位，将返回值传出去
+    val resultWire = Wire(chiselTypeOf(func.ret))
+    resultWire := DontCare 
+
+    steps += { () => 
+      // 在生成阶段创建 latch
+      val latch = Reg(chiselTypeOf(func.ret))
+      
+      func.args   := input
+      func.enable := true.B
+      
+      // 覆盖默认的 PC++，改为 Stall
+      if (!isCombinational)
+        pcEntity := pcEntity 
+      
+      when (func.done) {
+        latch := func.ret
+        // 完成后进位
+        if (!isCombinational)
+          pcEntity := pcEntity + 1.U
+      }
+      resultWire := latch
     }
-    stepId += 1
+    resultWire
   }
 }
 
-
-// 1. 定义操作指令包 (Bundle)
 class XIPOp extends Bundle {
   val addr  = UInt(32.W)
   val wdata = UInt(32.W)
@@ -231,13 +291,20 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
             thread.Call(driver, XIPOp((spiBase + 0x10).U, 0x2540.U))
 
             // Step 6: Polling Loop (while CTRL & 0x100)
-            val driverState = thread.Call(driver, XIPOp((spiBase + 0x10).U, 0.U, write = false.B, strb = 0xF.U))
-            val isSpiBusy = (driver.ret & 0x100.U) =/= 0.U
-            when (isSpiBusy) {
-              thread.pc := thread.pc
+
+            thread.Step {
+              driver.enable := true.B
+              driver.args := XIPOp((spiBase + 0x10).U, 0.U, write = false.B, strb = 0xF.U)
+              val driverDone = driver.done
+              val driverState = driver.ret
+
+              thread.pc := thread.pc // MUST HOLD PC
+              when (driverDone) {
+                when ((driverState & 0x100.U) === 0.U ) {
+                  thread.pc := thread.pc + 1.U
+                }
+              }
             }
-            // cover the pc update logic in thread.Call
-            
 
             // Step 7: Read RX0
             val finalData = thread.Call(driver, XIPOp((spiBase + 0x00).U, 0.U, write = false.B, strb = 0.U))
