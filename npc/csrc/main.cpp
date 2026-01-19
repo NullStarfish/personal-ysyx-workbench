@@ -120,28 +120,24 @@ extern "C" void ebreak() {
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
 static const long PMEM_SIZE = 0x70000000; // 128MB
-static const long PMEM_BASE = 0x20000000L;
+static const long PMEM_BASE = 0x30000000L;
 
 static long last_pc = -1;
 
 
 uint8_t *flash_mem;
 
-void init_flash() {
-    flash_mem = (uint8_t*)malloc(sizeof(uint8_t) * 0x100000);
-    for (int i = 0; i < 100; i ++) {
-        flash_mem[i] = (uint8_t)i;
-    }
-}
+
 
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
-    uint32_t offset = addr & 0xfffffffc;
-    uint32_t res = (uint32_t)flash_mem[offset] | 
-                   (uint32_t)flash_mem[offset + 1] << 8 |
-                   (uint32_t)flash_mem[offset + 2] << 16 |
-                   (uint32_t)flash_mem[offset + 3] << 24;
-    *data = res;
+    uint32_t pc_offset = (addr ) & 0xfffffffc;
+    uint32_t inst =     (uint32_t)pmem[pc_offset + 3] |
+    (uint32_t)pmem[pc_offset + 2] << 8  |
+    (uint32_t)pmem[pc_offset + 1] << 16 |
+    (uint32_t)pmem[pc_offset + 0] << 24;
+
+    *data = inst;
 }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
     uint32_t pc_offset = (addr - 0x20000000L) & 0xfffffffc;
@@ -276,8 +272,8 @@ void reset_cpu(int n) {
 void init_cpu() {
     // 简单起见，reset后直接认为启动，或者检查 PC 是否重置到 START_ADDR
     // while (get_pc_cpp() != 0x80000000) step_one_clk();
-    g_cpu_state.pc = 0x20000000;
-    g_cpu_state.dnpc = 0x20000000; // [新增]
+    g_cpu_state.pc = 0x30000000;
+    g_cpu_state.dnpc = 0x30000000; // [新增]
     g_cpu_state.csrs.mstatus = 0x1800; // Reset value
 }
 
@@ -460,7 +456,6 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
 int main(int argc, char** argv) {
 
-    init_flash();
 
     Verilated::commandArgs(argc, argv);
     init_monitor(argc, argv);
