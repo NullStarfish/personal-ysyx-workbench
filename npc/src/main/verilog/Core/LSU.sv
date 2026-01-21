@@ -136,7 +136,6 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:11:7
     .io_rStream_ready     (state & _GEN_4 & io_out_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:154:34, :159:22, :187:36, :188:{29,53}, :190:35
     .io_rStream_valid     (_readBridge_io_rStream_valid),
     .io_rStream_bits_data (_readBridge_io_rStream_bits_data),
-    .io_rStream_bits_resp (/* unused */),
     .io_axi_ar_ready      (io_axi_ar_ready),
     .io_axi_ar_valid      (io_axi_ar_valid),
     .io_axi_ar_bits_id    (_readBridge_io_axi_ar_bits_id),

@@ -8,6 +8,8 @@ import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 
+import scala.collection.mutable.{ArrayBuffer, HashSet}
+
 class SPIIO(val ssWidth: Int = 8) extends Bundle {
   val sck = Output(Bool())
   val ss = Output(UInt(ssWidth.W))
@@ -52,81 +54,146 @@ import chisel3._
 import chisel3.util._
 import scala.collection.mutable.ArrayBuffer
 
-class HardwareThread {
-  // 1. 存储逻辑闭包
+class HardwareThread(val name: String) {
+
   private val steps = ArrayBuffer[() => Unit]()
   private val globals = ArrayBuffer[() => Unit]()
   
-  // 2. 物理实体 (延迟创建)
+
   private var pcEntity: UInt = _
   private var isCombinational = false
-  
-  // 3. 供外部读取/写入 PC 的接口
-  //    必须在 impl/entry 阶段调用，否则报错
+
+
+
+  private val active = RegInit(false.B)
+
+    // --- 控制信号 (Lazy Binding) ---
+  private var startSignal: Bool = false.B  // 触发启动
+  private var abortSignal: Bool = false.B  // 强制复位 (Kill)
+  private var pauseSignal: Bool = false.B  // 暂停执行 (Stall)
+
+
+  private val ownedSignals = HashSet[Data]()
+
+
   def pc: UInt = {
     require(pcEntity != null, "Error: Cannot access 'thread.pc' outside of Step/Call/Global logic! Hardware not generated yet.")
     pcEntity
   }
 
-  // =================================================================
-  // 入口函数
-  // =================================================================
-  def entry(block: => Unit): Unit = {
-    // Phase 1: 收集 (Collection)
-    // 执行用户的 block，把 Step/Call/Global 里的闭包收集起来
-    block
 
-    // Phase 2: 资源分配 (Allocation)
+  // 设置启动条件 (Spawn)
+  def startWhen(cond: Bool): Unit = { startSignal = cond }
+  
+  // 设置强杀条件 (Kill -9)
+  // 优先级最高，一旦满足，下一拍 PC 归零，active 变 false
+  def abortWhen(cond: Bool): Unit = { abortSignal = cond }
+  
+  // 设置暂停条件 (Context Switch / Wait)
+  // 满足时，保持 PC 不变，保持输出不变
+  def pauseWhen(cond: Bool): Unit = { pauseSignal = cond }
+
+  // 状态查询
+  def isRunning: Bool = active
+
+
+
+  def driveManaged[T <: Data](signal: T, idleValue: T, activeDefault: T): T = {
+    // 只有当线程 Active 时，才使用 activeDefault 或线程内部的值
+    // 否则回退到 idleValue
+    val threadDriver = WireInit(activeDefault)
+
+    ownedSignals.add(threadDriver)
+    signal := Mux(active, threadDriver, idleValue)
+    threadDriver
+  }
+
+  def write[T <: Data](target: T, value: T): Unit = {
+    if (!ownedSignals.contains(target)) {
+       throw new Exception(s"[Error] Thread '$name' trying to drive unmanaged signal: $target")
+    }
+    target := value
+  }
+
+
+
+  def entry(block: => Unit): Unit = {
+
+    block
     val totalSteps = steps.length
     
-    // 处理 Corner Case (0 或 1 步)
+
     if (totalSteps <= 1) {
-      // 退化为 Wire，支持组合逻辑
       pcEntity = WireInit(0.U)
       isCombinational = true
-      
-      // 回放逻辑 (只执行第0步，如果有)
       if (totalSteps == 1) steps(0)()
-      // 回放全局逻辑 (依然有效)
       globals.foreach(_())
       
     } else {
-      // Normal Case: 创建寄存器
+
       val width = log2Ceil(totalSteps)
-      // 我们创建一个 Reg，但类型标记为 UInt，方便统一处理
       val pcReg = RegInit(0.U(width.W))
       pcEntity = pcReg
       
-      // Phase 3: 生成 Step 逻辑 (Generation)
-      for ((stepFunc, idx) <- steps.zipWithIndex) {
-        when (pcReg === idx.U) {
-          // A. 默认行为：PC++
+
+
+      when (abortSignal) {
+        active := false.B
+        pcReg  := 0.U
+      }
+      // 优先级 2: 正常运行逻辑
+      .elsewhen (active) {
+        // 如果没有暂停，则执行
+        when (!pauseSignal) {
+          // 默认 PC 自增 (Fetch Next Instruction)
           pcReg := pcReg + 1.U
           
-          // B. 用户 Step 行为 (可覆盖 A)
-          stepFunc()
+          // 执行当前 Step 的逻辑
+          for ((func, idx) <- steps.zipWithIndex) {
+            when (pcReg === idx.U) {
+              func()
+            }
+          }
+          
+          // 边界检查：如果跑飞了，自动停机 (或者你可以改为循环)
+          when (pcReg >= totalSteps.U) {
+            // 默认行为：跑完所有 Step 后自动退出 (Exit)
+            // 用户可以在最后一个 Step 修改 PC 来实现 Loop
+            active := false.B
+            pcReg := 0.U
+          }
         }
       }
+      // 优先级 3: 启动 (Spawn)
+      .otherwise { // !active
+        when (startSignal) {
+          active := true.B
+          pcReg  := 0.U
+        }
+      }
+
       
-      // Phase 4: 生成 Global 逻辑 (Highest Priority)
-      // C. 全局行为 (可覆盖 A 和 B)
-      //    这在生成的 Verilog 中位于最下方，拥有最高优先级
       globals.foreach(_())
 
-      // Phase 5: 循环回绕保护
-      //    如果 Global 逻辑没有强制跳转，且 PC 超界，归零
-      when (pcReg >= totalSteps.U) {
-        pcReg := 0.U
-      }
     }
   }
+
+
+  def Exit(): Unit = {
+    active := false.B
+    pcEntity := 0.U
+  }
+  
+  // 新增：循环指令
+  def Loop(): Unit = {
+    pcEntity := 0.U
+  }
+  
 
   def Step(block: => Unit): Unit = {
     steps += { () => block }
   }
   
-  // 新增：全局逻辑
-  // 这里的代码会在每个时钟周期执行，拥有最高修改 PC 的权限
   def Label: UInt = steps.length.U
 
 
@@ -135,24 +202,21 @@ class HardwareThread {
   }
 
   def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
-    // 这里的 Wire 用于在生成前占位，将返回值传出去
+
     val resultWire = Wire(chiselTypeOf(func.ret))
     resultWire := DontCare 
 
     steps += { () => 
-      // 在生成阶段创建 latch
       val latch = Reg(chiselTypeOf(func.ret))
       
       func.args   := input
       func.enable := true.B
       
-      // 覆盖默认的 PC++，改为 Stall
       if (!isCombinational)
         pcEntity := pcEntity 
       
       when (func.done) {
         latch := func.ret
-        // 完成后进位
         if (!isCombinational)
           pcEntity := pcEntity + 1.U
       }
@@ -209,6 +273,15 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
     mspi.io.in <> mspi_proxy
     spi_bundle <> mspi.io.spi
 
+    // CPU 直连模式下的输入连接 (总是连接，但会被 Driver 覆盖)
+    mspi_proxy.paddr   := in.paddr
+    mspi_proxy.pwdata  := in.pwdata
+    mspi_proxy.pwrite  := in.pwrite
+    mspi_proxy.psel    := in.psel 
+    mspi_proxy.penable := in.penable
+    mspi_proxy.pprot   := in.pprot
+    mspi_proxy.pstrb   := in.pstrb
+
 
     class XIPAPBDriver extends HwFunction(new XIPOp, UInt(32.W)) {
       // 捕获 mspi_proxy
@@ -242,132 +315,107 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
           apb.pstrb   := args.strb
           apb.psel    := true.B
           apb.penable := (state === sAccess)
-        }
-      }
-    }
+          when (done) {
 
-
-    class XIP extends HwFunction(UInt(32.W), UInt(32.W)) {
-      // 资源引用
-      val spiBase = 0x10001000
-      val flashBase = 0x30000000
-
-      override def impl(): Unit = {
-        // 1. 实例化驱动
-        val driver = new XIPAPBDriver()
-        driver.impl() // 生成驱动电路
-
-        // 2. 实例化线程
-        val thread = new HardwareThread
-        
-        
-        val targetAddr = RegEnable(args - flashBase.U, enable) 
-
-        // 默认输出:这是Funciton本身的属性，不能留到when里面
-        this.done := false.B
-        this.ret  := 0.U
-
-
-        when (enable) {
-
-          // 4. 微码流程
-          thread.entry {
-            // 等待启动
-
-            // Step 1: TX0 = 0
-            thread.Call(driver, XIPOp((spiBase + 0x00).U, 0.U))
-            
-            // Step 2: TX1 = CMD(0x03) + ADDR
-            val cmdVal = (0x03.U(8.W) ## targetAddr(23, 0))
-            thread.Call(driver, XIPOp((spiBase + 0x04).U, cmdVal))
-
-            // Step 3: DIV = 0
-            thread.Call(driver, XIPOp((spiBase + 0x14).U, 0.U))
-
-            // Step 4: SS = 1
-            thread.Call(driver, XIPOp((spiBase + 0x18).U, 1.U))
-
-            // Step 5: CTRL = Start (0x2540)
-            thread.Call(driver, XIPOp((spiBase + 0x10).U, 0x2540.U))
-
-            // Step 6: Polling Loop (while CTRL & 0x100)
-
-            thread.Step {
-              driver.enable := true.B
-              driver.args := XIPOp((spiBase + 0x10).U, 0.U, write = false.B, strb = 0xF.U)
-              val driverDone = driver.done
-              val driverState = driver.ret
-
-              thread.pc := thread.pc // MUST HOLD PC
-              when (driverDone) {
-                when ((driverState & 0x100.U) === 0.U ) {
-                  thread.pc := thread.pc + 1.U
-                }
-              }
-            }
-
-            // Step 7: Read RX0
-            val finalData = thread.Call(driver, XIPOp((spiBase + 0x00).U, 0.U, write = false.B, strb = 0.U))
-
-            // Finish
-            thread.Step {
-              this.ret  := finalData
-              this.done := true.B
-            }
+            printf(p"Call Driver FUNC DONE: node: ${args}, ret: ${ret}, done: ${done}\n")
           }
-        }
 
-        // 5. 顶层仲裁与 Hold 逻辑
-        // 当 XIP 忙碌时，接管对 CPU 的响应
-        when (enable) {
-          // 欺骗 CPU：让它一直等待 (Ready=0)，直到 done 为真
-          in.pready := this.done
-          in.prdata := this.ret
-          in.pslverr := false.B
-
-          
-          // 注意：mspi_proxy 的驱动已经在 driver.impl() 里通过 when(enable) 处理了
-          // 这里不需要再次赋值，driver 内部的逻辑会覆盖外面的默认逻辑
+        } .otherwise {
+          state := sSetup
         }
       }
     }
+
+    val xipDriver = new XIPAPBDriver()
+    xipDriver.impl()
+
+
+    
+
+
+    val xipThread = new HardwareThread("XIP_Core")
+    
+    // [关键点 1] 信号接管声明
+    // 如果线程 Active，这些信号由线程控制；否则直通 mspi_proxy (CPU直接访问模式)
+    // 这里的 default 值是在 XIP 运行期间的默认值
+    val pReadyProxy = xipThread.driveManaged(in.pready,  mspi_proxy.pready,  false.B)
+    val pDataProxy  = xipThread.driveManaged(in.prdata,  mspi_proxy.prdata,  0.U)
+    val pErrProxy   = xipThread.driveManaged(in.pslverr, mspi_proxy.pslverr, false.B)
+
 
 
     val flashHit = in.psel && (in.paddr >= 0x30000000.U && in.paddr < 0x40000000.U)
+    
 
-    // 1. 默认连接 (CPU 直连)
+    xipThread.startWhen(flashHit && in.penable)
+    val pastRunnning = RegNext(xipThread.isRunning)
+    
+    
+    
 
-    mspi_proxy.paddr   := in.paddr
-    mspi_proxy.pwdata  := in.pwdata
-    mspi_proxy.pwrite  := in.pwrite
-    mspi_proxy.psel    := in.psel && !flashHit 
-    mspi_proxy.penable := in.penable
-    mspi_proxy.pprot   := in.pprot
-    mspi_proxy.pstrb   := in.pstrb
-
-
-    in.pready := mspi_proxy.pready
-    in.prdata := mspi_proxy.prdata
-    in.pslverr := mspi_proxy.pslverr
+    xipThread.abortWhen(!in.psel)
 
 
+    xipThread.entry {
+      
+      val spiBase = 0x10001000.U
+      val targetAddr = in.paddr - 0x30000000.U
+
+      xipThread.Call(xipDriver, XIPOp(spiBase + 0x00.U, 0.U))
+      
+      val cmdVal = (0x03.U(8.W) ## targetAddr(23, 0))
+      xipThread.Call(xipDriver, XIPOp(spiBase + 0x04.U, cmdVal))
+
+      xipThread.Call(xipDriver, XIPOp(spiBase + 0x14.U, 0.U))
+
+      xipThread.Call(xipDriver, XIPOp(spiBase + 0x18.U, 1.U))
+      xipThread.Call(xipDriver, XIPOp(spiBase + 0x10.U, 0x2540.U))
 
 
 
+      val loopStartPC = xipThread.Label 
+      
+
+      val status = xipThread.Call(xipDriver, XIPOp(spiBase + 0x10.U, 0.U, write = false.B, strb = 0xF.U))
+      
+      xipThread.Step {
+        when ((status & 0x100.U) =/= 0.U) {
+          xipThread.pc := loopStartPC
+        }
+      }
+
+      // --- Step 7: Read RX0 (Get Data) ---
+      val finalData = xipThread.Call(xipDriver, XIPOp(spiBase + 0x00.U, 0.U, write = false.B, strb = 0xF.U))
 
 
+      xipThread.Step {
 
-    // 2. 实例化 XIP 逻辑
-    val xipFunc = new XIP
-    xipFunc.impl()
+        xipThread.write(pReadyProxy, true.B)
+        xipThread.write(pDataProxy,  finalData)
+        xipThread.write(pErrProxy,   false.B)
 
-    val xipThread = new HardwareThread
-    when(flashHit && in.penable) {
-      xipThread.entry {
-        xipThread.Call(xipFunc, in.paddr)
+
+        xipThread.pc := xipThread.pc 
+      }
+      
+
+      xipThread.Global {
+        /*
+        when(xipThread.isRunning) {
+           printf(p"[XIP] PC=${xipThread.pc}\n")
+        }
+        */
+
+        when (xipThread.isRunning && !pastRunnning) {
+          printf("[DEBUG] [xipThread] xipThread ONLINE!!!\n")
+          printf("targetAddr: %x\n", in.paddr - 0x30000000.U)
+        }
+
+        when (!xipThread.isRunning && pastRunnning) {
+          printf("[DEBUG] [xipThread] xipThread OFFLINE!!!\n")
+          printf("final data: %x\n", finalData)
+        }
       }
     }
-
-
   }
 }

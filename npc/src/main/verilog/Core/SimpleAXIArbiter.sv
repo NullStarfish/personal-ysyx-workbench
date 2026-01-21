@@ -4,16 +4,11 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
                 reset,	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   output        io_left_ar_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input         io_left_ar_valid,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  input  [2:0]  io_left_ar_bits_id,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input  [31:0] io_left_ar_bits_addr,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  input  [7:0]  io_left_ar_bits_len,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  input  [2:0]  io_left_ar_bits_size,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  input  [1:0]  io_left_ar_bits_burst,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input         io_left_r_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output        io_left_r_valid,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output [2:0]  io_left_r_bits_id,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output [31:0] io_left_r_bits_data,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  output [1:0]  io_left_r_bits_resp,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output        io_left_r_bits_last,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
                 io_right_aw_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input         io_right_aw_valid,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
@@ -97,7 +92,6 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_left_r_valid = _GEN_2 & io_out_r_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :30:16, :69:{29,67}, :70:12
   assign io_left_r_bits_id = io_out_r_bits_id;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_left_r_bits_data = io_out_r_bits_data;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_left_r_bits_resp = io_out_r_bits_resp;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_left_r_bits_last = io_out_r_bits_last;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_right_aw_ready = ~_GEN_2 & _GEN_3 & io_out_aw_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :69:{29,67}, :72:{35,74}, :73:12
   assign io_right_w_ready = ~_GEN_2 & _GEN_3 & io_out_w_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :29:16, :69:{29,67}, :72:{35,74}, :73:12
@@ -120,11 +114,11 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_out_w_bits_last = ~_GEN_2 & io_right_w_bits_last;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :69:{29,67}, :70:12, :72:74
   assign io_out_b_ready = io_out_b_ready_0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :44:19, :69:67, :70:12, :72:74, :73:12
   assign io_out_ar_valid = _GEN_2 ? io_left_ar_valid : _GEN_3 & io_right_ar_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :40:19, :69:{29,67}, :70:12, :72:{35,74}, :73:12
-  assign io_out_ar_bits_id = _GEN_2 ? io_left_ar_bits_id : io_right_ar_bits_id;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:{29,67}, :70:12, :72:74
+  assign io_out_ar_bits_id = _GEN_2 ? 3'h0 : io_right_ar_bits_id;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :69:{29,67}, :70:12, :72:74
   assign io_out_ar_bits_addr = _GEN_2 ? io_left_ar_bits_addr : io_right_ar_bits_addr;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:{29,67}, :70:12, :72:74
-  assign io_out_ar_bits_len = _GEN_2 ? io_left_ar_bits_len : io_right_ar_bits_len;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:{29,67}, :70:12, :72:74
-  assign io_out_ar_bits_size = _GEN_2 ? io_left_ar_bits_size : io_right_ar_bits_size;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:{29,67}, :70:12, :72:74
-  assign io_out_ar_bits_burst = _GEN_2 ? io_left_ar_bits_burst : io_right_ar_bits_burst;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:{29,67}, :70:12, :72:74
+  assign io_out_ar_bits_len = _GEN_2 ? 8'h0 : io_right_ar_bits_len;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :69:{29,67}, :70:12, :72:74
+  assign io_out_ar_bits_size = _GEN_2 ? 3'h2 : io_right_ar_bits_size;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :9:14, :69:{29,67}, :70:12, :72:74
+  assign io_out_ar_bits_burst = _GEN_2 ? 2'h0 : io_right_ar_bits_burst;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :16:22, :69:{29,67}, :70:12, :72:74
   assign io_out_r_ready = io_out_r_ready_0;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :69:67, :70:12, :72:74
 endmodule
 

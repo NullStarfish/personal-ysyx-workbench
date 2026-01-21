@@ -71,7 +71,7 @@ class LSU extends Module {
   val memReq = WireDefault(new AXI4BundleA(AXI_ID_WIDTH, XLEN), {
     val w = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
     // 这里设置通用的“安全”默认值
-    w.id    := 0.U
+    w.id    := 1.U
     w.addr  := io.in.bits.aluResult
     //w.addr  := Cat(io.in.bits.aluResult(XLEN -1, 2), "b00".U(2.W)) // 地址对齐
     w.len   := 0.U

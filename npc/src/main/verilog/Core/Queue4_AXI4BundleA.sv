@@ -47,7 +47,7 @@ module Queue4_AXI4BundleA(	// src/main/scala/chisel3/util/Queue.scala:60:7
     .W0_addr (enq_ptr_value),	// src/main/scala/chisel3/util/Counter.scala:61:40
     .W0_en   (do_enq),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     .W0_clk  (clock),
-    .W0_data ({3'h0, io_enq_bits_addr, 8'h0, io_enq_bits_size, 2'h0})	// src/main/scala/chisel3/util/Queue.scala:72:14, :73:91
+    .W0_data ({3'h1, io_enq_bits_addr, 8'h0, io_enq_bits_size, 2'h0})	// src/main/scala/chisel3/util/Queue.scala:72:14, :73:91
   );	// src/main/scala/chisel3/util/Queue.scala:73:91
   assign io_enq_ready = ~full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :79:24, :103:19
   assign io_deq_valid = ~empty;	// src/main/scala/chisel3/util/Queue.scala:60:7, :78:25, :102:19

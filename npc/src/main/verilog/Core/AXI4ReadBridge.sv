@@ -9,7 +9,6 @@ module AXI4ReadBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
   input         io_rStream_ready,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
   output        io_rStream_valid,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
   output [31:0] io_rStream_bits_data,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
-  output [1:0]  io_rStream_bits_resp,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
   input         io_axi_ar_ready,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
   output        io_axi_ar_valid,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
   output [2:0]  io_axi_ar_bits_id,	// src/main/scala/mycpu/utils/AXI4Bridges.scala:13:14
@@ -51,8 +50,7 @@ module AXI4ReadBridge(	// src/main/scala/mycpu/utils/AXI4Bridges.scala:12:7
     .io_enq_bits_last (io_axi_r_bits_last),
     .io_deq_ready     (io_rStream_ready),
     .io_deq_valid     (io_rStream_valid),
-    .io_deq_bits_data (io_rStream_bits_data),
-    .io_deq_bits_resp (io_rStream_bits_resp)
+    .io_deq_bits_data (io_rStream_bits_data)
   );	// src/main/scala/mycpu/utils/AXI4Bridges.scala:21:23
 endmodule
 

@@ -7,8 +7,7 @@ module Queue1_FetchPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   input  [31:0] io_enq_bits_pc,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_enq_bits_inst,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_enq_bits_dnpc,	// src/main/scala/chisel3/util/Queue.scala:72:14
-  input         io_enq_bits_isException,	// src/main/scala/chisel3/util/Queue.scala:72:14
-                io_deq_ready,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  input         io_deq_ready,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output        io_deq_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [31:0] io_deq_bits_pc,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_inst,	// src/main/scala/chisel3/util/Queue.scala:72:14
@@ -25,8 +24,7 @@ module Queue1_FetchPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
     else if (do_enq != (io_deq_ready & maybe_full))	// src/main/scala/chisel3/util/Queue.scala:76:27, :93:{15,27}, :94:16, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
       maybe_full <= do_enq;	// src/main/scala/chisel3/util/Queue.scala:76:27, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     if (do_enq)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      ram <=
-        {io_enq_bits_pc, io_enq_bits_inst, io_enq_bits_dnpc, io_enq_bits_isException};	// src/main/scala/chisel3/util/Queue.scala:73:91
+      ram <= {io_enq_bits_pc, io_enq_bits_inst, io_enq_bits_dnpc, 1'h0};	// src/main/scala/chisel3/util/Queue.scala:73:91
   end // always @(posedge)
   assign io_enq_ready = ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27, :103:19
   assign io_deq_valid = maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27
