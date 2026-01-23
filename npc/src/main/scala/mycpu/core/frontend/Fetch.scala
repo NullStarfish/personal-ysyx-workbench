@@ -212,36 +212,28 @@ class Fetch extends Module {
     reqSent := false.B
   }
 
-  val shootThread = new HardwareThread("Shoot_Core")
+  val shootLogic = new HardwareLogic("Shoot Core")
+  val outValidProxy = shootLogic.driveManaged(io.out.valid, false.B )
+  val outPayload = shootLogic.driveManaged(io.out.bits, 0.U.asTypeOf(new FetchPacket))
   
-  // 托管 output valid
-  val outValidProxy = shootThread.driveManaged(io.out.valid, false.B, false.B)
-  
-  // Start: 只要 Table 有东西，就尝试发射
-  shootThread.startWhen(!fetchTable.empty())
-  // Shoot 不需要 Abort，因为它只是单纯的搬运工，清空 Table 的逻辑由 FetchTable.pop 控制
 
-  shootThread.entry {
-    shootThread.Step {
+  shootLogic.run {
+    when (!fetchTable.empty()) {
       val node = fetchTable.peek()
 
       // 驱动接口
-      shootThread.write(outValidProxy, true.B)
-      io.out.bits.inst        := node.inst
-      io.out.bits.pc          := node.addr
-      io.out.bits.dnpc        := node.addr + 4.U
-      io.out.bits.isException := false.B
+      shootLogic.write(outValidProxy, true.B)
+      val payload = Wire(new FetchPacket)
+      payload.inst := node.inst
+      payload.pc := node.addr
+      payload.dnpc := node.addr + 4.U
+      payload.isException := false.B
+      shootLogic.write(outPayload, payload)
 
-      // 只有下游收了，才 Pop 并退出线程
-      shootThread.pc := shootThread.pc
       when (io.out.ready) {
         fetchTable.pop()
-        shootThread.pc := 0.U // 其实这里线程自动结束也可以，看 step 长度
       }
-    }
-  }
-
   
-
-
+    }
+ }
 }

@@ -2,22 +2,22 @@
     "version": "1.4.0",
     "project": {
         "name": "rocketchip.cde",
-        "directory": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde",
-        "workspaceDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC",
+        "directory": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde",
+        "workspaceDir": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC",
         "sources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/src"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/src"
         ],
         "dependencies": [
             
         ],
         "classpath": [
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources"
         ],
-        "out": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde",
-        "classesDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
+        "out": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde",
+        "classesDir": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
         "resources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources"
         ],
         "scala": {
             "organization": "org.scala-lang",
@@ -45,19 +45,19 @@
             "config": {
                 "home": "/usr/lib/jvm/java-21-openjdk-amd64",
                 "options": [
-                    "-Duser.dir=/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC"
+                    "-Duser.dir=/home/nullstarfish/personal-ysyx-workbench/ysyxSoC"
                 ]
             },
             "mainClass": [
                 
             ],
             "classpath": [
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
-                "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
             ],
             "resources": [
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/resources"
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/resources"
             ]
         },
         "resolution": {
@@ -69,12 +69,12 @@
                     "artifacts": [
                         {
                             "name": "scala-library",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
                         },
                         {
                             "name": "scala-library",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar"
                         }
                     ]
                 }

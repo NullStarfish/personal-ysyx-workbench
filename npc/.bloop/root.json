@@ -2,14 +2,14 @@
     "version": "1.4.0",
     "project": {
         "name": "root",
-        "directory": "/home/nullstarfish/Desktop/ysyx-workbench/npc",
-        "workspaceDir": "/home/nullstarfish/Desktop/ysyx-workbench/npc",
+        "directory": "/home/nullstarfish/personal-ysyx-workbench/npc",
+        "workspaceDir": "/home/nullstarfish/personal-ysyx-workbench/npc",
         "sources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/src/main/scala",
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/src/main/scala-2.13",
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/src/main/scala-2",
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/src/main/java",
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/target/scala-2.13/src_managed/main"
+            "/home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala-2.13",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala-2",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/src/main/java",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/target/scala-2.13/src_managed/main"
         ],
         "dependencies": [
             
@@ -39,11 +39,11 @@
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.1/upickle-core_2.13-3.3.1.jar"
         ],
-        "out": "/home/nullstarfish/Desktop/ysyx-workbench/npc/.bloop/root",
-        "classesDir": "/home/nullstarfish/Desktop/ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
+        "out": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root",
+        "classesDir": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
         "resources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/src/main/resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/npc/target/scala-2.13/resource_managed/main"
+            "/home/nullstarfish/personal-ysyx-workbench/npc/src/main/resources",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/target/scala-2.13/resource_managed/main"
         ],
         "scala": {
             "organization": "org.scala-lang",
@@ -66,11 +66,11 @@
             ],
             "setup": {
                 "order": "mixed",
-                "addLibraryToBootClasspath": false,
+                "addLibraryToBootClasspath": true,
                 "addCompilerToClasspath": false,
                 "addExtraJarsToClasspath": false,
-                "manageBootClasspath": false,
-                "filterLibraryFromClasspath": false
+                "manageBootClasspath": true,
+                "filterLibraryFromClasspath": true
             },
             "bridgeJars": [
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala2-sbt-bridge/2.13.16/scala2-sbt-bridge-2.13.16.jar"
@@ -145,7 +145,7 @@
             "config": {
                 "home": "/usr/lib/jvm/java-21-openjdk-amd64",
                 "options": [
-                    "-Duser.dir=/home/nullstarfish/Desktop/ysyx-workbench/npc"
+                    "-Duser.dir=/home/nullstarfish/personal-ysyx-workbench/npc"
                 ]
             },
             "mainClass": [
@@ -154,11 +154,11 @@
             "runtimeConfig": {
                 "home": "/usr/lib/jvm/java-21-openjdk-amd64",
                 "options": [
-                    "-Duser.dir=/home/nullstarfish/Desktop/ysyx-workbench/npc"
+                    "-Duser.dir=/home/nullstarfish/personal-ysyx-workbench/npc"
                 ]
             },
             "classpath": [
-                "/home/nullstarfish/Desktop/ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0/chisel_2.13-7.0.0.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar",

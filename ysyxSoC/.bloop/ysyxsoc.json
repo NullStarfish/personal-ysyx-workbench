@@ -2,10 +2,10 @@
     "version": "1.4.0",
     "project": {
         "name": "ysyxsoc",
-        "directory": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC",
-        "workspaceDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC",
+        "directory": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC",
+        "workspaceDir": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC",
         "sources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src"
         ],
         "dependencies": [
             "rocketchip"
@@ -42,22 +42,22 @@
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7.jar",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/compile-resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.diplomacy/classes",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/hardfloat/hardfloat/compile-resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.hardfloat/classes",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/macros/compile-resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.macros/classes",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/rocket-chip/compile-resources",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip/classes",
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/compile-resources"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/cde/cde/compile-resources",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/compile-resources",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.diplomacy/classes",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/dependencies/hardfloat/hardfloat/compile-resources",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.hardfloat/classes",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/macros/compile-resources",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.macros/classes",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/compile-resources",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip/classes",
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/compile-resources"
         ],
-        "out": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc",
-        "classesDir": "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc/classes",
+        "out": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc",
+        "classesDir": "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc/classes",
         "resources": [
-            "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/compile-resources"
+            "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/compile-resources"
         ],
         "scala": {
             "organization": "org.scala-lang",
@@ -88,19 +88,19 @@
             "config": {
                 "home": "/usr/lib/jvm/java-21-openjdk-amd64",
                 "options": [
-                    "-Duser.dir=/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC"
+                    "-Duser.dir=/home/nullstarfish/personal-ysyx-workbench/ysyxSoC"
                 ]
             },
             "mainClass": [
                 
             ],
             "classpath": [
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.diplomacy/classes",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.hardfloat/classes",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.macros/classes",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/rocketchip/classes",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.cde/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.diplomacy/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.hardfloat/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip.macros/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/rocketchip/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.bloop/out/ysyxsoc/classes",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4.jar",
@@ -134,8 +134,8 @@
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7.jar"
             ],
             "resources": [
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/compile-resources",
-                "/home/nullstarfish/Desktop/ysyx-workbench/ysyxSoC/src/main/resources"
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/compile-resources",
+                "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/main/resources"
             ]
         },
         "resolution": {
@@ -147,12 +147,12 @@
                     "artifacts": [
                         {
                             "name": "mainargs_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4.jar"
                         },
                         {
                             "name": "mainargs_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar"
                         }
                     ]
                 },
@@ -163,12 +163,12 @@
                     "artifacts": [
                         {
                             "name": "jackson-databind",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7.jar"
                         },
                         {
                             "name": "jackson-databind",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar"
                         }
                     ]
                 },
@@ -179,12 +179,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-native-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-native-core_2.13/4.0.7/json4s-native-core_2.13-4.0.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native-core_2.13/4.0.7/json4s-native-core_2.13-4.0.7.jar"
                         },
                         {
                             "name": "json4s-native-core_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-native-core_2.13/4.0.7/json4s-native-core_2.13-4.0.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native-core_2.13/4.0.7/json4s-native-core_2.13-4.0.7-sources.jar"
                         }
                     ]
                 },
@@ -195,12 +195,12 @@
                     "artifacts": [
                         {
                             "name": "upack_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0.jar"
                         },
                         {
                             "name": "upack_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar"
                         }
                     ]
                 },
@@ -211,12 +211,12 @@
                     "artifacts": [
                         {
                             "name": "scala-reflect",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14.jar"
                         },
                         {
                             "name": "scala-reflect",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar"
                         }
                     ]
                 },
@@ -227,12 +227,12 @@
                     "artifacts": [
                         {
                             "name": "os-lib_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0.jar"
                         },
                         {
                             "name": "os-lib_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar"
                         }
                     ]
                 },
@@ -243,12 +243,12 @@
                     "artifacts": [
                         {
                             "name": "commons-lang3",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar"
                         },
                         {
                             "name": "commons-lang3",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar"
                         }
                     ]
                 },
@@ -259,12 +259,12 @@
                     "artifacts": [
                         {
                             "name": "sourcecode_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1.jar"
                         },
                         {
                             "name": "sourcecode_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar"
                         }
                     ]
                 },
@@ -275,12 +275,12 @@
                     "artifacts": [
                         {
                             "name": "geny_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0.jar"
                         },
                         {
                             "name": "geny_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar"
                         }
                     ]
                 },
@@ -291,12 +291,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-jackson-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6.jar"
                         },
                         {
                             "name": "json4s-jackson-core_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar"
                         }
                     ]
                 },
@@ -307,12 +307,12 @@
                     "artifacts": [
                         {
                             "name": "ujson_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0.jar"
                         },
                         {
                             "name": "ujson_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar"
                         }
                     ]
                 },
@@ -323,12 +323,12 @@
                     "artifacts": [
                         {
                             "name": "chisel_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2.jar"
                         },
                         {
                             "name": "chisel_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar"
                         }
                     ]
                 },
@@ -339,12 +339,12 @@
                     "artifacts": [
                         {
                             "name": "commons-text",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0.jar"
                         },
                         {
                             "name": "commons-text",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar"
                         }
                     ]
                 },
@@ -355,12 +355,12 @@
                     "artifacts": [
                         {
                             "name": "paranamer",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar"
                         },
                         {
                             "name": "paranamer",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8-sources.jar"
                         }
                     ]
                 },
@@ -371,12 +371,12 @@
                     "artifacts": [
                         {
                             "name": "jackson-core",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7.jar"
                         },
                         {
                             "name": "jackson-core",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar"
                         }
                     ]
                 },
@@ -387,12 +387,12 @@
                     "artifacts": [
                         {
                             "name": "data-class_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6.jar"
                         },
                         {
                             "name": "data-class_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar"
                         }
                     ]
                 },
@@ -403,12 +403,12 @@
                     "artifacts": [
                         {
                             "name": "upickle_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0.jar"
                         },
                         {
                             "name": "upickle_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar"
                         }
                     ]
                 },
@@ -419,12 +419,12 @@
                     "artifacts": [
                         {
                             "name": "firtool-resolver_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0.jar"
                         },
                         {
                             "name": "firtool-resolver_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar"
                         }
                     ]
                 },
@@ -435,12 +435,12 @@
                     "artifacts": [
                         {
                             "name": "scala-library",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar"
                         },
                         {
                             "name": "scala-library",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar"
                         }
                     ]
                 },
@@ -451,12 +451,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-native_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-native_2.13/4.0.7/json4s-native_2.13-4.0.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native_2.13/4.0.7/json4s-native_2.13-4.0.7.jar"
                         },
                         {
                             "name": "json4s-native_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-native_2.13/4.0.7/json4s-native_2.13-4.0.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native_2.13/4.0.7/json4s-native_2.13-4.0.7-sources.jar"
                         }
                     ]
                 },
@@ -467,12 +467,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-ast_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7.jar"
                         },
                         {
                             "name": "json4s-ast_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7-sources.jar"
                         }
                     ]
                 },
@@ -483,12 +483,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-scalap_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7.jar"
                         },
                         {
                             "name": "json4s-scalap_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7-sources.jar"
                         }
                     ]
                 },
@@ -499,12 +499,12 @@
                     "artifacts": [
                         {
                             "name": "scopt_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar"
                         },
                         {
                             "name": "scopt_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0-sources.jar"
                         }
                     ]
                 },
@@ -515,12 +515,12 @@
                     "artifacts": [
                         {
                             "name": "scala-collection-compat_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0.jar"
                         },
                         {
                             "name": "scala-collection-compat_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0-sources.jar"
                         }
                     ]
                 },
@@ -531,12 +531,12 @@
                     "artifacts": [
                         {
                             "name": "scala-xml_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0.jar"
                         },
                         {
                             "name": "scala-xml_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0-sources.jar"
                         }
                     ]
                 },
@@ -547,12 +547,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-jackson_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6.jar"
                         },
                         {
                             "name": "json4s-jackson_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar"
                         }
                     ]
                 },
@@ -563,12 +563,12 @@
                     "artifacts": [
                         {
                             "name": "jackson-annotations",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7.jar"
                         },
                         {
                             "name": "jackson-annotations",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar"
                         }
                     ]
                 },
@@ -579,12 +579,12 @@
                     "artifacts": [
                         {
                             "name": "upickle-implicits_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0.jar"
                         },
                         {
                             "name": "upickle-implicits_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar"
                         }
                     ]
                 },
@@ -595,12 +595,12 @@
                     "artifacts": [
                         {
                             "name": "scala-parallel-collections_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4.jar"
                         },
                         {
                             "name": "scala-parallel-collections_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar"
                         }
                     ]
                 },
@@ -611,12 +611,12 @@
                     "artifacts": [
                         {
                             "name": "upickle-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0.jar"
                         },
                         {
                             "name": "upickle-core_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar"
                         }
                     ]
                 },
@@ -627,12 +627,12 @@
                     "artifacts": [
                         {
                             "name": "json4s-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7.jar"
                         },
                         {
                             "name": "json4s-core_2.13",
                             "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/maven.aliyun.com/repository/central/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7-sources.jar"
+                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7-sources.jar"
                         }
                     ]
                 }

@@ -9,20 +9,33 @@
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
 module Fetch_Verification();	// src/main/scala/mycpu/core/frontend/Fetch.scala:200:13
-  reg fetchThreadPastRunning;	// src/main/scala/mycpu/core/frontend/Fetch.scala:147:39
+  reg       fetchThreadPastRunning;	// src/main/scala/mycpu/core/frontend/Fetch.scala:147:39
+  reg       wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:122:30
+  reg [1:0] lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:123:30
   `ifndef SYNTHESIS	// src/main/scala/mycpu/core/frontend/Fetch.scala:149:11
     always @(posedge Fetch.clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11
-      if ((`PRINTF_COND_) & Fetch.active_0 & ~fetchThreadPastRunning & ~Fetch.reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :147:39, :148:{31,34}, :149:11, :150:11, src/main/scala/mycpu/utils/HardwareThread.scala:17:31
+      automatic logic _GEN;	// src/main/scala/mycpu/utils/HardwareAgent.scala:137:20
+      _GEN = Fetch.active_0 & Fetch.pcReg_0 != lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :114:24, :123:30, :137:{20,32}
+      if ((`PRINTF_COND_) & Fetch.active_0 & ~fetchThreadPastRunning & ~Fetch.reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :147:39, :148:{31,34}, :149:11, :150:11, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
         $fwrite(32'h80000002, "[DEBUG] [FETCH] fetchThread ONLINE!!!!\n");	// src/main/scala/mycpu/core/frontend/Fetch.scala:149:11
         $fwrite(32'h80000002, "fetching pc %x\n", Fetch.pc_0);	// src/main/scala/mycpu/core/frontend/Fetch.scala:134:19, :150:11
       end
-      if ((`PRINTF_COND_) & fetchThreadPastRunning & ~Fetch.active_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :147:39, :149:11, :153:{32,35}, :154:11, src/main/scala/mycpu/utils/HardwareThread.scala:17:31
+      if ((`PRINTF_COND_) & fetchThreadPastRunning & ~Fetch.active_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :147:39, :149:11, :153:{32,35}, :154:11, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
         $fwrite(32'h80000002, "[DEBUG] [FETCH] fetchThread OFFLINE!!!\n");	// src/main/scala/mycpu/core/frontend/Fetch.scala:154:11
-      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :161:13, src/main/scala/mycpu/utils/HardwareThread.scala:17:31, :104:{23,34}
+      if ((`PRINTF_COND_) & ~wasActive & Fetch.active_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :75:31, :122:30, :126:{13,24}
+        $fwrite(32'h80000002, "[Fetch_AXI_Core] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:20:13
+      if ((`PRINTF_COND_) & wasActive & ~Fetch.active_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :153:35, src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :75:31, :122:30, :131:23
+        $fwrite(32'h80000002, "[Fetch_AXI_Core] --- OFFLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:20:13
+      if ((`PRINTF_COND_) & _GEN & wasActive & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :122:30, :137:20, :140:26
+        $fwrite(32'h80000002, "[Fetch_AXI_Core] PC Jump: %d -> %d\n", lastPc,
+                Fetch.pcReg_0);	// src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :114:24, :123:30
+      if ((`PRINTF_COND_) & _GEN & ~wasActive & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :122:30, :126:13, :137:20, :140:26
+        $fwrite(32'h80000002, "[Fetch_AXI_Core] Initial PC: %d\n", Fetch.pcReg_0);	// src/main/scala/mycpu/utils/HardwareAgent.scala:20:13, :114:24
+      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe_0 & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :161:13, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :160:{23,34}
         $fwrite(32'h80000002, "[DEBUG] [FETCH] fetchThread step 1\n");	// src/main/scala/mycpu/core/frontend/Fetch.scala:161:13
-      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :185:13, src/main/scala/mycpu/utils/HardwareThread.scala:17:31, :104:{23,34}
+      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe & ~Fetch.reset)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :185:13, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :160:{23,34}
         $fwrite(32'h80000002, "[DEBUG] [FETCH] fetchThread step 2\n");	// src/main/scala/mycpu/core/frontend/Fetch.scala:185:13
-      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe_1 & ~Fetch.reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :197:13, :200:13, src/main/scala/mycpu/utils/HardwareThread.scala:17:31, :96:23, :104:34
+      if ((`PRINTF_COND_) & Fetch.active_0 & Fetch._layer_probe_1 & ~Fetch.reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :149:11, :197:13, :200:13, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :160:{23,34}
         $fwrite(32'h80000002, "[DEBUG] [FETCH] fetchThread step 3\n");	// src/main/scala/mycpu/core/frontend/Fetch.scala:197:13
         $fwrite(32'h80000002,
                 "[DEBUG] [FETCH] fetchThread: DONE!!!!: push pc : %x, inst: %x\n",
@@ -30,7 +43,10 @@ module Fetch_Verification();	// src/main/scala/mycpu/core/frontend/Fetch.scala:2
       end
     end // always @(posedge)
   `endif // not def SYNTHESIS
-  always @(posedge Fetch.clock)	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
-    fetchThreadPastRunning <= Fetch.active_0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:147:39, src/main/scala/mycpu/utils/HardwareThread.scala:17:31
+  always @(posedge Fetch.clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
+    fetchThreadPastRunning <= Fetch.active_0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:147:39, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
+    wasActive <= Fetch.active_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :122:30
+    lastPc <= Fetch.pcReg_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :123:30
+  end // always @(posedge)
 endmodule
 

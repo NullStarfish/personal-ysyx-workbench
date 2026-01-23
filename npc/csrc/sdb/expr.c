@@ -7,6 +7,8 @@
 #include "sdb.h"
 #include "../reg.h"
 
+extern int pmem_read(int raddr);
+
 // --- The rest of the file remains the same, except for one line in eval() ---
 enum { TK_NOTYPE = 256, TK_EQ, TK_NEQ, TK_AND, TK_OR, TK_NUMBER, TK_HEX, TK_REG, TK_DEREF, TK_NEG };
 static struct rule { const char *regex; int token_type; } rules[] = {
