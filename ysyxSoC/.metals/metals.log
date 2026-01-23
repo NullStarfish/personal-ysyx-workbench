@@ -283,3 +283,38 @@ WARNING: Unmatched cancel notification for request id 150
 2026.01.23 12:27:42 INFO  time: compiled ysyxsoc in 3.34s[0m
 2026.01.23 12:27:46 INFO  compiling ysyxsoc (1 scala source)[0m
 2026.01.23 12:27:46 INFO  time: compiled ysyxsoc in 0.93s[0m
+2026.01.23 18:49:43 INFO  Shutting down server[0m
+2026.01.23 18:49:43 INFO  Memory monitor stopped[0m
+2026.01.23 18:49:43 INFO  shutting down Metals[0m
+2026.01.23 18:49:43 INFO  Shut down connection with build server.[0m
+2026.01.23 18:49:43 INFO  Exiting server[0m
+2026.01.23 19:08:32 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.01.23 19:08:33 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.01.23 19:08:33 INFO  Started: Metals version 1.6.5 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.108.1.[0m
+2026.01.23 19:08:33 INFO  Memory monitor started[0m
+2026.01.23 19:08:35 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.01.23 19:08:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/HwFunction.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.01.23 19:08:35 INFO  Attempting to connect to the build server...[0m
+2026.01.23 19:08:35 INFO  No running Bloop server found, starting one.[0m
+2026.01.23 19:08:40 INFO  Starting compilation server[0m
+2026.01.23 19:08:44 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.01.23 19:08:51 INFO  time: Connected to build server in 15s[0m
+2026.01.23 19:08:51 INFO  Connected to Build server: Bloop v2.0.17[0m
+2026.01.23 19:08:51 INFO  time: Imported build in 0.23s[0m
+2026.01.23 19:08:51 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.01.23 19:09:03 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.01.23 19:09:03 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-01-23/r_scala-toplevel-mtags_19-09-03-153.md")[0m
+2026.01.23 19:09:04 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.01.23 19:09:05 INFO  time: indexed workspace in 13s[0m
+2026.01.23 19:09:06 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.01.23 19:09:06 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.01.23 19:09:06 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.01.23 19:09:14 INFO  time: compiled rocketchip.macros in 7.98s[0m
+2026.01.23 19:09:14 INFO  time: compiled rocketchip.cde in 7.99s[0m
+2026.01.23 19:09:14 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.01.23 19:09:30 INFO  Shutting down server[0m
+2026.01.23 19:09:30 INFO  Memory monitor stopped[0m
+2026.01.23 19:09:30 INFO  shutting down Metals[0m
+2026.01.23 19:09:31 INFO  Shut down connection with build server.[0m
+2026.01.23 19:09:31 INFO  Cancelling compilation on Bloop server[0m
+2026.01.23 19:09:30 INFO  Exiting server[0m

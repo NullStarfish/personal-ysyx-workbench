@@ -24,25 +24,62 @@ class LSU extends Module {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-  val readBridge  = Module(new AXI4ReadBridge(XLEN, XLEN))
-  val writeBridge = Module(new AXI4WriteBridge(XLEN, XLEN))
-
-
   val AXI4Split(rBus, wBus) = io.axi
-  readBridge.io.axi  <> rBus
-  writeBridge.io.axi <> wBus
+  val lsuThread = new HardwareThread("LSU_Core", debugEnable = true)
+  
+  // 接管 AXI 关键信号
+  val arValid = lsuThread.driveManaged(rBus.ar.valid, false.B)
+  val rReady  = lsuThread.driveManaged(rBus.r.ready,  false.B)
+  val awValid = lsuThread.driveManaged(wBus.aw.valid, false.B)
+  val wValid  = lsuThread.driveManaged(wBus.w.valid,  false.B)
+  val bReady  = lsuThread.driveManaged(wBus.b.ready,  false.B)
+
+  val arBits  = lsuThread.driveManaged(rBus.ar.bits, DontCare) //USE DontCare to improve performance 
+  val awBits = lsuThread.driveManaged(wBus.aw.bits, DontCare)
+  val wBits = lsuThread.driveManaged(wBus.w.bits, DontCare)
+
+  lsuThread.startWhen(io.in.valid)
+  
+  lsuThread.entry {
+    val memData = Reg(UInt(32.W))
+    val isRead  = io.in.bits.ctrl.memEn && !io.in.bits.ctrl.memWen
+    val isWrite = io.in.bits.ctrl.memEn && io.in.bits.ctrl.memWen
+
+    // 捕捉请求
+    lsuThread.Step { reqReg := io.in.bits }
+
+    // 处理 AXI 事务
+    lsuThread.Step {
+      when (isRead) {
+        lsuThread.write(arValid, true.B)
+        rBus.ar.bits.addr := reqReg.aluResult
+        lsuThread.waitCondition(rBus.ar.ready)
+      } .elsewhen (isWrite) {
+        lsuThread.write(awValid, true.B)
+        wBus.aw.bits.addr := reqReg.aluResult
+        lsuThread.waitCondition(wBus.aw.ready)
+      }
+    }
+
+    lsuThread.Step {
+      when (isRead) {
+        lsuThread.write(rReady, true.B)
+        lsuThread.waitCondition(rBus.r.valid)
+        memData := rBus.r.bits.data
+      } .elsewhen (isWrite) {
+        lsuThread.write(wValid, true.B)
+        wBus.w.bits.data := reqReg.memWData // 需根据 wstrb 处理
+        lsuThread.waitCondition(wBus.w.ready)
+      }
+    }
+
+    lsuThread.Step {
+      when (isWrite) {
+        lsuThread.write(bReady, true.B)
+        lsuThread.waitCondition(wBus.b.valid)
+      }
+    }
+  }
 
 
   

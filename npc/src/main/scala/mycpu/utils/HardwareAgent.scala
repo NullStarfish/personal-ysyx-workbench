@@ -45,6 +45,8 @@ trait HardwareAgent {
     }
     target := value
   }
+
+
 }
 
 
@@ -78,7 +80,8 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
   private var abortSignal: Bool = false.B  // 强制复位 (Kill)
   private var pauseSignal: Bool = false.B  // 暂停执行 (Stall)
 
-
+  private val sessionCycles = RegInit(0.U(32.W))
+  private val sessionStalls = RegInit(0.U(32.W))
 
 
   def pc: UInt = {
@@ -151,6 +154,7 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
       pcReg  := 0.U
     } .elsewhen (active) {
       when (!pauseSignal) {
+        sessionCycles := sessionCycles + 1.U
         pcReg := pcReg + 1.U
         when (pcReg >= (totalSteps - 1).U) {
           active := false.B
@@ -159,6 +163,8 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
         for ((func, idx) <- steps.zipWithIndex) {
           when (pcReg === idx.U) { func() }
         }
+      } .otherwise {
+        sessionStalls := sessionStalls + 1.U
       }
     } .otherwise {
       when (startSignal) {
@@ -186,6 +192,8 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
   def Step(block: => Unit): Unit = {
     steps += { () => block }
   }
+
+  def waitCondition(cond: Bool): Unit = { when(!cond) { pcEntity := pcEntity } }
   
   def Label: UInt = steps.length.U
 
