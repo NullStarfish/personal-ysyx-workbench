@@ -3,18 +3,16 @@ import chisel3._
 import chisel3.util._
 import scala.collection.mutable.{ArrayBuffer, HashSet, LinkedHashMap}
 
-
 trait HardwareAgent {
   val name: String
   // 记录所有受管信号及其默认值
   // Map: Proxy信号 -> (空闲时的值, 运行时的默认值)
   protected val managedSignals = LinkedHashMap[Data, (Data, Data)]()
 
-
   val debugEnable: Boolean // 实例级开关
 
   // 内部辅助打印工具
-  protected def agentPrint(fmt: String, data: Bits*): Unit = {
+  def agentPrint(fmt: String, data: Bits*): Unit = {
     if (debugEnable) {
       // 这里的 printf 是硬件电路，只在仿真运行时输出
       printf(s"[$name] " + fmt + "\n", data: _*)
@@ -45,12 +43,7 @@ trait HardwareAgent {
     }
     target := value
   }
-
-
 }
-
-
-
 
 class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
   def run(block: => Unit): Unit = {
@@ -62,17 +55,13 @@ class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends H
   }
 }
 
-
-
-
-class HardwareThread(val name: String, val debugEnable: Boolean = true) extends HardwareAgent{
+class HardwareThread(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
 
   private val steps = ArrayBuffer[() => Unit]()
+  private val stepNames = ArrayBuffer[String]() // [新增] 存储步骤名称
   private val globals = ArrayBuffer[() => Unit]()
-  
 
   private var pcEntity: UInt = _
-
 
   private val active = RegInit(false.B)
 
@@ -83,20 +72,15 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
   private val sessionCycles = RegInit(0.U(32.W))
   private val sessionStalls = RegInit(0.U(32.W))
 
-
   def pc: UInt = {
     require(pcEntity != null, "Error: Cannot access 'thread.pc' outside of Step/Call/Global logic! Hardware not generated yet.")
     pcEntity
   }
 
-
-
   def startWhen(cond: Bool): Unit = { startSignal = cond }
   def abortWhen(cond: Bool): Unit = { abortSignal = cond }
   def pauseWhen(cond: Bool): Unit = { pauseSignal = cond }
   def isRunning: Bool = active
-
-
 
   override def driveManaged[T <: Data](target: T, idle: T, default: T): T = {
     val proxy = Wire(chiselTypeOf(target))
@@ -105,8 +89,6 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
     target := Mux(active, proxy, idle)
     proxy
   }
-
-
 
   def entry(block: => Unit): Unit = {
     block
@@ -117,51 +99,84 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
     val pcReg = RegInit(0.U(width.W))
     pcEntity = pcReg
 
+    // 默认值注入
     managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
 
-
-
+    // --- 调试与看门狗逻辑 ---
     if (debugEnable) {
       val wasActive = RegNext(active)
-      val lastPc    = RegNext(pcEntity)
+      val lastPc    = RegNext(pcReg)
+      
+      // 判断 PC 是否停滞 (WaitCondition 或 Pause 都会导致 PC 不变)
+      val pcStuck   = active && (pcReg === lastPc)
+      val hangCounter = RegInit(0.U(32.W))
 
-      // A. 上线提醒 (Rising Edge of active)
+      // A. 上线提醒
       when (!wasActive && active) {
         agentPrint("--- ONLINE ---")
+        sessionCycles := 0.U
+        sessionStalls := 0.U
+        hangCounter   := 0.U
       }
 
-      // B. 下线提醒 (Falling Edge of active)
+      // B. 下线提醒
       when (wasActive && !active) {
-        agentPrint("--- OFFLINE ---")
+        agentPrint("--- OFFLINE (Duration: %d, Stalls: %d) ---", sessionCycles, sessionStalls)
       }
 
-      // C. PC 变化追踪
-      // 条件：正在运行 且 PC 发生了位移
-      when (active && pcEntity =/= lastPc) {
-        // 注意：如果是从 idle 刚启动的第一拍，lastPc 可能是无效值，
-        // 我们通过 wasActive 保证只在运行期间打印跳变
-        when (wasActive) {
-          agentPrint("PC Jump: %d -> %d", lastPc, pcEntity)
-        } .otherwise {
-          agentPrint("Initial PC: %d", pcEntity)
+      // C. 执行步骤追踪 (带名称)
+      // 当 active 且 PC 发生改变时，打印新进入的 Step 名称
+      when (active && pcReg =/= lastPc) {
+        // 遍历查找当前 PC 对应的名称
+        for ((name, idx) <- stepNames.zipWithIndex) {
+          when (pcReg === idx.U) {
+            // 注意：这里使用 Scala 插值把 name 编译进 Verilog 字符串
+            agentPrint(s"EXEC [PC $idx] $name") 
+          }
         }
+      }
+
+      // D. 死锁检测 (Watchdog)
+      // 如果 active 且 PC 保持不变超过 1000 周期
+      when (pcStuck) {
+        hangCounter := hangCounter + 1.U
+        when (hangCounter === 1000.U) {
+           for ((name, idx) <- stepNames.zipWithIndex) {
+             when (pcReg === idx.U) {
+               agentPrint(s"!!! DEADLOCK WARNING !!! Stuck at Step '$name' (PC=$idx) for 1000+ cycles")
+             }
+           }
+        }
+      } .otherwise {
+        hangCounter := 0.U
       }
     }
 
-
+    // --- 状态机逻辑 ---
     when (abortSignal) {
       active := false.B
       pcReg  := 0.U
     } .elsewhen (active) {
+      // 统计运行周期
+      sessionCycles := sessionCycles + 1.U
+      
       when (!pauseSignal) {
-        sessionCycles := sessionCycles + 1.U
+        // 默认行为：PC 自增
         pcReg := pcReg + 1.U
+        
+        // 边界检查：运行完最后一步自动退出
         when (pcReg >= (totalSteps - 1).U) {
           active := false.B
           pcReg  := 0.U
         }
+
+        // 执行当前 Step 的逻辑
         for ((func, idx) <- steps.zipWithIndex) {
-          when (pcReg === idx.U) { func() }
+          when (pcReg === idx.U) { 
+            func() 
+            // 注意：func() 内部如果有 waitCondition，会生成覆盖 pcReg 的逻辑
+            // Chisel 后写的赋值会覆盖先写的，所以 waitCondition 生效
+          }
         }
       } .otherwise {
         sessionStalls := sessionStalls + 1.U
@@ -170,42 +185,52 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
       when (startSignal) {
         active := true.B
         pcReg  := 0.U
-        // 注意：如果你希望在 start 这一拍就有输出，
-        // 可以在这里显式调用 steps(0)()，但通常硬件习惯是下一拍生效
       }
     }
+    
     globals.foreach(_())
   }
-
 
   def Exit(): Unit = {
     active := false.B
     pcEntity := 0.U
   }
   
-  // 新增：循环指令
   def Loop(): Unit = {
     pcEntity := 0.U
   }
   
-
-  def Step(block: => Unit): Unit = {
+  // [修改] 支持命名的 Step
+  def Step(name: String)(block: => Unit): Unit = {
+    stepNames += name
     steps += { () => block }
   }
 
-  def waitCondition(cond: Bool): Unit = { when(!cond) { pcEntity := pcEntity } }
+  // [修改] 兼容旧接口，自动生成名称
+  def Step(block: => Unit): Unit = {
+    Step(s"Step_${steps.length}")(block)
+  }
+
+  // 保持 PC 不变 (阻塞)
+  def waitCondition(cond: Bool): Unit = { 
+    when(!cond) { 
+      pcEntity := pcEntity 
+    } 
+  }
   
   def Label: UInt = steps.length.U
-
 
   def Global(block: => Unit): Unit = {
     globals += { () => block }
   }
 
   def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
-
     val resultWire = Wire(chiselTypeOf(func.ret))
     resultWire := DontCare 
+    
+    // Call 作为一个单独的隐式步骤
+    val callStepName = s"Call_Func_${steps.length}"
+    stepNames += callStepName
 
     steps += { () => 
       val latch = Reg(chiselTypeOf(func.ret))

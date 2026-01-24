@@ -4,11 +4,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
                 reset,	// src/main/scala/mycpu/core/Core.scala:16:7
                 io_master_aw_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   output        io_master_aw_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
-                io_master_aw_bits_id,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [31:0] io_master_aw_bits_addr,	// src/main/scala/mycpu/core/Core.scala:17:14
-  output [7:0]  io_master_aw_bits_len,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [2:0]  io_master_aw_bits_size,	// src/main/scala/mycpu/core/Core.scala:17:14
-  output [1:0]  io_master_aw_bits_burst,	// src/main/scala/mycpu/core/Core.scala:17:14
   input         io_master_w_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   output        io_master_w_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [31:0] io_master_w_bits_data,	// src/main/scala/mycpu/core/Core.scala:17:14
@@ -18,16 +15,12 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   input         io_master_b_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
                 io_master_ar_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   output        io_master_ar_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
-                io_master_ar_bits_id,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [31:0] io_master_ar_bits_addr,	// src/main/scala/mycpu/core/Core.scala:17:14
-  output [7:0]  io_master_ar_bits_len,	// src/main/scala/mycpu/core/Core.scala:17:14
   output [2:0]  io_master_ar_bits_size,	// src/main/scala/mycpu/core/Core.scala:17:14
-  output [1:0]  io_master_ar_bits_burst,	// src/main/scala/mycpu/core/Core.scala:17:14
   output        io_master_r_ready,	// src/main/scala/mycpu/core/Core.scala:17:14
   input         io_master_r_valid,	// src/main/scala/mycpu/core/Core.scala:17:14
                 io_master_r_bits_id,	// src/main/scala/mycpu/core/Core.scala:17:14
   input  [31:0] io_master_r_bits_data,	// src/main/scala/mycpu/core/Core.scala:17:14
-  input  [1:0]  io_master_r_bits_resp,	// src/main/scala/mycpu/core/Core.scala:17:14
   input         io_master_r_bits_last	// src/main/scala/mycpu/core/Core.scala:17:14
 );
 
@@ -48,10 +41,21 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   wire [31:0] _q3_io_deq_bits_memWData;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire [31:0] _q3_io_deq_bits_pcTarget;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire [4:0]  _q3_io_deq_bits_rdAddr;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire [3:0]  _q3_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire [1:0]  _q3_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire        _q3_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire        _q3_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire        _q3_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire [2:0]  _q3_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire        _q3_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/core/Core.scala:48:18
+  wire [31:0] _q3_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/core/Core.scala:48:18
   wire        _q2_io_enq_ready;	// src/main/scala/mycpu/core/Core.scala:43:18
   wire        _q2_io_deq_valid;	// src/main/scala/mycpu/core/Core.scala:43:18
   wire [31:0] _q2_io_deq_bits_pc;	// src/main/scala/mycpu/core/Core.scala:43:18
@@ -91,15 +95,10 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   wire        _arbiter_io_right_b_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_ar_ready;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_right_r_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [2:0]  _arbiter_io_right_r_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire [31:0] _arbiter_io_right_r_bits_data;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [1:0]  _arbiter_io_right_r_bits_resp;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire        _arbiter_io_right_r_bits_last;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_out_aw_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [2:0]  _arbiter_io_out_aw_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire [31:0] _arbiter_io_out_aw_bits_addr;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _arbiter_io_out_ar_valid;	// src/main/scala/mycpu/core/Core.scala:27:24
-  wire [2:0]  _arbiter_io_out_ar_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire [31:0] _arbiter_io_out_ar_bits_addr;	// src/main/scala/mycpu/core/Core.scala:27:24
   wire        _wb_io_regWrite_wen;	// src/main/scala/mycpu/core/Core.scala:25:23
   wire [4:0]  _wb_io_regWrite_addr;	// src/main/scala/mycpu/core/Core.scala:25:23
@@ -118,22 +117,16 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
   wire        _lsu_io_out_bits_regWen;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [31:0] _lsu_io_out_bits_pcTarget;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_aw_valid;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire        _lsu_io_axi_aw_bits_id;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [31:0] _lsu_io_axi_aw_bits_addr;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire [7:0]  _lsu_io_axi_aw_bits_len;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [2:0]  _lsu_io_axi_aw_bits_size;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire [1:0]  _lsu_io_axi_aw_bits_burst;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_w_valid;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [31:0] _lsu_io_axi_w_bits_data;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [3:0]  _lsu_io_axi_w_bits_strb;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_w_bits_last;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_b_ready;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_ar_valid;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire        _lsu_io_axi_ar_bits_id;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [31:0] _lsu_io_axi_ar_bits_addr;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire [7:0]  _lsu_io_axi_ar_bits_len;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire [2:0]  _lsu_io_axi_ar_bits_size;	// src/main/scala/mycpu/core/Core.scala:24:23
-  wire [1:0]  _lsu_io_axi_ar_bits_burst;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _lsu_io_axi_r_ready;	// src/main/scala/mycpu/core/Core.scala:24:23
   wire        _execute_io_in_ready;	// src/main/scala/mycpu/core/Core.scala:23:23
   wire        _execute_io_out_valid;	// src/main/scala/mycpu/core/Core.scala:23:23
@@ -383,10 +376,21 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_in_bits_memWData       (_q3_io_deq_bits_memWData),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_pcTarget       (_q3_io_deq_bits_pcTarget),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_rdAddr         (_q3_io_deq_bits_rdAddr),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_aluOp     (_q3_io_deq_bits_ctrl_aluOp),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_csrOp     (_q3_io_deq_bits_ctrl_csrOp),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_ctrl_regWen    (_q3_io_deq_bits_ctrl_regWen),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_ctrl_memEn     (_q3_io_deq_bits_ctrl_memEn),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_ctrl_memWen    (_q3_io_deq_bits_ctrl_memWen),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_in_bits_ctrl_memFunct3 (_q3_io_deq_bits_ctrl_memFunct3),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_op1Sel    (_q3_io_deq_bits_ctrl_op1Sel),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_op2Sel    (_q3_io_deq_bits_ctrl_op2Sel),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_isJump    (_q3_io_deq_bits_ctrl_isJump),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_isBranch  (_q3_io_deq_bits_ctrl_isBranch),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_isEcall   (_q3_io_deq_bits_ctrl_isEcall),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_isMret    (_q3_io_deq_bits_ctrl_isMret),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_ctrl_isEbreak  (_q3_io_deq_bits_ctrl_isEbreak),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_redirect_valid (_q3_io_deq_bits_redirect_valid),	// src/main/scala/mycpu/core/Core.scala:48:18
+    .io_in_bits_redirect_bits  (_q3_io_deq_bits_redirect_bits),	// src/main/scala/mycpu/core/Core.scala:48:18
     .io_out_ready              (_q4_io_enq_ready),	// src/main/scala/mycpu/core/Core.scala:53:18
     .io_out_valid              (_lsu_io_out_valid),
     .io_out_bits_pc            (_lsu_io_out_bits_pc),
@@ -398,11 +402,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_out_bits_pcTarget      (_lsu_io_out_bits_pcTarget),
     .io_axi_aw_ready           (_arbiter_io_right_aw_ready),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_aw_valid           (_lsu_io_axi_aw_valid),
-    .io_axi_aw_bits_id         (_lsu_io_axi_aw_bits_id),
     .io_axi_aw_bits_addr       (_lsu_io_axi_aw_bits_addr),
-    .io_axi_aw_bits_len        (_lsu_io_axi_aw_bits_len),
     .io_axi_aw_bits_size       (_lsu_io_axi_aw_bits_size),
-    .io_axi_aw_bits_burst      (_lsu_io_axi_aw_bits_burst),
     .io_axi_w_ready            (_arbiter_io_right_w_ready),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_w_valid            (_lsu_io_axi_w_valid),
     .io_axi_w_bits_data        (_lsu_io_axi_w_bits_data),
@@ -412,17 +413,11 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_axi_b_valid            (_arbiter_io_right_b_valid),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_ar_ready           (_arbiter_io_right_ar_ready),	// src/main/scala/mycpu/core/Core.scala:27:24
     .io_axi_ar_valid           (_lsu_io_axi_ar_valid),
-    .io_axi_ar_bits_id         (_lsu_io_axi_ar_bits_id),
     .io_axi_ar_bits_addr       (_lsu_io_axi_ar_bits_addr),
-    .io_axi_ar_bits_len        (_lsu_io_axi_ar_bits_len),
     .io_axi_ar_bits_size       (_lsu_io_axi_ar_bits_size),
-    .io_axi_ar_bits_burst      (_lsu_io_axi_ar_bits_burst),
     .io_axi_r_ready            (_lsu_io_axi_r_ready),
     .io_axi_r_valid            (_arbiter_io_right_r_valid),	// src/main/scala/mycpu/core/Core.scala:27:24
-    .io_axi_r_bits_id          (_arbiter_io_right_r_bits_id[0]),	// src/main/scala/mycpu/core/Core.scala:27:24, :69:8
-    .io_axi_r_bits_data        (_arbiter_io_right_r_bits_data),	// src/main/scala/mycpu/core/Core.scala:27:24
-    .io_axi_r_bits_resp        (_arbiter_io_right_r_bits_resp),	// src/main/scala/mycpu/core/Core.scala:27:24
-    .io_axi_r_bits_last        (_arbiter_io_right_r_bits_last)	// src/main/scala/mycpu/core/Core.scala:27:24
+    .io_axi_r_bits_data        (_arbiter_io_right_r_bits_data)	// src/main/scala/mycpu/core/Core.scala:27:24
   );	// src/main/scala/mycpu/core/Core.scala:24:23
   WriteBack wb (	// src/main/scala/mycpu/core/Core.scala:25:23
     .reset             (reset),
@@ -487,70 +482,54 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .inst      (_wb_io_debug_out_inst)	// src/main/scala/mycpu/core/Core.scala:25:23
   );	// src/main/scala/mycpu/core/Core.scala:26:24
   SimpleAXIArbiter arbiter (	// src/main/scala/mycpu/core/Core.scala:27:24
-    .clock                  (clock),
-    .reset                  (reset),
-    .io_left_ar_ready       (_arbiter_io_left_ar_ready),
-    .io_left_ar_valid       (_fetch_io_axi_ar_valid),	// src/main/scala/mycpu/core/Core.scala:21:23
-    .io_left_ar_bits_addr   (_fetch_io_axi_ar_bits_addr),	// src/main/scala/mycpu/core/Core.scala:21:23
-    .io_left_r_ready        (_fetch_io_axi_r_ready),	// src/main/scala/mycpu/core/Core.scala:21:23
-    .io_left_r_valid        (_arbiter_io_left_r_valid),
-    .io_left_r_bits_id      (_arbiter_io_left_r_bits_id),
-    .io_left_r_bits_data    (_arbiter_io_left_r_bits_data),
-    .io_left_r_bits_last    (_arbiter_io_left_r_bits_last),
-    .io_right_aw_ready      (_arbiter_io_right_aw_ready),
-    .io_right_aw_valid      (_lsu_io_axi_aw_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_aw_bits_id    ({2'h0, _lsu_io_axi_aw_bits_id}),	// src/main/scala/mycpu/core/Core.scala:24:23, :69:8
-    .io_right_aw_bits_addr  (_lsu_io_axi_aw_bits_addr),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_aw_bits_len   (_lsu_io_axi_aw_bits_len),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_aw_bits_size  (_lsu_io_axi_aw_bits_size),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_aw_bits_burst (_lsu_io_axi_aw_bits_burst),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_w_ready       (_arbiter_io_right_w_ready),
-    .io_right_w_valid       (_lsu_io_axi_w_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_w_bits_data   (_lsu_io_axi_w_bits_data),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_w_bits_strb   (_lsu_io_axi_w_bits_strb),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_w_bits_last   (_lsu_io_axi_w_bits_last),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_b_ready       (_lsu_io_axi_b_ready),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_b_valid       (_arbiter_io_right_b_valid),
-    .io_right_ar_ready      (_arbiter_io_right_ar_ready),
-    .io_right_ar_valid      (_lsu_io_axi_ar_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_ar_bits_id    ({2'h0, _lsu_io_axi_ar_bits_id}),	// src/main/scala/mycpu/core/Core.scala:24:23, :69:8
-    .io_right_ar_bits_addr  (_lsu_io_axi_ar_bits_addr),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_ar_bits_len   (_lsu_io_axi_ar_bits_len),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_ar_bits_size  (_lsu_io_axi_ar_bits_size),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_ar_bits_burst (_lsu_io_axi_ar_bits_burst),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_r_ready       (_lsu_io_axi_r_ready),	// src/main/scala/mycpu/core/Core.scala:24:23
-    .io_right_r_valid       (_arbiter_io_right_r_valid),
-    .io_right_r_bits_id     (_arbiter_io_right_r_bits_id),
-    .io_right_r_bits_data   (_arbiter_io_right_r_bits_data),
-    .io_right_r_bits_resp   (_arbiter_io_right_r_bits_resp),
-    .io_right_r_bits_last   (_arbiter_io_right_r_bits_last),
-    .io_out_aw_ready        (io_master_aw_ready),
-    .io_out_aw_valid        (_arbiter_io_out_aw_valid),
-    .io_out_aw_bits_id      (_arbiter_io_out_aw_bits_id),
-    .io_out_aw_bits_addr    (_arbiter_io_out_aw_bits_addr),
-    .io_out_aw_bits_len     (io_master_aw_bits_len),
-    .io_out_aw_bits_size    (io_master_aw_bits_size),
-    .io_out_aw_bits_burst   (io_master_aw_bits_burst),
-    .io_out_w_ready         (io_master_w_ready),
-    .io_out_w_valid         (io_master_w_valid),
-    .io_out_w_bits_data     (io_master_w_bits_data),
-    .io_out_w_bits_strb     (io_master_w_bits_strb),
-    .io_out_w_bits_last     (io_master_w_bits_last),
-    .io_out_b_ready         (io_master_b_ready),
-    .io_out_b_valid         (io_master_b_valid),
-    .io_out_ar_ready        (io_master_ar_ready),
-    .io_out_ar_valid        (_arbiter_io_out_ar_valid),
-    .io_out_ar_bits_id      (_arbiter_io_out_ar_bits_id),
-    .io_out_ar_bits_addr    (_arbiter_io_out_ar_bits_addr),
-    .io_out_ar_bits_len     (io_master_ar_bits_len),
-    .io_out_ar_bits_size    (io_master_ar_bits_size),
-    .io_out_ar_bits_burst   (io_master_ar_bits_burst),
-    .io_out_r_ready         (io_master_r_ready),
-    .io_out_r_valid         (io_master_r_valid),
-    .io_out_r_bits_id       ({2'h0, io_master_r_bits_id}),	// src/main/scala/mycpu/core/Core.scala:72:13
-    .io_out_r_bits_data     (io_master_r_bits_data),
-    .io_out_r_bits_resp     (io_master_r_bits_resp),
-    .io_out_r_bits_last     (io_master_r_bits_last)
+    .clock                 (clock),
+    .reset                 (reset),
+    .io_left_ar_ready      (_arbiter_io_left_ar_ready),
+    .io_left_ar_valid      (_fetch_io_axi_ar_valid),	// src/main/scala/mycpu/core/Core.scala:21:23
+    .io_left_ar_bits_addr  (_fetch_io_axi_ar_bits_addr),	// src/main/scala/mycpu/core/Core.scala:21:23
+    .io_left_r_ready       (_fetch_io_axi_r_ready),	// src/main/scala/mycpu/core/Core.scala:21:23
+    .io_left_r_valid       (_arbiter_io_left_r_valid),
+    .io_left_r_bits_id     (_arbiter_io_left_r_bits_id),
+    .io_left_r_bits_data   (_arbiter_io_left_r_bits_data),
+    .io_left_r_bits_last   (_arbiter_io_left_r_bits_last),
+    .io_right_aw_ready     (_arbiter_io_right_aw_ready),
+    .io_right_aw_valid     (_lsu_io_axi_aw_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_aw_bits_addr (_lsu_io_axi_aw_bits_addr),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_aw_bits_size (_lsu_io_axi_aw_bits_size),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_w_ready      (_arbiter_io_right_w_ready),
+    .io_right_w_valid      (_lsu_io_axi_w_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_w_bits_data  (_lsu_io_axi_w_bits_data),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_w_bits_strb  (_lsu_io_axi_w_bits_strb),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_w_bits_last  (_lsu_io_axi_w_bits_last),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_b_ready      (_lsu_io_axi_b_ready),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_b_valid      (_arbiter_io_right_b_valid),
+    .io_right_ar_ready     (_arbiter_io_right_ar_ready),
+    .io_right_ar_valid     (_lsu_io_axi_ar_valid),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_ar_bits_addr (_lsu_io_axi_ar_bits_addr),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_ar_bits_size (_lsu_io_axi_ar_bits_size),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_r_ready      (_lsu_io_axi_r_ready),	// src/main/scala/mycpu/core/Core.scala:24:23
+    .io_right_r_valid      (_arbiter_io_right_r_valid),
+    .io_right_r_bits_data  (_arbiter_io_right_r_bits_data),
+    .io_out_aw_ready       (io_master_aw_ready),
+    .io_out_aw_valid       (_arbiter_io_out_aw_valid),
+    .io_out_aw_bits_addr   (_arbiter_io_out_aw_bits_addr),
+    .io_out_aw_bits_size   (io_master_aw_bits_size),
+    .io_out_w_ready        (io_master_w_ready),
+    .io_out_w_valid        (io_master_w_valid),
+    .io_out_w_bits_data    (io_master_w_bits_data),
+    .io_out_w_bits_strb    (io_master_w_bits_strb),
+    .io_out_w_bits_last    (io_master_w_bits_last),
+    .io_out_b_ready        (io_master_b_ready),
+    .io_out_b_valid        (io_master_b_valid),
+    .io_out_ar_ready       (io_master_ar_ready),
+    .io_out_ar_valid       (_arbiter_io_out_ar_valid),
+    .io_out_ar_bits_addr   (_arbiter_io_out_ar_bits_addr),
+    .io_out_ar_bits_size   (io_master_ar_bits_size),
+    .io_out_r_ready        (io_master_r_ready),
+    .io_out_r_valid        (io_master_r_valid),
+    .io_out_r_bits_id      ({2'h0, io_master_r_bits_id}),	// src/main/scala/mycpu/core/Core.scala:72:13
+    .io_out_r_bits_data    (io_master_r_bits_data),
+    .io_out_r_bits_last    (io_master_r_bits_last)
   );	// src/main/scala/mycpu/core/Core.scala:27:24
   Queue1_FetchPacket q1 (	// src/main/scala/mycpu/core/Core.scala:38:18
     .clock            (clock),
@@ -652,10 +631,21 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
     .io_deq_bits_memWData       (_q3_io_deq_bits_memWData),
     .io_deq_bits_pcTarget       (_q3_io_deq_bits_pcTarget),
     .io_deq_bits_rdAddr         (_q3_io_deq_bits_rdAddr),
+    .io_deq_bits_ctrl_aluOp     (_q3_io_deq_bits_ctrl_aluOp),
+    .io_deq_bits_ctrl_csrOp     (_q3_io_deq_bits_ctrl_csrOp),
     .io_deq_bits_ctrl_regWen    (_q3_io_deq_bits_ctrl_regWen),
     .io_deq_bits_ctrl_memEn     (_q3_io_deq_bits_ctrl_memEn),
     .io_deq_bits_ctrl_memWen    (_q3_io_deq_bits_ctrl_memWen),
-    .io_deq_bits_ctrl_memFunct3 (_q3_io_deq_bits_ctrl_memFunct3)
+    .io_deq_bits_ctrl_memFunct3 (_q3_io_deq_bits_ctrl_memFunct3),
+    .io_deq_bits_ctrl_op1Sel    (_q3_io_deq_bits_ctrl_op1Sel),
+    .io_deq_bits_ctrl_op2Sel    (_q3_io_deq_bits_ctrl_op2Sel),
+    .io_deq_bits_ctrl_isJump    (_q3_io_deq_bits_ctrl_isJump),
+    .io_deq_bits_ctrl_isBranch  (_q3_io_deq_bits_ctrl_isBranch),
+    .io_deq_bits_ctrl_isEcall   (_q3_io_deq_bits_ctrl_isEcall),
+    .io_deq_bits_ctrl_isMret    (_q3_io_deq_bits_ctrl_isMret),
+    .io_deq_bits_ctrl_isEbreak  (_q3_io_deq_bits_ctrl_isEbreak),
+    .io_deq_bits_redirect_valid (_q3_io_deq_bits_redirect_valid),
+    .io_deq_bits_redirect_bits  (_q3_io_deq_bits_redirect_bits)
   );	// src/main/scala/mycpu/core/Core.scala:48:18
   Queue1_MemoryPacket q4 (	// src/main/scala/mycpu/core/Core.scala:53:18
     .clock                (clock),
@@ -692,10 +682,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:16:7
          (|(validAddr[31:25])) & validAddr < 32'h2010000})	// src/main/scala/mycpu/core/Core.scala:76:28, src/main/scala/mycpu/peripherals/MemMap.scala:35:{19,36,44}, :38:{29,36}
   );	// src/main/scala/mycpu/core/Core.scala:74:20
   assign io_master_aw_valid = _arbiter_io_out_aw_valid;	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24
-  assign io_master_aw_bits_id = _arbiter_io_out_aw_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24, :72:13
   assign io_master_aw_bits_addr = _arbiter_io_out_aw_bits_addr;	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24
   assign io_master_ar_valid = _arbiter_io_out_ar_valid;	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24
-  assign io_master_ar_bits_id = _arbiter_io_out_ar_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24, :72:13
   assign io_master_ar_bits_addr = _arbiter_io_out_ar_bits_addr;	// src/main/scala/mycpu/core/Core.scala:16:7, :27:24
 endmodule
 

@@ -19,76 +19,74 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
                 io_out_bits_dnpc	// src/main/scala/mycpu/core/frontend/Fetch.scala:11:14
 );
 
-  wire        _layer_probe;	// src/main/scala/mycpu/utils/HardwareAgent.scala:160:23
-  wire        _layer_probe_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:160:23
+  wire        _GEN;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
+  wire        _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
   reg  [31:0] pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:134:19
-  wire [31:0] pc_0 = pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:134:19
   reg  [31:0] table_0_addr;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
   reg  [31:0] table_0_inst;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
   reg         table_0_valid;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
   reg         reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:136:24
-  reg         active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-  wire        active_0 = active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-  reg  [31:0] instData;	// src/main/scala/mycpu/core/frontend/Fetch.scala:159:23
-  wire [31:0] instData_0 = instData;	// src/main/scala/mycpu/core/frontend/Fetch.scala:159:23
-  reg  [1:0]  pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24
-  wire [1:0]  pcReg_0 = pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24
-  assign _layer_probe_0 = pcReg == 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :160:23
-  assign _layer_probe = pcReg == 2'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :160:23
-  wire        _layer_probe_1 = pcReg == 2'h2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :160:23
+  reg         active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+  wire        active_0 = active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+  reg  [31:0] instData;	// src/main/scala/mycpu/core/frontend/Fetch.scala:149:23
+  reg  [1:0]  pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
+  wire [1:0]  pcReg_0 = pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
+  assign _GEN_0 = pcReg == 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
+  assign _GEN = pcReg == 2'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
   always @(posedge clock) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
-    automatic logic _GEN;	// src/main/scala/mycpu/core/frontend/Fetch.scala:190:{26,46}
-    _GEN = io_axi_r_valid & io_axi_r_bits_last & ~io_axi_r_bits_id;	// src/main/scala/mycpu/core/frontend/Fetch.scala:190:{26,46,64}
+    automatic logic _GEN_1;	// src/main/scala/mycpu/core/frontend/Fetch.scala:177:{26,46}
+    _GEN_1 = io_axi_r_valid & io_axi_r_bits_last & ~io_axi_r_bits_id;	// src/main/scala/mycpu/core/frontend/Fetch.scala:177:{26,46,64}
     if (reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
       pc <= 32'h30000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:134:19
       table_0_addr <= 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
       table_0_inst <= 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
       table_0_valid <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24
       reqSent <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:136:24
-      active <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-      pcReg <= 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24
+      active <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+      pcReg <= 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
     end
     else begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
-      automatic logic _GEN_0 = active & _layer_probe_1 & ~table_0_valid;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, :142:25, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :152:26, :153:27, :160:{23,34}
+      automatic logic _GEN_2 = pcReg == 2'h2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
+      automatic logic _GEN_3 = active & _GEN_2 & ~table_0_valid;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, :142:25, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:{23,34}
       if (io_pc_update_en)	// src/main/scala/mycpu/core/frontend/Fetch.scala:11:14
         pc <= io_next_pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:134:19
-      if (_GEN_0) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, src/main/scala/mycpu/utils/HardwareAgent.scala:152:26, :153:27, :160:34
+      if (_GEN_3) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, src/main/scala/mycpu/utils/HardwareAgent.scala:159:26, :163:27, :175:34
         table_0_addr <= pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :134:19
-        table_0_inst <= instData;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :159:23
+        table_0_inst <= instData;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :149:23
       end
-      table_0_valid <= ~(table_0_valid & io_out_ready) & (_GEN_0 | table_0_valid);	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, :118:22, :119:26, :221:32, :233:27, src/main/scala/mycpu/utils/HardwareAgent.scala:149:24, :152:26, :153:27, :160:34
-      reqSent <= ~io_pc_update_en & (active & _layer_probe_1 | reqSent);	// src/main/scala/mycpu/core/frontend/Fetch.scala:136:24, :202:15, :210:25, :212:13, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :149:24, :152:26, :153:27, :160:{23,34}
-      if (active) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-        automatic logic [1:0] _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:154:24
-        _pcReg_T_4 = pcReg + 2'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :154:24
-        active <= ~(pcReg[1]);	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :114:24, :155:{21,44}, :156:18
-        if (_layer_probe) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:160:23
-          if (_GEN)	// src/main/scala/mycpu/core/frontend/Fetch.scala:190:{26,46}
-            pcReg <= _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :154:24
+      table_0_valid <= ~(table_0_valid & io_out_ready) & (_GEN_3 | table_0_valid);	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :103:22, :104:32, :118:22, :119:26, :202:32, :214:27, src/main/scala/mycpu/utils/HardwareAgent.scala:156:24, :159:26, :163:27, :175:34
+      reqSent <= ~io_pc_update_en & (active & _GEN_2 | reqSent);	// src/main/scala/mycpu/core/frontend/Fetch.scala:136:24, :185:15, :191:25, :193:13, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :156:24, :159:26, :163:27, :175:{23,34}
+      if (active) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+        automatic logic [1:0] _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:165:24
+        _pcReg_T_4 = pcReg + 2'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:24
+        active <= ~(pcReg[1]);	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :99:24, :168:{21,44}, :169:18
+        if (_GEN) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
+          if (_GEN_1)	// src/main/scala/mycpu/core/frontend/Fetch.scala:177:{26,46}
+            pcReg <= _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:24
         end
-        else if (_layer_probe_0) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:160:23
+        else if (_GEN_0) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
           if (io_axi_ar_ready)	// src/main/scala/mycpu/core/frontend/Fetch.scala:11:14
-            pcReg <= _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :154:24
+            pcReg <= _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:24
         end
-        else	// src/main/scala/mycpu/utils/HardwareAgent.scala:160:23
-          pcReg <= pcReg[1] ? 2'h0 : _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24, :154:{15,24}, :155:{21,44}, :157:18
+        else	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
+          pcReg <= pcReg[1] ? 2'h0 : _pcReg_T_4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:{15,24}, :168:{21,44}, :170:18
       end
-      else begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-        automatic logic _GEN_1 = ~table_0_valid & ~reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :136:24, :142:{25,44,47}
-        active <= _GEN_1;	// src/main/scala/mycpu/core/frontend/Fetch.scala:142:44, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31
-        if (_GEN_1)	// src/main/scala/mycpu/core/frontend/Fetch.scala:142:44
-          pcReg <= 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:114:24
+      else begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+        automatic logic _GEN_4 = ~table_0_valid & ~reqSent;	// src/main/scala/mycpu/core/frontend/Fetch.scala:76:24, :136:24, :142:{25,44,47}
+        active <= _GEN_4;	// src/main/scala/mycpu/core/frontend/Fetch.scala:142:44, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+        if (_GEN_4)	// src/main/scala/mycpu/core/frontend/Fetch.scala:142:44
+          pcReg <= 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
       end
     end
-    if (active & _layer_probe & _GEN)	// src/main/scala/mycpu/core/frontend/Fetch.scala:159:23, :190:{26,46,73}, :191:18, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :152:26, :153:27, :160:{23,34}
-      instData <= io_axi_r_bits_data;	// src/main/scala/mycpu/core/frontend/Fetch.scala:159:23
+    if (active & _GEN & _GEN_1)	// src/main/scala/mycpu/core/frontend/Fetch.scala:149:23, :177:{26,46,73}, :178:18, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:{23,34}
+      instData <= io_axi_r_bits_data;	// src/main/scala/mycpu/core/frontend/Fetch.scala:149:23
   end // always @(posedge)
-  assign io_axi_ar_valid = active & _layer_probe_0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :102:18, :117:66, :152:26, :153:27, :160:23
+  assign io_axi_ar_valid = active & _GEN_0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
   assign io_axi_ar_bits_addr = pc;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :134:19
-  assign io_axi_r_ready = active & _layer_probe;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, src/main/scala/mycpu/utils/HardwareAgent.scala:75:31, :102:18, :117:66, :152:26, :153:27, :160:23
+  assign io_axi_r_ready = active & _GEN;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
   assign io_out_valid = table_0_valid;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24
-  assign io_out_bits_pc = table_0_valid ? table_0_addr : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :221:32, src/main/scala/mycpu/utils/HardwareAgent.scala:46:12, :56:66
-  assign io_out_bits_inst = table_0_valid ? table_0_inst : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :221:32, src/main/scala/mycpu/utils/HardwareAgent.scala:46:12, :56:66
-  assign io_out_bits_dnpc = table_0_valid ? table_0_addr + 32'h4 : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :221:32, :229:33, src/main/scala/mycpu/utils/HardwareAgent.scala:46:12, :56:66
+  assign io_out_bits_pc = table_0_valid ? table_0_addr : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :202:32, src/main/scala/mycpu/utils/HardwareAgent.scala:44:12, :51:66
+  assign io_out_bits_inst = table_0_valid ? table_0_inst : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :202:32, src/main/scala/mycpu/utils/HardwareAgent.scala:44:12, :51:66
+  assign io_out_bits_dnpc = table_0_valid ? table_0_addr + 32'h4 : 32'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :76:24, :202:32, :210:33, src/main/scala/mycpu/utils/HardwareAgent.scala:44:12, :51:66
 endmodule
 

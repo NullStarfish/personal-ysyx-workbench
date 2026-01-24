@@ -54,10 +54,7 @@ class Core extends Module {
   q4.io.enq <> lsu.io.out
   wb.io.in  <> q4.io.deq
 
-  // === 2. 关键反馈环路 (Feedback Loop) ===
-  // 这是实现 "单指令串行执行" 的核心。
-  // Fetch 在 WB 完成并给出有效信号之前，会一直等待。
-  // WB 的 debug_valid 实际上就是指令提交信号。
+
   
   fetch.io.next_pc      := wb.io.debug_out.dnpc
   fetch.io.pc_update_en := wb.io.debug_valid 
@@ -77,20 +74,7 @@ class Core extends Module {
   skip.io.skip := MemMap.isDifftestSkip(validAddr)
 
 
-  //temp : 区分4bytes aligned的perip和其他直接寻址的外设：默认都是4bytes aligned
-  
 
-
-
-  // === 3. 其他连接 ===
-  
-  // 寄存器回写 (Forwarding 不需要在单周期模式下考虑，只要 WB 写完再 Fetch 下一条)
-  // 注意：RegFile 在 Decode 阶段读取，在 WB 阶段写入。
-  // 因为是串行，Fetch 下一条指令时，前一条的 WB 肯定已经发生（或者正在发生）。
-  // 这里的时序：
-  // Cycle N: WB fires (reg write happens) -> Fetch Update PC
-  // Cycle N+1: Fetch starts reading RegFile (for next inst)
-  // 所以不存在数据冒险。
   decode.io.regWrite <> wb.io.regWrite
 
   // SimState 连接 (用于 C++ 差分测试)

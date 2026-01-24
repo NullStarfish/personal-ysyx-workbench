@@ -144,21 +144,11 @@ class Fetch extends Module {
 
 
 
-  val fetchThreadPastRunning = RegNext(fetchThread.isRunning)
-  when (fetchThread.isRunning && !fetchThreadPastRunning)  {
-    printf("[DEBUG] [FETCH] fetchThread ONLINE!!!!\n")
-    printf("fetching pc %x\n", pc)
-  }
-
-  when (fetchThreadPastRunning && !fetchThread.isRunning) {
-    printf("[DEBUG] [FETCH] fetchThread OFFLINE!!!\n")
-  }
-
 
   fetchThread.entry {
     val instData = Reg(UInt(32.W))
-    fetchThread.Step {
-      printf("[DEBUG] [FETCH] fetchThread step 1\n")
+    fetchThread.Step("AXI AR req") {
+
 
       fetchThread.write(arValidProxy, true.B) // 拉高 Valid
       
@@ -181,12 +171,9 @@ class Fetch extends Module {
     }
 
     // --- Step 1: 接收数据 (R Channel) ---
-    fetchThread.Step {
-      printf("[DEBUG] [FETCH] fetchThread step 2\n")
-
+    fetchThread.Step("AXI R RESP") {
       fetchThread.write(rReadyProxy, true.B)
       fetchThread.pc := fetchThread.pc // 默认 hold
-      
       when (rBus.r.valid && rBus.r.bits.last && rBus.r.bits.id === 0.U) {
         instData := rBus.r.bits.data
         fetchThread.pc := fetchThread.pc + 1.U
@@ -194,14 +181,8 @@ class Fetch extends Module {
     }
 
     fetchThread.Step {
-      printf("[DEBUG] [FETCH] fetchThread step 3\n")
-
       fetchTable.push(Node(pc, instData, true.B))
-      printf("[DEBUG] [FETCH] fetchThread: DONE!!!!: push pc : %x, inst: %x\n", pc, instData)
-      
       reqSent := true.B 
-      
-
     }
   }
 

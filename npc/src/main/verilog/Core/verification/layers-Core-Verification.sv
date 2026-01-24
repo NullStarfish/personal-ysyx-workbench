@@ -2,4 +2,5 @@
 `ifndef layers_Core_Verification	// src/main/scala/mycpu/core/Core.scala:16:7
   `define layers_Core_Verification
   `include "layers-Fetch-Verification.sv"	// src/main/scala/mycpu/core/Core.scala:16:7
+  `include "layers-LSU-Verification.sv"	// src/main/scala/mycpu/core/Core.scala:16:7
 `endif // not def layers_Core_Verification
