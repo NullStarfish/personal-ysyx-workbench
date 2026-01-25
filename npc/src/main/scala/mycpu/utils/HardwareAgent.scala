@@ -1,6 +1,7 @@
 package mycpu.utils
 import chisel3._
 import chisel3.util._
+import mycpu.core.os._
 import scala.collection.mutable.{ArrayBuffer, HashSet, LinkedHashMap}
 
 trait HardwareAgent {
@@ -47,11 +48,11 @@ trait HardwareAgent {
 
 class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
   def run(block: => Unit): Unit = {
-    // 1. 每一拍开始，先给所有代理信号赋默认值 (WireDefault 效果)
-    managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
-    
-    // 2. 执行逻辑块
-    block
+    // [修改] 使用 withContext 包裹用户代码
+    ContextScope.withContext(LogicCtx(this)) {
+      managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
+      block
+    }
   }
 }
 
@@ -91,7 +92,11 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
   }
 
   def entry(block: => Unit): Unit = {
-    block
+
+    ContextScope.withContext(ThreadCtx(this)) {
+      block // 执行用户逻辑，此时 ContextScope.current 就是这个线程
+    }
+
     val totalSteps = steps.length
     if (totalSteps == 0) return
 
