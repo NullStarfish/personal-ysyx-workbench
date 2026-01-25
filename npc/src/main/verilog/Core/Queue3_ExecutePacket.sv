@@ -49,7 +49,8 @@ module Queue3_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
                 io_deq_bits_ctrl_isMret,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_ctrl_isEbreak,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_redirect_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
-  output [31:0] io_deq_bits_redirect_bits	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [31:0] io_deq_bits_redirect_bits,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [1:0]  io_count	// src/main/scala/chisel3/util/Queue.scala:72:14
 );
 
   wire [248:0] _ram_ext_R0_data;	// src/main/scala/chisel3/util/Queue.scala:73:91
@@ -60,6 +61,7 @@ module Queue3_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   wire         empty = ptr_match & ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :78:{25,28}
   wire         full = ptr_match & maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :79:24
   wire         do_enq = ~full & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:79:24, :103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire [1:0]   _ptr_diff_T = enq_ptr_value - deq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40, src/main/scala/chisel3/util/Queue.scala:126:32
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
     if (reset) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
       enq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40
@@ -132,5 +134,9 @@ module Queue3_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   assign io_deq_bits_ctrl_isEbreak = _ram_ext_R0_data[33];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_redirect_valid = _ram_ext_R0_data[32];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_redirect_bits = _ram_ext_R0_data[31:0];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_count =
+    ptr_match
+      ? {2{maybe_full}}
+      : deq_ptr_value > enq_ptr_value ? _ptr_diff_T - 2'h1 : _ptr_diff_T;	// src/main/scala/chisel3/util/Counter.scala:61:40, src/main/scala/chisel3/util/Queue.scala:60:7, :76:27, :77:33, :126:32, :131:20, :133:10, :134:{10,25,57}
 endmodule
 

@@ -10,48 +10,33 @@ class LSU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new ExecutePacket))
     val out = Decoupled(new MemoryPacket)
-    val axi = new AXI4LiteBundle(XLEN, XLEN)
+    val axi = new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN)
   })
 
   // =======================================================
-  // 1. 数据结构定义
+  // 1. 数据结构与队列定义 (使用 HwQueue)
   // =======================================================
+
+  val AXI4Split(rBus, wBus) = io.axi
   
-  // 响应队列的 Payload：包含原始指令信息 + AXI 读回来的原始数据
   class LsuRespPacket extends Bundle {
-    val req  = new ExecutePacket
-    val rdata = UInt(XLEN.W) // 还没有移位/符号扩展的原始数据
+    val req   = new ExecutePacket
+    val rdata = UInt(XLEN.W) 
   }
 
-  // 1.1 输入队列 (Request Queue)
-  val reqQueue = Module(new Queue(new ExecutePacket, entries = 3))
-  reqQueue.io.enq <> io.in
+  val reqPipe  = new HwQueue(new ExecutePacket, 3, "LSU_Req_Pipe")
+  val respPipe = new HwQueue(new LsuRespPacket, 3, "LSU_Resp_Pipe")
 
-  // 1.2 输出缓冲队列 (Response Queue)
-  val respQueue = Module(new Queue(new LsuRespPacket, entries = 3))
+  // 连接外部输入到 Input Pipe
+  reqPipe.enq <> io.in
 
-  QueueProbe(reqQueue.io.deq, "LSU_Dispatch")
-  QueueProbe(respQueue.io.enq, "LSU_Commit")
+
+  val currReq = reqPipe.peek()
   
-  // 默认不 Pop/Push，由 Thread 控制
-  reqQueue.io.deq.ready  := false.B
-  respQueue.io.enq.valid := false.B
-  respQueue.io.enq.bits  := DontCare
-
-
-  // =======================================================
-  // 2. 辅助逻辑 (Combinational Logic)
-  // =======================================================
-  // 预先计算写操作所需的 Address, Data, Strb
-  // 这些逻辑直接基于 reqQueue 的队头，供 Thread 使用
-  
-  val currReq = reqQueue.io.deq.bits
   val addrOffset = currReq.aluResult(1, 0)
-  
-  // WStrb 和 WData 计算
-  val calcWStrb = WireDefault(0.U(4.W))
-  val calcWData = WireDefault(0.U(XLEN.W))
-  val calcSize  = WireDefault(0.U(3.W))
+  val calcWStrb  = WireDefault(0.U(4.W))
+  val calcWData  = WireDefault(0.U(XLEN.W))
+  val calcSize   = WireDefault(0.U(3.W))
 
   switch(currReq.ctrl.memFunct3) {
     is(0.U) { // Byte
@@ -71,36 +56,29 @@ class LSU extends Module {
     } 
   }
 
-  // 构建 AXI 请求包的模版
-  val axiAddrPacket = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
-  axiAddrPacket.id    := 0.U
-  axiAddrPacket.addr  := currReq.aluResult // 对齐与否交给 AXI 互联或在 Logic 处理，这里发原始地址
-  axiAddrPacket.len   := 0.U
+  // AXI 包构建
+  val axiAddrPacket = Wire(chiselTypeOf(rBus.ar.bits))
+  axiAddrPacket     := 0.U.asTypeOf(axiAddrPacket) // Init defaults
+  axiAddrPacket.addr  := currReq.aluResult
   axiAddrPacket.size  := calcSize
-  axiAddrPacket.burst := AXI4Parameters.BURST_FIXED // Lite 只有 Fixed 或 Incr 均可，通常 Lite 不看 Burst
-  axiAddrPacket.lock  := false.B
-  axiAddrPacket.cache := 0.U
-  axiAddrPacket.prot  := 0.U
-  axiAddrPacket.qos   := 0.U
+  axiAddrPacket.burst := AXI4Parameters.BURST_FIXED
 
-  val axiDataPacket = Wire(new AXI4BundleW(XLEN))
+  val axiDataPacket = Wire(chiselTypeOf(wBus.w.bits))
   axiDataPacket.data := calcWData
   axiDataPacket.strb := calcWStrb
   axiDataPacket.last := true.B
 
-  // 状态判定
-  val isRead  = currReq.ctrl.memEn && !currReq.ctrl.memWen
-  val isWrite = currReq.ctrl.memEn && currReq.ctrl.memWen
-  val isNonMem = !currReq.ctrl.memEn
-
+  // 操作类型判定
+  val isRead   = currReq.ctrl.memEn && !currReq.ctrl.memWen
+  val isWrite  = currReq.ctrl.memEn && currReq.ctrl.memWen
+  
   // =======================================================
-  // 3. Hardware Thread (AXI Transaction Manager)
+  // 3. Hardware Thread (AXI 事务管理器)
   // =======================================================
 
-  val AXI4Split(rBus, wBus) = io.axi
   val lsuThread = new HardwareThread("LSU_Core", debugEnable = true)
 
-  // 接管 AXI 信号
+
   val arValidProxy = lsuThread.driveManaged(rBus.ar.valid, false.B)
   val arBitsProxy  = lsuThread.driveManaged(rBus.ar.bits,  DontCare)
   val rReadyProxy  = lsuThread.driveManaged(rBus.r.ready,  false.B)
@@ -111,34 +89,31 @@ class LSU extends Module {
   val wBitsProxy   = lsuThread.driveManaged(wBus.w.bits,   DontCare)
   val bReadyProxy  = lsuThread.driveManaged(wBus.b.ready,  false.B)
   
-  
-  // 启动条件：有请求 且 下游能接收
-  lsuThread.startWhen(reqQueue.io.deq.valid && respQueue.io.enq.ready)
 
-   lsuThread.entry {
+  lsuThread.startWhen(reqPipe.canPop && respPipe.canPush)
+
+  lsuThread.entry {
     val readDataLatch = RegInit(0.U(XLEN.W))
 
-    // =========================================================
-    // 定义跳转标签 (Wire)
-    // =========================================================
-    val LabelRead   = Wire(UInt(32.W))
-    val LabelWrite  = Wire(UInt(32.W))
-    val LabelSkip   = Wire(UInt(32.W))
-    val LabelCommit = Wire(UInt(32.W))
+    // 跳转标签定义
+    val L_Read   = Wire(UInt(32.W))
+    val L_Write  = Wire(UInt(32.W))
+    val L_Skip   = Wire(UInt(32.W))
+    val L_Commit = Wire(UInt(32.W))
 
-    // Step 0: Dispatch (分发器)
-    // 类似于 CPU 的 ID 阶段，决定下一跳去哪里
+    // Step 0: Dispatch (分发)
     lsuThread.Step("Dispatch") {
       when (isRead) {
-        lsuThread.pc := LabelRead // 只有 isRead 时，pc 才会跳到 Read 流程
+        lsuThread.pc := L_Read
       } .elsewhen (isWrite) {
-        lsuThread.pc := LabelWrite
+        lsuThread.pc := L_Write
       } .otherwise {
-        lsuThread.pc := LabelSkip // MV指令会走这里，跳过所有 AXI 操作
+        lsuThread.pc := L_Skip // 非内存指令直接跳过
       }
     }
 
-    LabelRead := lsuThread.Label // 标记当前 Label 为 Step 1
+    // --- Read Flow ---
+    L_Read := lsuThread.Label
     lsuThread.Step("AXI_READ_ADDR") {
       lsuThread.write(arValidProxy, true.B)
       lsuThread.write(arBitsProxy, axiAddrPacket)
@@ -151,15 +126,10 @@ class LSU extends Module {
       readDataLatch := rBus.r.bits.data
     }
     
-    // 读完后，直接跳去提交
-    lsuThread.Step("JUMP_TO_COMMIT_R") {
-       lsuThread.pc := LabelCommit 
-    }
+    lsuThread.Step("JUMP_COMMIT_R") { lsuThread.pc := L_Commit }
 
-    // =========================================================
-    // Write Flow
-    // =========================================================
-    LabelWrite := lsuThread.Label
+    // --- Write Flow ---
+    L_Write := lsuThread.Label
     lsuThread.Step("AXI_WRITE_ADDR") {
       lsuThread.write(awValidProxy, true.B)
       lsuThread.write(awBitsProxy, axiAddrPacket)
@@ -177,92 +147,80 @@ class LSU extends Module {
       lsuThread.waitCondition(wBus.b.valid)
     }
     
-    // 写完后，跳去提交
-    lsuThread.Step("JUMP_TO_COMMIT_W") {
-       lsuThread.pc := LabelCommit 
-    }
+    lsuThread.Step("JUMP_COMMIT_W") { lsuThread.pc := L_Commit }
 
-    // =========================================================
-    // Skip Flow (非内存指令)
-    // =========================================================
-    LabelSkip := lsuThread.Label
+    // --- Skip Flow ---
+    L_Skip := lsuThread.Label
     lsuThread.Step("PASS_THROUGH") {
-       // 什么也不做，ALU结果直接透传
-       // 这里不需要wait，一拍就过
-       // 也不需要显式 jump，因为下面紧接着就是 Commit
+       // 空操作，下一拍自动进入 Commit
     }
 
-    // =========================================================
-    // Commit (Unified Exit)
-    // =========================================================
-    LabelCommit := lsuThread.Label
+    // --- Commit Flow ---
+    L_Commit := lsuThread.Label
     lsuThread.Step("COMMIT") {
-       respQueue.io.enq.valid    := true.B
-       respQueue.io.enq.bits.req := currReq
+       val resp = Wire(new LsuRespPacket)
+       resp.req := currReq
+       // 如果是读，使用 latch 数据；否则使用 0 (ALU结果已在 req 中)
+       resp.rdata := Mux(isRead, readDataLatch, 0.U)
        
-       // 如果是读，用 latch 数据；否则用 0 (ALU结果已在 req 中)
-       respQueue.io.enq.bits.rdata := Mux(isRead, readDataLatch, 0.U)
-       
-       reqQueue.io.deq.ready     := true.B // Pop Request
-       // 执行完最后一步，Thread 自动 active := false
+       // [修改] 使用 HwQueue API 进行原子提交
+       // 尝试推入结果
+       when (respPipe.tryPush(resp)) {
+         // 推入成功后，立刻消耗掉请求
+         reqPipe.tryPop()
+         // 线程结束，自动 active := false
+       } .otherwise {
+         // 如果 RespQueue 满了（虽然 startWhen 检查过，但可能被 logic 堵住），等待
+         lsuThread.waitCondition(false.B)
+       }
     }
   }
 
-
   // =======================================================
-  // 4. WriteBack 转码逻辑 (Combinational Logic)
+  // 4. WriteBack 转码逻辑 (消费者)
   // =======================================================
   val wbLogic = new HardwareLogic("LSU_Format_Logic")
   val outValidProxy = wbLogic.driveManaged(io.out.valid, false.B)
-  // out.bits 我们直接赋值，因为它是由数据流驱动的
   
   wbLogic.run {
-    // 默认连接
-    io.out.bits := DontCare
+    io.out.bits := DontCare // 默认
     
-    val resp     = respQueue.io.deq.bits
-    val original = resp.req
-    val rawData  = resp.rdata
-    val addrLow  = original.aluResult(1, 0)
-    
-    // 数据移位 (Alignment)
-    val shiftedData = rawData >> (addrLow << 3) // addrLow * 8
-    val finalLoadData = WireDefault(0.U(XLEN.W))
-
-    // Load 数据格式化 (Masking & Sign Extension)
-    // 根据 funct3: LB, LH, LW, LBU, LHU
-    switch(original.ctrl.memFunct3) {
-      is(0.U)  { finalLoadData := Cat(Fill(24, shiftedData(7)),  shiftedData(7,0)) }
-      is(1.U)  { finalLoadData := Cat(Fill(16, shiftedData(15)), shiftedData(15,0)) }
-      is(2.U)  { finalLoadData := rawData } // Word 假设对齐
-      is(4.U) { finalLoadData := shiftedData(7,0) }
-      is(5.U) { finalLoadData := shiftedData(15,0) }
-      is(6.U)                     { finalLoadData := rawData } // LWU
-    }
-
-    // 最终 WB 数据选择
-    val wbData = Mux(original.ctrl.memEn && !original.ctrl.memWen, 
-                     finalLoadData,      // Load 指令用内存数据
-                     original.aluResult) // ALU/Store 指令用 ALU 结果 (Store 不需要写回寄存器，但 WB 阶段可能需要 ALU 结果做其他用途，或置0)
-
-    // 驱动输出
-    when (respQueue.io.deq.valid) {
-      wbLogic.write(outValidProxy, true.B)
+    // [修改] 使用 HwQueue API 检查是否有数据
+    when (respPipe.canPop) {
+      val resp     = respPipe.peek()
+      val original = resp.req
+      val rawData  = resp.rdata
+      val addrLow  = original.aluResult(1, 0)
       
-      io.out.bits.connectDebug(original) // 复制 PC, Inst, DNPC
+      // 数据处理 (Shift & Extend)
+      val shiftedData = rawData >> (addrLow << 3)
+      val finalLoadData = WireDefault(0.U(XLEN.W))
+
+      switch(original.ctrl.memFunct3) {
+        is(0.U) { finalLoadData := Cat(Fill(24, shiftedData(7)),  shiftedData(7,0)) }
+        is(1.U) { finalLoadData := Cat(Fill(16, shiftedData(15)), shiftedData(15,0)) }
+        is(2.U) { finalLoadData := rawData }
+        is(4.U) { finalLoadData := shiftedData(7,0) }
+        is(5.U) { finalLoadData := shiftedData(15,0) }
+        is(6.U) { finalLoadData := rawData }
+      }
+
+      val wbData = Mux(original.ctrl.memEn && !original.ctrl.memWen, 
+                       finalLoadData,      
+                       original.aluResult)
+
+      // 驱动输出
+      wbLogic.write(outValidProxy, true.B)
+      io.out.bits.connectDebug(original)
       io.out.bits.wbData   := wbData
       io.out.bits.rdAddr   := original.rdAddr
       io.out.bits.regWen   := original.ctrl.regWen
-      io.out.bits.pcTarget := original.pcTarget // Branch/Jump 目标
-      
-      // 只有下游接受了，才弹出 RespQueue
-      respQueue.io.deq.ready := io.out.ready
-    } .otherwise {
-      respQueue.io.deq.ready := false.B
+      io.out.bits.pcTarget := original.pcTarget
+
+      // 握手：下游 Ready 后，弹出 RespQueue
+      when (io.out.ready) {
+        respPipe.tryPop()
+      }
     }
   }
-  
-  // 补充 Instruction 定义里的 funct3，如果 common 包里没有，这里可能需要手动写 0.U, 1.U 等
-  // 假设 Instructions.LB.funct3 不可用，直接用数字:
-  // LB=0, LH=1, LW=2, LBU=4, LHU=5
 }

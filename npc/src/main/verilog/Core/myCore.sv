@@ -83,9 +83,7 @@ module myCore(	// src/main/scala/mycpu/CoreWrapper.scala:14:7
     .io_master_ar_bits_size (io_master_arsize),
     .io_master_r_ready      (io_master_rready),
     .io_master_r_valid      (io_master_rvalid),
-    .io_master_r_bits_id    (io_master_rid[0]),	// src/main/scala/mycpu/CoreWrapper.scala:157:30
-    .io_master_r_bits_data  (io_master_rdata),
-    .io_master_r_bits_last  (io_master_rlast)
+    .io_master_r_bits_data  (io_master_rdata)
   );	// src/main/scala/mycpu/CoreWrapper.scala:102:20
   assign io_master_awid = 4'h0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7
   assign io_master_awlen = 8'h0;	// src/main/scala/mycpu/CoreWrapper.scala:14:7, :102:20

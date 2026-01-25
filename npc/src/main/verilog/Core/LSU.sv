@@ -55,58 +55,79 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
   input  [31:0] io_axi_r_bits_data	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
 );
 
+  wire [1:0]       LSU_Resp_Pipe_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [3:0]       LSU_Resp_Pipe_io_deq_bits_req_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]       LSU_Resp_Pipe_io_deq_bits_req_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]       LSU_Req_Pipe_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
   wire             _GEN;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
   wire             _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
   wire             _GEN_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
   wire             _GEN_2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
   wire             _GEN_3;	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:23
-  wire             _respQueue_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire             _respQueue_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire [31:0]      _respQueue_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire             _respQueue_io_deq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire             _respQueue_io_deq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire [2:0]       _respQueue_io_deq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire [31:0]      _respQueue_io_deq_bits_rdata;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire             _reqQueue_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_memWData;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [4:0]       _reqQueue_io_deq_bits_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [3:0]       _reqQueue_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [1:0]       _reqQueue_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [2:0]       _reqQueue_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _reqQueue_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      _reqQueue_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             _GEN_4 = _reqQueue_io_deq_bits_ctrl_memFunct3 == 3'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :56:34
+  wire             _LSU_Resp_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Resp_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_req_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_req_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_req_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_req_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       _LSU_Resp_Pipe_io_deq_bits_req_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Resp_Pipe_io_deq_bits_rdata;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       _LSU_Req_Pipe_io_deq_bits_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [3:0]       _LSU_Req_Pipe_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]       _LSU_Req_Pipe_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _LSU_Req_Pipe_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      _LSU_Req_Pipe_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _GEN_4 = _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3 == 3'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:41:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   wire [38:0]      _calcWData_T_2 =
-    {31'h0, _reqQueue_io_deq_bits_memWData[7:0]}
-    << {34'h0, _reqQueue_io_deq_bits_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :49:37, :59:{36,42}
-  wire             _GEN_5 = _reqQueue_io_deq_bits_ctrl_memFunct3 == 3'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :56:34
-  wire [4:0]       _calcWStrb_T_1 = 5'h3 << _reqQueue_io_deq_bits_aluResult[1:0];	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :49:37, :63:30
+    {31'h0, _LSU_Req_Pipe_io_deq_bits_memWData[7:0]}
+    << {34'h0, _LSU_Req_Pipe_io_deq_bits_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:36:37, :44:{36,42}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _GEN_5 = _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3 == 3'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:41:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       _calcWStrb_T_1 = 5'h3 << _LSU_Req_Pipe_io_deq_bits_aluResult[1:0];	// src/main/scala/mycpu/core/backend/LSU.scala:36:37, :48:30, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   wire [46:0]      _calcWData_T_5 =
-    {31'h0, _reqQueue_io_deq_bits_memWData[15:0]}
-    << {42'h0, _reqQueue_io_deq_bits_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :49:37, :59:42, :64:{36,43}
-  wire             _GEN_6 = _reqQueue_io_deq_bits_ctrl_memFunct3 == 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :56:34
-  wire [2:0]       _GEN_7 = _GEN_5 ? 3'h1 : {1'h0, _GEN_6, 1'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:54:30, :56:34, :65:17, :70:17
+    {31'h0, _LSU_Req_Pipe_io_deq_bits_memWData[15:0]}
+    << {42'h0, _LSU_Req_Pipe_io_deq_bits_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:36:37, :44:42, :49:{36,43}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             _GEN_6 = _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3 == 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:41:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       _GEN_7 = _GEN_5 ? 3'h1 : {1'h0, _GEN_6, 1'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:39:31, :41:34, :50:17, :55:17
   wire             isRead =
-    _reqQueue_io_deq_bits_ctrl_memEn & ~_reqQueue_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :92:{36,39}
+    _LSU_Req_Pipe_io_deq_bits_ctrl_memEn & ~_LSU_Req_Pipe_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:72:{37,40}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   reg              active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
   wire             active_0 = active;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-  wire             _GEN_8 = ~active | _GEN_4;	// src/main/scala/mycpu/core/backend/LSU.scala:56:34, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
-  reg  [31:0]      readDataLatch;	// src/main/scala/mycpu/core/backend/LSU.scala:124:32
+  wire             _GEN_8 = ~active | _GEN_4;	// src/main/scala/mycpu/core/backend/LSU.scala:41:34, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
+  reg  [31:0]      readDataLatch;	// src/main/scala/mycpu/core/backend/LSU.scala:96:32
   reg  [3:0]       pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
   wire [3:0]       pcReg_0 = pcReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
   assign _GEN_3 = pcReg == 4'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
@@ -114,69 +135,73 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
   assign _GEN_1 = pcReg == 4'h4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
   assign _GEN_0 = pcReg == 4'h5;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
   assign _GEN = pcReg == 4'h6;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
-  wire             reqQueue_io_deq_ready = active & pcReg == 4'h9;	// src/main/scala/mycpu/core/backend/LSU.scala:38:26, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :99:24, :159:26, :163:27, :175:23
-  wire             reqQueue_io_deq_ready_0;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_ready_0 = reqQueue_io_deq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :38:26, src/main/scala/mycpu/utils/HardwareAgent.scala:159:26, :163:27
-  wire             respQueue_io_enq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_valid = reqQueue_io_deq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, :38:26, src/main/scala/mycpu/utils/HardwareAgent.scala:159:26, :163:27
-  wire [31:0]      respQueue_io_enq_bits_rdata = isRead ? readDataLatch : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, :92:36, :124:32, :212:42
+  wire             _GEN_9 = pcReg == 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_rdata = isRead ? readDataLatch : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:72:37, :96:32, :164:25, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_valid = active & _GEN_9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:23, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :22:13
+  wire             LSU_Req_Pipe_io_deq_ready =
+    active & _GEN_9 & _LSU_Resp_Pipe_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:168:38, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :24:13
   wire [31:0]      shiftedData =
-    _respQueue_io_deq_bits_rdata
-    >> {27'h0, _respQueue_io_deq_bits_req_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, :234:38, :237:31
-  wire [7:0][31:0] _GEN_9 =
+    _LSU_Resp_Pipe_io_deq_bits_rdata
+    >> {27'h0, _LSU_Resp_Pipe_io_deq_bits_req_aluResult[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:193:40, :196:33, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [7:0][31:0] _GEN_10 =
     {{32'h0},
-     {_respQueue_io_deq_bits_rdata},
+     {_LSU_Resp_Pipe_io_deq_bits_rdata},
      {{16'h0, shiftedData[15:0]}},
      {{24'h0, shiftedData[7:0]}},
      {32'h0},
-     {_respQueue_io_deq_bits_rdata},
+     {_LSU_Resp_Pipe_io_deq_bits_rdata},
      {{{16{shiftedData[15]}}, shiftedData[15:0]}},
-     {{{24{shiftedData[7]}}, shiftedData[7:0]}}};	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, :237:31, :238:36, :242:37, :243:{32,38,43,59,77}, :244:{32,38,43,59,77}, :245:32, :246:{31,45}, :247:{31,45}, :248:51
+     {{{24{shiftedData[7]}}, shiftedData[7:0]}}};	// src/main/scala/mycpu/core/backend/LSU.scala:196:33, :197:38, :199:39, :200:{33,39,44,60,78}, :201:{33,39,44,60,78}, :202:33, :203:{33,47}, :204:{33,47}, :205:33, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_ready =
+    _LSU_Resp_Pipe_io_deq_valid & io_out_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:189:28, :221:27, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :24:13
   always @(posedge clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     if (reset) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
       active <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-      readDataLatch <= 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:124:32
+      readDataLatch <= 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:96:32
       pcReg <= 4'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
     end
     else begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
-      automatic logic _GEN_10;	// src/main/scala/mycpu/core/backend/LSU.scala:121:45
-      automatic logic _GEN_11;	// src/main/scala/mycpu/utils/HardwareAgent.scala:168:21
-      _GEN_10 = _reqQueue_io_deq_valid & _respQueue_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25, :121:45
-      _GEN_11 = pcReg > 4'h8;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :168:21
+      automatic logic _GEN_11;	// src/main/scala/mycpu/core/backend/LSU.scala:93:38
+      automatic logic _GEN_12;	// src/main/scala/mycpu/utils/HardwareAgent.scala:168:21
+      _GEN_11 = _LSU_Req_Pipe_io_deq_valid & _LSU_Resp_Pipe_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:93:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+      _GEN_12 = pcReg > 4'h8;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :168:21
       if (active)	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-        active <= ~_GEN_11;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :168:{21,44}, :169:18
+        active <= ~_GEN_12;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :168:{21,44}, :169:18
       else	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-        active <= _GEN_10;	// src/main/scala/mycpu/core/backend/LSU.scala:121:45, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-      if (active & _GEN_2)	// src/main/scala/mycpu/core/backend/LSU.scala:124:32, :159:21, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:{23,34}
-        readDataLatch <= io_axi_r_bits_data;	// src/main/scala/mycpu/core/backend/LSU.scala:124:32
+        active <= _GEN_11;	// src/main/scala/mycpu/core/backend/LSU.scala:93:38, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
+      if (active & _GEN_2)	// src/main/scala/mycpu/core/backend/LSU.scala:96:32, :126:21, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :159:26, :163:27, :175:{23,34}
+        readDataLatch <= io_axi_r_bits_data;	// src/main/scala/mycpu/core/backend/LSU.scala:96:32
       if (active) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
-        if (pcReg == 4'h7)	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
-          pcReg <= 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
-        else if (_GEN & ~io_axi_b_valid | _GEN_0 & ~io_axi_w_ready | _GEN_1
-                 & ~io_axi_aw_ready) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:{23,34}, :216:{10,17}, :217:16
+        if (~_GEN_9 | _LSU_Resp_Pipe_io_enq_ready) begin	// src/main/scala/mycpu/core/backend/LSU.scala:168:38, src/main/scala/mycpu/utils/HardwareAgent.scala:175:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+          if (pcReg == 4'h7)	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
+            pcReg <= 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
+          else if (_GEN & ~io_axi_b_valid | _GEN_0 & ~io_axi_w_ready | _GEN_1
+                   & ~io_axi_aw_ready) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:{23,34}, :216:{10,17}, :217:16
+          end
+          else if (pcReg == 4'h3)	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
+            pcReg <= 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
+          else if (_GEN_2 & ~io_axi_r_valid | _GEN_3 & ~io_axi_ar_ready) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:{23,34}, :216:{10,17}, :217:16
+          end
+          else	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:34, :216:17, :217:16
+            pcReg <=
+              pcReg == 4'h0
+                ? (isRead
+                     ? 4'h1
+                     : _LSU_Req_Pipe_io_deq_bits_ctrl_memEn
+                       & _LSU_Req_Pipe_io_deq_bits_ctrl_memWen
+                         ? 4'h4
+                         : 4'h8)
+                : _GEN_12 ? 4'h0 : pcReg + 4'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:72:37, :73:37, :106:21, :107:22, :108:29, :109:22, :111:22, src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:{15,24}, :168:{21,44}, :170:18, :175:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
         end
-        else if (pcReg == 4'h3)	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :175:23
-          pcReg <= 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
-        else if (_GEN_2 & ~io_axi_r_valid | _GEN_3 & ~io_axi_ar_ready) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:{23,34}, :216:{10,17}, :217:16
-        end
-        else	// src/main/scala/mycpu/utils/HardwareAgent.scala:175:34, :216:17, :217:16
-          pcReg <=
-            pcReg == 4'h0
-              ? (isRead
-                   ? 4'h1
-                   : _reqQueue_io_deq_bits_ctrl_memEn & _reqQueue_io_deq_bits_ctrl_memWen
-                       ? 4'h4
-                       : 4'h8)
-              : _GEN_11 ? 4'h0 : pcReg + 4'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :92:36, :93:36, :137:21, :138:22, :139:29, :140:22, :142:22, src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :165:{15,24}, :168:{21,44}, :170:18, :175:{23,34}
       end
-      else if (_GEN_10)	// src/main/scala/mycpu/core/backend/LSU.scala:121:45
+      else if (_GEN_11)	// src/main/scala/mycpu/core/backend/LSU.scala:93:38
         pcReg <= 4'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24
     end
   end // always @(posedge)
-  Queue3_ExecutePacket reqQueue (	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
+  Queue3_ExecutePacket LSU_Req_Pipe (	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
     .clock                      (clock),
     .reset                      (reset),
-    .io_enq_ready               (io_in_ready),
+    .io_enq_ready               (_LSU_Req_Pipe_io_enq_ready),
     .io_enq_valid               (io_in_valid),
     .io_enq_bits_pc             (io_in_bits_pc),
     .io_enq_bits_inst           (io_in_bits_inst),
@@ -200,173 +225,240 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     .io_enq_bits_ctrl_isEbreak  (io_in_bits_ctrl_isEbreak),
     .io_enq_bits_redirect_valid (io_in_bits_redirect_valid),
     .io_enq_bits_redirect_bits  (io_in_bits_redirect_bits),
-    .io_deq_ready               (reqQueue_io_deq_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:38:26, src/main/scala/mycpu/utils/HardwareAgent.scala:159:26, :163:27
-    .io_deq_valid               (_reqQueue_io_deq_valid),
-    .io_deq_bits_pc             (_reqQueue_io_deq_bits_pc),
-    .io_deq_bits_inst           (_reqQueue_io_deq_bits_inst),
-    .io_deq_bits_dnpc           (_reqQueue_io_deq_bits_dnpc),
-    .io_deq_bits_aluResult      (_reqQueue_io_deq_bits_aluResult),
-    .io_deq_bits_memWData       (_reqQueue_io_deq_bits_memWData),
-    .io_deq_bits_pcTarget       (_reqQueue_io_deq_bits_pcTarget),
-    .io_deq_bits_rdAddr         (_reqQueue_io_deq_bits_rdAddr),
-    .io_deq_bits_ctrl_aluOp     (_reqQueue_io_deq_bits_ctrl_aluOp),
-    .io_deq_bits_ctrl_csrOp     (_reqQueue_io_deq_bits_ctrl_csrOp),
-    .io_deq_bits_ctrl_regWen    (_reqQueue_io_deq_bits_ctrl_regWen),
-    .io_deq_bits_ctrl_memEn     (_reqQueue_io_deq_bits_ctrl_memEn),
-    .io_deq_bits_ctrl_memWen    (_reqQueue_io_deq_bits_ctrl_memWen),
-    .io_deq_bits_ctrl_memFunct3 (_reqQueue_io_deq_bits_ctrl_memFunct3),
-    .io_deq_bits_ctrl_op1Sel    (_reqQueue_io_deq_bits_ctrl_op1Sel),
-    .io_deq_bits_ctrl_op2Sel    (_reqQueue_io_deq_bits_ctrl_op2Sel),
-    .io_deq_bits_ctrl_isJump    (_reqQueue_io_deq_bits_ctrl_isJump),
-    .io_deq_bits_ctrl_isBranch  (_reqQueue_io_deq_bits_ctrl_isBranch),
-    .io_deq_bits_ctrl_isEcall   (_reqQueue_io_deq_bits_ctrl_isEcall),
-    .io_deq_bits_ctrl_isMret    (_reqQueue_io_deq_bits_ctrl_isMret),
-    .io_deq_bits_ctrl_isEbreak  (_reqQueue_io_deq_bits_ctrl_isEbreak),
-    .io_deq_bits_redirect_valid (_reqQueue_io_deq_bits_redirect_valid),
-    .io_deq_bits_redirect_bits  (_reqQueue_io_deq_bits_redirect_bits)
-  );	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_redirect_bits = _reqQueue_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_redirect_valid = _reqQueue_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_isEbreak = _reqQueue_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_isMret = _reqQueue_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_isEcall = _reqQueue_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_isBranch = _reqQueue_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_isJump = _reqQueue_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_op2Sel = _reqQueue_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_op1Sel = _reqQueue_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [2:0]       reqQueue_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_memFunct3 = _reqQueue_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_memWen = _reqQueue_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_memEn = _reqQueue_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_regWen = _reqQueue_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [1:0]       reqQueue_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_csrOp = _reqQueue_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [3:0]       reqQueue_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_ctrl_aluOp = _reqQueue_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [4:0]       reqQueue_io_deq_bits_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_rdAddr = _reqQueue_io_deq_bits_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_pcTarget = _reqQueue_io_deq_bits_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_memWData;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_memWData = _reqQueue_io_deq_bits_memWData;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_aluResult = _reqQueue_io_deq_bits_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_dnpc = _reqQueue_io_deq_bits_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_inst = _reqQueue_io_deq_bits_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      reqQueue_io_deq_bits_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_bits_pc = _reqQueue_io_deq_bits_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire             reqQueue_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  assign reqQueue_io_deq_valid = _reqQueue_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-  wire [31:0]      respQueue_io_enq_bits_req_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_pc = _reqQueue_io_deq_bits_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_inst = _reqQueue_io_deq_bits_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_dnpc = _reqQueue_io_deq_bits_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_aluResult = _reqQueue_io_deq_bits_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_memWData;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_memWData = _reqQueue_io_deq_bits_memWData;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_pcTarget = _reqQueue_io_deq_bits_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [4:0]       respQueue_io_enq_bits_req_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_rdAddr = _reqQueue_io_deq_bits_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [3:0]       respQueue_io_enq_bits_req_ctrl_aluOp;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_aluOp = _reqQueue_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [1:0]       respQueue_io_enq_bits_req_ctrl_csrOp;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_csrOp = _reqQueue_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_regWen = _reqQueue_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_memEn = _reqQueue_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_memWen = _reqQueue_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [2:0]       respQueue_io_enq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_memFunct3 = _reqQueue_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_op1Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_op1Sel = _reqQueue_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_op2Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_op2Sel = _reqQueue_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_isJump;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_isJump = _reqQueue_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_isBranch;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_isBranch = _reqQueue_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_isEcall;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_isEcall = _reqQueue_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_isMret;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_isMret = _reqQueue_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_ctrl_isEbreak;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_ctrl_isEbreak = _reqQueue_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire             respQueue_io_enq_bits_req_redirect_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_redirect_valid = _reqQueue_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  wire [31:0]      respQueue_io_enq_bits_req_redirect_bits;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_bits_req_redirect_bits = _reqQueue_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, :31:25
-  Queue3_LsuRespPacket respQueue (	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
+    .io_deq_ready               (LSU_Req_Pipe_io_deq_ready),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_deq_valid               (_LSU_Req_Pipe_io_deq_valid),
+    .io_deq_bits_pc             (_LSU_Req_Pipe_io_deq_bits_pc),
+    .io_deq_bits_inst           (_LSU_Req_Pipe_io_deq_bits_inst),
+    .io_deq_bits_dnpc           (_LSU_Req_Pipe_io_deq_bits_dnpc),
+    .io_deq_bits_aluResult      (_LSU_Req_Pipe_io_deq_bits_aluResult),
+    .io_deq_bits_memWData       (_LSU_Req_Pipe_io_deq_bits_memWData),
+    .io_deq_bits_pcTarget       (_LSU_Req_Pipe_io_deq_bits_pcTarget),
+    .io_deq_bits_rdAddr         (_LSU_Req_Pipe_io_deq_bits_rdAddr),
+    .io_deq_bits_ctrl_aluOp     (_LSU_Req_Pipe_io_deq_bits_ctrl_aluOp),
+    .io_deq_bits_ctrl_csrOp     (_LSU_Req_Pipe_io_deq_bits_ctrl_csrOp),
+    .io_deq_bits_ctrl_regWen    (_LSU_Req_Pipe_io_deq_bits_ctrl_regWen),
+    .io_deq_bits_ctrl_memEn     (_LSU_Req_Pipe_io_deq_bits_ctrl_memEn),
+    .io_deq_bits_ctrl_memWen    (_LSU_Req_Pipe_io_deq_bits_ctrl_memWen),
+    .io_deq_bits_ctrl_memFunct3 (_LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3),
+    .io_deq_bits_ctrl_op1Sel    (_LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel),
+    .io_deq_bits_ctrl_op2Sel    (_LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel),
+    .io_deq_bits_ctrl_isJump    (_LSU_Req_Pipe_io_deq_bits_ctrl_isJump),
+    .io_deq_bits_ctrl_isBranch  (_LSU_Req_Pipe_io_deq_bits_ctrl_isBranch),
+    .io_deq_bits_ctrl_isEcall   (_LSU_Req_Pipe_io_deq_bits_ctrl_isEcall),
+    .io_deq_bits_ctrl_isMret    (_LSU_Req_Pipe_io_deq_bits_ctrl_isMret),
+    .io_deq_bits_ctrl_isEbreak  (_LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak),
+    .io_deq_bits_redirect_valid (_LSU_Req_Pipe_io_deq_bits_redirect_valid),
+    .io_deq_bits_redirect_bits  (_LSU_Req_Pipe_io_deq_bits_redirect_bits),
+    .io_count                   (LSU_Req_Pipe_io_count)
+  );	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_redirect_bits = _LSU_Req_Pipe_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_redirect_valid =
+    _LSU_Req_Pipe_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak = _LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_isMret = _LSU_Req_Pipe_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_isEcall = _LSU_Req_Pipe_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_isBranch = _LSU_Req_Pipe_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_isJump = _LSU_Req_Pipe_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel = _LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel = _LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3 =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_memWen = _LSU_Req_Pipe_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_memEn = _LSU_Req_Pipe_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_regWen = _LSU_Req_Pipe_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]       LSU_Req_Pipe_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_csrOp = _LSU_Req_Pipe_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [3:0]       LSU_Req_Pipe_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_ctrl_aluOp = _LSU_Req_Pipe_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       LSU_Req_Pipe_io_deq_bits_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_rdAddr = _LSU_Req_Pipe_io_deq_bits_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_pcTarget = _LSU_Req_Pipe_io_deq_bits_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_memWData = _LSU_Req_Pipe_io_deq_bits_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_aluResult = _LSU_Req_Pipe_io_deq_bits_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_dnpc = _LSU_Req_Pipe_io_deq_bits_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_inst = _LSU_Req_Pipe_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Req_Pipe_io_deq_bits_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_bits_pc = _LSU_Req_Pipe_io_deq_bits_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_deq_valid = _LSU_Req_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Req_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Req_Pipe_io_enq_ready = _LSU_Req_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_pc = _LSU_Req_Pipe_io_deq_bits_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_inst = _LSU_Req_Pipe_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_dnpc = _LSU_Req_Pipe_io_deq_bits_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_aluResult = _LSU_Req_Pipe_io_deq_bits_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_memWData = _LSU_Req_Pipe_io_deq_bits_memWData;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_pcTarget = _LSU_Req_Pipe_io_deq_bits_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       LSU_Resp_Pipe_io_enq_bits_req_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_rdAddr = _LSU_Req_Pipe_io_deq_bits_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [3:0]       LSU_Resp_Pipe_io_enq_bits_req_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_aluOp = _LSU_Req_Pipe_io_deq_bits_ctrl_aluOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]       LSU_Resp_Pipe_io_enq_bits_req_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_csrOp = _LSU_Req_Pipe_io_deq_bits_ctrl_csrOp;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_regWen =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_memEn = _LSU_Req_Pipe_io_deq_bits_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_memWen =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       LSU_Resp_Pipe_io_enq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_memFunct3 =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_op1Sel =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_op2Sel =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_isJump =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_isJump;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_isBranch =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_isBranch;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEcall =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_isEcall;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_isMret =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_isMret;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEbreak =
+    _LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_bits_req_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_redirect_valid =
+    _LSU_Req_Pipe_io_deq_bits_redirect_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_enq_bits_req_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_bits_req_redirect_bits =
+    _LSU_Req_Pipe_io_deq_bits_redirect_bits;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  Queue3_LsuRespPacket LSU_Resp_Pipe (	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
     .clock                          (clock),
     .reset                          (reset),
-    .io_enq_ready                   (_respQueue_io_enq_ready),
-    .io_enq_valid                   (reqQueue_io_deq_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:38:26, src/main/scala/mycpu/utils/HardwareAgent.scala:159:26, :163:27
-    .io_enq_bits_req_pc             (_reqQueue_io_deq_bits_pc),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_inst           (_reqQueue_io_deq_bits_inst),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_dnpc           (_reqQueue_io_deq_bits_dnpc),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_aluResult      (_reqQueue_io_deq_bits_aluResult),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_memWData       (_reqQueue_io_deq_bits_memWData),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_pcTarget       (_reqQueue_io_deq_bits_pcTarget),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_rdAddr         (_reqQueue_io_deq_bits_rdAddr),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_aluOp     (_reqQueue_io_deq_bits_ctrl_aluOp),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_csrOp     (_reqQueue_io_deq_bits_ctrl_csrOp),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_regWen    (_reqQueue_io_deq_bits_ctrl_regWen),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_memEn     (_reqQueue_io_deq_bits_ctrl_memEn),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_memWen    (_reqQueue_io_deq_bits_ctrl_memWen),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_memFunct3 (_reqQueue_io_deq_bits_ctrl_memFunct3),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_op1Sel    (_reqQueue_io_deq_bits_ctrl_op1Sel),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_op2Sel    (_reqQueue_io_deq_bits_ctrl_op2Sel),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_isJump    (_reqQueue_io_deq_bits_ctrl_isJump),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_isBranch  (_reqQueue_io_deq_bits_ctrl_isBranch),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_isEcall   (_reqQueue_io_deq_bits_ctrl_isEcall),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_isMret    (_reqQueue_io_deq_bits_ctrl_isMret),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_ctrl_isEbreak  (_reqQueue_io_deq_bits_ctrl_isEbreak),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_redirect_valid (_reqQueue_io_deq_bits_redirect_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_req_redirect_bits  (_reqQueue_io_deq_bits_redirect_bits),	// src/main/scala/mycpu/core/backend/LSU.scala:27:24
-    .io_enq_bits_rdata              (respQueue_io_enq_bits_rdata),	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-    .io_deq_ready                   (_respQueue_io_deq_valid & io_out_ready),	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, :257:35, :267:30, :269:30
-    .io_deq_valid                   (_respQueue_io_deq_valid),
-    .io_deq_bits_req_pc             (io_out_bits_pc),
-    .io_deq_bits_req_inst           (io_out_bits_inst),
-    .io_deq_bits_req_dnpc           (io_out_bits_dnpc),
-    .io_deq_bits_req_aluResult      (_respQueue_io_deq_bits_req_aluResult),
-    .io_deq_bits_req_pcTarget       (io_out_bits_pcTarget),
-    .io_deq_bits_req_rdAddr         (io_out_bits_rdAddr),
-    .io_deq_bits_req_ctrl_regWen    (io_out_bits_regWen),
-    .io_deq_bits_req_ctrl_memEn     (_respQueue_io_deq_bits_req_ctrl_memEn),
-    .io_deq_bits_req_ctrl_memWen    (_respQueue_io_deq_bits_req_ctrl_memWen),
-    .io_deq_bits_req_ctrl_memFunct3 (_respQueue_io_deq_bits_req_ctrl_memFunct3),
-    .io_deq_bits_rdata              (_respQueue_io_deq_bits_rdata)
-  );	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  wire             respQueue_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign respQueue_io_enq_ready = _respQueue_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:31:25
-  assign io_out_valid = _respQueue_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :31:25
+    .io_enq_ready                   (_LSU_Resp_Pipe_io_enq_ready),
+    .io_enq_valid                   (LSU_Resp_Pipe_io_enq_valid),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_pc             (_LSU_Req_Pipe_io_deq_bits_pc),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_inst           (_LSU_Req_Pipe_io_deq_bits_inst),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_dnpc           (_LSU_Req_Pipe_io_deq_bits_dnpc),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_aluResult      (_LSU_Req_Pipe_io_deq_bits_aluResult),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_memWData       (_LSU_Req_Pipe_io_deq_bits_memWData),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_pcTarget       (_LSU_Req_Pipe_io_deq_bits_pcTarget),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_rdAddr         (_LSU_Req_Pipe_io_deq_bits_rdAddr),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_aluOp     (_LSU_Req_Pipe_io_deq_bits_ctrl_aluOp),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_csrOp     (_LSU_Req_Pipe_io_deq_bits_ctrl_csrOp),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_regWen    (_LSU_Req_Pipe_io_deq_bits_ctrl_regWen),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_memEn     (_LSU_Req_Pipe_io_deq_bits_ctrl_memEn),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_memWen    (_LSU_Req_Pipe_io_deq_bits_ctrl_memWen),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_memFunct3 (_LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_op1Sel    (_LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_op2Sel    (_LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_isJump    (_LSU_Req_Pipe_io_deq_bits_ctrl_isJump),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_isBranch  (_LSU_Req_Pipe_io_deq_bits_ctrl_isBranch),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_isEcall   (_LSU_Req_Pipe_io_deq_bits_ctrl_isEcall),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_isMret    (_LSU_Req_Pipe_io_deq_bits_ctrl_isMret),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_ctrl_isEbreak  (_LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_redirect_valid (_LSU_Req_Pipe_io_deq_bits_redirect_valid),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_req_redirect_bits  (_LSU_Req_Pipe_io_deq_bits_redirect_bits),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_enq_bits_rdata              (LSU_Resp_Pipe_io_enq_bits_rdata),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_deq_ready                   (LSU_Resp_Pipe_io_deq_ready),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_deq_valid                   (_LSU_Resp_Pipe_io_deq_valid),
+    .io_deq_bits_req_pc             (_LSU_Resp_Pipe_io_deq_bits_req_pc),
+    .io_deq_bits_req_inst           (_LSU_Resp_Pipe_io_deq_bits_req_inst),
+    .io_deq_bits_req_dnpc           (_LSU_Resp_Pipe_io_deq_bits_req_dnpc),
+    .io_deq_bits_req_aluResult      (_LSU_Resp_Pipe_io_deq_bits_req_aluResult),
+    .io_deq_bits_req_memWData       (LSU_Resp_Pipe_io_deq_bits_req_memWData),
+    .io_deq_bits_req_pcTarget       (_LSU_Resp_Pipe_io_deq_bits_req_pcTarget),
+    .io_deq_bits_req_rdAddr         (_LSU_Resp_Pipe_io_deq_bits_req_rdAddr),
+    .io_deq_bits_req_ctrl_aluOp     (LSU_Resp_Pipe_io_deq_bits_req_ctrl_aluOp),
+    .io_deq_bits_req_ctrl_csrOp     (LSU_Resp_Pipe_io_deq_bits_req_ctrl_csrOp),
+    .io_deq_bits_req_ctrl_regWen    (_LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen),
+    .io_deq_bits_req_ctrl_memEn     (_LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn),
+    .io_deq_bits_req_ctrl_memWen    (_LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen),
+    .io_deq_bits_req_ctrl_memFunct3 (_LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3),
+    .io_deq_bits_req_ctrl_op1Sel    (LSU_Resp_Pipe_io_deq_bits_req_ctrl_op1Sel),
+    .io_deq_bits_req_ctrl_op2Sel    (LSU_Resp_Pipe_io_deq_bits_req_ctrl_op2Sel),
+    .io_deq_bits_req_ctrl_isJump    (LSU_Resp_Pipe_io_deq_bits_req_ctrl_isJump),
+    .io_deq_bits_req_ctrl_isBranch  (LSU_Resp_Pipe_io_deq_bits_req_ctrl_isBranch),
+    .io_deq_bits_req_ctrl_isEcall   (LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEcall),
+    .io_deq_bits_req_ctrl_isMret    (LSU_Resp_Pipe_io_deq_bits_req_ctrl_isMret),
+    .io_deq_bits_req_ctrl_isEbreak  (LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEbreak),
+    .io_deq_bits_req_redirect_valid (LSU_Resp_Pipe_io_deq_bits_req_redirect_valid),
+    .io_deq_bits_req_redirect_bits  (LSU_Resp_Pipe_io_deq_bits_req_redirect_bits),
+    .io_deq_bits_rdata              (_LSU_Resp_Pipe_io_deq_bits_rdata),
+    .io_count                       (LSU_Resp_Pipe_io_count)
+  );	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_rdata;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_rdata = _LSU_Resp_Pipe_io_deq_bits_rdata;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [2:0]       LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3 =
+    _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen =
+    _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn =
+    _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen =
+    _LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [4:0]       LSU_Resp_Pipe_io_deq_bits_req_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_rdAddr = _LSU_Resp_Pipe_io_deq_bits_req_rdAddr;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_pcTarget = _LSU_Resp_Pipe_io_deq_bits_req_pcTarget;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_aluResult =
+    _LSU_Resp_Pipe_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_dnpc = _LSU_Resp_Pipe_io_deq_bits_req_dnpc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_inst = _LSU_Resp_Pipe_io_deq_bits_req_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]      LSU_Resp_Pipe_io_deq_bits_req_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_bits_req_pc = _LSU_Resp_Pipe_io_deq_bits_req_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_deq_valid = _LSU_Resp_Pipe_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire             LSU_Resp_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign LSU_Resp_Pipe_io_enq_ready = _LSU_Resp_Pipe_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_in_ready = _LSU_Req_Pipe_io_enq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_valid = _LSU_Resp_Pipe_io_deq_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_pc = _LSU_Resp_Pipe_io_deq_bits_req_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_inst = _LSU_Resp_Pipe_io_deq_bits_req_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_dnpc = _LSU_Resp_Pipe_io_deq_bits_req_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign io_out_bits_wbData =
-    _respQueue_io_deq_bits_req_ctrl_memEn & ~_respQueue_io_deq_bits_req_ctrl_memWen
-      ? _GEN_9[_respQueue_io_deq_bits_req_ctrl_memFunct3]
-      : _respQueue_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :31:25, :238:36, :242:37, :243:32, :244:32, :245:32, :246:31, :247:31, :248:51, :252:{21,42,45}
+    _LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn
+    & ~_LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen
+      ? _GEN_10[_LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3]
+      : _LSU_Resp_Pipe_io_deq_bits_req_aluResult;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :197:38, :199:39, :200:33, :201:33, :202:33, :203:33, :204:33, :205:33, :208:{23,44,47}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_rdAddr = _LSU_Resp_Pipe_io_deq_bits_req_rdAddr;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_regWen = _LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_out_bits_pcTarget = _LSU_Resp_Pipe_io_deq_bits_req_pcTarget;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign io_axi_aw_valid = active & _GEN_1;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
-  assign io_axi_aw_bits_addr = active ? _reqQueue_io_deq_bits_aluResult : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:24, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
-  assign io_axi_aw_bits_size = _GEN_8 ? 3'h0 : _GEN_7;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :56:34, :65:17, src/main/scala/mycpu/utils/HardwareAgent.scala:89:18
+  assign io_axi_aw_bits_addr = active ? _LSU_Req_Pipe_io_deq_bits_aluResult : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_axi_aw_bits_size = _GEN_8 ? 3'h0 : _GEN_7;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :41:34, :50:17, src/main/scala/mycpu/utils/HardwareAgent.scala:89:18
   assign io_axi_w_valid = active & _GEN_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
   assign io_axi_w_bits_data =
     active
@@ -374,19 +466,19 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
            ? _calcWData_T_2[31:0]
            : _GEN_5
                ? _calcWData_T_5[31:0]
-               : _GEN_6 ? _reqQueue_io_deq_bits_memWData : 32'h0)
-      : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:24, :53:30, :56:34, :59:{17,42}, :64:{17,43}, :69:17, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
+               : _GEN_6 ? _LSU_Req_Pipe_io_deq_bits_memWData : 32'h0)
+      : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :38:31, :41:34, :44:{17,42}, :49:{17,43}, :54:17, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign io_axi_w_bits_strb =
     active
       ? (_GEN_4
-           ? 4'h1 << _reqQueue_io_deq_bits_aluResult[1:0]
+           ? 4'h1 << _LSU_Req_Pipe_io_deq_bits_aluResult[1:0]
            : _GEN_5 ? _calcWStrb_T_1[3:0] : {4{_GEN_6}})
-      : 4'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:24, :49:37, :52:30, :56:34, :58:{17,30}, :63:{17,30}, :68:17, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
+      : 4'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :36:37, :37:31, :41:34, :43:{17,30}, :48:{17,30}, :53:17, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign io_axi_w_bits_last = active;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31
   assign io_axi_b_ready = active & _GEN;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
   assign io_axi_ar_valid = active & _GEN_3;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
-  assign io_axi_ar_bits_addr = active ? _reqQueue_io_deq_bits_aluResult : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:24, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18
-  assign io_axi_ar_bits_size = _GEN_8 ? 3'h0 : _GEN_7;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :56:34, :65:17, src/main/scala/mycpu/utils/HardwareAgent.scala:89:18
+  assign io_axi_ar_bits_addr = active ? _LSU_Req_Pipe_io_deq_bits_aluResult : 32'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign io_axi_ar_bits_size = _GEN_8 ? 3'h0 : _GEN_7;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :41:34, :50:17, src/main/scala/mycpu/utils/HardwareAgent.scala:89:18
   assign io_axi_r_ready = active & _GEN_2;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :89:18, :103:66, :159:26, :163:27, :175:23
 endmodule
 

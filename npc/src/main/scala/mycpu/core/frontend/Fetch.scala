@@ -5,216 +5,112 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.utils._
-import chisel3.experimental.BundleLiterals._
 
 class Fetch extends Module {
   val io = IO(new Bundle {
-    val axi          = new AXI4LiteBundle(XLEN, XLEN) // 外部接口统一为 Lite Bundle
+    val axi          = new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN) // Lite 接口，ID宽固定为1
     val next_pc      = Input(UInt(XLEN.W))
     val pc_update_en = Input(Bool()) 
     val out          = Decoupled(new FetchPacket()) 
   })
 
-
-
-  // [魔法拆分] 
-  val AXI4Split(rBus, wBus) = io.axi
-
-  // 连接读通道
-
-  rBus.ar.bits := DontCare
-  rBus.ar.valid := false.B
-  rBus.r.ready := false.B
-
-  // 屏蔽写通道 (Fetch 不写内存)
-  wBus.aw.valid := false.B
-  wBus.aw.bits  := DontCare
-  wBus.w.valid  := false.B
-  wBus.w.bits   := DontCare
-  wBus.b.ready  := false.B
-
-
-  io.out.valid := false.B
-  io.out.bits := DontCare
-  
-
-
-
-
-  
-
-
-
-
-
-
-  class Node extends Bundle {
-    val addr = UInt(32.W)
+  class FetchNode extends Bundle {
+    val pc   = UInt(XLEN.W)
     val inst = UInt(32.W)
-    val valid = Bool()
   }
 
-  object Node {
-    def apply(addr: UInt, inst: UInt, valid: Bool) = {
-      val res = Wire(new Node)
-      res.addr := addr
-      res.inst := inst
-      res.valid := valid
-      res
-    }
-  }
-
-  class FetchTable {
-    val size = 1
-
-    val initNode = (new Node).Lit(
-      _.addr -> 0.U,
-      _.inst -> 0.U,
-      _.valid -> false.B
-    ) 
-
-    val table = RegInit(VecInit(Seq.fill(size)(initNode)))
-
-
-  
-    def empty(): Bool = {
-      !table.map(_.valid).reduce(_ || _)
-    }
-    def full(): Bool = {
-      table.map(_.valid).reduce(_ && _)
-    }
-
-    def peek(): Node = {
-      val valids = table.map(_.valid)
-      // 对于 Size=1，First 和 Last 一样。
-      // 对于 Size>1，作为 FIFO 应该取 PriorityEncoder(valids)
-      val idx = PriorityEncoder(valids) 
-      table(idx)
-    }
-
-
-    def push(data: Node): Bool = {
-
-      val empties = table.map(n => !n.valid)
-      val hasSpace = VecInit(empties).asUInt.orR
-
-      val firstEmptyIndex = PriorityEncoder(empties)
-
-      when(hasSpace) {
-        table(firstEmptyIndex) := data
-      }
-
-      hasSpace
-     
-    }
-
-    def pop(): Unit = {
-      val valids = table.map(_.valid)
-      val hasNode = VecInit(valids).asUInt.orR
-      
-      // 必须和 peek 的索引逻辑一致
-      val idx = PriorityEncoder(valids) 
-      
-      when (hasNode) {
-        table(idx).valid := false.B // 关键修正：必须写回 Invalid
-      }
-    }
-
-    def hit(reqAddr: UInt): (UInt, Bool) = {
-      val hits = table.map(n => n.valid && n.addr === reqAddr)
-
-      val isHit = VecInit(hits).asUInt.orR
-
-      val hitInst = Mux1H(hits, table.map(_.inst))
-
-      (hitInst, isHit)
-    }
-  }
-  
+  val fetchQueue = new HwQueue(new FetchNode, entries = 2, "Fetch_Queue")
   val pc = RegInit(START_ADDR.U(XLEN.W))
-  val fetchTable = new FetchTable
   val reqSent = RegInit(false.B)
 
+  val AXI4Split(rBus, wBus) = io.axi
+  
+  // Tie-off 写通道
+  wBus.aw.valid := false.B; wBus.aw.bits := DontCare
+  wBus.w.valid  := false.B; wBus.w.bits  := DontCare
+  wBus.b.ready  := false.B
 
-  val fetchThread = new HardwareThread("Fetch_AXI_Core")
-  val arValidProxy = fetchThread.driveManaged(rBus.ar.valid, false.B, false.B)
-  val rReadyProxy  = fetchThread.driveManaged(rBus.r.ready,  false.B, false.B)
-  fetchThread.startWhen(!fetchTable.full() && !reqSent)
-  fetchThread.abortWhen(false.B)
+  // ==============================================================================
+  // 修复点 1: 使用 chiselTypeOf 创建完全匹配的 Wire
+  // ==============================================================================
+  // 这里的 fetchArPacket 会自动获得 idWidth=1，与 io.axi 保持一致
+  val fetchArPacket = Wire(chiselTypeOf(rBus.ar.bits))
+  
+  fetchArPacket.id    := 0.U
+  fetchArPacket.addr  := pc
+  fetchArPacket.len   := 0.U
+  fetchArPacket.size  := 2.U
+  fetchArPacket.burst := AXI4Parameters.BURST_FIXED 
+  fetchArPacket.lock  := false.B
+  fetchArPacket.cache := 0.U
+  fetchArPacket.prot  := 0.U
+  fetchArPacket.qos   := 0.U
 
+  val fetchThread = new HardwareThread("Fetch_Thread")
 
+  // ==============================================================================
+  // 修复点 2: 默认值也使用 chiselTypeOf 确保位宽匹配
+  // ==============================================================================
+  val arValidProxy = fetchThread.driveManaged(rBus.ar.valid, false.B)
+  
+  // 这里的 default 值现在也是 1-bit ID，与 rBus.ar.bits 匹配
+  val arBitsProxy  = fetchThread.driveManaged(rBus.ar.bits,  0.U.asTypeOf(rBus.ar.bits))
+  
+  val rReadyProxy  = fetchThread.driveManaged(rBus.r.ready,  false.B)
 
+  fetchThread.startWhen(fetchQueue.canPush && !reqSent)
 
   fetchThread.entry {
     val instData = Reg(UInt(32.W))
-    fetchThread.Step("AXI AR req") {
-
-
-      fetchThread.write(arValidProxy, true.B) // 拉高 Valid
-      
-      rBus.ar.bits.addr  := pc
-      rBus.ar.bits.id    := 0.U
-      rBus.ar.bits.len   := 0.U
-      rBus.ar.bits.size  := 2.U
-      rBus.ar.bits.burst := 0.U
-      // ... 其他 prot/cache 默认 0
-      rBus.ar.bits.lock  := false.B
-      rBus.ar.bits.cache := 0.U
-      rBus.ar.bits.prot  := 0.U
-      rBus.ar.bits.qos   := 0.U
-
-      // 2. 等待握手
-      fetchThread.pc := fetchThread.pc // 默认 hold
-      when (rBus.ar.ready) {
-        fetchThread.pc := fetchThread.pc + 1.U
-      }
+    
+    fetchThread.Step("AXI_AR") {
+      fetchThread.write(arValidProxy, true.B)
+      fetchThread.write(arBitsProxy, fetchArPacket) // 现在位宽一致了，可以安全写入
+      fetchThread.waitCondition(rBus.ar.ready)
     }
 
-    // --- Step 1: 接收数据 (R Channel) ---
-    fetchThread.Step("AXI R RESP") {
+    fetchThread.Step("AXI_R") {
       fetchThread.write(rReadyProxy, true.B)
-      fetchThread.pc := fetchThread.pc // 默认 hold
-      when (rBus.r.valid && rBus.r.bits.last && rBus.r.bits.id === 0.U) {
-        instData := rBus.r.bits.data
-        fetchThread.pc := fetchThread.pc + 1.U
-      }
+      fetchThread.waitCondition(rBus.r.valid)
+      instData := rBus.r.bits.data
     }
 
-    fetchThread.Step {
-      fetchTable.push(Node(pc, instData, true.B))
-      reqSent := true.B 
+    fetchThread.Step("Push_Queue") {
+      val node = Wire(new FetchNode)
+      node.pc   := pc
+      node.inst := instData
+      
+      when (fetchQueue.tryPush(node)) {
+         reqSent := true.B
+      } .otherwise {
+         fetchThread.waitCondition(false.B) 
+      }
     }
   }
 
+  val shootLogic = new HardwareLogic("Shoot_Logic")
+  val outValid = shootLogic.driveManaged(io.out.valid, false.B)
+  
+  shootLogic.run {
+    io.out.bits := DontCare
+    when (fetchQueue.canPop) {
+      shootLogic.write(outValid, true.B)
+      val node = fetchQueue.peek()
+      val p = Wire(new FetchPacket)
+      p.pc   := node.pc
+      p.inst := node.inst
+      p.dnpc := node.pc + 4.U
+      p.isException := false.B
+      io.out.bits := p
 
+      when (io.out.ready) {
+        fetchQueue.tryPop()
+      }
+    }
+  }
 
   when(io.pc_update_en) {
     pc := io.next_pc
     reqSent := false.B
   }
-
-  val shootLogic = new HardwareLogic("Shoot Core")
-  val outValidProxy = shootLogic.driveManaged(io.out.valid, false.B )
-  val outPayload = shootLogic.driveManaged(io.out.bits, 0.U.asTypeOf(new FetchPacket))
-  
-
-  shootLogic.run {
-    when (!fetchTable.empty()) {
-      val node = fetchTable.peek()
-
-      // 驱动接口
-      shootLogic.write(outValidProxy, true.B)
-      val payload = Wire(new FetchPacket)
-      payload.inst := node.inst
-      payload.pc := node.addr
-      payload.dnpc := node.addr + 4.U
-      payload.isException := false.B
-      shootLogic.write(outPayload, payload)
-
-      when (io.out.ready) {
-        fetchTable.pop()
-      }
-  
-    }
- }
 }

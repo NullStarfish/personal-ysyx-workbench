@@ -15,8 +15,8 @@ module LSU_Verification();	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:
   wire        pcStuck = LSU.active_0 & LSU.pcReg_0 == lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :99:24, :108:30, :111:{30,40}
   reg  [31:0] hangCounter;	// src/main/scala/mycpu/utils/HardwareAgent.scala:112:32
   wire        _GEN = ~wasActive & LSU.active_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:66:31, :107:30, :115:{13,24}
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/QueueProbe.scala:11:13
-    always @(posedge LSU.clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/HwQueue.scala:30:13
+    always @(posedge LSU.clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:30:13
       automatic logic _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:129:20
       automatic logic _GEN_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:132:23
       automatic logic _GEN_2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:132:23
@@ -40,110 +40,161 @@ module LSU_Verification();	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:
       _GEN_8 = LSU.pcReg_0 == 4'h7;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :132:23
       _GEN_9 = LSU.pcReg_0 == 4'h8;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :132:23
       _GEN_10 = LSU.pcReg_0 == 4'h9;	// src/main/scala/mycpu/utils/HardwareAgent.scala:99:24, :132:23
-      if ((`PRINTF_COND_) & LSU.reqQueue_io_deq_valid & LSU.reqQueue_io_deq_ready_0
-          & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:24, src/main/scala/mycpu/utils/QueueProbe.scala:9:22, :11:13
-        $fwrite(32'h80000002, "[QueueProbe] LSU_Dispatch FIRE: Data=0x%x\n",
-                {LSU.reqQueue_io_deq_bits_pc,
-                 LSU.reqQueue_io_deq_bits_inst,
-                 LSU.reqQueue_io_deq_bits_dnpc,
-                 LSU.reqQueue_io_deq_bits_aluResult,
-                 LSU.reqQueue_io_deq_bits_memWData,
-                 LSU.reqQueue_io_deq_bits_pcTarget,
-                 LSU.reqQueue_io_deq_bits_rdAddr,
-                 LSU.reqQueue_io_deq_bits_ctrl_aluOp,
-                 LSU.reqQueue_io_deq_bits_ctrl_csrOp,
-                 LSU.reqQueue_io_deq_bits_ctrl_regWen,
-                 LSU.reqQueue_io_deq_bits_ctrl_memEn,
-                 LSU.reqQueue_io_deq_bits_ctrl_memWen,
-                 LSU.reqQueue_io_deq_bits_ctrl_memFunct3,
-                 LSU.reqQueue_io_deq_bits_ctrl_op1Sel,
-                 LSU.reqQueue_io_deq_bits_ctrl_op2Sel,
-                 LSU.reqQueue_io_deq_bits_ctrl_isJump,
-                 LSU.reqQueue_io_deq_bits_ctrl_isBranch,
-                 LSU.reqQueue_io_deq_bits_ctrl_isEcall,
-                 LSU.reqQueue_io_deq_bits_ctrl_isMret,
-                 LSU.reqQueue_io_deq_bits_ctrl_isEbreak,
-                 LSU.reqQueue_io_deq_bits_redirect_valid,
-                 LSU.reqQueue_io_deq_bits_redirect_bits});	// src/main/scala/mycpu/core/backend/LSU.scala:27:24, src/main/scala/mycpu/utils/QueueProbe.scala:11:{13,65}
-      if ((`PRINTF_COND_) & LSU.respQueue_io_enq_valid & LSU.respQueue_io_enq_ready
-          & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :31:25, src/main/scala/mycpu/utils/QueueProbe.scala:9:22, :11:13
-        $fwrite(32'h80000002, "[QueueProbe] LSU_Commit FIRE: Data=0x%x\n",
-                {LSU.respQueue_io_enq_bits_req_pc,
-                 LSU.respQueue_io_enq_bits_req_inst,
-                 LSU.respQueue_io_enq_bits_req_dnpc,
-                 LSU.respQueue_io_enq_bits_req_aluResult,
-                 LSU.respQueue_io_enq_bits_req_memWData,
-                 LSU.respQueue_io_enq_bits_req_pcTarget,
-                 LSU.respQueue_io_enq_bits_req_rdAddr,
-                 LSU.respQueue_io_enq_bits_req_ctrl_aluOp,
-                 LSU.respQueue_io_enq_bits_req_ctrl_csrOp,
-                 LSU.respQueue_io_enq_bits_req_ctrl_regWen,
-                 LSU.respQueue_io_enq_bits_req_ctrl_memEn,
-                 LSU.respQueue_io_enq_bits_req_ctrl_memWen,
-                 LSU.respQueue_io_enq_bits_req_ctrl_memFunct3,
-                 LSU.respQueue_io_enq_bits_req_ctrl_op1Sel,
-                 LSU.respQueue_io_enq_bits_req_ctrl_op2Sel,
-                 LSU.respQueue_io_enq_bits_req_ctrl_isJump,
-                 LSU.respQueue_io_enq_bits_req_ctrl_isBranch,
-                 LSU.respQueue_io_enq_bits_req_ctrl_isEcall,
-                 LSU.respQueue_io_enq_bits_req_ctrl_isMret,
-                 LSU.respQueue_io_enq_bits_req_ctrl_isEbreak,
-                 LSU.respQueue_io_enq_bits_req_redirect_valid,
-                 LSU.respQueue_io_enq_bits_req_redirect_bits,
-                 LSU.respQueue_io_enq_bits_rdata});	// src/main/scala/mycpu/core/backend/LSU.scala:31:25, src/main/scala/mycpu/utils/QueueProbe.scala:11:{13,65}
-      if ((`PRINTF_COND_) & _GEN & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :115:24, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & LSU.LSU_Req_Pipe_io_enq_ready & LSU.io_in_valid & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, :10:14, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13
+        $fwrite(32'h80000002, "[LSU_Req_Pipe] Push: Data=%x, Count=%d\n",
+                {LSU.io_in_bits_pc,
+                 LSU.io_in_bits_inst,
+                 LSU.io_in_bits_dnpc,
+                 LSU.io_in_bits_aluResult,
+                 LSU.io_in_bits_memWData,
+                 LSU.io_in_bits_pcTarget,
+                 LSU.io_in_bits_rdAddr,
+                 LSU.io_in_bits_ctrl_aluOp,
+                 LSU.io_in_bits_ctrl_csrOp,
+                 LSU.io_in_bits_ctrl_regWen,
+                 LSU.io_in_bits_ctrl_memEn,
+                 LSU.io_in_bits_ctrl_memWen,
+                 LSU.io_in_bits_ctrl_memFunct3,
+                 LSU.io_in_bits_ctrl_op1Sel,
+                 LSU.io_in_bits_ctrl_op2Sel,
+                 LSU.io_in_bits_ctrl_isJump,
+                 LSU.io_in_bits_ctrl_isBranch,
+                 LSU.io_in_bits_ctrl_isEcall,
+                 LSU.io_in_bits_ctrl_isMret,
+                 LSU.io_in_bits_ctrl_isEbreak,
+                 LSU.io_in_bits_redirect_valid,
+                 LSU.io_in_bits_redirect_bits}, LSU.LSU_Req_Pipe_io_count + 2'h1);	// src/main/scala/mycpu/core/backend/LSU.scala:10:14, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:{13,61,75}
+      if ((`PRINTF_COND_) & LSU.LSU_Req_Pipe_io_deq_ready & LSU.LSU_Req_Pipe_io_deq_valid
+          & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13, :33:13
+        $fwrite(32'h80000002, "[LSU_Req_Pipe] Pop:  Data=%x, Count=%d\n",
+                {LSU.LSU_Req_Pipe_io_deq_bits_pc,
+                 LSU.LSU_Req_Pipe_io_deq_bits_inst,
+                 LSU.LSU_Req_Pipe_io_deq_bits_dnpc,
+                 LSU.LSU_Req_Pipe_io_deq_bits_aluResult,
+                 LSU.LSU_Req_Pipe_io_deq_bits_memWData,
+                 LSU.LSU_Req_Pipe_io_deq_bits_pcTarget,
+                 LSU.LSU_Req_Pipe_io_deq_bits_rdAddr,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_aluOp,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_csrOp,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_regWen,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_memEn,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_memWen,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_memFunct3,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_op1Sel,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_op2Sel,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_isJump,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_isBranch,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_isEcall,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_isMret,
+                 LSU.LSU_Req_Pipe_io_deq_bits_ctrl_isEbreak,
+                 LSU.LSU_Req_Pipe_io_deq_bits_redirect_valid,
+                 LSU.LSU_Req_Pipe_io_deq_bits_redirect_bits},
+                LSU.LSU_Req_Pipe_io_count - 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :33:{13,61,75}
+      if ((`PRINTF_COND_) & LSU.LSU_Resp_Pipe_io_enq_ready
+          & LSU.LSU_Resp_Pipe_io_enq_valid & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13
+        $fwrite(32'h80000002, "[LSU_Resp_Pipe] Push: Data=%x, Count=%d\n",
+                {LSU.LSU_Resp_Pipe_io_enq_bits_req_pc,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_inst,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_dnpc,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_aluResult,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_memWData,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_pcTarget,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_rdAddr,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_aluOp,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_csrOp,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_regWen,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_memEn,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_memWen,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_memFunct3,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_op1Sel,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_op2Sel,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_isJump,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_isBranch,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEcall,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_isMret,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_ctrl_isEbreak,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_redirect_valid,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_req_redirect_bits,
+                 LSU.LSU_Resp_Pipe_io_enq_bits_rdata}, LSU.LSU_Resp_Pipe_io_count + 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:{13,61,75}
+      if ((`PRINTF_COND_) & LSU.LSU_Resp_Pipe_io_deq_ready
+          & LSU.LSU_Resp_Pipe_io_deq_valid & ~LSU.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13, :33:13
+        $fwrite(32'h80000002, "[LSU_Resp_Pipe] Pop:  Data=%x, Count=%d\n",
+                {LSU.LSU_Resp_Pipe_io_deq_bits_req_pc,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_inst,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_dnpc,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_aluResult,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_memWData,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_pcTarget,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_rdAddr,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_aluOp,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_csrOp,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_regWen,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_memEn,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_memWen,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_memFunct3,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_op1Sel,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_op2Sel,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_isJump,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_isBranch,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEcall,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_isMret,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_ctrl_isEbreak,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_redirect_valid,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_req_redirect_bits,
+                 LSU.LSU_Resp_Pipe_io_deq_bits_rdata}, LSU.LSU_Resp_Pipe_io_count - 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :33:{13,61,75}
+      if ((`PRINTF_COND_) & _GEN & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :115:24, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & wasActive & ~LSU.active_0 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :66:31, :107:30, :123:{23,26}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & wasActive & ~LSU.active_0 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :66:31, :107:30, :123:{23,26}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] --- OFFLINE (Duration: %d, Stalls: %d) ---\n",
                 sessionCycles, 32'h0);	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :72:38
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_1 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_1 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 0] Dispatch\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_2 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_2 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 1] AXI_READ_ADDR\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_3 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_3 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 2] AXI_READ_DATA\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_4 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
-        $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 3] JUMP_TO_COMMIT_R\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_5 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_4 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 3] JUMP_COMMIT_R\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_5 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 4] AXI_WRITE_ADDR\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_6 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_6 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 5] AXI_WRITE_DATA\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_7 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_7 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 6] AXI_WRITE_RESP\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_8 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
-        $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 7] JUMP_TO_COMMIT_W\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_9 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_8 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 7] JUMP_COMMIT_W\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_9 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 8] PASS_THROUGH\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_0 & _GEN_10 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_10 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :129:20, :132:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002, "[LSU_Core] EXEC [PC 9] COMMIT\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_1 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_1 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'Dispatch' (PC=0) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_2 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_2 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'AXI_READ_ADDR' (PC=1) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_3 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_3 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'AXI_READ_DATA' (PC=2) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_4 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_4 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
-                "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'JUMP_TO_COMMIT_R' (PC=3) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_5 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+                "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'JUMP_COMMIT_R' (PC=3) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_5 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'AXI_WRITE_ADDR' (PC=4) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_6 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_6 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'AXI_WRITE_DATA' (PC=5) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_7 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_7 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'AXI_WRITE_RESP' (PC=6) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_8 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_8 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
-                "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'JUMP_TO_COMMIT_W' (PC=7) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_9 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+                "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'JUMP_COMMIT_W' (PC=7) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_9 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'PASS_THROUGH' (PC=8) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
-      if ((`PRINTF_COND_) & _GEN_11 & _GEN_10 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/QueueProbe.scala:11:13
+      if ((`PRINTF_COND_) & _GEN_11 & _GEN_10 & ~LSU.reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, src/main/scala/mycpu/utils/HardwareAgent.scala:18:13, :132:23, :143:39, :145:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
         $fwrite(32'h80000002,
                 "[LSU_Core] !!! DEADLOCK WARNING !!! Stuck at Step 'COMMIT' (PC=9) for 1000+ cycles\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:18:13
     end // always @(posedge)

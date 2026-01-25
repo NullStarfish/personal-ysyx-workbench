@@ -33,16 +33,29 @@ module Queue3_LsuRespPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
                 io_deq_bits_req_inst,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_req_dnpc,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_req_aluResult,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_memWData,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_req_pcTarget,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [4:0]  io_deq_bits_req_rdAddr,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [3:0]  io_deq_bits_req_ctrl_aluOp,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [1:0]  io_deq_bits_req_ctrl_csrOp,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output        io_deq_bits_req_ctrl_regWen,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_req_ctrl_memEn,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_req_ctrl_memWen,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [2:0]  io_deq_bits_req_ctrl_memFunct3,	// src/main/scala/chisel3/util/Queue.scala:72:14
-  output [31:0] io_deq_bits_rdata	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output        io_deq_bits_req_ctrl_op1Sel,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_op2Sel,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_isJump,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_isBranch,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_isEcall,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_isMret,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_ctrl_isEbreak,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_req_redirect_valid,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [31:0] io_deq_bits_req_redirect_bits,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_rdata,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [1:0]  io_count	// src/main/scala/chisel3/util/Queue.scala:72:14
 );
 
-  wire [202:0] _ram_ext_R0_data;	// src/main/scala/chisel3/util/Queue.scala:73:91
+  wire [280:0] _ram_ext_R0_data;	// src/main/scala/chisel3/util/Queue.scala:73:91
   reg  [1:0]   enq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40
   reg  [1:0]   deq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40
   reg          maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27
@@ -50,6 +63,7 @@ module Queue3_LsuRespPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   wire         empty = ptr_match & ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :78:{25,28}
   wire         full = ptr_match & maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :79:24
   wire         do_enq = ~full & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:79:24, :103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire [1:0]   _ptr_diff_T = enq_ptr_value - deq_ptr_value;	// src/main/scala/chisel3/util/Counter.scala:61:40, src/main/scala/chisel3/util/Queue.scala:126:32
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
     if (reset) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
       enq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40
@@ -66,7 +80,7 @@ module Queue3_LsuRespPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
         maybe_full <= do_enq;	// src/main/scala/chisel3/util/Queue.scala:76:27, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     end
   end // always @(posedge)
-  ram_3x203 ram_ext (	// src/main/scala/chisel3/util/Queue.scala:73:91
+  ram_3x281 ram_ext (	// src/main/scala/chisel3/util/Queue.scala:73:91
     .R0_addr (deq_ptr_value),	// src/main/scala/chisel3/util/Counter.scala:61:40
     .R0_en   (1'h1),	// src/main/scala/chisel3/util/Queue.scala:60:7
     .R0_clk  (clock),
@@ -79,26 +93,54 @@ module Queue3_LsuRespPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
         io_enq_bits_req_inst,
         io_enq_bits_req_dnpc,
         io_enq_bits_req_aluResult,
+        io_enq_bits_req_memWData,
         io_enq_bits_req_pcTarget,
         io_enq_bits_req_rdAddr,
+        io_enq_bits_req_ctrl_aluOp,
+        io_enq_bits_req_ctrl_csrOp,
         io_enq_bits_req_ctrl_regWen,
         io_enq_bits_req_ctrl_memEn,
         io_enq_bits_req_ctrl_memWen,
         io_enq_bits_req_ctrl_memFunct3,
+        io_enq_bits_req_ctrl_op1Sel,
+        io_enq_bits_req_ctrl_op2Sel,
+        io_enq_bits_req_ctrl_isJump,
+        io_enq_bits_req_ctrl_isBranch,
+        io_enq_bits_req_ctrl_isEcall,
+        io_enq_bits_req_ctrl_isMret,
+        io_enq_bits_req_ctrl_isEbreak,
+        io_enq_bits_req_redirect_valid,
+        io_enq_bits_req_redirect_bits,
         io_enq_bits_rdata})	// src/main/scala/chisel3/util/Queue.scala:73:91
   );	// src/main/scala/chisel3/util/Queue.scala:73:91
   assign io_enq_ready = ~full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :79:24, :103:19
   assign io_deq_valid = ~empty;	// src/main/scala/chisel3/util/Queue.scala:60:7, :78:25, :102:19
-  assign io_deq_bits_req_pc = _ram_ext_R0_data[202:171];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_inst = _ram_ext_R0_data[170:139];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_dnpc = _ram_ext_R0_data[138:107];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_aluResult = _ram_ext_R0_data[106:75];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_pcTarget = _ram_ext_R0_data[74:43];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_rdAddr = _ram_ext_R0_data[42:38];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_ctrl_regWen = _ram_ext_R0_data[37];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_ctrl_memEn = _ram_ext_R0_data[36];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_ctrl_memWen = _ram_ext_R0_data[35];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_req_ctrl_memFunct3 = _ram_ext_R0_data[34:32];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_pc = _ram_ext_R0_data[280:249];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_inst = _ram_ext_R0_data[248:217];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_dnpc = _ram_ext_R0_data[216:185];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_aluResult = _ram_ext_R0_data[184:153];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_memWData = _ram_ext_R0_data[152:121];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_pcTarget = _ram_ext_R0_data[120:89];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_rdAddr = _ram_ext_R0_data[88:84];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_aluOp = _ram_ext_R0_data[83:80];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_csrOp = _ram_ext_R0_data[79:78];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_regWen = _ram_ext_R0_data[77];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_memEn = _ram_ext_R0_data[76];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_memWen = _ram_ext_R0_data[75];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_memFunct3 = _ram_ext_R0_data[74:72];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_op1Sel = _ram_ext_R0_data[71];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_op2Sel = _ram_ext_R0_data[70];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_isJump = _ram_ext_R0_data[69];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_isBranch = _ram_ext_R0_data[68];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_isEcall = _ram_ext_R0_data[67];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_isMret = _ram_ext_R0_data[66];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_ctrl_isEbreak = _ram_ext_R0_data[65];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_redirect_valid = _ram_ext_R0_data[64];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_req_redirect_bits = _ram_ext_R0_data[63:32];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_rdata = _ram_ext_R0_data[31:0];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_count =
+    ptr_match
+      ? {2{maybe_full}}
+      : deq_ptr_value > enq_ptr_value ? _ptr_diff_T - 2'h1 : _ptr_diff_T;	// src/main/scala/chisel3/util/Counter.scala:61:40, src/main/scala/chisel3/util/Queue.scala:60:7, :76:27, :77:33, :126:32, :131:20, :133:10, :134:{10,25,57}
 endmodule
 
