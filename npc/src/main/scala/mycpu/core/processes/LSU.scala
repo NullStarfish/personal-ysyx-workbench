@@ -6,38 +6,34 @@ import mycpu.core.os._
 import mycpu.core.bundles._
 import mycpu.common._
 
-class LSUProcess(implicit val iGen: ExecutePacket, val oGen: MemoryPacket) 
-  extends HwProcess[ExecutePacket, MemoryPacket]("LSU") {
+class LsuProcess extends HwProcess[ExecutePacket, MemoryPacket]("LSU") {
+  override def entry(): Unit = {
+    val t = createThread()
+    val dmem = sys_open("DMEM")
 
-  def entry(): Unit = {
-    val bus = sys_open("axi_lsu")
-    
-    val mainThread = createThread("Main")
-    implicit val ctx = ThreadCtx(mainThread)
-
-    mainThread.Loop()
-    mainThread.entry {
-      // 1. 阻塞式读取 (Seq Read)
-      val req = sys_read() 
-      val rdata = WireDefault(0.U(32.W))
-
-      // 2. AXI 操作 (Seq Read/Write)
-      val isRead = req.ctrl.memEn && !req.ctrl.memWen
+    t.entry {
+      val out = Reg(new MemoryPacket)
       
-      mainThread.Step("AXI_Op") {
+      t.Step("Memory_Access") {
+        val in = sys_read()
+        out.connectDebug(in)
+        
+        val isRead  = in.ctrl.memEn && !in.ctrl.memWen
+        val isWrite = in.ctrl.memEn && in.ctrl.memWen
+        
+        val readData = WireDefault(0.U)
         when(isRead) {
-           // 调用驱动的时序读接口
-           rdata := bus.readSeq(req.aluResult)
+          readData := dmem.read(in.aluResult, in.ctrl.memFunct3(1,0))
+        } .elsewhen(isWrite) {
+          dmem.write(in.aluResult, in.memWData, in.ctrl.memFunct3(1,0))
         }
-        // ... Write 逻辑 ...
+
+        out.wbData := Mux(isRead, readData, in.aluResult)
+        out.rdAddr := in.rdAddr
+        out.regWen := in.ctrl.regWen
       }
 
-      // 3. 阻塞式写出
-      val out = Wire(new MemoryPacket)
-      out.wbData := Mux(req.ctrl.memEn, rdata, req.aluResult)
-      out.connectDebug(req)
-      
-      sys_write(out)
+      t.Step("Finish") { sys_write(out) }
     }
   }
 }

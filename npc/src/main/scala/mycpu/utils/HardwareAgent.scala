@@ -1,41 +1,29 @@
 package mycpu.utils
+
 import chisel3._
 import chisel3.util._
-import mycpu.core.os._
-import scala.collection.mutable.{ArrayBuffer, HashSet, LinkedHashMap}
+import mycpu.core.os._ // 确保能引用 ContextScope
+import scala.collection.mutable.{ArrayBuffer, LinkedHashMap}
 
 trait HardwareAgent {
   val name: String
-  // 记录所有受管信号及其默认值
-  // Map: Proxy信号 -> (空闲时的值, 运行时的默认值)
+  val debugEnable: Boolean
+
   protected val managedSignals = LinkedHashMap[Data, (Data, Data)]()
 
-  val debugEnable: Boolean // 实例级开关
-
-  // 内部辅助打印工具
   def agentPrint(fmt: String, data: Bits*): Unit = {
     if (debugEnable) {
-      // 这里的 printf 是硬件电路，只在仿真运行时输出
       printf(s"[$name] " + fmt + "\n", data: _*)
     }
   }
 
-  /**
-   * 统一的信号接管接口
-   * @param target 外部 IO
-   * @param idle 空闲状态（Logic永远运行，Thread未启动时）的值
-   * @param default 运行状态下，每一拍开始时的默认值 (类似 WireDefault)
-   */
   def driveManaged[T <: Data](target: T, idle: T, default: T): T = {
     val proxy = Wire(chiselTypeOf(target))
     managedSignals(proxy) = (idle, default)
-    
-    // 默认连接，子类会覆盖此逻辑（如 Thread 需要 Mux active）
     target := proxy 
     proxy
   }
 
-  // 简化版：idle 和 default 相同
   def driveManaged[T <: Data](target: T, default: T): T = driveManaged(target, default, default)
 
   def write[T <: Data](target: T, value: T): Unit = {
@@ -48,7 +36,6 @@ trait HardwareAgent {
 
 class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
   def run(block: => Unit): Unit = {
-    // [修改] 使用 withContext 包裹用户代码
     ContextScope.withContext(LogicCtx(this)) {
       managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
       block
@@ -56,45 +43,65 @@ class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends H
   }
 }
 
-class HardwareThread(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
+// [新增] isMealy 参数：true=零延迟启动 (立即响应 startWhen)
+class HardwareThread(val name: String, val debugEnable: Boolean = true, val isMealy: Boolean = false) extends HardwareAgent {
 
   private val steps = ArrayBuffer[() => Unit]()
-  private val stepNames = ArrayBuffer[String]() // [新增] 存储步骤名称
+  private val stepNames = ArrayBuffer[String]()
   private val globals = ArrayBuffer[() => Unit]()
 
   private var pcEntity: UInt = _
+  
+  // 状态机核心寄存器
+  private val activeReg = RegInit(false.B)
+  
+  // 控制信号
+  private var startSignal: Bool = false.B
+  private var abortSignal: Bool = false.B
+  private var pauseSignal: Bool = false.B
 
-  private val active = RegInit(false.B)
+  // 状态标记 (供外部检查)
+  private var _startCondSet = false
+  private var _generated = false
 
-  private var startSignal: Bool = false.B  // 触发启动
-  private var abortSignal: Bool = false.B  // 强制复位 (Kill)
-  private var pauseSignal: Bool = false.B  // 暂停执行 (Stall)
+  def hasStartCondition: Boolean = _startCondSet
+  def isGenerated: Boolean = _generated
 
+  // 性能计数
   private val sessionCycles = RegInit(0.U(32.W))
   private val sessionStalls = RegInit(0.U(32.W))
 
   def pc: UInt = {
-    require(pcEntity != null, "Error: Cannot access 'thread.pc' outside of Step/Call/Global logic! Hardware not generated yet.")
+    require(pcEntity != null, "Error: Accessing pc before generation.")
     pcEntity
   }
 
-  def startWhen(cond: Bool): Unit = { startSignal = cond }
+  // [关键修改] active 信号逻辑
+  // 如果是 Mealy 模式，startSignal 会直接旁路到 active
+  // 注意：这可能产生组合逻辑环，如果 startSignal 依赖于 thread 的输出
+  def isRunning: Bool = if (isMealy) (activeReg || startSignal) else activeReg
+
+  def startWhen(cond: Bool): Unit = { 
+    startSignal = cond
+    _startCondSet = true 
+  }
   def abortWhen(cond: Bool): Unit = { abortSignal = cond }
   def pauseWhen(cond: Bool): Unit = { pauseSignal = cond }
-  def isRunning: Bool = active
 
   override def driveManaged[T <: Data](target: T, idle: T, default: T): T = {
     val proxy = Wire(chiselTypeOf(target))
     managedSignals(proxy) = (idle, default)
     
-    target := Mux(active, proxy, idle)
+    target := Mux(isRunning, proxy, idle)
     proxy
   }
 
   def entry(block: => Unit): Unit = {
+    if (_generated) throw new Exception(s"Thread '$name' generated twice")
+    _generated = true
 
     ContextScope.withContext(ThreadCtx(this)) {
-      block // 执行用户逻辑，此时 ContextScope.current 就是这个线程
+      block 
     }
 
     val totalSteps = steps.length
@@ -107,148 +114,154 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true) extends 
     // 默认值注入
     managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
 
+    val active = isRunning // 使用计算后的 active
+
     // --- 调试与看门狗逻辑 ---
     if (debugEnable) {
       val wasActive = RegNext(active)
       val lastPc    = RegNext(pcReg)
-      
-      // 判断 PC 是否停滞 (WaitCondition 或 Pause 都会导致 PC 不变)
       val pcStuck   = active && (pcReg === lastPc)
       val hangCounter = RegInit(0.U(32.W))
 
-      // A. 上线提醒
       when (!wasActive && active) {
         agentPrint("--- ONLINE ---")
-        sessionCycles := 0.U
-        sessionStalls := 0.U
-        hangCounter   := 0.U
+        sessionCycles := 0.U; sessionStalls := 0.U; hangCounter := 0.U
       }
-
-      // B. 下线提醒
       when (wasActive && !active) {
-        agentPrint("--- OFFLINE (Duration: %d, Stalls: %d) ---", sessionCycles, sessionStalls)
+        agentPrint("--- OFFLINE (Cycles: %d) ---", sessionCycles)
       }
-
-      // C. 执行步骤追踪 (带名称)
-      // 当 active 且 PC 发生改变时，打印新进入的 Step 名称
-      when (active && pcReg =/= lastPc) {
-        // 遍历查找当前 PC 对应的名称
+      
+      // 仅在 PC 变化或刚启动时打印 Step
+      // 对于 Mealy 模式，启动当拍就会执行 Step 0
+      val justStarted = active && !wasActive
+      when ((active && pcReg =/= lastPc) || justStarted) {
         for ((name, idx) <- stepNames.zipWithIndex) {
-          when (pcReg === idx.U) {
-            // 注意：这里使用 Scala 插值把 name 编译进 Verilog 字符串
-            agentPrint(s"EXEC [PC $idx] $name") 
-          }
+          when (pcReg === idx.U) { agentPrint(s"EXEC [PC $idx] $name") }
         }
       }
 
-      // D. 死锁检测 (Watchdog)
-      // 如果 active 且 PC 保持不变超过 1000 周期
       when (pcStuck) {
         hangCounter := hangCounter + 1.U
         when (hangCounter === 1000.U) {
            for ((name, idx) <- stepNames.zipWithIndex) {
-             when (pcReg === idx.U) {
-               agentPrint(s"!!! DEADLOCK WARNING !!! Stuck at Step '$name' (PC=$idx) for 1000+ cycles")
-             }
+             when (pcReg === idx.U) { agentPrint(s"!!! DEADLOCK WARNING [PC=$idx] $name !!!") }
            }
         }
-      } .otherwise {
-        hangCounter := 0.U
-      }
+      } .otherwise { hangCounter := 0.U }
     }
 
-    // --- 状态机逻辑 ---
+    // --- 状态机核心逻辑 ---
+    
+    // 优先级 1: Abort (Kill)
     when (abortSignal) {
-      active := false.B
-      pcReg  := 0.U
-    } .elsewhen (active) {
-      // 统计运行周期
+      activeReg := false.B
+      pcReg     := 0.U
+    }
+    // 优先级 2: 正常运行 (Active)
+    .elsewhen (active) {
       sessionCycles := sessionCycles + 1.U
       
       when (!pauseSignal) {
-        // 默认行为：PC 自增
+        // 默认自增
         pcReg := pcReg + 1.U
-        
-        // 边界检查：运行完最后一步自动退出
+        activeReg := true.B
         when (pcReg >= (totalSteps - 1).U) {
-          active := false.B
-          pcReg  := 0.U
+          activeReg := false.B
+          pcReg     := 0.U
         }
 
-        // 执行当前 Step 的逻辑
         for ((func, idx) <- steps.zipWithIndex) {
-          when (pcReg === idx.U) { 
-            func() 
-            // 注意：func() 内部如果有 waitCondition，会生成覆盖 pcReg 的逻辑
-            // Chisel 后写的赋值会覆盖先写的，所以 waitCondition 生效
-          }
+          when (pcReg === idx.U) { func() }
         }
       } .otherwise {
         sessionStalls := sessionStalls + 1.U
       }
-    } .otherwise {
-      when (startSignal) {
-        active := true.B
-        pcReg  := 0.U
-      }
+    }
+    // 优先级 3: 启动 (Spawn)
+    // 仅针对非 Mealy 模式，或者是 Mealy 模式下的状态维持
+    // 如果是 Mealy 模式，active 已经是 (activeReg || startSignal) 了，所以上面的 .elsewhen (active) 已经覆盖了启动当拍的逻辑
+    // 这里处理的是：如果当前 !activeReg 且 startSignal来了，下一拍 activeReg 要变 1
+    .otherwise {
+       when (startSignal) {
+         activeReg := true.B
+         pcReg     := 0.U
+       }
     }
     
     globals.foreach(_())
   }
 
+  // --- DSL 接口 ---
+
   def Exit(): Unit = {
-    active := false.B
-    pcEntity := 0.U
+    activeReg := false.B
+    pcEntity  := 0.U
   }
   
-  def Loop(): Unit = {
-    pcEntity := 0.U
-  }
+  def Loop(): Unit = { pcEntity := 0.U }
   
-  // [修改] 支持命名的 Step
   def Step(name: String)(block: => Unit): Unit = {
     stepNames += name
-    steps += { () => block }
+    steps += { () => 
+        ContextScope.withContext(AtomicCtx(this)) {
+          block
+        }
+      }
   }
+  
+  def Step(block: => Unit): Unit = Step(s"Step_${steps.length}")(block)
 
-  // [修改] 兼容旧接口，自动生成名称
-  def Step(block: => Unit): Unit = {
-    Step(s"Step_${steps.length}")(block)
-  }
-
-  // 保持 PC 不变 (阻塞)
-  def waitCondition(cond: Bool): Unit = { 
-    when(!cond) { 
-      pcEntity := pcEntity 
-    } 
-  }
+  def waitCondition(cond: Bool): Unit = { when(!cond) { pcEntity := pcEntity } }
   
   def Label: UInt = steps.length.U
 
-  def Global(block: => Unit): Unit = {
-    globals += { () => block }
-  }
+  def Global(block: => Unit): Unit = { globals += { () => block } }
 
-  def Call[T <: Data, R <: Data](func: HwFunction[T, R], input: T): R = {
-    val resultWire = Wire(chiselTypeOf(func.ret))
-    resultWire := DontCare 
-    
-    // Call 作为一个单独的隐式步骤
-    val callStepName = s"Call_Func_${steps.length}"
-    stepNames += callStepName
-
-    steps += { () => 
-      val latch = Reg(chiselTypeOf(func.ret))
-      func.args   := input
-      func.enable := true.B
-
-      pcEntity := pcEntity 
-      when (func.done) {
-        latch := func.ret
-        pcEntity := pcEntity + 1.U
+  // [新增] Par: 轻量级并行
+  def Par(blocks: (() => Unit)*): Unit = {
+    // 1. 创建子线程 (强制使用 Mealy 模式以减少延迟)
+    val children = blocks.zipWithIndex.map { case (block, i) =>
+      val t = new HardwareThread(s"${name}_fork_$i", debugEnable, isMealy = true)
+      t.entry {
+        ContextScope.withContext(ThreadCtx(t)) { block() }
       }
-      resultWire := latch
+      t
     }
-    resultWire
+
+    // 2. 当前线程 Step：管理 Fork-Join
+    this.Step(s"Par_Fork_${children.length}") {
+      val childrenActive = VecInit(children.map(_.isRunning))
+      
+      // 记录哪些子线程已经启动过了 (防止重复启动)
+      // 使用 Reg 记录状态，一旦启动过就置位
+      val hasRun = RegInit(VecInit(Seq.fill(children.length)(false.B)))
+      
+      // 当所有子线程都【已经启动过】且【当前都不再运行】时，才算完成
+      // 注意：Mealy 子线程启动当拍 isRunning=true，且 hasRun 下一拍才变 true
+      
+      children.zipWithIndex.foreach { case (t, i) =>
+        // 启动条件：还没运行过
+        t.startWhen(!hasRun(i))
+        
+        // 记录运行状态：只要监测到 running，就标记为已运行
+        when(t.isRunning) { hasRun(i) := true.B }
+      }
+      
+      val allStarted = hasRun.asUInt.andR
+      val noneRunning = !childrenActive.asUInt.orR
+      
+      // 只有当所有子线程都跑完后，父线程才继续
+      // Corner case: 如果子线程只有 1 步 (Mealy)，它在启动当拍就做完了，下一拍 isRunning=false
+      // 所以判断逻辑是：(allStarted || 当前所有都在跑) && (当前没在跑 || 刚启动) 
+      // 简化逻辑：父线程必须等到所有子线程 inactive
+      
+      when (allStarted && noneRunning) {
+        // 完成，重置状态供下次使用
+        hasRun.foreach(_ := false.B)
+        // PC 自动 +1
+      } .otherwise {
+        this.waitCondition(false.B) // 阻塞
+      }
+    }
   }
 }

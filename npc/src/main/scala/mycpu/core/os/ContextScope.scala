@@ -5,8 +5,10 @@ import mycpu.utils._
 
 // 上下文定义
 sealed trait ExecutionContext
-case class ThreadCtx(t: HardwareThread) extends ExecutionContext
 case class LogicCtx(l: HardwareLogic)   extends ExecutionContext
+case class ThreadCtx(t: HardwareThread)  extends ExecutionContext
+case class AtomicCtx(t: HardwareThread)  extends ExecutionContext // 新增：Step 内部
+
 
 // 上下文管理器 (单例)
 object ContextScope {

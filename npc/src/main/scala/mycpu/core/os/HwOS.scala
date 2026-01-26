@@ -4,23 +4,27 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 import mycpu.utils._
+import mycpu.core.kernel._
 import scala.collection.mutable.ArrayBuffer
 
-// =========================================================
-// 1. 上下文抽象 (Execution Context)
-// =========================================================
-// 驱动程序需要知道它是在 Thread (Step) 中被调用，还是在 Logic (Wire) 中被调用
 
 
-// =========================================================
-// 2. 资源句柄 (Resource Handle)
-// =========================================================
 abstract class ResourceHandle {
+  val name: String
+  
+  // 增加 setup 接口，默认不实现
+  def setup(t: HardwareAgent): Unit = {}
 
-  def read(addr: UInt, size: UInt = 4.U, signed: Bool = false.B): UInt
-    
-  def write(addr: UInt, data: UInt, size: UInt = 4.U): UInt
+  def unsupported(method: String): Nothing = {
+    val ctx = ContextScope.current.getClass.getSimpleName
+    throw new Exception(s"[$name] Error: Method '$method' is not supported in $ctx")
+  }
+
+  def read(addr: UInt, size: UInt = AccessSize.Word, signed: Bool = false.B): UInt
+  def write(addr: UInt, data: UInt, size: UInt = AccessSize.Word): UInt
+  def ioctl(cmd: UInt, arg: UInt): UInt
 }
+
 
 // =========================================================
 // 3. 进程基类 (HwProcess) - 现在的定义更像是一个“任务组”
@@ -29,7 +33,7 @@ abstract class HwProcess[I <: Data, O <: Data](val pName: String) {
   // --- 内核注入区 ---
   var _stdin:  HwQueue[I] = _
   var _stdout: HwQueue[O] = _
-  private[os] var _container: Module  = _ // 父模块引用
+  var _container: Module  = _ // 父模块引用
 
   // --- 内部任务列表 ---
   private val threads = ArrayBuffer[HardwareThread]()
@@ -64,80 +68,107 @@ abstract class HwProcess[I <: Data, O <: Data](val pName: String) {
   }
 
   // --- API: 资源申请 ---
-  def sys_open(name: String): ResourceHandle = {
-    Kernel.getDriverInstance(name)
+  def sys_open(name: String)(implicit t: HardwareAgent): ResourceHandle = {
+    val handle = Kernel.getDriverInstance(name)
+    // 在获取句柄时立刻完成零件注册
+    handle.setup(t)
+    handle
   }
 
   // --- API: 管道操作 (Syscalls) ---
   
-  // 1. 组合逻辑偷看 (Peek) - 零延迟，不消耗
-  def sys_peek()(implicit ctx: ExecutionContext): (Bool, I) = {
-    val (valid, bits) = ctx match {
-      case LogicCtx(l) => 
-        // Logic 直接看 Wire
-        (_stdin.canPop, _stdin.peek())
-      case ThreadCtx(t) =>
-        // Thread 也看 Wire
-        (_stdin.canPop, _stdin.peek())
-    }
-    (valid, bits)
+  def sys_peek(): (Bool, I) = ContextScope.current match {
+    case LogicCtx(l) => 
+      // Logic 直接看 Wire
+      (_stdin.canPop, _stdin.peek())
+    case ThreadCtx(t) =>
+      // Thread 环境（Step 外部）：创建一个 Step 进行采样，并存入寄存器
+      // 1. 分别创建 Bool 和 数据的寄存器（不能用 Tuple）
+      val validReg = RegInit(false.B)
+      val dataReg  = Reg(chiselTypeOf(_stdin.peek()))
+
+      // 2. 注入采样步骤
+      t.Step("Sys_Peek") {
+        validReg := _stdin.canPop
+        dataReg  := _stdin.peek()
+      }
+      
+      // 3. 返回寄存器组成的 Scala Tuple
+      (validReg, dataReg)
+    case AtomicCtx(t) =>
+      (_stdin.canPop, _stdin.peek())
   }
 
+  
+
   // 2. 消耗数据 (Consume/Pop) - 必须在确认 valid 后调用
-  def sys_consume()(implicit ctx: ExecutionContext): Unit = {
-    ctx match {
+  def sys_consume(): Unit = {
+    ContextScope.current match {
       case LogicCtx(l) => 
-        // Logic 中，我们需要驱动 ready 信号
-        // 注意：HwQueue.tryPop() 是由 HardwareLogic.driveManaged 管理的
-        // 这里简化为直接调用，假设 Logic 框架处理了 driveManaged
         val readyProxy = l.driveManaged(_stdin.deq.ready, false.B)
         l.write(readyProxy, true.B)
         
       case ThreadCtx(t) =>
-        _stdin.tryPop() // Thread 内部状态机会处理一拍的 Pulse
+        t.Step("sys_consume") {
+          _stdin.tryPop()
+        }
+
+      case AtomicCtx(t) => 
+        _stdin.tryPop()
     }
   }
 
   // 3. 阻塞式读取 (Read) - 仅限 Thread
-  def sys_read()(implicit ctx: ExecutionContext): I = {
-    ctx match {
-      case ThreadCtx(t) =>
-        val data = Reg(chiselTypeOf(_stdin.peek()))
-        t.Step("Sys_Read") {
-          t.waitCondition(_stdin.canPop)
-          data := _stdin.peek()
-          _stdin.tryPop()
-        }
-        data
-      case _ => throw new Exception("sys_read is blocking, only allowed in Thread.")
-    }
+  def sys_read(): I = ContextScope.current match {
+    case ThreadCtx(t) =>
+      val data = Reg(chiselTypeOf(_stdin.peek()))
+      t.Step("Sys_Read_Sequential") {
+        t.waitCondition(_stdin.canPop)
+        data := _stdin.peek()
+        _stdin.tryPop()
+      }
+      data
+
+    case AtomicCtx(t) => 
+      // 原子读取：如果不满足条件，当前 Step 直接 Stall
+      t.waitCondition(_stdin.canPop)
+      _stdin.tryPop() // 内部执行 _stdin.deq.ready := true.B
+      _stdin.peek()   // 返回瞬时 Wire
+        
+    case LogicCtx(_) => 
+      throw new Exception("sys_read is blocking, not allowed in Logic. Use sys_peek.")
   }
 
   // 4. 写入输出 (Write)
-  def sys_write(data: O)(implicit ctx: ExecutionContext): Unit = {
-    ctx match {
-      case ThreadCtx(t) =>
-        t.Step("Sys_Write") {
-          t.waitCondition(_stdout.canPush)
-          _stdout.tryPush(data)
-        }
-      case LogicCtx(l) =>
-        // Logic 需要组合逻辑握手
-        val validProxy = l.driveManaged(_stdout.enq.valid, false.B)
-        val bitsProxy  = l.driveManaged(_stdout.enq.bits,  DontCare)
-        
-        // 只有当 Logic 决定写的时候
-        l.write(validProxy, true.B)
-        l.write(bitsProxy, data)
-        // 注意：Logic 写通常需要 check ready，否则下一拍可能丢数据
-        // 这里假设 Logic 外部有保护
-    }
+  def sys_write(data: O): Unit = ContextScope.current match {
+    case ThreadCtx(t) =>
+      t.Step("Sys_Write_Sequential") {
+        t.waitCondition(_stdout.canPush)
+        _stdout.tryPush(data)
+      }
+
+    case AtomicCtx(t) => 
+      t.waitCondition(_stdout.canPush)
+      _stdout.tryPush(data)
+
+    case LogicCtx(l) =>
+      when(_stdout.canPush) {
+        _stdout.tryPush(data)
+      }
   }
 
   // 用户入口
   def entry(): Unit
   
 
+  private[os] def postBuild(): Unit = {
+    threads.foreach { t =>
+      if (!t.hasStartCondition) { 
+        printf(p"Warning!!!! ${t.name} doesn't have a start condition!!!\n")
+        t.startWhen(true.B)
+      }
+    }
+  }
 }
 
 // =========================================================
@@ -162,6 +193,8 @@ class ProcessContainer[I <: Data, O <: Data](proc: HwProcess[I, O], iGen: I, oGe
 
   // 执行用户定义 (创建 threads/logics)
   proc.entry()
+
+  proc.postBuild()
   
 
 }

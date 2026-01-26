@@ -30,6 +30,7 @@ class DecodePacket extends Bundle with HasDebugInfo {
   val rs1Data  = XLenU
   val rs2Data  = XLenU
   val imm      = XLenU
+  val csrData  = XLenU
   val rdAddr   = UInt(5.W)
   val rs1Addr  = UInt(5.W)
   val ctrl     = new ControlSignals()
