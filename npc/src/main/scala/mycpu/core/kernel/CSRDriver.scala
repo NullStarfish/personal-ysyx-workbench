@@ -4,13 +4,17 @@ import chisel3._
 import chisel3.util._
 import mycpu.core.os._
 import mycpu.utils._
-class CSRDriver(physRegs: Vec[UInt]) extends ResourceHandle {
+import chisel3.util.experimental.BoringUtils
+class CSRDriver(physRegs_global: Vec[UInt]) extends ResourceHandle {
+
+  val physRegs = BoringUtils.bore(physRegs_global)
   override val name = "CSR"
+
   
   private var opMode: UInt = _
   private var atomicOpOverride: UInt = _
 
-  override def setup(t: HardwareThread): Unit = {
+  override def setup(t: HardwareAgent): Unit = {
     // 默认 RW 模式
     opMode = RegInit(IoctlCmd.CSR_RW)
     // 瞬时覆盖线

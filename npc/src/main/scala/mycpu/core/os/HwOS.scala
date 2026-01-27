@@ -20,9 +20,9 @@ abstract class ResourceHandle {
     throw new Exception(s"[$name] Error: Method '$method' is not supported in $ctx")
   }
 
-  def read(addr: UInt, size: UInt = AccessSize.Word, signed: Bool = false.B): UInt
-  def write(addr: UInt, data: UInt, size: UInt = AccessSize.Word): UInt
-  def ioctl(cmd: UInt, arg: UInt): UInt
+  def read(addr: UInt, size: UInt = AccessSize.Word, signed: Bool = false.B): UInt = unsupported("read")
+  def write(addr: UInt, data: UInt, size: UInt = AccessSize.Word): UInt = unsupported("write")
+  def ioctl(cmd: UInt, arg: UInt): UInt = unsupported("ioctl")
 }
 
 
@@ -176,13 +176,13 @@ abstract class HwProcess[I <: Data, O <: Data](val pName: String) {
 // =========================================================
 class ProcessContainer[I <: Data, O <: Data](proc: HwProcess[I, O], iGen: I, oGen: O) extends Module {
   val io = IO(new Bundle {
-    val stdin  = Flipped(Decoupled(iGen))
-    val stdout = Decoupled(oGen)
+    val stdin  = Flipped(Decoupled(iGen.cloneType))
+    val stdout = Decoupled(oGen.cloneType)
   })
 
   // 实例化管道
-  val inQ  = new HwQueue(iGen, 2, s"${proc.pName}_InQ")
-  val outQ = new HwQueue(oGen, 2, s"${proc.pName}_OutQ")
+  val inQ  = new HwQueue(iGen.cloneType, 2, s"${proc.pName}_InQ")
+  val outQ = new HwQueue(oGen.cloneType, 2, s"${proc.pName}_OutQ")
   inQ.enq <> io.stdin
   io.stdout <> outQ.deq
 
@@ -227,7 +227,7 @@ object Kernel {
   }
 
   def boot[O <: Data](first: HwProcess[UInt, O])(implicit oGen: O): PipeChain[O] = {
-    val container = Module(new ProcessContainer(first, UInt(0.W), oGen))
+    val container = Module(new ProcessContainer(first, UInt(32.W), oGen))
     container.io.stdin.valid := true.B; container.io.stdin.bits := 0.U
     new PipeChain(container.io.stdout)
   }

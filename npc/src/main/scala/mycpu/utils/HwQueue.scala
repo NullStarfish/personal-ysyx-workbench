@@ -10,7 +10,7 @@ import chisel3.util._
 class HwQueue[T <: Data](gen: T, entries: Int, name: String = "Queue", debug: Boolean = true) {
   
   // 在类实例化时，直接在当前父模块中生成硬件 Queue
-  private val q = Module(new Queue(gen, entries))
+  private val q = Module(new Queue(gen.cloneType, entries))
   q.suggestName(name) // 给 Verilog 里的模块起个好名字
 
   // === 公开基础 IO (为了兼容 <> 连接) ===

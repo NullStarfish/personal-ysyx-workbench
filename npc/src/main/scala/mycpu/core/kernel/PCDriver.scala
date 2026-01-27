@@ -2,8 +2,10 @@ package mycpu.core.kernel
 import chisel3._
 import mycpu.core.os._
 import mycpu.utils._
-class PCDriver(pcReg: UInt) extends ResourceHandle {
+import chisel3.util.experimental.BoringUtils
+class PCDriver(global_PC: UInt) extends ResourceHandle {
   override val name = "PC"
+  val pcReg = BoringUtils.bore(global_PC)
 
   override def read(addr: UInt, size: UInt, signed: Bool): UInt = {
     ContextScope.current match {
@@ -24,4 +26,6 @@ class PCDriver(pcReg: UInt) extends ResourceHandle {
     }
     0.U
   }
+
+  override def ioctl(_1: UInt, _2:UInt): UInt = unsupported("ioctl")
 }

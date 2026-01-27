@@ -4,52 +4,106 @@ import chisel3._
 import chisel3.util._
 import mycpu.core.os._
 import mycpu.utils._
+import chisel3.util.experimental.BoringUtils
 
 class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
   override val name = "SmartAXI"
 
-  // --- 1. 物理 IO 代理 ---
-  private var arP: DecoupledIO[AXI4BundleA] = _
-  private var rP:  DecoupledIO[AXI4BundleR] = _
-  private var awP: DecoupledIO[AXI4BundleA] = _
-  private var wP:  DecoupledIO[AXI4BundleW] = _
-  private var bP:  DecoupledIO[AXI4BundleB] = _
+  // --- 1. 物理 IO 代理 (内部 DSL 使用的 Wire) ---
+  // 这些 Wire 是我们在 read/write/ioctl 中实际操作的对象
+  private val arP = Wire(chiselTypeOf(bus.ar))
+  private val rP  = Wire(chiselTypeOf(bus.r))
+  private val awP = Wire(chiselTypeOf(bus.aw))
+  private val wP  = Wire(chiselTypeOf(bus.w))
+  private val bP  = Wire(chiselTypeOf(bus.b))
 
-  // --- 2. 静态配置寄存器与瞬时 Wire ---
+  // --- [关键修复] ---
+  // 给所有本地 Wire 赋默认值。这相当于 HardwareThread 中的 "Idle" 状态输出。
+  // 当 Step 逻辑没有覆盖这些值时（即线程阻塞或未启动），这些默认值生效。
+  arP.valid := false.B; arP.bits := 0.U.asTypeOf(arP.bits); arP.ready := DontCare
+  rP.valid  := DontCare; rP.bits := DontCare; rP.ready := false.B
+  awP.valid := false.B; awP.bits := 0.U.asTypeOf(awP.bits); awP.ready := DontCare
+  wP.valid  := false.B; wP.bits  := 0.U.asTypeOf(wP.bits); wP.ready := DontCare
+  bP.valid  := DontCare; bP.bits := DontCare; bP.ready := false.B
+
+  // --- 2. 状态寄存器 ---
   private var lenReg:   UInt = _
   private var burstReg: UInt = _
   private var lenAtomicOverride: UInt = _
   private var burstAtomicOverride: UInt = _
 
-  // --- 3. 静态状态机寄存器 ---
   private var rState: UInt = _
-  private var wState: UInt = _ // 0:Idle, 1:AW_W, 2:B_Resp
+  private var wState: UInt = _ 
   private var rawData: UInt = _
   private var doneAW: Bool = _
   private var doneW:  Bool = _
 
+  // --- 3. 跨层级连接辅助函数 ---
+  
+  // 驱动远程信号：Local(Child) -> Remote(Parent)
+  private def driveRemote[T <: Data](localSource: T, remoteSink: T): Unit = {
+    BoringUtils.bore(localSource, Seq(remoteSink))
+  }
 
+  // 读取远程信号：Remote(Parent) -> Local(Child)
+  private def readRemote[T <: Data](remoteSource: T, localSink: T): Unit = {
+    BoringUtils.bore(remoteSource, Seq(localSink))
+  }
 
+  override def setup(agent: HardwareAgent): Unit = {
+    // 这里我们手动建立连接，不再使用 agent.driveManaged
+    // 逻辑：arP (本地逻辑驱动) -> BoringUtils -> bus (远程父模块)
 
-  override def setup(t: HardwareThread): Unit = {
-    // 代理所有通道
-    arP = t.driveManaged(bus.ar, 0.U.asTypeOf(bus.ar))
-    rP  = t.driveManaged(bus.r,  0.U.asTypeOf(bus.r))
-    awP = t.driveManaged(bus.aw, 0.U.asTypeOf(bus.aw))
-    wP  = t.driveManaged(bus.w,  0.U.asTypeOf(bus.w))
-    bP  = t.driveManaged(bus.b,  0.U.asTypeOf(bus.b))
-    //必须在收集器就完成注册
+    // --- AR Channel ---
+    driveRemote(arP.valid, bus.ar.valid)
+    driveRemote(arP.bits,  bus.ar.bits)
+    
+    val arReadyBridge = Wire(Bool())
+    readRemote(bus.ar.ready, arReadyBridge)
+    arP.ready := arReadyBridge
 
-    // 配置寄存器
+    // --- R Channel ---
+    driveRemote(rP.ready, bus.r.ready)
+
+    val rValidBridge = Wire(Bool())
+    val rBitsBridge  = Wire(chiselTypeOf(bus.r.bits))
+    readRemote(bus.r.valid, rValidBridge)
+    readRemote(bus.r.bits,  rBitsBridge)
+    rP.valid := rValidBridge
+    rP.bits  := rBitsBridge
+
+    // --- AW Channel ---
+    driveRemote(awP.valid, bus.aw.valid)
+    driveRemote(awP.bits,  bus.aw.bits)
+
+    val awReadyBridge = Wire(Bool())
+    readRemote(bus.aw.ready, awReadyBridge)
+    awP.ready := awReadyBridge
+
+    // --- W Channel ---
+    driveRemote(wP.valid, bus.w.valid)
+    driveRemote(wP.bits,  bus.w.bits)
+
+    val wReadyBridge = Wire(Bool())
+    readRemote(bus.w.ready, wReadyBridge)
+    wP.ready := wReadyBridge
+
+    // --- B Channel ---
+    driveRemote(bP.ready, bus.b.ready)
+
+    val bValidBridge = Wire(Bool())
+    val bBitsBridge  = Wire(chiselTypeOf(bus.b.bits))
+    readRemote(bus.b.valid, bValidBridge)
+    readRemote(bus.b.bits,  bBitsBridge)
+    bP.valid := bValidBridge
+    bP.bits  := bBitsBridge
+
+    // --- 寄存器初始化 ---
     lenReg   = RegInit(0.U(8.W))
-    burstReg = RegInit(1.U(2.W)) // 默认 INCR
-
-    // 瞬时覆盖线：默认为寄存器的值
-    // 在 AtomicCtx 下，ioctl 会改写这些 Wire
+    burstReg = RegInit(1.U(2.W))
     lenAtomicOverride   = WireDefault(lenReg)
     burstAtomicOverride = WireDefault(burstReg)
 
-    // 状态寄存器
     rState  = RegInit(0.U(2.W))
     wState  = RegInit(0.U(2.W))
     rawData = Reg(UInt(32.W))
@@ -60,12 +114,10 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
   override def ioctl(cmd: UInt, arg: UInt): UInt = {
     ContextScope.current match {
       case AtomicCtx(_) =>
-        // 原子模式：改写瞬时 Wire，影响当前 Step 的后续 AXI 动作
         when(cmd === IoctlCmd.AXI_SET_LEN)   { lenAtomicOverride := arg }
         when(cmd === IoctlCmd.AXI_SET_BURST) { burstAtomicOverride := arg }
         
       case ThreadCtx(t) =>
-        // 线程模式：生成一个 Step 修改寄存器，永久生效
         t.Step("AXI_Config_Update") {
           when(cmd === IoctlCmd.AXI_SET_LEN)   { lenReg := arg }
           when(cmd === IoctlCmd.AXI_SET_BURST) { burstReg := arg }
@@ -79,21 +131,16 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
     val ctx = ContextScope.current
     val currentLen   = if (ctx.isInstanceOf[AtomicCtx]) lenAtomicOverride else lenReg
     val currentBurst = if (ctx.isInstanceOf[AtomicCtx]) burstAtomicOverride else burstReg
-    //这里，加入多次调用，会生成多个这样的Wire，也就是组合逻辑：包括一个Len的连线，一个burt的连线，
-
-
-    //注意，ContextScope是收集期object，是真正单例
-    //DriverUtil中的函数：可以多次生成组合逻辑
 
     ctx match {
       case AtomicCtx(t) =>
-        // 原子模式：Stall 当前 Step 直到完成
         when(rState === 0.U) {
-          t.write(arP.valid, true.B)
-          t.write(arP.bits.addr, addr)
-          t.write(arP.bits.size, size)
-          t.write(arP.bits.len, currentLen)
-          t.write(arP.bits.burst, currentBurst)
+          arP.valid      := true.B
+          arP.bits.addr  := addr
+          arP.bits.size  := size
+          arP.bits.len   := currentLen
+          arP.bits.burst := currentBurst
+          
           when(arP.ready) { rState := 1.U }
         }
         when(rState === 1.U) {
@@ -108,12 +155,13 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
         DriverUtils.alignRead(addr, rawData, size, signed)
 
       case ThreadCtx(t) =>
-        // 线程模式：多步流水线
-        val outData = Reg(UInt(32.W)) //这是需要的，因为每次调用都需要latch
+        val outData = Reg(UInt(32.W))
         t.Step("AXI_Read_AR") {
-          arP.valid := true.B
-          arP.bits.addr := addr
-          arP.bits.len  := currentLen
+          arP.valid      := true.B
+          arP.bits.addr  := addr
+          arP.bits.len   := currentLen
+          arP.bits.size  := size
+          arP.bits.burst := currentBurst
           t.waitCondition(arP.ready)
         }
         t.Step("AXI_Read_R") {
@@ -135,19 +183,19 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
     ctx match {
       case AtomicCtx(t) =>
         when(wState === 0.U) {
-          awP.valid := !doneAW
-          awP.bits.addr := addr
-          awP.bits.len  := currentLen
+          awP.valid      := !doneAW
+          awP.bits.addr  := addr
+          awP.bits.len   := currentLen
           
-          wP.valid := !doneW
-          wP.bits.data := wdata
-          wP.bits.strb := wstrb
-          wP.bits.last := true.B
+          wP.valid       := !doneW
+          wP.bits.data   := wdata
+          wP.bits.strb   := wstrb
+          wP.bits.last   := true.B
           
-          when (awP.ready) {doneAW := true.B}
-          when (wP.ready)  {doneW  := true.B}
+          when (awP.ready) { doneAW := true.B }
+          when (wP.ready)  { doneW  := true.B }
 
-          val done = (doneAW && doneW) || (doneAW && wP.ready) || (awP.ready && wP.ready)
+          val done = (doneAW && doneW) || (doneAW && wP.ready) || (awP.ready && wP.ready) || (awP.ready && doneW)
           when(done) { wState := 1.U }
         }
         when(wState === 1.U) {
@@ -162,8 +210,19 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
 
       case ThreadCtx(t) =>
         t.Par(
-          () => t.Step("AXI_AW") { awP.valid := true.B; awP.bits.addr := addr; t.waitCondition(awP.ready) },
-          () => t.Step("AXI_W")  { wP.valid := true.B; wP.bits.data := wdata; t.waitCondition(wP.ready) }
+          () => t.Step("AXI_AW") { 
+            awP.valid     := true.B
+            awP.bits.addr := addr
+            awP.bits.len  := currentLen 
+            t.waitCondition(awP.ready) 
+          },
+          () => t.Step("AXI_W")  { 
+            wP.valid      := true.B
+            wP.bits.data  := wdata
+            wP.bits.strb  := wstrb
+            wP.bits.last  := true.B 
+            t.waitCondition(wP.ready) 
+          }
         )
         t.Step("AXI_B") { bP.ready := true.B; t.waitCondition(bP.valid) }
         0.U
