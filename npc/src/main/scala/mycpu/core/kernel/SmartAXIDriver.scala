@@ -2,29 +2,38 @@ package mycpu.core.kernel
 
 import chisel3._
 import chisel3.util._
+import mycpu.common._
 import mycpu.core.os._
 import mycpu.utils._
 import chisel3.util.experimental.BoringUtils
+import mycpu.common.AXI_ID_WIDTH
 
 class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
   override val name = "SmartAXI"
 
   // --- 1. 物理 IO 代理 (内部 DSL 使用的 Wire) ---
   // 这些 Wire 是我们在 read/write/ioctl 中实际操作的对象
-  private val arP = Wire(chiselTypeOf(bus.ar))
-  private val rP  = Wire(chiselTypeOf(bus.r))
-  private val awP = Wire(chiselTypeOf(bus.aw))
-  private val wP  = Wire(chiselTypeOf(bus.w))
-  private val bP  = Wire(chiselTypeOf(bus.b))
+  private var arP_valid : Bool = _
+  private var arP_bits  : AXI4BundleA = _
+  private val arP_ready = bus.ar.ready
 
-  // --- [关键修复] ---
-  // 给所有本地 Wire 赋默认值。这相当于 HardwareThread 中的 "Idle" 状态输出。
-  // 当 Step 逻辑没有覆盖这些值时（即线程阻塞或未启动），这些默认值生效。
-  arP.valid := false.B; arP.bits := 0.U.asTypeOf(arP.bits); arP.ready := DontCare
-  rP.valid  := DontCare; rP.bits := DontCare; rP.ready := false.B
-  awP.valid := false.B; awP.bits := 0.U.asTypeOf(awP.bits); awP.ready := DontCare
-  wP.valid  := false.B; wP.bits  := 0.U.asTypeOf(wP.bits); wP.ready := DontCare
-  bP.valid  := DontCare; bP.bits := DontCare; bP.ready := false.B
+  private val rP_valid = bus.r.valid
+  private var rP_ready : Bool  = _
+  private val rP_bits  = bus.r.bits
+
+  private var awP_valid : Bool = _
+  private var awP_bits  : AXI4BundleA = _
+  private val awP_ready = bus.aw.ready 
+  
+  private var wP_valid : Bool = _
+  private var wP_bits  : AXI4BundleW = _
+  private val wP_ready = bus.w.ready 
+
+  private val bP_valid = bus.b.valid
+  private var bP_ready : Bool  = _
+  private val bP_bits  = bus.b.bits
+
+
 
   // --- 2. 状态寄存器 ---
   private var lenReg:   UInt = _
@@ -38,60 +47,27 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
   private var doneAW: Bool = _
   private var doneW:  Bool = _
 
-  // --- 3. 跨层级连接辅助函数 ---
-  
-  // 驱动远程信号：Local(Child) -> Remote(Parent)
+
 
 
   override def setup(agent: HardwareAgent): Unit = {
-    // 这里我们手动建立连接，不再使用 agent.driveManaged
-    // 逻辑：arP (本地逻辑驱动) -> BoringUtils -> bus (远程父模块)
 
-    // --- AR Channel ---
-    DriverUtils.driveRemote(arP.valid, bus.ar.valid)
-    DriverUtils.driveRemote(arP.bits,  bus.ar.bits)
+    arP_valid = agent.driveManaged(bus.ar.valid, false.B) 
+    arP_bits  = agent.driveManaged(bus.ar.bits, 0.U.asTypeOf(new AXI4BundleA(AXI_ID_WIDTH, XLEN)))
+
+    rP_ready = agent.driveManaged(bus.r.ready, false.B)
     
-    val arReadyBridge = Wire(Bool())
-    DriverUtils.readRemote(bus.ar.ready, arReadyBridge)
-    arP.ready := arReadyBridge
+    
+    awP_valid = agent.driveManaged(bus.aw.valid, false.B) 
+    awP_bits  = agent.driveManaged(bus.aw.bits, 0.U.asTypeOf(new AXI4BundleA(AXI_ID_WIDTH, XLEN)))
 
-    // --- R Channel ---
-    DriverUtils.driveRemote(rP.ready, bus.r.ready)
+    wP_valid = agent.driveManaged(bus.w.valid, false.B) 
+    wP_bits  = agent.driveManaged(bus.w.bits, 0.U.asTypeOf(new AXI4BundleW(XLEN)))
 
-    val rValidBridge = Wire(Bool())
-    val rBitsBridge  = Wire(chiselTypeOf(bus.r.bits))
-    DriverUtils.readRemote(bus.r.valid, rValidBridge)
-    DriverUtils.readRemote(bus.r.bits,  rBitsBridge)
-    rP.valid := rValidBridge
-    rP.bits  := rBitsBridge
+    bP_ready = agent.driveManaged(bus.b.ready, false.B)
 
-    // --- AW Channel ---
-    DriverUtils.driveRemote(awP.valid, bus.aw.valid)
-    DriverUtils.driveRemote(awP.bits,  bus.aw.bits)
 
-    val awReadyBridge = Wire(Bool())
-    DriverUtils.readRemote(bus.aw.ready, awReadyBridge)
-    awP.ready := awReadyBridge
-
-    // --- W Channel ---
-    DriverUtils.driveRemote(wP.valid, bus.w.valid)
-    DriverUtils.driveRemote(wP.bits,  bus.w.bits)
-
-    val wReadyBridge = Wire(Bool())
-    DriverUtils.readRemote(bus.w.ready, wReadyBridge)
-    wP.ready := wReadyBridge
-
-    // --- B Channel ---
-    DriverUtils.driveRemote(bP.ready, bus.b.ready)
-
-    val bValidBridge = Wire(Bool())
-    val bBitsBridge  = Wire(chiselTypeOf(bus.b.bits))
-    DriverUtils.readRemote(bus.b.valid, bValidBridge)
-    DriverUtils.readRemote(bus.b.bits,  bBitsBridge)
-    bP.valid := bValidBridge
-    bP.bits  := bBitsBridge
-
-    // --- 寄存器初始化 ---
+    // --- 寄存器初始化 ---``
     lenReg   = RegInit(0.U(8.W))
     burstReg = RegInit(1.U(2.W))
     lenAtomicOverride   = WireDefault(lenReg)
@@ -128,18 +104,18 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
     ctx match {
       case AtomicCtx(t) =>
         when(rState === 0.U) {
-          arP.valid      := true.B
-          arP.bits.addr  := addr
-          arP.bits.size  := size
-          arP.bits.len   := currentLen
-          arP.bits.burst := currentBurst
+          arP_valid      := true.B
+          arP_bits.addr  := addr
+          arP_bits.size  := size
+          arP_bits.len   := currentLen
+          arP_bits.burst := currentBurst
           
-          when(arP.ready) { rState := 1.U }
+          when(arP_ready) { rState := 1.U }
         }
         when(rState === 1.U) {
-          rP.ready := true.B
-          when(rP.valid) {
-            rawData := rP.bits.data
+          rP_ready := true.B
+          when(rP_valid) {
+            rawData := rP_bits.data
             rState := 2.U
           }
         }
@@ -150,17 +126,17 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
       case ThreadCtx(t) =>
         val outData = Reg(UInt(32.W))
         t.Step("AXI_Read_AR") {
-          arP.valid      := true.B
-          arP.bits.addr  := addr
-          arP.bits.len   := currentLen
-          arP.bits.size  := size
-          arP.bits.burst := currentBurst
-          t.waitCondition(arP.ready)
+          arP_valid      := true.B
+          arP_bits.addr  := addr
+          arP_bits.len   := currentLen
+          arP_bits.size  := size
+          arP_bits.burst := currentBurst
+          t.waitCondition(arP_ready)
         }
         t.Step("AXI_Read_R") {
-          rP.ready := true.B
-          t.waitCondition(rP.valid)
-          outData := rP.bits.data
+          rP_ready := true.B
+          t.waitCondition(rP_valid)
+          outData := rP_bits.data
         }
         DriverUtils.alignRead(addr, outData, size, signed)
 
@@ -176,24 +152,24 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
     ctx match {
       case AtomicCtx(t) =>
         when(wState === 0.U) {
-          awP.valid      := !doneAW
-          awP.bits.addr  := addr
-          awP.bits.len   := currentLen
+          awP_valid      := !doneAW
+          awP_bits.addr  := addr
+          awP_bits.len   := currentLen
           
-          wP.valid       := !doneW
-          wP.bits.data   := wdata
-          wP.bits.strb   := wstrb
-          wP.bits.last   := true.B
+          wP_valid       := !doneW
+          wP_bits.data   := wdata
+          wP_bits.strb   := wstrb
+          wP_bits.last   := true.B
           
-          when (awP.ready) { doneAW := true.B }
-          when (wP.ready)  { doneW  := true.B }
+          when (awP_ready) { doneAW := true.B }
+          when (wP_ready)  { doneW  := true.B }
 
-          val done = (doneAW && doneW) || (doneAW && wP.ready) || (awP.ready && wP.ready) || (awP.ready && doneW)
+          val done = (doneAW && doneW) || (doneAW && wP_ready) || (awP_ready && wP_ready) || (awP_ready && doneW)
           when(done) { wState := 1.U }
         }
         when(wState === 1.U) {
-          bP.ready := true.B
-          when(bP.valid) { wState := 2.U }
+          bP_ready := true.B
+          when(bP_valid) { wState := 2.U }
         }
         t.waitCondition(wState === 2.U)
         when(wState === 2.U) { 
@@ -204,20 +180,20 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
       case ThreadCtx(t) =>
         t.Par(
           () => t.Step("AXI_AW") { 
-            awP.valid     := true.B
-            awP.bits.addr := addr
-            awP.bits.len  := currentLen 
-            t.waitCondition(awP.ready) 
+            awP_valid     := true.B
+            awP_bits.addr := addr
+            awP_bits.len  := currentLen 
+            t.waitCondition(awP_ready) 
           },
           () => t.Step("AXI_W")  { 
-            wP.valid      := true.B
-            wP.bits.data  := wdata
-            wP.bits.strb  := wstrb
-            wP.bits.last  := true.B 
-            t.waitCondition(wP.ready) 
+            wP_valid      := true.B
+            wP_bits.data  := wdata
+            wP_bits.strb  := wstrb
+            wP_bits.last  := true.B 
+            t.waitCondition(wP_ready) 
           }
         )
-        t.Step("AXI_B") { bP.ready := true.B; t.waitCondition(bP.valid) }
+        t.Step("AXI_B") { bP_ready := true.B; t.waitCondition(bP_valid) }
         0.U
       case _ => unsupported("write")
     }

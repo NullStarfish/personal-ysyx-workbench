@@ -44,12 +44,5 @@ object DriverUtils {
     ))
   }
 
-  def driveRemote[T <: Data](localSource: T, remoteSink: T): Unit = {
-    BoringUtils.bore(localSource, Seq(remoteSink))
-  }
 
-  // 读取远程信号：Remote(Parent) -> Local(Child)
-  def readRemote[T <: Data](remoteSource: T, localSink: T): Unit = {
-    BoringUtils.bore(remoteSource, Seq(localSink))
-  }
 }
