@@ -6,44 +6,50 @@ import mycpu.core.os._
 import mycpu.utils._
 import chisel3.util.experimental.BoringUtils
 
-class RegFileDriver(regs_global: Vec[UInt]) extends ResourceHandle {
-  val regs = BoringUtils.bore(regs_global)
+class RegFileDriver(regs: Vec[UInt]) extends ResourceHandle {
   override val name = "RF"
 
-  override def read(addr: UInt, _1: UInt, _2: Bool): UInt = ContextScope.current match {
-    case LogicCtx(_) => 
-      // 情况 1: Logic 中，直接连线
-      regs(addr)
+  // 1. 读取：Bore 整个 Vec 是合法的，因为这只是读取副本
+  val readOnlyRegs = BoringUtils.bore(regs)
+  
+  // 2. 写入：定义本地 Source 信号
+  private val remoteWen   = WireDefault(false.B)
+  private val remoteAddr  = WireDefault(0.U(5.W))
+  private val remoteData  = WireDefault(0.U(32.W))
 
-    case ThreadCtx(t) => 
-      // 情况 2: Thread 顶级，生成一个新步骤读到 Latch
-      val latch = Reg(UInt(32.W))
-      t.Step("RF_Read_Step") { latch := regs(addr) }
-      latch
+  // 3. 建立“插头” (Source) - 连接到 Core 中的 Sink
+  BoringUtils.addSource(remoteWen,   "RF_Update_En")
+  BoringUtils.addSource(remoteAddr,  "RF_Update_Addr")
+  BoringUtils.addSource(remoteData,  "RF_Update_Data")
 
-    case AtomicCtx(t) => 
-      // 情况 3: Step 内部 (Atomic)，直接返回 Wire 供当前 Step 使用
-      regs(addr)
+  // --- 阻塞控制 (Busy Table) ---
+  // 单发射 CPU 其实不需要这个，但为了完整性保留
+  // private val busyTable = RegInit(0.U(32.W)) 
+
+  override def read(addr: UInt, size: UInt, signed: Bool): UInt = {
+    // 简单的读逻辑
+    Mux(addr === 0.U, 0.U, readOnlyRegs(addr))
   }
 
-  override def write(addr: UInt, data: UInt, mode: UInt): UInt = {
-    // 核心修复 1: 显式添加 = 号和返回值类型 : UInt
-    ContextScope.current match {
-      case LogicCtx(_) => 
-        when(addr =/= 0.U) { regs(addr) := data }
-        0.U // 核心修复 2: 0.U 必须写在 when 块外面，作为 match 分支的返回值
-
-      case ThreadCtx(t) => 
-        t.Step("RF_Write_Step") { 
-          when(addr =/= 0.U) { regs(addr) := data } 
-        }
-        0.U 
-
-      case AtomicCtx(t) => 
-        when(addr =/= 0.U) { regs(addr) := data }
-        0.U 
+  override def write(addr: UInt, data: UInt, size: UInt): UInt = {
+    // 定义写动作
+    def doWrite(): Unit = {
+      when(addr =/= 0.U) {
+        remoteWen  := true.B
+        remoteAddr := addr
+        remoteData := data
+      }
     }
+
+    // 根据上下文执行
+    ContextScope.current match {
+      case AtomicCtx(_) => doWrite()
+      case ThreadCtx(t) => t.Step("RF_Write_Step") { doWrite() }
+      case LogicCtx(_)  => doWrite()
+    }
+    
+    0.U
   }
 
-
+  override def ioctl(cmd: UInt, arg: UInt): UInt = 0.U
 }

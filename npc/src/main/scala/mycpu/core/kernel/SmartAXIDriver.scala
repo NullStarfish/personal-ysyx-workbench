@@ -41,60 +41,53 @@ class SmartAXIDriver(bus: AXI4Bundle) extends ResourceHandle {
   // --- 3. 跨层级连接辅助函数 ---
   
   // 驱动远程信号：Local(Child) -> Remote(Parent)
-  private def driveRemote[T <: Data](localSource: T, remoteSink: T): Unit = {
-    BoringUtils.bore(localSource, Seq(remoteSink))
-  }
 
-  // 读取远程信号：Remote(Parent) -> Local(Child)
-  private def readRemote[T <: Data](remoteSource: T, localSink: T): Unit = {
-    BoringUtils.bore(remoteSource, Seq(localSink))
-  }
 
   override def setup(agent: HardwareAgent): Unit = {
     // 这里我们手动建立连接，不再使用 agent.driveManaged
     // 逻辑：arP (本地逻辑驱动) -> BoringUtils -> bus (远程父模块)
 
     // --- AR Channel ---
-    driveRemote(arP.valid, bus.ar.valid)
-    driveRemote(arP.bits,  bus.ar.bits)
+    DriverUtils.driveRemote(arP.valid, bus.ar.valid)
+    DriverUtils.driveRemote(arP.bits,  bus.ar.bits)
     
     val arReadyBridge = Wire(Bool())
-    readRemote(bus.ar.ready, arReadyBridge)
+    DriverUtils.readRemote(bus.ar.ready, arReadyBridge)
     arP.ready := arReadyBridge
 
     // --- R Channel ---
-    driveRemote(rP.ready, bus.r.ready)
+    DriverUtils.driveRemote(rP.ready, bus.r.ready)
 
     val rValidBridge = Wire(Bool())
     val rBitsBridge  = Wire(chiselTypeOf(bus.r.bits))
-    readRemote(bus.r.valid, rValidBridge)
-    readRemote(bus.r.bits,  rBitsBridge)
+    DriverUtils.readRemote(bus.r.valid, rValidBridge)
+    DriverUtils.readRemote(bus.r.bits,  rBitsBridge)
     rP.valid := rValidBridge
     rP.bits  := rBitsBridge
 
     // --- AW Channel ---
-    driveRemote(awP.valid, bus.aw.valid)
-    driveRemote(awP.bits,  bus.aw.bits)
+    DriverUtils.driveRemote(awP.valid, bus.aw.valid)
+    DriverUtils.driveRemote(awP.bits,  bus.aw.bits)
 
     val awReadyBridge = Wire(Bool())
-    readRemote(bus.aw.ready, awReadyBridge)
+    DriverUtils.readRemote(bus.aw.ready, awReadyBridge)
     awP.ready := awReadyBridge
 
     // --- W Channel ---
-    driveRemote(wP.valid, bus.w.valid)
-    driveRemote(wP.bits,  bus.w.bits)
+    DriverUtils.driveRemote(wP.valid, bus.w.valid)
+    DriverUtils.driveRemote(wP.bits,  bus.w.bits)
 
     val wReadyBridge = Wire(Bool())
-    readRemote(bus.w.ready, wReadyBridge)
+    DriverUtils.readRemote(bus.w.ready, wReadyBridge)
     wP.ready := wReadyBridge
 
     // --- B Channel ---
-    driveRemote(bP.ready, bus.b.ready)
+    DriverUtils.driveRemote(bP.ready, bus.b.ready)
 
     val bValidBridge = Wire(Bool())
     val bBitsBridge  = Wire(chiselTypeOf(bus.b.bits))
-    readRemote(bus.b.valid, bValidBridge)
-    readRemote(bus.b.bits,  bBitsBridge)
+    DriverUtils.readRemote(bus.b.valid, bValidBridge)
+    DriverUtils.readRemote(bus.b.bits,  bBitsBridge)
     bP.valid := bValidBridge
     bP.bits  := bBitsBridge
 

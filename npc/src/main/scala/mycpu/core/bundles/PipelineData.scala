@@ -5,17 +5,21 @@ import mycpu.common._
 
 // 进程间通信包
 class FetchPacket extends Bundle {
-  val pc   = UInt(32.W)
   val inst = UInt(32.W)
 }
 
 // 调度意图：描述 Main 线程该“做什么”
 class CtrlSignals extends Bundle {
-  val service  = ServiceType() // 呼叫哪个服务
-  val arg1     = Arg1Type()    // 参数1来源
-  val arg2     = Arg2Type()    // 参数2来源
-  val immType  = ImmType()     // 立即数解码方式
-  val regWen   = Bool()        // 退休时是否写回寄存器
+  val service  = ServiceType() 
+  val aluOp    = ALUOp()       // [新增] 明确的 ALU 操作类型
+  val arg1     = Arg1Type()    
+  val arg2     = Arg2Type()    
+  val immType  = ImmType()     
+  val regWen   = Bool()   
+
+  // [新增] 访存控制信号，用于传递给 MainProcess
+  val memSize   = UInt(2.W)    // 00=Byte, 01=Half, 10=Word
+  val memSigned = Bool()       // 读操作是否符号扩展     
 }
 
 // 枚举定义

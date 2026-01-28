@@ -164,7 +164,7 @@ abstract class HwProcess[I <: Data, O <: Data](val pName: String) {
   private[os] def postBuild(): Unit = {
     threads.foreach { t =>
       if (!t.hasStartCondition) { 
-        printf(p"Warning!!!! ${t.name} doesn't have a start condition!!!\n")
+        //printf(p"Warning!!!! ${t.name} doesn't have a start condition!!!\n")
         t.startWhen(true.B)
       }
     }

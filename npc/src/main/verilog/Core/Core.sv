@@ -33,6 +33,9 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   input         io_master_r_bits_last	// src/main/scala/mycpu/core/Core.scala:14:14
 );
 
+  wire [31:0] next_pc;	// src/main/scala/mycpu/core/Core.scala:55:38
+  wire [31:0] commit_inst;	// src/main/scala/mycpu/core/Core.scala:54:38
+  wire [31:0] commit_pc;	// src/main/scala/mycpu/core/Core.scala:53:38
   wire        dmemAxi_r_bits_last;	// src/main/scala/mycpu/core/Core.scala:25:21
   wire [1:0]  dmemAxi_r_bits_resp;	// src/main/scala/mycpu/core/Core.scala:25:21
   wire [31:0] dmemAxi_r_bits_data;	// src/main/scala/mycpu/core/Core.scala:25:21
@@ -57,47 +60,49 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   wire        imemAxi_aw_ready;	// src/main/scala/mycpu/core/Core.scala:24:21
   wire        _container_1_io_stdin_ready;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire        _container_1_rP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire        _container_1_awP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire        _container_1_wP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire        _container_1_arP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [3:0]  _container_1_awP_bits__bore_id;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [31:0] _container_1_awP_bits__bore_addr;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [7:0]  _container_1_awP_bits__bore_len;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [2:0]  _container_1_awP_bits__bore_size;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [1:0]  _container_1_awP_bits__bore_burst;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire        _container_1_bP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [31:0] _container_1_wP_bits__bore_data;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire [3:0]  _container_1_wP_bits__bore_strb;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  wire        _container_1_wP_bits__bore_last;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire        _container_1_awP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire [3:0]  _container_1_arP_bits__bore_id;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire [31:0] _container_1_arP_bits__bore_addr;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire [7:0]  _container_1_arP_bits__bore_len;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire [2:0]  _container_1_arP_bits__bore_size;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire [1:0]  _container_1_arP_bits__bore_burst;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire        _container_1_bP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire        _container_1_wP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [3:0]  _container_1_awP_bits__bore_id;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [31:0] _container_1_awP_bits__bore_addr;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [7:0]  _container_1_awP_bits__bore_len;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [2:0]  _container_1_awP_bits__bore_size;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [1:0]  _container_1_awP_bits__bore_burst;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [31:0] _container_1_wP_bits__bore_data;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire [3:0]  _container_1_wP_bits__bore_strb;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+  wire        _container_1_wP_bits__bore_last;	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
   wire        _container_io_stdout_valid;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire [31:0] _container_io_stdout_bits_pc;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [31:0] _container_io_stdout_bits_inst;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire [31:0] _container_wP_bits__bore_data;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire [3:0]  _container_wP_bits__bore_strb;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_wP_bits__bore_last;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_arP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_bP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire        _container_awP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire        _container_rP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [3:0]  _container_awP_bits__bore_id;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [31:0] _container_awP_bits__bore_addr;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [7:0]  _container_awP_bits__bore_len;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [2:0]  _container_awP_bits__bore_size;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [1:0]  _container_awP_bits__bore_burst;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_rP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_awP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire        _container_wP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire        _container_arP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire [31:0] _container_wP_bits__bore_data;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire [3:0]  _container_wP_bits__bore_strb;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire        _container_wP_bits__bore_last;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [3:0]  _container_arP_bits__bore_id;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [31:0] _container_arP_bits__bore_addr;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [7:0]  _container_arP_bits__bore_len;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [2:0]  _container_arP_bits__bore_size;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   wire [1:0]  _container_arP_bits__bore_burst;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-  wire [3:0]  _arbiter_io_out_aw_bits_id;	// src/main/scala/mycpu/core/Core.scala:30:23
-  wire [3:0]  _arbiter_io_out_ar_bits_id;	// src/main/scala/mycpu/core/Core.scala:30:23
-  SimpleAXIArbiter arbiter (	// src/main/scala/mycpu/core/Core.scala:30:23
+  wire        _container_wP_valid__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire        _container_bP_ready__bore;	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+  wire [3:0]  _arbiter_io_out_aw_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:23
+  wire [3:0]  _arbiter_io_out_ar_bits_id;	// src/main/scala/mycpu/core/Core.scala:27:23
+  wire        commit_valid;	// src/main/scala/mycpu/core/Core.scala:52:38
+  wire        is_ebreak;	// src/main/scala/mycpu/core/Core.scala:57:38
+  wire        is_skip;	// src/main/scala/mycpu/core/Core.scala:56:38
+  SimpleAXIArbiter arbiter (	// src/main/scala/mycpu/core/Core.scala:27:23
     .clock                  (clock),
     .reset                  (reset),
     .io_left_aw_ready       (imemAxi_aw_ready),
@@ -172,7 +177,7 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .io_out_w_bits_last     (io_master_w_bits_last),
     .io_out_b_ready         (io_master_b_ready),
     .io_out_b_valid         (io_master_b_valid),
-    .io_out_b_bits_id       ({3'h0, io_master_b_bits_id}),	// src/main/scala/mycpu/core/Core.scala:33:13
+    .io_out_b_bits_id       ({3'h0, io_master_b_bits_id}),	// src/main/scala/mycpu/core/Core.scala:30:13
     .io_out_b_bits_resp     (io_master_b_bits_resp),
     .io_out_ar_ready        (io_master_ar_ready),
     .io_out_ar_valid        (io_master_ar_valid),
@@ -183,64 +188,98 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .io_out_ar_bits_burst   (io_master_ar_bits_burst),
     .io_out_r_ready         (io_master_r_ready),
     .io_out_r_valid         (io_master_r_valid),
-    .io_out_r_bits_id       ({3'h0, io_master_r_bits_id}),	// src/main/scala/mycpu/core/Core.scala:33:13
+    .io_out_r_bits_id       ({3'h0, io_master_r_bits_id}),	// src/main/scala/mycpu/core/Core.scala:30:13
     .io_out_r_bits_data     (io_master_r_bits_data),
     .io_out_r_bits_resp     (io_master_r_bits_resp),
     .io_out_r_bits_last     (io_master_r_bits_last)
-  );	// src/main/scala/mycpu/core/Core.scala:30:23
+  );	// src/main/scala/mycpu/core/Core.scala:27:23
   ProcessContainer container (	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-    .clock                (clock),
-    .reset                (reset),
-    .io_stdout_ready      (_container_1_io_stdin_ready),	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-    .io_stdout_valid      (_container_io_stdout_valid),
-    .io_stdout_bits_pc    (_container_io_stdout_bits_pc),
-    .io_stdout_bits_inst  (_container_io_stdout_bits_inst),
-    .wP_bits__bore_data   (_container_wP_bits__bore_data),
-    .wP_bits__bore_strb   (_container_wP_bits__bore_strb),
-    .wP_bits__bore_last   (_container_wP_bits__bore_last),
-    .arP_valid__bore      (_container_arP_valid__bore),
-    .bP_ready__bore       (_container_bP_ready__bore),
-    .awP_bits__bore_id    (_container_awP_bits__bore_id),
-    .awP_bits__bore_addr  (_container_awP_bits__bore_addr),
-    .awP_bits__bore_len   (_container_awP_bits__bore_len),
-    .awP_bits__bore_size  (_container_awP_bits__bore_size),
-    .awP_bits__bore_burst (_container_awP_bits__bore_burst),
-    .rP_ready__bore       (_container_rP_ready__bore),
-    .awP_valid__bore      (_container_awP_valid__bore),
-    .wP_valid__bore       (_container_wP_valid__bore),
-    .arP_bits__bore_id    (_container_arP_bits__bore_id),
-    .arP_bits__bore_addr  (_container_arP_bits__bore_addr),
-    .arP_bits__bore_len   (_container_arP_bits__bore_len),
-    .arP_bits__bore_size  (_container_arP_bits__bore_size),
-    .arP_bits__bore_burst (_container_arP_bits__bore_burst)
+    .clock                  (clock),
+    .reset                  (reset),
+    .io_stdout_ready        (_container_1_io_stdin_ready),	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
+    .io_stdout_valid        (_container_io_stdout_valid),
+    .io_stdout_bits_inst    (_container_io_stdout_bits_inst),
+    .awP_valid__bore        (_container_awP_valid__bore),
+    .rBitsBridge__bore_data (imemAxi_r_bits_data),	// src/main/scala/mycpu/core/Core.scala:24:21
+    .rP_ready__bore         (_container_rP_ready__bore),
+    .awP_bits__bore_id      (_container_awP_bits__bore_id),
+    .awP_bits__bore_addr    (_container_awP_bits__bore_addr),
+    .awP_bits__bore_len     (_container_awP_bits__bore_len),
+    .awP_bits__bore_size    (_container_awP_bits__bore_size),
+    .awP_bits__bore_burst   (_container_awP_bits__bore_burst),
+    .arP_valid__bore        (_container_arP_valid__bore),
+    .wP_bits__bore_data     (_container_wP_bits__bore_data),
+    .wP_bits__bore_strb     (_container_wP_bits__bore_strb),
+    .wP_bits__bore_last     (_container_wP_bits__bore_last),
+    .arP_bits__bore_id      (_container_arP_bits__bore_id),
+    .arP_bits__bore_addr    (_container_arP_bits__bore_addr),
+    .arP_bits__bore_len     (_container_arP_bits__bore_len),
+    .arP_bits__bore_size    (_container_arP_bits__bore_size),
+    .arP_bits__bore_burst   (_container_arP_bits__bore_burst),
+    .wP_valid__bore         (_container_wP_valid__bore),
+    .bP_ready__bore         (_container_bP_ready__bore),
+    .arReadyBridge__bore    (imemAxi_ar_ready),	// src/main/scala/mycpu/core/Core.scala:24:21
+    .rValidBridge__bore     (imemAxi_r_valid)	// src/main/scala/mycpu/core/Core.scala:24:21
   );	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
   ProcessContainer_1 container_1 (	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-    .clock                (clock),
-    .reset                (reset),
-    .io_stdin_ready       (_container_1_io_stdin_ready),
-    .io_stdin_valid       (_container_io_stdout_valid),	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-    .io_stdin_bits_pc     (_container_io_stdout_bits_pc),	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-    .io_stdin_bits_inst   (_container_io_stdout_bits_inst),	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
-    .rP_ready__bore       (_container_1_rP_ready__bore),
-    .awP_valid__bore      (_container_1_awP_valid__bore),
-    .wP_valid__bore       (_container_1_wP_valid__bore),
-    .arP_valid__bore      (_container_1_arP_valid__bore),
-    .awP_bits__bore_id    (_container_1_awP_bits__bore_id),
-    .awP_bits__bore_addr  (_container_1_awP_bits__bore_addr),
-    .awP_bits__bore_len   (_container_1_awP_bits__bore_len),
-    .awP_bits__bore_size  (_container_1_awP_bits__bore_size),
-    .awP_bits__bore_burst (_container_1_awP_bits__bore_burst),
-    .bP_ready__bore       (_container_1_bP_ready__bore),
-    .wP_bits__bore_data   (_container_1_wP_bits__bore_data),
-    .wP_bits__bore_strb   (_container_1_wP_bits__bore_strb),
-    .wP_bits__bore_last   (_container_1_wP_bits__bore_last),
-    .arP_bits__bore_id    (_container_1_arP_bits__bore_id),
-    .arP_bits__bore_addr  (_container_1_arP_bits__bore_addr),
-    .arP_bits__bore_len   (_container_1_arP_bits__bore_len),
-    .arP_bits__bore_size  (_container_1_arP_bits__bore_size),
-    .arP_bits__bore_burst (_container_1_arP_bits__bore_burst)
+    .clock                  (clock),
+    .reset                  (reset),
+    .io_stdin_ready         (_container_1_io_stdin_ready),
+    .io_stdin_valid         (_container_io_stdout_valid),	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+    .io_stdin_bits_inst     (_container_io_stdout_bits_inst),	// src/main/scala/mycpu/core/os/HwOS.scala:230:27
+    .rP_ready__bore         (_container_1_rP_ready__bore),
+    .probe_inst__bore       (commit_inst),
+    .arP_valid__bore        (_container_1_arP_valid__bore),
+    .awP_valid__bore        (_container_1_awP_valid__bore),
+    .probe_halt__bore       (is_ebreak),
+    .probe_pc__bore         (commit_pc),
+    .arP_bits__bore_id      (_container_1_arP_bits__bore_id),
+    .arP_bits__bore_addr    (_container_1_arP_bits__bore_addr),
+    .arP_bits__bore_len     (_container_1_arP_bits__bore_len),
+    .arP_bits__bore_size    (_container_1_arP_bits__bore_size),
+    .arP_bits__bore_burst   (_container_1_arP_bits__bore_burst),
+    .wReadyBridge__bore     (dmemAxi_w_ready),	// src/main/scala/mycpu/core/Core.scala:25:21
+    .bP_ready__bore         (_container_1_bP_ready__bore),
+    .rValidBridge__bore     (dmemAxi_r_valid),	// src/main/scala/mycpu/core/Core.scala:25:21
+    .wP_valid__bore         (_container_1_wP_valid__bore),
+    .probe_skip__bore       (is_skip),
+    .probe_valid__bore      (commit_valid),
+    .awP_bits__bore_id      (_container_1_awP_bits__bore_id),
+    .awP_bits__bore_addr    (_container_1_awP_bits__bore_addr),
+    .awP_bits__bore_len     (_container_1_awP_bits__bore_len),
+    .awP_bits__bore_size    (_container_1_awP_bits__bore_size),
+    .awP_bits__bore_burst   (_container_1_awP_bits__bore_burst),
+    .wP_bits__bore_data     (_container_1_wP_bits__bore_data),
+    .wP_bits__bore_strb     (_container_1_wP_bits__bore_strb),
+    .wP_bits__bore_last     (_container_1_wP_bits__bore_last),
+    .arReadyBridge__bore    (dmemAxi_ar_ready),	// src/main/scala/mycpu/core/Core.scala:25:21
+    .probe_dnpc__bore       (next_pc),
+    .rBitsBridge__bore_data (dmemAxi_r_bits_data),	// src/main/scala/mycpu/core/Core.scala:25:21
+    .awReadyBridge__bore    (dmemAxi_aw_ready),	// src/main/scala/mycpu/core/Core.scala:25:21
+    .bValidBridge__bore     (dmemAxi_b_valid)	// src/main/scala/mycpu/core/Core.scala:25:21
   );	// src/main/scala/mycpu/core/os/HwOS.scala:222:29
-  assign io_master_aw_bits_id = _arbiter_io_out_aw_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:13:7, :30:23, :33:13
-  assign io_master_ar_bits_id = _arbiter_io_out_ar_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:13:7, :30:23, :33:13
+  InlineSimState simState (	// src/main/scala/mycpu/core/Core.scala:83:26
+    .clk     (clock),
+    .reset   (reset),
+    .valid   (commit_valid),	// src/main/scala/mycpu/core/Core.scala:52:38
+    .pc      (commit_pc),	// src/main/scala/mycpu/core/Core.scala:53:38
+    .dnpc    (next_pc),	// src/main/scala/mycpu/core/Core.scala:55:38
+    .inst    (commit_inst),	// src/main/scala/mycpu/core/Core.scala:54:38
+    .regs    (1024'h0),	// src/main/scala/mycpu/core/Core.scala:76:22, :83:26
+    .mstatus (32'h0),
+    .mtvec   (32'h0),
+    .mepc    (32'h0),
+    .mcause  (32'h0)
+  );	// src/main/scala/mycpu/core/Core.scala:83:26
+  InlineSimEbreak simEbreak (	// src/main/scala/mycpu/core/Core.scala:96:27
+    .valid     (commit_valid & is_ebreak),	// src/main/scala/mycpu/core/Core.scala:52:38, :57:38, :97:44
+    .is_ebreak (commit_inst)	// src/main/scala/mycpu/core/Core.scala:54:38
+  );	// src/main/scala/mycpu/core/Core.scala:96:27
+  InlineDifftestSkip simSkip (	// src/main/scala/mycpu/core/Core.scala:100:25
+    .clock (clock),
+    .skip  (commit_valid & is_skip)	// src/main/scala/mycpu/core/Core.scala:52:38, :56:38, :102:38
+  );	// src/main/scala/mycpu/core/Core.scala:100:25
+  assign io_master_aw_bits_id = _arbiter_io_out_aw_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:13:7, :27:23, :30:13
+  assign io_master_ar_bits_id = _arbiter_io_out_ar_bits_id[0];	// src/main/scala/mycpu/core/Core.scala:13:7, :27:23, :30:13
 endmodule
 

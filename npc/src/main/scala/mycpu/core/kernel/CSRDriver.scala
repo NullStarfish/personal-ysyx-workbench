@@ -5,9 +5,21 @@ import chisel3.util._
 import mycpu.core.os._
 import mycpu.utils._
 import chisel3.util.experimental.BoringUtils
-class CSRDriver(physRegs_global: Vec[UInt]) extends ResourceHandle {
+class CSRDriver(physRegs: Vec[UInt]) extends ResourceHandle {
 
-  val physRegs = BoringUtils.bore(physRegs_global)
+  val readOnlyRegs = BoringUtils.bore(physRegs)
+
+  // 定义本地驱动信号 (Source)
+  private val remoteWen   = WireDefault(false.B)
+  private val remoteAddr  = WireDefault(0.U(12.W))
+  private val remoteData  = WireDefault(0.U(32.W))
+
+  // 建立“插头” (Source) - 必须在类初始化时完成
+  // 注意：这里不需要在 setup 里做，因为 ResourceHandle 初始化时就在 Module 上下文中
+  BoringUtils.addSource(remoteWen,   "CSR_Update_En")
+  BoringUtils.addSource(remoteAddr,  "CSR_Update_Addr")
+  BoringUtils.addSource(remoteData,  "CSR_Update_Data")
+
   override val name = "CSR"
 
   
@@ -34,14 +46,14 @@ class CSRDriver(physRegs_global: Vec[UInt]) extends ResourceHandle {
 
   override def read(addr: UInt, size: UInt, signed: Bool): UInt = {
     // CSR 读通常是组合逻辑连线
-    Mux(addr < physRegs.length.U, physRegs(addr), 0.U)
+    Mux(addr < readOnlyRegs.length.U, readOnlyRegs(addr), 0.U)
   }
 
   override def write(addr: UInt, data: UInt, size: UInt): UInt = {
     val ctx = ContextScope.current
     val currentMode = if (ctx.isInstanceOf[AtomicCtx]) atomicOpOverride else opMode
     
-    val currentVal = Mux(addr < physRegs.length.U, physRegs(addr), 0.U)
+    val currentVal = Mux(addr < readOnlyRegs.length.U, readOnlyRegs(addr), 0.U)
     val resOldValue = Reg(UInt(32.W)) // 用于返回
 
     val newVal = MuxLookup(currentMode, currentVal)(Seq(
@@ -52,7 +64,11 @@ class CSRDriver(physRegs_global: Vec[UInt]) extends ResourceHandle {
 
     def doWrite(): Unit = {
       resOldValue := currentVal
-      when(addr < physRegs.length.U) { physRegs(addr) := newVal }
+      when(addr < readOnlyRegs.length.U) { 
+        remoteWen  := true.B
+        remoteAddr := addr
+        remoteData := newVal
+      }
     }
 
     ctx match {

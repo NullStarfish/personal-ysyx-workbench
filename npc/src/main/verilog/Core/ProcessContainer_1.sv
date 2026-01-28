@@ -4,91 +4,345 @@ module ProcessContainer_1(	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
                 reset,	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
   output        io_stdin_ready,	// src/main/scala/mycpu/core/os/HwOS.scala:178:14
   input         io_stdin_valid,	// src/main/scala/mycpu/core/os/HwOS.scala:178:14
-  input  [31:0] io_stdin_bits_pc,	// src/main/scala/mycpu/core/os/HwOS.scala:178:14
-                io_stdin_bits_inst,	// src/main/scala/mycpu/core/os/HwOS.scala:178:14
+  input  [31:0] io_stdin_bits_inst,	// src/main/scala/mycpu/core/os/HwOS.scala:178:14
   output        rP_ready__bore,
+  output [31:0] probe_inst__bore,
+  output        arP_valid__bore,
                 awP_valid__bore,
-                wP_valid__bore,
-                arP_valid__bore,
+                probe_halt__bore,
+  output [31:0] probe_pc__bore,
+  output [3:0]  arP_bits__bore_id,
+  output [31:0] arP_bits__bore_addr,
+  output [7:0]  arP_bits__bore_len,
+  output [2:0]  arP_bits__bore_size,
+  output [1:0]  arP_bits__bore_burst,
+  input         wReadyBridge__bore,
+  output        bP_ready__bore,
+  input         rValidBridge__bore,
+  output        wP_valid__bore,
+                probe_skip__bore,
+                probe_valid__bore,
   output [3:0]  awP_bits__bore_id,
   output [31:0] awP_bits__bore_addr,
   output [7:0]  awP_bits__bore_len,
   output [2:0]  awP_bits__bore_size,
   output [1:0]  awP_bits__bore_burst,
-  output        bP_ready__bore,
   output [31:0] wP_bits__bore_data,
   output [3:0]  wP_bits__bore_strb,
   output        wP_bits__bore_last,
-  output [3:0]  arP_bits__bore_id,
-  output [31:0] arP_bits__bore_addr,
-  output [7:0]  arP_bits__bore_len,
-  output [2:0]  arP_bits__bore_size,
-  output [1:0]  arP_bits__bore_burst
+  input         arReadyBridge__bore,
+  output [31:0] probe_dnpc__bore,
+  input  [31:0] rBitsBridge__bore_data,
+  input         awReadyBridge__bore,
+                bValidBridge__bore
 );
 
-  wire [1:0]  Processor_InQ_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire [31:0] Processor_InQ_io_deq_bits_pc;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire [31:0] Processor_InQ_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire        _Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire [3:0]  arP_bits_qos = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [3:0]  arP_bits_cache = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [3:0]  arP_bits_id = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [3:0]  awP_bits_qos = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [3:0]  awP_bits_cache = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [3:0]  awP_bits_id = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [3:0]  wP_bits_strb = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25
-  wire [1:0]  arP_bits_burst = 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [1:0]  awP_bits_burst = 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [7:0]  arP_bits_len = 8'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [7:0]  awP_bits_len = 8'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire        arP_valid = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire        arP_bits_lock = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire        rP_ready = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:15:25
-  wire        awP_valid = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire        awP_bits_lock = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire        wP_valid = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25
-  wire        wP_bits_last = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25
-  wire        bP_ready = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:18:25
-  wire [2:0]  arP_bits_prot = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [2:0]  arP_bits_size = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [2:0]  awP_bits_prot = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [2:0]  awP_bits_size = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [31:0] arP_bits_addr = 32'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
-  wire [31:0] awP_bits_addr = 32'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
-  wire [31:0] wP_bits_data = 32'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25
+  wire [1:0]      Processor_InQ_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     _immGen_io_out;	// src/main/scala/mycpu/core/processes/Main.scala:42:24
+  wire            _Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _Processor_InQ_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     _Processor_InQ_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [3:0][3:0] _GEN = '{4'hF, 4'hF, 4'h3, 4'h1};
+  wire [3:0]      arP_bits_qos = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
+  wire [3:0]      arP_bits_cache = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
+  wire [3:0]      arP_bits_id = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
+  wire [3:0]      awP_bits_qos = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [3:0]      awP_bits_cache = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [3:0]      awP_bits_id = 4'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [2:0]      arP_bits_prot = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
+  wire [2:0]      awP_bits_prot = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [2:0]      awP_bits_size = 3'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [1:0]      awP_bits_burst = 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire            arP_bits_lock = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25
+  wire            awP_bits_lock = 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25
+  wire [7:0]      arP_bits_len = 8'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, :23:34, :25:34, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [7:0]      awP_bits_len = 8'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, :23:34, :25:34, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  reg             activeReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34
+  wire            activeReg_0 = activeReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34
+  reg  [1:0]      REG_2;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22
+  reg  [1:0]      REG_3;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22
+  reg             REG_5;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:110:22
+  reg             REG_6;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:111:22
+  reg             pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24
+  wire            pcReg_1_0 = pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24
+  wire            _layer_probe = ~pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24, :174:23
+  wire [9:0]      _GEN_0 =
+    {_Processor_InQ_io_deq_bits_inst[14:12], _Processor_InQ_io_deq_bits_inst[6:0]};	// src/main/scala/chisel3/util/Lookup.scala:31:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _decoded_T_1 = _GEN_0 == 10'h13;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_3 = _GEN_0 == 10'h113;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_5 = _GEN_0 == 10'h193;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_7 = _GEN_0 == 10'h213;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_9 = _GEN_0 == 10'h313;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_11 = _GEN_0 == 10'h393;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire [16:0]     _GEN_1 =
+    {_Processor_InQ_io_deq_bits_inst[31:25],
+     _Processor_InQ_io_deq_bits_inst[14:12],
+     _Processor_InQ_io_deq_bits_inst[6:0]};	// src/main/scala/chisel3/util/Lookup.scala:31:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _decoded_T_13 = _GEN_1 == 17'h93;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_15 = _GEN_1 == 17'h293;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_17 = _GEN_1 == 17'h8293;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_19 = _GEN_1 == 17'h33;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_21 = _GEN_1 == 17'h8033;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_23 = _GEN_1 == 17'hB3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_25 = _GEN_1 == 17'h133;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_27 = _GEN_1 == 17'h1B3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_29 = _GEN_1 == 17'h233;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_31 = _GEN_1 == 17'h2B3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_33 = _GEN_1 == 17'h82B3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_35 = _GEN_1 == 17'h333;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_37 = _GEN_1 == 17'h3B3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_39 = _Processor_InQ_io_deq_bits_inst[6:0] == 7'h37;	// src/main/scala/chisel3/util/Lookup.scala:31:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _decoded_T_41 = _Processor_InQ_io_deq_bits_inst[6:0] == 7'h17;	// src/main/scala/chisel3/util/Lookup.scala:31:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _decoded_T_43 = _GEN_0 == 10'h103;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_45 = _GEN_0 == 10'h123;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_47 = _GEN_0 == 10'h3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_49 = _GEN_0 == 10'h83;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_51 = _GEN_0 == 10'h203;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_53 = _GEN_0 == 10'h283;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_55 = _GEN_0 == 10'h23;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_57 = _GEN_0 == 10'hA3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_59 = _Processor_InQ_io_deq_bits_inst[6:0] == 7'h6F;	// src/main/scala/chisel3/util/Lookup.scala:31:38, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            _decoded_T_200 = _GEN_0 == 10'h67;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_63 = _GEN_0 == 10'h63;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_65 = _GEN_0 == 10'hE3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_67 = _GEN_0 == 10'h263;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_69 = _GEN_0 == 10'h2E3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_71 = _GEN_0 == 10'h363;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_73 = _GEN_0 == 10'h3E3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_75 = _GEN_0 == 10'hF3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _decoded_T_268 = _GEN_0 == 10'h2F3;	// src/main/scala/chisel3/util/Lookup.scala:31:38
+  wire            _GEN_2 =
+    _decoded_T_63 | _decoded_T_65 | _decoded_T_67 | _decoded_T_69 | _decoded_T_71
+    | _decoded_T_73;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire            _GEN_3 = _decoded_T_55 | _decoded_T_57;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire            _GEN_4 = _decoded_T_47 | _decoded_T_49 | _decoded_T_51 | _decoded_T_53;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire            _GEN_5 = _decoded_T_39 | _decoded_T_41;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire [2:0]      service =
+    _decoded_T_1 | _decoded_T_3 | _decoded_T_5 | _decoded_T_7 | _decoded_T_9
+    | _decoded_T_11 | _decoded_T_13 | _decoded_T_15 | _decoded_T_17 | _decoded_T_19
+    | _decoded_T_21 | _decoded_T_23 | _decoded_T_25 | _decoded_T_27 | _decoded_T_29
+    | _decoded_T_31 | _decoded_T_33 | _decoded_T_35 | _decoded_T_37 | _GEN_5
+      ? 3'h0
+      : _decoded_T_43
+          ? 3'h1
+          : _decoded_T_45
+              ? 3'h2
+              : _GEN_4
+                  ? 3'h1
+                  : _GEN_3
+                      ? 3'h2
+                      : _decoded_T_59 | _decoded_T_200 | _GEN_2
+                          ? 3'h3
+                          : {2'h2, ~(_decoded_T_75 | _decoded_T_268)};	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/processes/Main.scala:219:33, :228:27
+  wire            _GEN_6 =
+    _decoded_T_19 | _decoded_T_21 | _decoded_T_23 | _decoded_T_25 | _decoded_T_27
+    | _decoded_T_29 | _decoded_T_31 | _decoded_T_33 | _decoded_T_35 | _decoded_T_37;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire [1:0]      arg1Type =
+    _decoded_T_1 | _decoded_T_3 | _decoded_T_5 | _decoded_T_7 | _decoded_T_9
+    | _decoded_T_11 | _decoded_T_13 | _decoded_T_15 | _decoded_T_17 | _GEN_6
+      ? 2'h0
+      : _decoded_T_39
+          ? 2'h2
+          : _decoded_T_41
+              ? 2'h1
+              : _decoded_T_43 | _decoded_T_45 | _decoded_T_47 | _decoded_T_49
+                | _decoded_T_51 | _decoded_T_53 | _GEN_3
+                  ? 2'h0
+                  : _decoded_T_59
+                      ? 2'h1
+                      : _decoded_T_200 | _decoded_T_63 | _decoded_T_65 | _decoded_T_67
+                        | _decoded_T_69 | _decoded_T_71 | _decoded_T_73 | _decoded_T_75
+                          ? 2'h0
+                          : {2{_decoded_T_268}};	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:146:21
+  wire            _GEN_7 =
+    _decoded_T_1 | _decoded_T_3 | _decoded_T_5 | _decoded_T_7 | _decoded_T_9
+    | _decoded_T_11 | _decoded_T_13 | _decoded_T_15 | _decoded_T_17;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37
+  wire [2:0]      immType =
+    _GEN_7
+      ? 3'h0
+      : _GEN_6
+          ? 3'h5
+          : _GEN_5
+              ? 3'h3
+              : _decoded_T_43
+                  ? 3'h0
+                  : _decoded_T_45
+                      ? 3'h1
+                      : _GEN_4
+                          ? 3'h0
+                          : _GEN_3
+                              ? 3'h1
+                              : _decoded_T_59
+                                  ? 3'h4
+                                  : _decoded_T_200 ? 3'h0 : _GEN_2 ? 3'h2 : 3'h5;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/processes/Main.scala:219:33, :228:27
+  wire [1:0]      memSize = _Processor_InQ_io_deq_bits_inst[13:12];	// src/main/scala/mycpu/core/processes/Main.scala:73:26, :154:31, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     arg1 =
+    (&arg1Type)
+      ? {27'h0, _Processor_InQ_io_deq_bits_inst[19:15]}
+      : arg1Type == 2'h2 | arg1Type != 2'h1 ? 32'h0 : 32'h30000000;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/kernel/PCDriver.scala:8:31, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:146:21, src/main/scala/mycpu/core/processes/Main.scala:75:26, :177:44, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     arg2 =
+    _GEN_7 | ~_GEN_6
+    & (_decoded_T_39 | _decoded_T_41 | _decoded_T_43 | _decoded_T_45 | _decoded_T_47
+       | _decoded_T_49 | _decoded_T_51 | _decoded_T_53 | _decoded_T_55 | _decoded_T_57
+       | _decoded_T_59 | _decoded_T_200)
+      ? _immGen_io_out
+      : 32'h0;	// src/main/scala/chisel3/util/Lookup.scala:31:38, :33:37, src/main/scala/mycpu/core/processes/Main.scala:42:24, :181:44
+  wire [32:0]     _target_T = {1'h0, arg1} + {1'h0, arg2};	// src/main/scala/mycpu/core/processes/Main.scala:177:44, :181:44, :189:34
+  wire            _layer_probe_0 = service == 3'h0;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/processes/Main.scala:192:25
+  wire            _layer_probe_1 = service == 3'h1;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/processes/Main.scala:192:25, :228:27
+  wire            _writeBackData_T_1 = REG_2 == 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22, :137:21
+  wire            _GEN_8 = activeReg & ~pcReg_1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :111:24, :161:24, :164:27, :174:{23,34}
+  wire            arP_valid =
+    _GEN_8 & ~_layer_probe_0 & _layer_probe_1 & _writeBackData_T_1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, :23:13, :137:{21,30}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _GEN_9 = _layer_probe_1 & _writeBackData_T_1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:34, :137:{21,30}, :139:26, src/main/scala/mycpu/core/processes/Main.scala:192:25
+  wire            _GEN_10 = ~_GEN_8 | _layer_probe_0 | ~_GEN_9;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:{13,34}, :137:30, :139:26, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [31:0]     arP_bits_addr = _GEN_10 ? 32'h0 : _target_T[31:0];	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, :23:34, src/main/scala/mycpu/core/processes/Main.scala:189:34, :192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [2:0]      arP_bits_size = _GEN_10 ? 3'h0 : {1'h0, memSize};	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, :23:34, :140:26, src/main/scala/mycpu/core/processes/Main.scala:73:26, :154:31, :192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [1:0]      arP_bits_burst = ~_GEN_8 | _layer_probe_0 ? 2'h0 : {1'h0, _GEN_9};	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, :23:{13,34}, :137:30, :139:26, :142:26, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _writeBackData_T_2 = REG_2 == 2'h1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22, :146:21
+  wire            rP_ready =
+    _GEN_8 & ~_layer_probe_0 & _layer_probe_1 & _writeBackData_T_2;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:15:25, :23:13, :24:56, :146:{21,30}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _layer_probe_2 = service == 3'h2;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/processes/Main.scala:192:25, :219:33
+  wire [62:0]     wdata = 63'h0 << {58'h0, _target_T[1:0], 3'h0};	// src/main/scala/mycpu/core/kernel/DriverUtils.scala:26:22, :27:28, src/main/scala/mycpu/core/processes/Main.scala:189:34
+  wire [6:0]      wstrb = {3'h0, _GEN[memSize]} << _target_T[1:0];	// src/main/scala/mycpu/core/kernel/DriverUtils.scala:26:22, :28:42, :33:24, src/main/scala/mycpu/core/processes/Main.scala:73:26, :154:31, :189:34
+  wire            _GEN_11 = REG_3 == 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22, :185:21
+  wire            _GEN_12 = _layer_probe_2 & _GEN_11;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:25:13, :185:{21,30}, :186:26, src/main/scala/mycpu/core/processes/Main.scala:192:25
+  wire            _GEN_13 = _layer_probe_0 | _layer_probe_1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:25:13, src/main/scala/mycpu/core/processes/Main.scala:192:25
+  wire            awP_valid = _GEN_8 & ~_GEN_13 & _GEN_12 & ~REG_5;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, :23:13, :25:13, :110:22, :185:30, :186:{26,29}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _GEN_14 = ~_GEN_8 | _GEN_13 | ~_GEN_12;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:{13,34}, :25:{13,34}, :185:30, :186:26, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [31:0]     awP_bits_addr = _GEN_14 ? 32'h0 : _target_T[31:0];	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, :25:34, src/main/scala/mycpu/core/processes/Main.scala:189:34, :192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            wP_valid = _GEN_8 & ~_GEN_13 & _GEN_12 & ~REG_6;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, :23:13, :25:13, :26:13, :111:22, :185:30, :186:26, :190:{26,29}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [31:0]     wP_bits_data = _GEN_14 ? 32'h0 : wdata[31:0];	// src/main/scala/mycpu/core/kernel/DriverUtils.scala:27:28, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, :25:34, :26:34, :191:26, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [3:0]      wP_bits_strb = _GEN_14 ? 4'h0 : wstrb[3:0];	// src/main/scala/mycpu/core/kernel/DriverUtils.scala:33:24, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, :25:34, :26:34, :192:26, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            wP_bits_last = _GEN_8 & ~_GEN_13 & _layer_probe_2 & _GEN_11;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, :23:13, :25:13, :26:34, :185:{21,30}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _GEN_15 = REG_3 == 2'h1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22, :146:21, :201:21
+  wire            bP_ready = _GEN_8 & ~_GEN_13 & _layer_probe_2 & _GEN_15;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:18:25, :23:13, :25:13, :27:56, :201:{21,30}, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            _layer_probe_3 = service == 3'h3;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/processes/Main.scala:192:25
+  wire            _target_T_2 = immType == 3'h0;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/processes/Main.scala:199:54
+  wire            Processor_InQ_io_deq_ready = activeReg & ~pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :111:24, :161:24, :164:27, :174:23, src/main/scala/mycpu/utils/HwQueue.scala:24:13
+  wire            Processor_InQ_io_deq_ready_0;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign Processor_InQ_io_deq_ready_0 = Processor_InQ_io_deq_ready;	// src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :24:13
+  wire            probe_valid;	// src/main/scala/mycpu/core/processes/Main.scala:17:31
+  assign probe_valid = Processor_InQ_io_deq_ready;	// src/main/scala/mycpu/core/processes/Main.scala:17:31, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, src/main/scala/mycpu/utils/HwQueue.scala:24:13
+  wire [31:0]     probe_pc = _GEN_8 ? 32'h30000000 : 32'h0;	// src/main/scala/mycpu/core/kernel/PCDriver.scala:8:31, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:18:31, :192:25, :216:21, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire [31:0]     probe_inst = _GEN_8 ? _Processor_InQ_io_deq_bits_inst : 32'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:19:31, :192:25, :217:21, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     probe_dnpc =
+    _GEN_8
+      ? (_layer_probe_0 | _layer_probe_1 | _layer_probe_2
+         | ~(_layer_probe_3
+             & (immType == 3'h4 | _target_T_2
+                | (&(_Processor_InQ_io_deq_bits_inst[14:12]))
+                | _Processor_InQ_io_deq_bits_inst[14:12] != 3'h6
+                & (_Processor_InQ_io_deq_bits_inst[14:12] == 3'h5
+                   | ~(_Processor_InQ_io_deq_bits_inst[14:12] == 3'h4
+                       | _Processor_InQ_io_deq_bits_inst[14:12] == 3'h1)
+                   & _Processor_InQ_io_deq_bits_inst[14:12] == 3'h0)))
+           ? 32'h30000004
+           : _target_T[31:0] & {31'h7FFFFFFF, ~_target_T_2})
+      : 32'h0;	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:20:31, :73:26, :188:{40,47}, :189:34, :192:25, :197:36, :199:{32,40,45,54}, :200:{26,40,65,77,86}, :218:21, :228:27, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            probe_skip =
+    _GEN_8 & (service == 3'h2 | service == 3'h1)
+    & (|{_target_T[31:0] > 32'hBFFFFFFF,
+         _target_T[31:0] > 32'h9FFFFFFF & _target_T[31:30] != 2'h3,
+         _target_T[31] & _target_T[31:0] < 32'hA0000000,
+         (|(_target_T[31:30])) & ~(_target_T[31]),
+         _target_T[31:0] > 32'h20FFFFFF & _target_T[31:0] < 32'h21200000,
+         _target_T[31:0] > 32'h10010FFF & _target_T[31:0] < 32'h10011008,
+         _target_T[31:0] > 32'h10001FFF & _target_T[31:0] < 32'h10002010,
+         _target_T[31:0] > 32'h10000FFF & _target_T[31:0] < 32'h10002000,
+         (|(_target_T[31:28])) & _target_T[31:0] < 32'h10001000,
+         (|(_target_T[31:25])) & _target_T[31:0] < 32'h2010000});	// src/main/scala/chisel3/util/Lookup.scala:33:37, src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:21:31, :189:34, :192:25, :219:{21,33,56,67,91}, :228:27, src/main/scala/mycpu/peripherals/MemMap.scala:35:{19,36,44}, :38:{29,36}, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+  wire            probe_halt = _GEN_8 & _Processor_InQ_io_deq_bits_inst == 32'h100073;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, src/main/scala/mycpu/core/processes/Main.scala:22:31, :192:25, :220:{21,29}, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  always @(posedge clock) begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+    if (reset) begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+      activeReg <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34
+      REG_2 <= 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22
+      REG_3 <= 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22
+      REG_5 <= 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:110:22
+      REG_6 <= 1'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:111:22
+      pcReg_1 <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24
+    end
+    else begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+      automatic logic _GEN_16;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:205:32
+      _GEN_16 = REG_3 == 2'h2;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22, :205:32
+      activeReg <= ~activeReg & (_Processor_InQ_io_deq_valid | activeReg);	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :161:24, :164:27, :185:27, :186:20, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+      if (~_GEN_8 | _layer_probe_0 | ~_layer_probe_1) begin	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:{13,34}, :107:22, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+      end
+      else if (REG_2 == 2'h2)	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22, :153:32
+        REG_2 <= 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22
+      else if (_writeBackData_T_2 & rValidBridge__bore)	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:137:30, :146:{21,30}, :148:26, :150:20
+        REG_2 <= 2'h2;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22
+      else if (_writeBackData_T_1 & arReadyBridge__bore)	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22, :137:{21,30}, :144:{27,36}
+        REG_2 <= 2'h1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:107:22, :146:21
+      if (~_GEN_8 | _GEN_13 | ~_layer_probe_2) begin	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:{13,34}, :25:13, :108:22, :111:22, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+      end
+      else begin	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:111:22, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, :174:34
+        if (_GEN_16)	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:205:32
+          REG_3 <= 2'h0;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22
+        else if (_GEN_15 & bValidBridge__bore)	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:185:30, :201:{21,30}, :203:{26,35}
+          REG_3 <= 2'h2;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22
+        else if (_GEN_11
+                 & (REG_5 & REG_6 | REG_5 & wReadyBridge__bore | awReadyBridge__bore
+                    & wReadyBridge__bore | awReadyBridge__bore & REG_6))	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22, :110:22, :111:22, :185:{21,30}, :198:{30,40,51,64,78,91,105}, :199:{22,31}
+          REG_3 <= 2'h1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:108:22, :146:21
+        REG_5 <= ~_GEN_16 & (_GEN_11 & awReadyBridge__bore | REG_5);	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:110:22, :185:{21,30}, :195:{28,37}, :205:32, :206:30, :207:33, src/main/scala/mycpu/utils/HardwareAgent.scala:168:44, :214:{48,55,66}
+        REG_6 <= ~_GEN_16 & (_GEN_11 & wReadyBridge__bore | REG_6);	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:111:22, :185:{21,30}, :196:{28,37}, :205:32, :206:30, :207:51, src/main/scala/mycpu/utils/HardwareAgent.scala:168:44, :214:{48,55,66}
+      end
+      pcReg_1 <=
+        activeReg
+          ? ~pcReg_1 & ~_layer_probe_0
+            & (_layer_probe_1
+                 ? REG_2 != 2'h2 & pcReg_1
+                 : _layer_probe_2 & ~_GEN_16 & pcReg_1)
+          : ~_Processor_InQ_io_deq_valid & pcReg_1;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:23:13, :107:22, :153:32, :205:32, src/main/scala/mycpu/core/processes/Main.scala:192:25, src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :111:24, :161:24, :164:27, :168:44, :174:{23,34}, :185:27, :187:20, :214:{48,55,66}, src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    end
+  end // always @(posedge)
   Queue2_FetchPacket Processor_InQ (	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
     .clock            (clock),
     .reset            (reset),
     .io_enq_ready     (_Processor_InQ_io_enq_ready),
     .io_enq_valid     (io_stdin_valid),
-    .io_enq_bits_pc   (io_stdin_bits_pc),
     .io_enq_bits_inst (io_stdin_bits_inst),
-    .io_deq_ready     (1'h0),
-    .io_deq_valid     (/* unused */),
-    .io_deq_bits_pc   (Processor_InQ_io_deq_bits_pc),
-    .io_deq_bits_inst (Processor_InQ_io_deq_bits_inst),
+    .io_deq_ready     (Processor_InQ_io_deq_ready),	// src/main/scala/mycpu/utils/HardwareAgent.scala:161:24, :164:27, src/main/scala/mycpu/utils/HwQueue.scala:24:13
+    .io_deq_valid     (_Processor_InQ_io_deq_valid),
+    .io_deq_bits_inst (_Processor_InQ_io_deq_bits_inst),
     .io_count         (Processor_InQ_io_count)
   );	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire        Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [31:0]     Processor_InQ_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign Processor_InQ_io_deq_bits_inst = _Processor_InQ_io_deq_bits_inst;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            Processor_InQ_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  assign Processor_InQ_io_deq_valid = _Processor_InQ_io_deq_valid;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire            Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign Processor_InQ_io_enq_ready = _Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  ImmGen immGen (	// src/main/scala/mycpu/core/processes/Main.scala:42:24
+    .io_inst (_Processor_InQ_io_deq_bits_inst),	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+    .io_sel  (immType),	// src/main/scala/chisel3/util/Lookup.scala:33:37
+    .io_out  (_immGen_io_out)
+  );	// src/main/scala/mycpu/core/processes/Main.scala:42:24
   assign io_stdin_ready = _Processor_InQ_io_enq_ready;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25
   assign rP_ready__bore = rP_ready;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:15:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_valid__bore = awP_valid;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign wP_valid__bore = wP_valid;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign probe_inst__bore = probe_inst;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:19:31
   assign arP_valid__bore = arP_valid;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_bits__bore_id = awP_bits_id;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_bits__bore_addr = awP_bits_addr;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_bits__bore_len = awP_bits_len;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_bits__bore_size = awP_bits_size;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign awP_bits__bore_burst = awP_bits_burst;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign bP_ready__bore = bP_ready;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:18:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign wP_bits__bore_data = wP_bits_data;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign wP_bits__bore_strb = wP_bits_strb;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
-  assign wP_bits__bore_last = wP_bits_last;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign awP_valid__bore = awP_valid;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign probe_halt__bore = probe_halt;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:22:31
+  assign probe_pc__bore = probe_pc;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:18:31
   assign arP_bits__bore_id = arP_bits_id;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
   assign arP_bits__bore_addr = arP_bits_addr;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
   assign arP_bits__bore_len = arP_bits_len;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
   assign arP_bits__bore_size = arP_bits_size;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
   assign arP_bits__bore_burst = arP_bits_burst;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:14:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign bP_ready__bore = bP_ready;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:18:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign wP_valid__bore = wP_valid;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign probe_skip__bore = probe_skip;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:21:31
+  assign probe_valid__bore = probe_valid;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:17:31
+  assign awP_bits__bore_id = awP_bits_id;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign awP_bits__bore_addr = awP_bits_addr;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign awP_bits__bore_len = awP_bits_len;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign awP_bits__bore_size = awP_bits_size;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign awP_bits__bore_burst = awP_bits_burst;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:16:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign wP_bits__bore_data = wP_bits_data;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign wP_bits__bore_strb = wP_bits_strb;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign wP_bits__bore_last = wP_bits_last;	// src/main/scala/mycpu/core/kernel/SmartAXIDriver.scala:17:25, src/main/scala/mycpu/core/os/HwOS.scala:177:7
+  assign probe_dnpc__bore = probe_dnpc;	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/core/processes/Main.scala:20:31
 endmodule
 

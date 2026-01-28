@@ -8,22 +8,91 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module ProcessContainer_Verification();	// src/main/scala/mycpu/utils/HwQueue.scala:33:13
-  wire       _Fetch_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
-  wire [1:0] _Fetch_InQ_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+module ProcessContainer_Verification();	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+  wire        _Fetch_InQ_io_enq_ready;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  wire [1:0]  _Fetch_InQ_io_count;	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
+  reg  [31:0] sessionCycles;	// src/main/scala/mycpu/utils/HardwareAgent.scala:71:38
+  reg         wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:121:30
+  reg  [1:0]  lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:122:30
+  wire        pcStuck =
+    ProcessContainer.activeReg_0 & ProcessContainer.pcReg_1_0 == lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :111:24, :122:30, :123:{30,40}
+  reg  [31:0] hangCounter;	// src/main/scala/mycpu/utils/HardwareAgent.scala:124:32
+  wire        _GEN = ~wasActive & ProcessContainer.activeReg_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :121:30, :126:{13,24}
   `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/HwQueue.scala:30:13
     always @(posedge ProcessContainer.clock) begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+      automatic logic _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:137:42
+      automatic logic _GEN_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:139:23
+      automatic logic _GEN_2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:139:23
+      automatic logic _GEN_3;	// src/main/scala/mycpu/utils/HardwareAgent.scala:139:23
+      automatic logic _GEN_4 = pcStuck & hangCounter == 32'h3E8;	// src/main/scala/mycpu/utils/HardwareAgent.scala:123:30, :124:32, :145:{27,39}
+      _GEN_0 =
+        ProcessContainer.activeReg_0 & ProcessContainer.pcReg_1_0 != lastPc
+        | ProcessContainer.activeReg_0 & ~wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :111:24, :121:30, :122:30, :126:13, :136:32, :137:{21,30,42}
+      _GEN_1 = ProcessContainer.pcReg_1_0 == 2'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24, :139:23, src/main/scala/mycpu/utils/HwQueue.scala:30:75
+      _GEN_2 = ProcessContainer.pcReg_1_0 == 2'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24, :139:23
+      _GEN_3 = ProcessContainer.pcReg_1_0 == 2'h2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24, :139:23
       if ((`PRINTF_COND_) & _Fetch_InQ_io_enq_ready & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13
         $fwrite(32'h80000002, "[Fetch_InQ] Push: Data=%x, Count=%d\n", 32'h0,
                 _Fetch_InQ_io_count + 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:{13,75}
+      if ((`PRINTF_COND_) & ProcessContainer.Fetch_OutQ_io_enq_ready
+          & ProcessContainer.Fetch_OutQ_io_enq_valid & ~ProcessContainer.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13
+        $fwrite(32'h80000002, "[Fetch_OutQ] Push: Data=%x, Count=%d\n",
+                ProcessContainer.Fetch_OutQ_io_enq_bits_inst,
+                ProcessContainer.Fetch_OutQ_io_count + 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:{13,75}
       if ((`PRINTF_COND_) & ProcessContainer.io_stdout_ready
           & ProcessContainer.Fetch_OutQ_io_deq_valid & ~ProcessContainer.reset)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/os/HwOS.scala:177:7, :178:14, src/main/scala/mycpu/utils/HwQueue.scala:13:25, :30:13, :33:13
         $fwrite(32'h80000002, "[Fetch_OutQ] Pop:  Data=%x, Count=%d\n",
-                {ProcessContainer.Fetch_OutQ_io_deq_bits_pc,
-                 ProcessContainer.Fetch_OutQ_io_deq_bits_inst},
-                ProcessContainer.Fetch_OutQ_io_count - 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :33:{13,61,75}
+                ProcessContainer.Fetch_OutQ_io_deq_bits_inst,
+                ProcessContainer.Fetch_OutQ_io_count - 2'h1);	// src/main/scala/mycpu/utils/HwQueue.scala:13:25, :33:{13,75}
+      if ((`PRINTF_COND_) & _GEN & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :126:24, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & wasActive & ~ProcessContainer.activeReg_0
+          & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :56:34, :121:30, :130:{23,26}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] --- OFFLINE (Cycles: %d) ---\n",
+                sessionCycles);	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :71:38
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_1 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :137:42, :139:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] EXEC [PC 0] Wait_New_PC\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_2 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :137:42, :139:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] EXEC [PC 1] AXI_Read_AR\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_0 & _GEN_3 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :137:42, :139:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] EXEC [PC 2] AXI_Read_R\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_0 & (&ProcessContainer.pcReg_1_0)
+          & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :111:24, :137:42, :139:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] EXEC [PC 3] Push_And_Update\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_4 & _GEN_1 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :139:23, :145:39, :147:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002,
+                "[Fetch_Fetch_Worker] !!! DEADLOCK WARNING [PC=0] Wait_New_PC !!!\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_4 & _GEN_2 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :139:23, :145:39, :147:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002,
+                "[Fetch_Fetch_Worker] !!! DEADLOCK WARNING [PC=1] AXI_Read_AR !!!\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_4 & _GEN_3 & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :139:23, :145:39, :147:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002,
+                "[Fetch_Fetch_Worker] !!! DEADLOCK WARNING [PC=2] AXI_Read_R !!!\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & _GEN_4 & (&ProcessContainer.pcReg_1_0)
+          & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :111:24, :139:23, :145:39, :147:37, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002,
+                "[Fetch_Fetch_Worker] !!! DEADLOCK WARNING [PC=3] Push_And_Update !!!\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+      if ((`PRINTF_COND_) & ProcessContainer.activeReg_0 & ProcessContainer._layer_probe
+          & ~ProcessContainer.reset)	// src/main/scala/mycpu/core/os/HwOS.scala:177:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :56:34, :174:{23,34}, src/main/scala/mycpu/utils/HwQueue.scala:30:13
+        $fwrite(32'h80000002, "[Fetch_Fetch_Worker] Fetched: PC=%x, Inst=%x\n",
+                ProcessContainer.targetPc_0, ProcessContainer.inst_0);	// src/main/scala/mycpu/core/kernel/DriverUtils.scala:38:27, src/main/scala/mycpu/core/processes/Fetch.scala:30:34, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
     end // always @(posedge)
   `endif // not def SYNTHESIS
+  always @(posedge ProcessContainer.clock) begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+    if (ProcessContainer.reset) begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+      sessionCycles <= 32'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:71:38
+      hangCounter <= 32'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:124:32
+    end
+    else begin	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
+      if (ProcessContainer.activeReg_0)	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34
+        sessionCycles <= sessionCycles + 32'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:71:38, :162:38
+      else if (_GEN)	// src/main/scala/mycpu/utils/HardwareAgent.scala:126:24
+        sessionCycles <= 32'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:71:38
+      hangCounter <= pcStuck ? hangCounter + 32'h1 : 32'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:123:30, :124:32, :143:22, :144:{21,36}, :150:34
+    end
+    wasActive <= ProcessContainer.activeReg_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:56:34, :121:30
+    lastPc <= ProcessContainer.pcReg_1_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:24, :122:30
+  end // always @(posedge)
   Queue2_UInt32 Fetch_InQ (	// src/main/scala/mycpu/utils/HwQueue.scala:13:25
     .clock        (ProcessContainer.clock),	// src/main/scala/mycpu/core/os/HwOS.scala:177:7
     .reset        (ProcessContainer.reset),	// src/main/scala/mycpu/core/os/HwOS.scala:177:7

@@ -1,17 +1,19 @@
 package mycpu.core.kernel
+
 import chisel3._
+import chisel3.util.experimental.BoringUtils
 import mycpu.core.os._
 import mycpu.utils._
-import chisel3.util.experimental.BoringUtils
-class PCDriver(global_PC: UInt) extends ResourceHandle {
+
+class PCDriver(pcReg: UInt) extends ResourceHandle {
   override val name = "PC"
-  val pcReg = BoringUtils.bore(global_PC)
+
 
   override def read(addr: UInt, size: UInt, signed: Bool): UInt = {
     ContextScope.current match {
-      case LogicCtx(_)  => pcReg // 组合逻辑：直连
-      case AtomicCtx(_) => pcReg // 原子步骤：直连
-      case ThreadCtx(t) =>
+      case LogicCtx(_)  => pcReg
+      case AtomicCtx(_) => pcReg
+      case ThreadCtx(t) => 
         val latch = Reg(UInt(32.W))
         t.Step("PC_Read") { latch := pcReg }
         latch
@@ -19,13 +21,19 @@ class PCDriver(global_PC: UInt) extends ResourceHandle {
   }
 
   override def write(addr: UInt, data: UInt, size: UInt): UInt = {
-    // 这里 pcReg := data 实际上是把 data 连到了传入的那个物理寄存器上
     ContextScope.current match {
-      case ThreadCtx(t) => t.Step("PC_Write") { pcReg := data }
-      case _ => pcReg := data
+      case AtomicCtx(_) => 
+        pcReg := data
+        
+      case ThreadCtx(t) => 
+        t.Step("PC_Write") { 
+           pcReg := data
+        }
+        
+      case LogicCtx(_) =>
+        pcReg := data
     }
     0.U
   }
-
-  override def ioctl(_1: UInt, _2:UInt): UInt = unsupported("ioctl")
+  
 }

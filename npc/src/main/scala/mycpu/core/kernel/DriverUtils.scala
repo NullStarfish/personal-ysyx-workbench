@@ -3,6 +3,7 @@ package mycpu.core.kernel
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.experimental.BoringUtils
 
 // 访问位宽
 object AccessSize {
@@ -41,5 +42,14 @@ object DriverUtils {
       AccessSize.Half -> Mux(signed, shifted(15, 0).asSInt.asUInt, shifted(15, 0)),
       AccessSize.Word -> shifted
     ))
+  }
+
+  def driveRemote[T <: Data](localSource: T, remoteSink: T): Unit = {
+    BoringUtils.bore(localSource, Seq(remoteSink))
+  }
+
+  // 读取远程信号：Remote(Parent) -> Local(Child)
+  def readRemote[T <: Data](remoteSource: T, localSink: T): Unit = {
+    BoringUtils.bore(remoteSource, Seq(localSink))
   }
 }
