@@ -43,6 +43,9 @@ class FetchProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Fetc
         pkt.inst := inst
         pkt.pc   := currentPC
         
+        // [Debug] Verify PC/Inst pairing
+        // printf("[Fetch] Dispatching: PC=%x, Inst=%x\n", currentPC, inst)
+        
         val res = toMain.sys_write(0.U, pkt.asUInt)
         t.waitCondition(res.errno === Errno.ESUCCESS)
       }
@@ -72,6 +75,7 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
     val immGen  = Module(new ImmGen)
     val alu     = Module(new ALU)
 
+    // Init pkt to zero, but we must ensure we don't commit it before first fetch
     val pkt     = RegInit(0.U.asTypeOf(new FetchPacket))
     val ctrl    = Reg(new CtrlSignals)
     val rs1Val  = Reg(UInt(32.W))
@@ -80,8 +84,7 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
     val aluOut  = Reg(UInt(32.W))
     val memVal  = Reg(UInt(32.W))
 
-    // === [修复] 默认驱动赋值，防止 "not fully initialized" 错误 ===
-    // 即使 Thread 没运行，这些 Sink 也会被驱动
+    // Default drivers
     decoder.io.inst := pkt.inst
     immGen.io.inst  := pkt.inst
     immGen.io.sel   := ctrl.immType
@@ -92,18 +95,27 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
     val dpi_valid = WireInit(false.B); BoringUtils.addSource(dpi_valid, "DPI_Commit_Valid")
     val dpi_pc    = WireInit(0.U(32.W)); BoringUtils.addSource(dpi_pc, "DPI_Commit_PC")
     val dpi_inst  = WireInit(0.U(32.W)); BoringUtils.addSource(dpi_inst, "DPI_Commit_Inst")
+    
+    // [Fix] Latch to prevent double commits within the same step
+    val dpi_latch = RegInit(false.B)
 
     t.entry {
       t.Loop()
 
       t.Step("FetchPkt") {
+        // Reset DPI latch at start of new instruction cycle
+        dpi_latch := false.B
+        
         val res = fromFet.sys_read(0.U)
+        
+        // [Fix] Wait for success before updating pkt to avoid latching garbage/empty data
         t.waitCondition(res.errno === Errno.ESUCCESS)
+        
         when(res.errno === Errno.ESUCCESS) {
           val rawPkt = res.value.asTypeOf(new FetchPacket)
           pkt := rawPkt
           
-          // 立即更新译码和立即数（此时 PC 处于 FetchPkt 步）
+          // Update decode logic immediately
           decoder.io.inst := rawPkt.inst
           ctrl := decoder.io.ctrl
           
@@ -146,22 +158,20 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
 
       t.Step("Mem") {
         when(ctrl.service === ServiceType.MEM_RD) {
-           printf("[DEBUG] Main MEM_RD Start: addr=0x%x\n", aluOut)
            val res = dmem.sys_read(aluOut, ctrl.memSize)
            t.waitCondition(res.errno === Errno.ESUCCESS)
            memVal := res.value
         } 
         .elsewhen(ctrl.service === ServiceType.MEM_WR) {
-           printf("[DEBUG] Main MEM_WR Start: addr=0x%x\n", aluOut)
            val res = dmem.sys_write(aluOut, rs2Val, ctrl.memSize)
            t.waitCondition(res.errno === Errno.ESUCCESS)
         }
       }
 
       t.Step("Commit") {
-        // --- Load 数据对齐处理 (针对 LBU 等) ---
+        // --- Load Data Alignment ---
         val addrOffset = aluOut(1, 0)
-        val shiftAmount = Cat(addrOffset, 0.U(3.W)) // offset * 8
+        val shiftAmount = Cat(addrOffset, 0.U(3.W)) 
         val shiftedData = memVal >> shiftAmount
         
         val memFormatted = MuxLookup(ctrl.memSize, shiftedData)(Seq(
@@ -204,11 +214,15 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
           t.waitCondition(res.errno === Errno.ESUCCESS)
           
           when(res.errno === Errno.ESUCCESS) {
-            dpi_valid := true.B
-            dpi_pc    := pkt.pc
-            dpi_inst  := pkt.inst
+            // [Fix] Ensure DPI Valid is a single-cycle pulse
+            when (!dpi_latch) {
+                dpi_valid := true.B
+                dpi_pc    := pkt.pc
+                dpi_inst  := pkt.inst
+                dpi_latch := true.B
+            }
             
-            // 发送令牌唤醒 Fetch
+            // Pass token to Fetch
             val tRes = tokenOut.sys_write(0.U, 1.U)
             t.waitCondition(tRes.errno === Errno.ESUCCESS)
           }

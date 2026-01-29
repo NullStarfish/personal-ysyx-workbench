@@ -34,15 +34,15 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   wire [7:0]        channel_5_error;	// src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :103:20, :120:30
   wire              channel_5_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :103:20, :120:30, :122:25
   wire [63:0]       channel_5_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30
-  wire [31:0]       _alu_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:73:25
-  wire [31:0]       _immGen_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:72:25
-  wire [2:0]        _decoder_io_ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire [3:0]        _decoder_io_ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire [1:0]        _decoder_io_ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire [1:0]        _decoder_io_ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire [2:0]        _decoder_io_ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire              _decoder_io_ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  wire [1:0]        _decoder_io_ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
+  wire [31:0]       _alu_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:25
+  wire [31:0]       _immGen_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:25
+  wire [2:0]        _decoder_io_ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire [3:0]        _decoder_io_ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire [1:0]        _decoder_io_ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire [1:0]        _decoder_io_ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire [2:0]        _decoder_io_ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire              _decoder_io_ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  wire [1:0]        _decoder_io_ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
   wire              _queue_1_io_enq_ready;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21
   wire              _queue_1_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21
   wire              _queue_io_enq_ready;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21
@@ -89,22 +89,21 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   reg  [31:0]       rfVec_31;	// src/main/scala/mycpu/core/Core.scala:25:23
   reg               activeReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
   wire              activeReg_0 = activeReg;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-  reg  [31:0]       pkt_inst;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26
-  reg  [31:0]       pkt_pc;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26
-  reg  [2:0]        ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  wire [2:0]        ctrl_service_0 = ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [3:0]        ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [1:0]        ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [1:0]        ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [2:0]        ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg               ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [1:0]        ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
-  reg  [31:0]       rs1Val;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:77:22
-  reg  [31:0]       rs2Val;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:78:22
-  reg  [31:0]       immVal;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:22
-  reg  [31:0]       aluOut;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
-  wire [31:0]       aluOut_0 = aluOut;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
-  reg  [31:0]       memVal;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22
+  reg  [31:0]       pkt_inst;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26
+  reg  [31:0]       pkt_pc;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26
+  reg  [2:0]        ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [3:0]        ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [1:0]        ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [1:0]        ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [2:0]        ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg               ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [1:0]        ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
+  reg  [31:0]       rs1Val;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22
+  reg  [31:0]       rs2Val;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:82:22
+  reg  [31:0]       immVal;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:83:22
+  reg  [31:0]       aluOut;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:84:22
+  reg  [31:0]       memVal;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:85:22
+  reg               dpi_latch;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:100:28
   reg  [2:0]        pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24
   wire [2:0]        pcReg_1_0 = pcReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24
   wire              _GEN_0 = pcReg_1 == 3'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
@@ -116,9 +115,9 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   wire [63:0]       res_value = res_doneReg ? res_dataReg : channel_5_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25
   wire [7:0]        res_errno =
     channel_5_ready | res_doneReg ? (res_doneReg ? res_errReg : channel_5_error) : 8'h10;	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :75:21, :103:20, :120:30, :122:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :20:30, :45:40, :47:{25,41}
-  wire              _GEN_1 = ~_GEN_0 | ~(|res_errno) & (res_doneReg | channel_5_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :103:20, :120:30, :122:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :47:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:101:35, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:17, :177:25
-  wire              _GEN_2 = activeReg & _GEN_0 & ~(|res_errno);	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:47:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :101:35, :102:44, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-  wire [31:0]       immGen_io_inst = _GEN_2 ? res_value[63:32] : pkt_inst;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :102:44, :103:42, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_1 = ~_GEN_0 | ~(|res_errno) & (res_doneReg | channel_5_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :103:20, :120:30, :122:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :47:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:100:28, :107:19, :112:35, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:17, :177:25
+  wire              _GEN_2 = activeReg & _GEN_0 & ~(|res_errno);	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:47:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :112:35, :114:44, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+  wire [31:0]       immGen_io_inst = _GEN_2 ? res_value[63:32] : pkt_inst;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :114:44, :115:42, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
   wire              _GEN_3 = pcReg_1 == 3'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
   reg               rs1_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30
   reg  [63:0]       rs1_dataReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
@@ -129,83 +128,85 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   reg  [63:0]       rs2_dataReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
   reg  [31:0]       rs2_isFirstCycle_REG;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35
   reg               rs2_isFirstCycle_REG_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62
-  wire              _GEN_5 = activeReg & pcReg_1 == 3'h3;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:88:21, :142:19, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :123:24, :128:{21,32}
-  wire              _layer_probe = pcReg_1 == 3'h4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
-  wire              _layer_probe_0 = ctrl_service == 3'h1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :148:27
+  wire              _GEN_5 = activeReg & pcReg_1 == 3'h3;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:91:21, :154:19, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :123:24, :128:{21,32}
+  wire              _GEN_6 = pcReg_1 == 3'h4;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
+  wire              _GEN_7 = ctrl_service == 3'h1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :160:27
   reg               res_doneReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30
   reg  [63:0]       res_dataReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
   reg  [31:0]       res_isFirstCycle_REG_2;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35
   reg               res_isFirstCycle_REG_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62
-  wire              _layer_probe_1 = ctrl_service == 3'h2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :154:32
+  wire              _GEN_8 = ctrl_service == 3'h2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :165:32
   reg               res_doneReg_2;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30
   reg  [31:0]       res_isFirstCycle_REG_4;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35
   reg               res_isFirstCycle_REG_5;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62
-  wire              _GEN_6 =
-    _layer_probe
-      ? (_layer_probe_0
+  wire              _GEN_9 =
+    _GEN_6
+      ? (_GEN_7
            ? ~(~(channel_4_ready | res_doneReg_1) | ~res_doneReg_1 & ~channel_4_ready)
              & _GEN_1
-           : ~(_layer_probe_1
+           : ~(_GEN_8
                & (~(channel_4_ready | res_doneReg_2) | ~res_doneReg_2 & ~channel_4_ready))
              & _GEN_1)
-      : _GEN_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :45:40, :47:25, :72:30, :80:{14,24}, :92:40, :93:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:{27,51}, :154:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:{10,17}, :177:25
-  wire              _GEN_7 = pcReg_1 == 3'h5;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
+      : _GEN_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :45:40, :47:25, :72:30, :80:{14,24}, :92:40, :93:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:{27,51}, :165:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:{10,17}, :177:25
+  wire              _GEN_10 = pcReg_1 == 3'h5;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
   reg               res_doneReg_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30
   reg  [31:0]       res_isFirstCycle_REG_6;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35
   reg               res_isFirstCycle_REG_7;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62
   wire              channel_2_req_valid =
     activeReg
-    & (_GEN_7 & ctrl_regWen
+    & (_GEN_10 & ctrl_regWen
          ? ~res_doneReg_3
-         : _GEN_4 ? ~rs2_doneReg : _GEN_3 & ~rs1_doneReg);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-  wire              _GEN_8 = activeReg & _GEN_7;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-  wire              channel_2_req_wen = _GEN_8 & ctrl_regWen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire              _GEN_9 = _GEN_7 & ctrl_regWen & ~res_doneReg_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}
+         : _GEN_4 ? ~rs2_doneReg : _GEN_3 & ~rs1_doneReg);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+  wire              _GEN_11 = activeReg & _GEN_10;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+  wire              channel_2_req_wen = _GEN_11 & ctrl_regWen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_12 = _GEN_10 & ctrl_regWen & ~res_doneReg_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}
   wire [31:0]       channel_2_req_addr =
     activeReg
-      ? (_GEN_9
+      ? (_GEN_12
            ? {27'h0, pkt_inst[11:7]}
            : _GEN_4 & ~rs2_doneReg
                ? {27'h0, pkt_inst[24:20]}
                : _GEN_3 & ~rs1_doneReg ? {27'h0, pkt_inst[19:15]} : 32'h0)
-      : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :31:29, :80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :117:39, :122:39, :178:27, :179:42, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+      : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :31:29, :80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :129:39, :134:39, :188:27, :189:42, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
   wire              res_isReadyNow_3 = channel_2_ready | res_doneReg_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :92:40
-  wire              _GEN_10 =
-    ctrl_regWen & (~res_isReadyNow_3 | ~res_doneReg_3 & ~channel_2_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :92:40, :93:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:{10,17}, :177:25
-  wire              _GEN_11 = ~_GEN_10 & _GEN_6;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:17, :177:25
-  wire              rfDone = ~ctrl_regWen | res_isReadyNow_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :177:33, :178:27, :181:18
+  wire              _GEN_13 =
+    ctrl_regWen & (~res_isReadyNow_3 | ~res_doneReg_3 & ~channel_2_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :92:40, :93:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:{10,17}, :177:25
+  wire              _GEN_14 = ~_GEN_13 & _GEN_9;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:17, :177:25
+  wire              rfDone = ~ctrl_regWen | res_isReadyNow_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :187:33, :188:27, :191:18
   reg               res_doneReg_4;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30
   reg  [31:0]       res_isFirstCycle_REG_8;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35
   reg               res_isFirstCycle_REG_9;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62
-  wire              _GEN_12 = activeReg & _GEN_7 & rfDone;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:177:33, :178:27, :181:18, :202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-  wire              channel_3_req_valid = _GEN_12 & ~res_doneReg_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire              channel_3_req_wen = _GEN_8 & rfDone;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:177:33, :178:27, :181:18, :202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire              _GEN_13 =
-    res_doneReg_4 ? _GEN_11 : ~(~channel_3_ready | _GEN_10) & _GEN_6;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:{10,17}, :177:25
+  wire              _GEN_15 = activeReg & _GEN_10 & rfDone;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:187:33, :188:27, :191:18, :212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+  wire              channel_3_req_valid = _GEN_15 & ~res_doneReg_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              channel_3_req_wen = _GEN_11 & rfDone;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:187:33, :188:27, :191:18, :212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_16 =
+    res_doneReg_4 ? _GEN_14 : ~(~channel_3_ready | _GEN_13) & _GEN_9;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:32, :176:{10,17}, :177:25
   wire              res_isReadyNow_4 = channel_3_ready | res_doneReg_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :92:40
-  wire              _GEN_14 = res_isReadyNow_4 & _GEN_13;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:176:17, :177:25
-  wire              dpi_valid = _GEN_12 & res_isReadyNow_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:92:29, :202:23, :206:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire              _GEN_15 = activeReg & _GEN_7 & rfDone & res_isReadyNow_4;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:93:29, :177:33, :178:27, :181:18, :202:23, :206:46, :208:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-  wire [31:0]       dpi_pc = _GEN_15 ? pkt_pc : 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :93:29, :202:23, :206:46, :208:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire [31:0]       dpi_inst = _GEN_15 ? pkt_inst : 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :93:29, :94:29, :202:23, :206:46, :208:23, :209:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_17 = res_isReadyNow_4 & _GEN_16;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:176:17, :177:25
+  wire              _GEN_18 = activeReg & _GEN_10 & rfDone & res_isReadyNow_4;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:95:29, :187:33, :188:27, :191:18, :212:23, :216:46, :218:31, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+  wire              dpi_valid = _GEN_18 & ~dpi_latch;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:95:29, :100:28, :212:23, :216:46, :218:{19,31}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_19 = _GEN_10 & rfDone & res_isReadyNow_4 & ~dpi_latch;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:96:29, :100:28, :187:33, :188:27, :191:18, :212:23, :216:46, :218:{19,31}, :220:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}
+  wire              _GEN_20 = activeReg & _GEN_19;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:96:29, :212:23, :216:46, :218:31, :220:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:32
+  wire [31:0]       dpi_pc = _GEN_20 ? pkt_pc : 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :96:29, :212:23, :216:46, :218:31, :220:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire [31:0]       dpi_inst = _GEN_20 ? pkt_inst : 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :96:29, :97:29, :212:23, :216:46, :218:31, :220:27, :221:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
   reg               tRes_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30
   reg  [7:0]        tRes_errReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:73:30
   reg  [31:0]       tRes_isFirstCycle_REG;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35
   reg               tRes_isFirstCycle_REG_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62
   wire              stepDoneWire =
     ~activeReg
-    | (_GEN_7
+    | (_GEN_10
          ? (rfDone
               ? (res_isReadyNow_4
                    ? (channel_6_ready | tRes_doneReg
                         ? (tRes_doneReg ? tRes_errReg : channel_6_error)
                         : 8'h10) == 8'h0
                      & (tRes_doneReg
-                          ? _GEN_14
-                          : {~channel_6_ready, ~res_isReadyNow_4} == 2'h0 & _GEN_13)
-                   : _GEN_14)
-              : _GEN_11)
-         : _GEN_6);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :73:30, :80:24, :92:40, :93:{25,41}, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :177:33, :178:27, :181:18, :202:23, :204:37, :206:46, :213:40, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :101:18, :123:24, :128:{21,32}, :176:{10,17}, :177:25
+                          ? _GEN_17
+                          : {~channel_6_ready, ~res_isReadyNow_4} == 2'h0 & _GEN_16)
+                   : _GEN_17)
+              : _GEN_14)
+         : _GEN_9);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :73:30, :80:24, :92:40, :93:{25,41}, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :187:33, :188:27, :191:18, :212:23, :214:37, :216:46, :227:40, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :101:18, :123:24, :128:{21,32}, :176:{10,17}, :177:25
   reg               activeReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
   wire              activeReg_1_0 = activeReg_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
   reg  [31:0]       currentPC;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26
@@ -216,48 +217,48 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   reg  [63:0]       res_dataReg_2;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
   reg  [31:0]       res_isFirstCycle_REG_10;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35
   reg               res_isFirstCycle_REG_11;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62
-  wire              _GEN_16 = activeReg_1 & pcReg_2 == 3'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :123:24, :128:{21,32}
-  wire              channel_7_req_valid = _GEN_16 & ~res_doneReg_5;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire              _GEN_17 = pcReg_2 == 3'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
+  wire              _GEN_21 = activeReg_1 & pcReg_2 == 3'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :123:24, :128:{21,32}
+  wire              channel_7_req_valid = _GEN_21 & ~res_doneReg_5;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire              _GEN_22 = pcReg_2 == 3'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
   reg               res_doneReg_6;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30
   reg  [63:0]       res_dataReg_3;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
   reg  [31:0]       res_isFirstCycle_REG_12;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35
   reg               res_isFirstCycle_REG_13;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62
-  wire              _GEN_18 =
-    ~_GEN_17 | (channel_8_ready | res_doneReg_6) & (res_doneReg_6 | channel_8_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :45:40, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:17, :177:25
-  wire              _GEN_19 = pcReg_2 == 3'h2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
+  wire              _GEN_23 =
+    ~_GEN_22 | (channel_8_ready | res_doneReg_6) & (res_doneReg_6 | channel_8_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :45:40, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:{21,32}, :176:17, :177:25
+  wire              _GEN_24 = pcReg_2 == 3'h2;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
   reg               res_doneReg_7;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30
   reg  [7:0]        res_errReg_7;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:73:30
   reg  [31:0]       res_isFirstCycle_REG_14;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35
   reg               res_isFirstCycle_REG_15;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62
-  wire              _GEN_20 =
-    _GEN_19
+  wire              _GEN_25 =
+    _GEN_24
     & ((|(channel_9_ready | res_doneReg_7
             ? (res_doneReg_7 ? res_errReg_7 : channel_9_error)
-            : 8'h10)) | ~res_doneReg_7 & ~channel_9_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :73:30, :80:{14,24}, :92:40, :93:{25,41}, src/main/scala/mycpu/core/processes/CPUProsses.scala:47:35, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}, :176:{10,17}, :177:25
-  wire              _GEN_21 = ~_GEN_20 & _GEN_18;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:32, :176:17, :177:25
-  wire              _GEN_22 = pcReg_2 == 3'h3;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
+            : 8'h10)) | ~res_doneReg_7 & ~channel_9_ready);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :73:30, :80:{14,24}, :92:40, :93:{25,41}, src/main/scala/mycpu/core/processes/CPUProsses.scala:50:35, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}, :176:{10,17}, :177:25
+  wire              _GEN_26 = ~_GEN_25 & _GEN_23;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/utils/HardwareAgent.scala:126:20, :128:32, :176:17, :177:25
+  wire              _GEN_27 = pcReg_2 == 3'h3;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :128:21
   reg               res_doneReg_8;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30
   reg  [7:0]        res_errReg_8;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:20:30
   reg  [31:0]       res_isFirstCycle_REG_16;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35
   reg               res_isFirstCycle_REG_17;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62
   wire              stepDoneWire_1 =
     ~activeReg_1
-    | (_GEN_22
+    | (_GEN_27
          ? (channel_10_ready | res_doneReg_8
               ? (res_doneReg_8 ? res_errReg_8 : channel_10_error)
               : 8'h10) == 8'h0
-           & (res_doneReg_8 ? _GEN_21 : ~(~channel_10_ready | _GEN_20) & _GEN_18)
-         : _GEN_21);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :20:30, :29:24, :45:40, :47:{25,41}, :80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:52:35, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :101:18, :123:24, :126:20, :128:{21,32}, :176:{10,17}, :177:25
+           & (res_doneReg_8 ? _GEN_26 : ~(~channel_10_ready | _GEN_25) & _GEN_23)
+         : _GEN_26);	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :20:30, :29:24, :45:40, :47:{25,41}, :80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:55:35, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :101:18, :123:24, :126:20, :128:{21,32}, :176:{10,17}, :177:25
   reg               rBusy;	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
   reg               wBusy;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
   reg               rIdx;	// src/main/scala/mycpu/core/kernel/Kernel.scala:81:22
   reg  [63:0]       activeWData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
   wire [7:0]        res_2_1 = {3'h0, ~_queue_io_deq_valid, 4'h0};	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, :30:19
-  wire              _GEN_23 = ~rBusy | rIdx;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :79:26, :81:22, :103:20, :120:30
-  assign channel_5_respData = _GEN_23 ? 64'h0 : _queue_io_deq_bits;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :103:20, :120:30
+  wire              _GEN_28 = ~rBusy | rIdx;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :79:26, :81:22, :103:20, :120:30
+  assign channel_5_respData = _GEN_28 ? 64'h0 : _queue_io_deq_bits;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :103:20, :120:30
   assign channel_5_ready = rBusy & ~rIdx & _queue_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :81:22, :103:20, :120:{21,30}, :122:25
-  assign channel_5_error = _GEN_23 ? 8'h0 : res_2_1;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :75:21, :103:20, :120:30
+  assign channel_5_error = _GEN_28 ? 8'h0 : res_2_1;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :75:21, :103:20, :120:30
   assign channel_9_ready =
     wBusy ? _queue_io_enq_ready : rBusy & rIdx & _queue_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :80:26, :81:22, :103:20, :120:30, :122:25, :131:20, :147:30
   assign channel_9_error =
@@ -265,7 +266,7 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   reg               wBusy_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
   reg               wIdx_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:82:22
   reg  [63:0]       activeWData_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-  assign channel_3_ready = channel_3_req_valid & ~channel_3_req_wen | wBusy_1 & ~wIdx_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :80:26, :82:22, :93:63, :103:20, :131:20, :147:{21,30}, :160:{29,45}, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  assign channel_3_ready = channel_3_req_valid & ~channel_3_req_wen | wBusy_1 & ~wIdx_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :80:26, :82:22, :93:63, :103:20, :131:20, :147:{21,30}, :160:{29,45}, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
   wire [63:0]       channel_7_respData = channel_7_req_valid ? {32'h0, pcReg} : 64'h0;	// src/main/scala/mycpu/core/Core.scala:24:23, src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :37:23, :103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
   reg               rBusy_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
   reg               wBusy_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
@@ -276,23 +277,24 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
   reg  [31:0]       activeWAddr_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:88:28
   reg  [63:0]       activeWData_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
   reg  [1:0]        activeWSize_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:90:28
-  wire              _GEN_24 = ~rBusy_2 | ~rState;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :46:20, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :103:{12,20}, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
-  wire              res_3_1 = rState & io_master_r_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :43:27, :46:20, :56:27
-  wire [63:0]       _GEN_25 = {32'h0, rData};	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, src/main/scala/mycpu/core/kernel/Kernel.scala:121:25
-  wire [63:0]       channel_4_respData = ~rBusy_2 | rIdx_2 ? 64'h0 : _GEN_25;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :79:26, :81:22, :103:20, :120:30, :121:25
-  wire [63:0]       channel_8_respData = rBusy_2 & rIdx_2 ? _GEN_25 : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :79:26, :81:22, :103:20, :120:30, :121:25
+  wire              _GEN_29 = ~rBusy_2 | ~rState;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :51:20, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :103:{12,20}, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  wire              res_3_1 = rState & io_master_r_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :43:27, :51:20, :60:27
+  wire [63:0]       _GEN_30 =
+    {32'h0, rState & io_master_r_valid ? io_master_r_bits_data : rData};	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :15:19, :48:46, :49:22, src/main/scala/mycpu/core/kernel/Kernel.scala:121:25
+  wire [63:0]       channel_4_respData = ~rBusy_2 | rIdx_2 ? 64'h0 : _GEN_30;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :79:26, :81:22, :103:20, :120:30, :121:25
+  wire [63:0]       channel_8_respData = rBusy_2 & rIdx_2 ? _GEN_30 : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :73:21, :79:26, :81:22, :103:20, :120:30, :121:25
   wire [62:0]       _res_io_master_w_bits_data_T_1 =
-    {31'h0, activeWData_2[31:0]} << {58'h0, activeWAddr_2[1:0], 3'h0};	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:79:26, :81:{32,40}, src/main/scala/mycpu/core/kernel/Kernel.scala:88:28, :89:28
+    {31'h0, activeWData_2[31:0]} << {58'h0, activeWAddr_2[1:0], 3'h0};	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:83:26, :85:{32,40}, src/main/scala/mycpu/core/kernel/Kernel.scala:88:28, :89:28
   wire [6:0]        _res_io_master_w_bits_strb_T_6 =
-    {3'h0, _GEN[activeWSize_2]} << activeWAddr_2[1:0];	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:79:26, :83:54, :87:12, src/main/scala/mycpu/core/kernel/Kernel.scala:88:28, :90:28
-  wire              res_2_3 = wState & io_master_b_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :67:27, :70:20, :100:27
-  assign channel_4_ready = ~wBusy_2 | wIdx_2 ? rBusy_2 & ~rIdx_2 & res_3_1 : res_2_3;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :43:27, :46:20, :56:27, :67:27, :70:20, :100:27, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :80:26, :81:22, :82:22, :103:20, :120:{21,30}, :122:25, :131:20, :147:30
-  assign channel_8_ready = wBusy_2 & wIdx_2 ? res_2_3 : rBusy_2 & rIdx_2 & res_3_1;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:43:27, :46:20, :56:27, :67:27, :70:20, :100:27, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :80:26, :81:22, :82:22, :103:20, :120:30, :122:25, :131:20, :147:30
+    {3'h0, _GEN[activeWSize_2]} << activeWAddr_2[1:0];	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:83:26, :87:54, :91:12, src/main/scala/mycpu/core/kernel/Kernel.scala:88:28, :90:28
+  wire              res_2_3 = wState & io_master_b_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :72:27, :75:20, :104:27
+  assign channel_4_ready = ~wBusy_2 | wIdx_2 ? rBusy_2 & ~rIdx_2 & res_3_1 : res_2_3;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :43:27, :51:20, :60:27, :72:27, :75:20, :104:27, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :80:26, :81:22, :82:22, :103:20, :120:{21,30}, :122:25, :131:20, :147:30
+  assign channel_8_ready = wBusy_2 & wIdx_2 ? res_2_3 : rBusy_2 & rIdx_2 & res_3_1;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:43:27, :51:20, :60:27, :72:27, :75:20, :104:27, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :80:26, :81:22, :82:22, :103:20, :120:30, :122:25, :131:20, :147:30
   reg               wBusy_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
   reg  [31:0]       activeWAddr_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:88:28
   reg  [63:0]       activeWData_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-  wire              _GEN_26 = channel_2_req_valid & ~channel_2_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:63, :160:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  wire [31:0][31:0] _GEN_27 =
+  wire              _GEN_31 = channel_2_req_valid & ~channel_2_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:63, :160:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  wire [31:0][31:0] _GEN_32 =
     {{rfVec_31},
      {rfVec_30},
      {rfVec_29},
@@ -326,100 +328,97 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
      {rfVec_1},
      {rfVec_0}};	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:26:8
   wire [63:0]       channel_2_respData =
-    _GEN_26
+    _GEN_31
       ? {32'h0,
-         channel_2_req_addr[4:0] == 5'h0 ? 32'h0 : _GEN_27[channel_2_req_addr[4:0]]}
-      : 64'h0;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:87:12, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:26:{8,13,19}, src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :37:23, :103:20, :160:{29,45}, :161:25, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-  assign channel_2_ready = _GEN_26 | wBusy_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, :160:{29,45}, :162:25
+         channel_2_req_addr[4:0] == 5'h0 ? 32'h0 : _GEN_32[channel_2_req_addr[4:0]]}
+      : 64'h0;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:91:12, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:26:{8,13,19}, src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :37:23, :103:20, :160:{29,45}, :161:25, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  assign channel_2_ready = _GEN_31 | wBusy_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, :160:{29,45}, :162:25
   reg               rBusy_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
   reg               wBusy_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
   reg               rIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:81:22
   reg               wIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:82:22
   reg  [63:0]       activeWData_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
   wire [7:0]        res_2_4 = {3'h0, ~_queue_1_io_deq_valid, 4'h0};	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, :30:19
-  wire [7:0]        res_1_3 = {3'h0, ~_queue_1_io_enq_ready, 4'h0};	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, :39:19
-  wire              _GEN_28 = ~wBusy_4 | wIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :103:20, :131:20, :147:30
+  wire [7:0]        res_1_4 = {3'h0, ~_queue_1_io_enq_ready, 4'h0};	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, :39:19
+  wire              _GEN_33 = ~wBusy_4 | wIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :103:20, :131:20, :147:30
   assign channel_6_ready =
-    _GEN_28 ? rBusy_4 & ~rIdx_4 & _queue_1_io_deq_valid : _queue_1_io_enq_ready;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :81:22, :103:20, :120:{21,30}, :122:25, :131:20, :147:30
-  assign channel_6_error = _GEN_28 ? (~rBusy_4 | rIdx_4 ? 8'h0 : res_2_4) : res_1_3;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, :39:19, src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :79:26, :81:22, :103:20, :120:30, :131:20, :147:30
-  wire              _GEN_29 = wBusy_4 & wIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :103:20, :131:20, :147:30
+    _GEN_33 ? rBusy_4 & ~rIdx_4 & _queue_1_io_deq_valid : _queue_1_io_enq_ready;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :81:22, :103:20, :120:{21,30}, :122:25, :131:20, :147:30
+  assign channel_6_error = _GEN_33 ? (~rBusy_4 | rIdx_4 ? 8'h0 : res_2_4) : res_1_4;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, :39:19, src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :79:26, :81:22, :103:20, :120:30, :131:20, :147:30
+  wire              _GEN_34 = wBusy_4 & wIdx_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :103:20, :131:20, :147:30
   assign channel_10_ready =
-    _GEN_29 ? _queue_1_io_enq_ready : rBusy_4 & rIdx_4 & _queue_1_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :81:22, :103:20, :120:30, :122:25, :131:20, :147:30
-  assign channel_10_error = _GEN_29 ? res_1_3 : rBusy_4 & rIdx_4 ? res_2_4 : 8'h0;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, :39:19, src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :79:26, :81:22, :103:20, :120:30, :131:20, :147:30
+    _GEN_34 ? _queue_1_io_enq_ready : rBusy_4 & rIdx_4 & _queue_1_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :79:26, :81:22, :103:20, :120:30, :122:25, :131:20, :147:30
+  assign channel_10_error = _GEN_34 ? res_1_4 : rBusy_4 & rIdx_4 ? res_2_4 : 8'h0;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:30:19, :39:19, src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :79:26, :81:22, :103:20, :120:30, :131:20, :147:30
   always @(posedge clock) begin	// src/main/scala/mycpu/core/Core.scala:13:7
-    automatic logic [31:0] _GEN_30;	// src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    automatic logic [31:0] _GEN_35;	// src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     automatic logic        readReqSignals_0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        _GEN_31;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        _GEN_32;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        _GEN_33;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        _GEN_34;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        _GEN_35;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        channel_4_req_valid;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        _GEN_36;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:154:56
-    automatic logic [31:0] channel_4_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic [1:0]  channel_4_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        _GEN_37;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:175:32
-    automatic logic        channel_6_req_valid = _GEN_15 & ~tRes_doneReg;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:93:29, :202:23, :206:46, :208:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        channel_6_req_wen = _GEN_12 & res_isReadyNow_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, :206:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic [31:0] _GEN_38;	// src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    automatic logic        _GEN_36;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    automatic logic        _GEN_37;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    automatic logic        _GEN_38;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
     automatic logic        _GEN_39;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        _GEN_40 = activeReg_1 & _GEN_17;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-    automatic logic        _GEN_41 = activeReg_1 & _GEN_17 & ~res_doneReg_6;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :31:29, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    automatic logic        _GEN_40;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic        channel_4_req_valid;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic        channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic        _GEN_41;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:165:56
+    automatic logic [31:0] channel_4_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic [1:0]  channel_4_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic        _GEN_42;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:185:32
+    automatic logic        channel_6_req_valid = _GEN_18 & ~tRes_doneReg;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:95:29, :212:23, :216:46, :218:31, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic        channel_6_req_wen = _GEN_15 & res_isReadyNow_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, :216:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    automatic logic [31:0] _GEN_43;	// src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    automatic logic        _GEN_44;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    automatic logic        _GEN_45 = activeReg_1 & _GEN_22;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    automatic logic        _GEN_46 = activeReg_1 & _GEN_22 & ~res_doneReg_6;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :31:29, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     automatic logic [31:0] channel_8_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     automatic logic [1:0]  channel_8_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :32:29, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    automatic logic        _GEN_42;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-    automatic logic        channel_9_req_valid = activeReg_1 & _GEN_19 & ~res_doneReg_7;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-    automatic logic        channel_9_req_wen = activeReg_1 & _GEN_19;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    automatic logic        _GEN_47;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    automatic logic        channel_9_req_valid = activeReg_1 & _GEN_24 & ~res_doneReg_7;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    automatic logic        channel_9_req_wen = activeReg_1 & _GEN_24;	// src/main/scala/mycpu/core/kernel/Kernel.scala:39:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     automatic logic        writeReqSignals_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:94:61
     automatic logic [1:0]  readReqs;	// src/main/scala/mycpu/core/kernel/Kernel.scala:96:53
     automatic logic        writeReqSignals_0_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:94:61
     automatic logic        readReqSignals_0_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:93:60
     automatic logic        writeReqSignals_0_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:94:61
     automatic logic [1:0]  readReqs_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:96:53
-    automatic logic        _GEN_43;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :46:20, :56:27, :57:18
+    automatic logic        _GEN_48;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :51:20, :60:27, :61:18
     automatic logic        writeReqSignals_0_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:94:61
     automatic logic        readReqSignals_0_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:93:60
     automatic logic        writeReqSignals_0_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:94:61
     automatic logic [1:0]  readReqs_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:96:53
-    _GEN_30 = {29'h0, pcReg_1};	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :95:12
+    _GEN_35 = {29'h0, pcReg_1};	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :95:12
     readReqSignals_0 = activeReg & _GEN_0 & ~res_doneReg;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-    _GEN_31 = ~res_doneReg & channel_5_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :103:20, :120:30, :122:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
-    _GEN_32 = ~rs1_doneReg & channel_2_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
-    _GEN_33 = ~rs2_doneReg & channel_2_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
-    _GEN_34 = ~res_doneReg_1 & channel_4_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
-    _GEN_35 = activeReg & _layer_probe;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-    channel_4_req_valid =
-      _GEN_35 & (_layer_probe_0 ? ~res_doneReg_1 : _layer_probe_1 & ~res_doneReg_2);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:{27,51}, :154:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    channel_4_req_wen = _GEN_35 & ~_layer_probe_0 & _layer_probe_1;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:{27,51}, :154:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    _GEN_36 = _layer_probe_1 & ~res_doneReg_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:154:{32,56}
+    _GEN_36 = ~res_doneReg & channel_5_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:74:21, :103:20, :120:30, :122:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+    _GEN_37 = ~rs1_doneReg & channel_2_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+    _GEN_38 = ~rs2_doneReg & channel_2_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+    _GEN_39 = ~res_doneReg_1 & channel_4_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+    _GEN_40 = activeReg & _GEN_6;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    channel_4_req_valid = _GEN_40 & (_GEN_7 ? ~res_doneReg_1 : _GEN_8 & ~res_doneReg_2);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, :72:30, :80:{14,24}, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:{27,51}, :165:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    channel_4_req_wen = _GEN_40 & ~_GEN_7 & _GEN_8;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:{27,51}, :165:{32,56}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    _GEN_41 = _GEN_8 & ~res_doneReg_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:165:{32,56}
     channel_4_req_addr =
-      _GEN_35
-        ? (_layer_probe_0 ? (res_doneReg_1 ? 32'h0 : aluOut) : _GEN_36 ? aluOut : 32'h0)
-        : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :31:29, :80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :148:{27,51}, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      _GEN_40
+        ? (_GEN_7 ? (res_doneReg_1 ? 32'h0 : aluOut) : _GEN_41 ? aluOut : 32'h0)
+        : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :31:29, :80:24, :83:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:84:22, :160:{27,51}, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     channel_4_req_size =
-      _GEN_35
-        ? (_layer_probe_0
-             ? (res_doneReg_1 ? 2'h0 : ctrl_memSize)
-             : _GEN_36 ? ctrl_memSize : 2'h0)
-        : 2'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, :38:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :32:29, :80:24, :83:29, :85:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :148:{27,51}, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    _GEN_37 = ctrl_service == 3'h4;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :175:32
-    _GEN_38 = {29'h0, pcReg_2};	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :95:12
-    _GEN_39 = ~res_doneReg_5 & (channel_7_req_valid | wBusy_1 & wIdx_1);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :80:26, :82:22, :103:20, :131:20, :147:30, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    channel_8_req_addr = _GEN_41 ? currentPC : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    channel_8_req_size = {_GEN_41, 1'h0};	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :38:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, :32:29, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    _GEN_42 = ~res_doneReg_6 & channel_8_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+      _GEN_40
+        ? (_GEN_7 ? (res_doneReg_1 ? 2'h0 : ctrl_memSize) : _GEN_41 ? ctrl_memSize : 2'h0)
+        : 2'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, :38:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:24, :32:29, :80:24, :83:29, :85:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :160:{27,51}, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    _GEN_42 = ctrl_service == 3'h4;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :185:32
+    _GEN_43 = {29'h0, pcReg_2};	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :95:12
+    _GEN_44 = ~res_doneReg_5 & (channel_7_req_valid | wBusy_1 & wIdx_1);	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :80:26, :82:22, :103:20, :131:20, :147:30, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    channel_8_req_addr = _GEN_46 ? currentPC : 32'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    channel_8_req_size = {_GEN_46, 1'h0};	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :38:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, :32:29, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    _GEN_47 = ~res_doneReg_6 & channel_8_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
     writeReqSignals_1 = channel_9_req_valid & channel_9_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     readReqs = {channel_9_req_valid & ~channel_9_req_wen, readReqSignals_0};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:{60,63}, :96:53, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :80:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    writeReqSignals_0_1 = channel_3_req_valid & channel_3_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    readReqSignals_0_2 = channel_4_req_valid & ~channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:{60,63}, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    writeReqSignals_0_2 = channel_4_req_valid & channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    readReqs_2 = {_GEN_40 & ~res_doneReg_6, readReqSignals_0_2};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :93:60, :96:53, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    _GEN_43 = rState & io_master_r_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :15:19, :46:20, :56:27, :57:18
-    writeReqSignals_0_3 = channel_2_req_valid & channel_2_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/processes/CPUProsses.scala:178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    readReqSignals_0_4 = channel_6_req_valid & ~channel_6_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:{60,63}, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, :206:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    writeReqSignals_0_4 = channel_6_req_valid & channel_6_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:202:23, :206:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    readReqs_3 = {activeReg_1 & _GEN_22 & ~res_doneReg_8, readReqSignals_0_4};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :93:60, :96:53, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+    writeReqSignals_0_1 = channel_3_req_valid & channel_3_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    readReqSignals_0_2 = channel_4_req_valid & ~channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:{60,63}, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    writeReqSignals_0_2 = channel_4_req_valid & channel_4_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:27:27, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    readReqs_2 = {_GEN_45 & ~res_doneReg_6, readReqSignals_0_2};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :93:60, :96:53, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    _GEN_48 = rState & io_master_r_valid;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :15:19, :51:20, :60:27, :61:18
+    writeReqSignals_0_3 = channel_2_req_valid & channel_2_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/processes/CPUProsses.scala:188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    readReqSignals_0_4 = channel_6_req_valid & ~channel_6_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :93:{60,63}, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, :216:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    writeReqSignals_0_4 = channel_6_req_valid & channel_6_req_wen;	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :39:23, :94:61, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, src/main/scala/mycpu/core/processes/CPUProsses.scala:212:23, :216:46, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    readReqs_3 = {activeReg_1 & _GEN_27 & ~res_doneReg_8, readReqSignals_0_4};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :93:60, :96:53, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :29:{14,24}, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     if (reset) begin	// src/main/scala/mycpu/core/Core.scala:13:7
       rState <= 1'h0;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23
       wState <= 1'h0;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23
@@ -459,8 +458,9 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
       rfVec_30 <= 32'h0;	// src/main/scala/mycpu/core/Core.scala:25:23
       rfVec_31 <= 32'h0;	// src/main/scala/mycpu/core/Core.scala:25:23
       activeReg <= 1'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-      pkt_inst <= 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26
-      pkt_pc <= 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26
+      pkt_inst <= 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26
+      pkt_pc <= 32'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26
+      dpi_latch <= 1'h0;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:100:28
       pcReg_1 <= 3'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24
       res_doneReg <= 1'h0;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30
       res_errReg <= 8'h0;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:20:30
@@ -490,144 +490,145 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
       wBusy_4 <= 1'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
     end
     else begin	// src/main/scala/mycpu/core/Core.scala:13:7
-      automatic logic _GEN_44 = ~tRes_doneReg & channel_6_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :75:28, :80:{14,24}, :86:31, :87:21
-      automatic logic _GEN_45 = ~res_doneReg_7 & channel_9_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :75:28, :80:{14,24}, :86:31, :87:21
-      automatic logic _GEN_46 = ~res_doneReg_8 & channel_10_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
-      automatic logic _res_T_24;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:92:40
-      _res_T_24 = (wDoneAW | io_master_aw_ready) & (wDoneW | io_master_w_ready);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :19:24, :92:{23,40,51}
+      automatic logic _GEN_49 = ~tRes_doneReg & channel_6_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :75:28, :80:{14,24}, :86:31, :87:21
+      automatic logic _GEN_50 = ~res_doneReg_7 & channel_9_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :75:28, :80:{14,24}, :86:31, :87:21
+      automatic logic _GEN_51 = ~res_doneReg_8 & channel_10_ready;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :24:28, :29:{14,24}, :34:31, :35:21
+      automatic logic _res_T_24;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:96:40
+      _res_T_24 = (wDoneAW | io_master_aw_ready) & (wDoneW | io_master_w_ready);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :19:24, :96:{23,40,51}
       if (rBusy_2) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
         if (rState)	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23
-          rState <= ~_GEN_43;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :15:19, :46:20, :56:27, :57:18, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20
+          rState <= ~_GEN_48;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :15:19, :51:20, :60:27, :61:18, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20
         else	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23
           rState <= io_master_ar_ready;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23
-        rBusy_2 <= ~res_3_1;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:43:27, :46:20, :56:27, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :127:{20,28}
+        rBusy_2 <= ~res_3_1;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:43:27, :51:20, :60:27, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :127:{20,28}
       end
       else	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
         rBusy_2 <= |readReqs_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :96:53, :104:23
       if (wBusy_2) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
         if (wState)	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23
-          wState <= ~(wState & io_master_b_valid);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :70:20, :100:27, :101:18
+          wState <= ~(wState & io_master_b_valid);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :75:20, :104:27, :105:18
         else	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23
-          wState <= _res_T_24;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :92:40
-        wBusy_2 <= ~res_2_3;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:67:27, :70:20, :100:27, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :152:{20,28}
+          wState <= _res_T_24;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :96:40
+        wBusy_2 <= ~res_2_3;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:72:27, :75:20, :104:27, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :152:{20,28}
       end
       else	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
         wBusy_2 <= writeReqSignals_0_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :94:61
-      if (~wBusy_2 | wState) begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :18:24, :19:24, :70:20, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20
+      if (~wBusy_2 | wState) begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :18:24, :19:24, :75:20, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20
       end
-      else begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:19:24, :70:20, src/main/scala/mycpu/core/kernel/Kernel.scala:131:20
-        wDoneAW <= ~_res_T_24 & (io_master_aw_ready | wDoneAW);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :89:{28,38}, :92:{40,68}, :94:19
-        wDoneW <= ~_res_T_24 & (io_master_w_ready | wDoneW);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:19:24, :89:28, :90:{28,38}, :92:{40,68}, :94:19, :95:19
+      else begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:19:24, :75:20, src/main/scala/mycpu/core/kernel/Kernel.scala:131:20
+        wDoneAW <= ~_res_T_24 & (io_master_aw_ready | wDoneAW);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:18:24, :93:{28,38}, :96:{40,68}, :98:19
+        wDoneW <= ~_res_T_24 & (io_master_w_ready | wDoneW);	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:19:24, :93:28, :94:{28,38}, :96:{40,68}, :98:19, :99:19
       end
       if (wBusy_1)	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
         pcReg <= activeWData_1[31:0];	// src/main/scala/mycpu/core/Core.scala:24:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:17:18, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h0)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:87:12, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h0)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:91:12, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_0 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_1 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h2)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h2)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_2 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h3)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h3)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_3 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h4)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h4)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_4 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h5)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h5)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_5 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h6)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h6)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_6 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h7)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h7)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_7 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h8)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h8)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_8 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h9)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h9)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_9 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hA)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hA)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_10 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hB)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hB)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_11 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hC)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hC)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_12 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hD)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hD)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_13 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hE)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hE)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_14 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hF)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'hF)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_15 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h10)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h10)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_16 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h11)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h11)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_17 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h12)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h12)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_18 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h13)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h13)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_19 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h14)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h14)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_20 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h15)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h15)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_21 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h16)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h16)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_22 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h17)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h17)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_23 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h18)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h18)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_24 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h19)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h19)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_25 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1A)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1A)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_26 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1B)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1B)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_27 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1C)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1C)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_28 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1D)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1D)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_29 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1E)	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & activeWAddr_3[4:0] == 5'h1E)	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_30 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
-      if (wBusy_3 & (|activeWAddr_3) & (&(activeWAddr_3[4:0])))	// <stdin>:6522:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
+      if (wBusy_3 & (|activeWAddr_3) & (&(activeWAddr_3[4:0])))	// <stdin>:6518:26, src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:30:{15,24}, :32:18, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :131:20
         rfVec_31 <= activeWData_3[31:0];	// src/main/scala/mycpu/core/Core.scala:25:23, src/main/scala/mycpu/core/drivers/StandardDrivers.scala:32:25, src/main/scala/mycpu/core/kernel/Kernel.scala:89:28
       activeReg <= 1'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-      if (_GEN_2) begin	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :102:44, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-        pkt_inst <= res_value[63:32];	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :103:42
-        pkt_pc <= res_value[31:0];	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :103:42
+      if (_GEN_2) begin	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :114:44, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+        pkt_inst <= res_value[63:32];	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :115:42
+        pkt_pc <= res_value[31:0];	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :115:42
       end
       if (activeReg) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+        dpi_latch <= _GEN_19 | ~_GEN_0 & dpi_latch;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:96:29, :100:28, :107:19, :212:23, :216:46, :218:31, :220:27, :222:27, src/main/scala/mycpu/utils/HardwareAgent.scala:128:{21,32}
         if (stepDoneWire)	// src/main/scala/mycpu/utils/HardwareAgent.scala:101:18, :123:24, :128:32
           pcReg_1 <= pcReg_1 > 3'h4 ? 3'h0 : pcReg_1 + 3'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :140:{15,24}, :143:{21,44}, :145:19
       end
       else	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
         pcReg_1 <= 3'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24
       res_doneReg <=
-        _GEN_31 | ~(res_isFirstCycle_REG != _GEN_30 | ~res_isFirstCycle_REG_1 & activeReg)
+        _GEN_36 | ~(res_isFirstCycle_REG != _GEN_35 | ~res_isFirstCycle_REG_1 & activeReg)
         & res_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
-      if (_GEN_31)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+      if (_GEN_36)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
         res_errReg <= channel_5_error;	// src/main/scala/mycpu/core/kernel/Kernel.scala:75:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:20:30
       rs1_doneReg <=
-        _GEN_32 | ~(rs1_isFirstCycle_REG != _GEN_30 | ~rs1_isFirstCycle_REG_1 & activeReg)
+        _GEN_37 | ~(rs1_isFirstCycle_REG != _GEN_35 | ~rs1_isFirstCycle_REG_1 & activeReg)
         & rs1_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       rs2_doneReg <=
-        _GEN_33 | ~(rs2_isFirstCycle_REG != _GEN_30 | ~rs2_isFirstCycle_REG_1 & activeReg)
+        _GEN_38 | ~(rs2_isFirstCycle_REG != _GEN_35 | ~rs2_isFirstCycle_REG_1 & activeReg)
         & rs2_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_1 <=
-        _GEN_34
-        | ~(res_isFirstCycle_REG_2 != _GEN_30 | ~res_isFirstCycle_REG_3 & activeReg)
+        _GEN_39
+        | ~(res_isFirstCycle_REG_2 != _GEN_35 | ~res_isFirstCycle_REG_3 & activeReg)
         & res_doneReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_2 <=
         ~res_doneReg_2 & channel_4_ready
-        | ~(res_isFirstCycle_REG_4 != _GEN_30 | ~res_isFirstCycle_REG_5 & activeReg)
+        | ~(res_isFirstCycle_REG_4 != _GEN_35 | ~res_isFirstCycle_REG_5 & activeReg)
         & res_doneReg_2;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :74:{35,42,51,62,76,88}, :75:{28,38}, :80:{14,24}, :86:31, :87:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_3 <=
         ~res_doneReg_3 & channel_2_ready
-        | ~(res_isFirstCycle_REG_6 != _GEN_30 | ~res_isFirstCycle_REG_7 & activeReg)
+        | ~(res_isFirstCycle_REG_6 != _GEN_35 | ~res_isFirstCycle_REG_7 & activeReg)
         & res_doneReg_3;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :74:{35,42,51,62,76,88}, :75:{28,38}, :80:{14,24}, :86:31, :87:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_4 <=
         ~res_doneReg_4 & channel_3_ready
-        | ~(res_isFirstCycle_REG_8 != _GEN_30 | ~res_isFirstCycle_REG_9 & activeReg)
+        | ~(res_isFirstCycle_REG_8 != _GEN_35 | ~res_isFirstCycle_REG_9 & activeReg)
         & res_doneReg_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:131:20, :160:45, :162:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :74:{35,42,51,62,76,88}, :75:{28,38}, :80:{14,24}, :86:31, :87:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       tRes_doneReg <=
-        _GEN_44
-        | ~(tRes_isFirstCycle_REG != _GEN_30 | ~tRes_isFirstCycle_REG_1 & activeReg)
+        _GEN_49
+        | ~(tRes_isFirstCycle_REG != _GEN_35 | ~tRes_isFirstCycle_REG_1 & activeReg)
         & tRes_doneReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :74:{35,42,51,62,76,88}, :75:{28,38}, :80:24, :86:31, :87:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
-      if (_GEN_44)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:75:28, :80:24, :86:31, :87:21
+      if (_GEN_49)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:75:28, :80:24, :86:31, :87:21
         tRes_errReg <= channel_6_error;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:73:30
       activeReg_1 <= 1'h1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
       if (activeReg_1) begin	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
@@ -637,24 +638,24 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
       else	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
         pcReg_2 <= 3'h0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24
       res_doneReg_5 <=
-        _GEN_39
-        | ~(res_isFirstCycle_REG_10 != _GEN_38 | ~res_isFirstCycle_REG_11 & activeReg_1)
+        _GEN_44
+        | ~(res_isFirstCycle_REG_10 != _GEN_43 | ~res_isFirstCycle_REG_11 & activeReg_1)
         & res_doneReg_5;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_6 <=
-        _GEN_42
-        | ~(res_isFirstCycle_REG_12 != _GEN_38 | ~res_isFirstCycle_REG_13 & activeReg_1)
+        _GEN_47
+        | ~(res_isFirstCycle_REG_12 != _GEN_43 | ~res_isFirstCycle_REG_13 & activeReg_1)
         & res_doneReg_6;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
       res_doneReg_7 <=
-        _GEN_45
-        | ~(res_isFirstCycle_REG_14 != _GEN_38 | ~res_isFirstCycle_REG_15 & activeReg_1)
+        _GEN_50
+        | ~(res_isFirstCycle_REG_14 != _GEN_43 | ~res_isFirstCycle_REG_15 & activeReg_1)
         & res_doneReg_7;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :74:{35,42,51,62,76,88}, :75:{28,38}, :80:24, :86:31, :87:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
-      if (_GEN_45)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:75:28, :80:24, :86:31, :87:21
+      if (_GEN_50)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:75:28, :80:24, :86:31, :87:21
         res_errReg_7 <= channel_9_error;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:73:30
       res_doneReg_8 <=
-        _GEN_46
-        | ~(res_isFirstCycle_REG_16 != _GEN_38 | ~res_isFirstCycle_REG_17 & activeReg_1)
+        _GEN_51
+        | ~(res_isFirstCycle_REG_16 != _GEN_43 | ~res_isFirstCycle_REG_17 & activeReg_1)
         & res_doneReg_8;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :23:{35,42,51,62,76,88}, :24:{28,38}, :29:24, :34:31, :35:21, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :95:12
-      if (_GEN_46)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+      if (_GEN_51)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
         res_errReg_8 <= channel_10_error;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :131:20, :147:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:20:30
       if (rBusy)	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
         rBusy <= ~_queue_io_deq_valid;	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21, :30:19, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26
@@ -675,76 +676,76 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
       else	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26
         wBusy_4 <= writeReqSignals_0_4;	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :94:61
     end
-    if (_GEN_24 | ~_GEN_43) begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :46:20, :56:27, :57:18, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+    if (_GEN_29 | ~_GEN_48) begin	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :51:20, :60:27, :61:18, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
     end
-    else	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :46:20, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20
+    else	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19, :51:20, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20
       rData <= io_master_r_bits_data;	// src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:15:19
-    if (_GEN_2) begin	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :102:44, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      ctrl_service <= _decoder_io_ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_aluOp <= _decoder_io_ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_arg1 <= _decoder_io_ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_arg2 <= _decoder_io_ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_immType <= _decoder_io_ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_regWen <= _decoder_io_ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      ctrl_memSize <= _decoder_io_ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :76:22
-      immVal <= _immGen_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:72:25, :79:22
+    if (_GEN_2) begin	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :114:44, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      ctrl_service <= _decoder_io_ctrl_service;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_aluOp <= _decoder_io_ctrl_aluOp;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_arg1 <= _decoder_io_ctrl_arg1;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_arg2 <= _decoder_io_ctrl_arg2;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_immType <= _decoder_io_ctrl_immType;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_regWen <= _decoder_io_ctrl_regWen;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      ctrl_memSize <= _decoder_io_ctrl_memSize;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :80:22
+      immVal <= _immGen_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:25, :83:22
     end
-    if (activeReg & _GEN_3)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:77:22, :118:16, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-      rs1Val <= rs1_doneReg ? rs1_dataReg[31:0] : channel_2_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:77:22
-    if (activeReg & _GEN_4)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:78:22, :123:16, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-      rs2Val <= rs2_doneReg ? rs2_dataReg[31:0] : channel_2_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:78:22
-    if (_GEN_5)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:88:21, :142:19, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      aluOut <= _alu_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:73:25, :80:22
-    if (activeReg & _layer_probe & _layer_probe_0)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22, :148:{27,51}, :152:19, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
-      memVal <= res_doneReg_1 ? res_dataReg_1[31:0] : channel_4_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22
-    if (_GEN_31)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    if (activeReg & _GEN_3)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22, :130:16, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+      rs1Val <= rs1_doneReg ? rs1_dataReg[31:0] : channel_2_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:81:22
+    if (activeReg & _GEN_4)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:82:22, :135:16, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+      rs2Val <= rs2_doneReg ? rs2_dataReg[31:0] : channel_2_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:82:22
+    if (_GEN_5)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:91:21, :154:19, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      aluOut <= _alu_io_out;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:25, :84:22
+    if (activeReg & _GEN_6 & _GEN_7)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:85:22, :160:{27,51}, :163:19, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+      memVal <= res_doneReg_1 ? res_dataReg_1[31:0] : channel_4_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:85:22
+    if (_GEN_36)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
       res_dataReg <= channel_5_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    res_isFirstCycle_REG <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     res_isFirstCycle_REG_1 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    if (_GEN_32)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    if (_GEN_37)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
       rs1_dataReg <= channel_2_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    rs1_isFirstCycle_REG <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    rs1_isFirstCycle_REG <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     rs1_isFirstCycle_REG_1 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    if (_GEN_33)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    if (_GEN_38)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
       rs2_dataReg <= channel_2_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    rs2_isFirstCycle_REG <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    rs2_isFirstCycle_REG <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     rs2_isFirstCycle_REG_1 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    if (_GEN_34)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
-      res_dataReg_1 <= channel_4_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    res_isFirstCycle_REG_2 <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
-    res_isFirstCycle_REG_3 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    res_isFirstCycle_REG_4 <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
-    res_isFirstCycle_REG_5 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    res_isFirstCycle_REG_6 <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
-    res_isFirstCycle_REG_7 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    res_isFirstCycle_REG_8 <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
-    res_isFirstCycle_REG_9 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    tRes_isFirstCycle_REG <= _GEN_30;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
-    tRes_isFirstCycle_REG_1 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    if (_GEN_16)	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      currentPC <= res_doneReg_5 ? res_dataReg_2[31:0] : channel_7_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26
-    if (_GEN_40)	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      inst <= res_doneReg_6 ? res_dataReg_3[31:0] : channel_8_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:28:26
     if (_GEN_39)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+      res_dataReg_1 <= channel_4_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
+    res_isFirstCycle_REG_2 <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_3 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+    res_isFirstCycle_REG_4 <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_5 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+    res_isFirstCycle_REG_6 <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_7 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+    res_isFirstCycle_REG_8 <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_9 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+    tRes_isFirstCycle_REG <= _GEN_35;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    tRes_isFirstCycle_REG_1 <= activeReg;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
+    if (_GEN_21)	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      currentPC <= res_doneReg_5 ? res_dataReg_2[31:0] : channel_7_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26
+    if (_GEN_45)	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      inst <= res_doneReg_6 ? res_dataReg_3[31:0] : channel_8_respData[31:0];	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:18:30, :19:26, :46:25, src/main/scala/mycpu/core/processes/CPUProsses.scala:28:26
+    if (_GEN_44)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
       res_dataReg_2 <= channel_7_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, :160:45, :161:25, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    res_isFirstCycle_REG_10 <= _GEN_38;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_10 <= _GEN_43;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     res_isFirstCycle_REG_11 <= activeReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    if (_GEN_42)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
+    if (_GEN_47)	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:24:28, :29:24, :34:31, :35:21
       res_dataReg_3 <= channel_8_respData;	// src/main/scala/mycpu/core/kernel/Kernel.scala:73:21, :103:20, :120:30, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:19:26
-    res_isFirstCycle_REG_12 <= _GEN_38;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_12 <= _GEN_43;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     res_isFirstCycle_REG_13 <= activeReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    res_isFirstCycle_REG_14 <= _GEN_38;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_14 <= _GEN_43;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     res_isFirstCycle_REG_15 <= activeReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:74:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
-    res_isFirstCycle_REG_16 <= _GEN_38;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
+    res_isFirstCycle_REG_16 <= _GEN_43;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:35, src/main/scala/mycpu/utils/HardwareAgent.scala:95:12
     res_isFirstCycle_REG_17 <= activeReg_1;	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:23:62, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34
     if (~rBusy & (|readReqs))	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :81:22, :96:53, :103:{12,20}, :104:{23,28}, :106:17
       rIdx <= ~readReqSignals_0;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :81:22, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     if (~wBusy & writeReqSignals_1)	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :89:28, :94:61, :131:{12,20}, :132:29, :137:23
-      activeWData <= activeReg_1 & _GEN_19 & ~res_doneReg_7 ? {inst, currentPC} : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26, :28:26, :46:45, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+      activeWData <= activeReg_1 & _GEN_24 & ~res_doneReg_7 ? {inst, currentPC} : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:27:26, :28:26, :49:45, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     if (~wBusy_1 & writeReqSignals_0_1) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :94:61, :131:{12,20}, :132:29, :134:17
-      automatic logic [31:0] _nextPC_T = pkt_pc + 32'h4;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :184:41
-      automatic logic        _branchTaken_T_4 = pkt_inst[14:12] == 3'h0 & ~(|aluOut);	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :80:22, :186:29, :188:33, :189:56
-      automatic logic [7:0]  _GEN_47 =
+      automatic logic [31:0] _nextPC_T = pkt_pc + 32'h4;	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :194:41
+      automatic logic        _branchTaken_T_4 = pkt_inst[14:12] == 3'h0 & ~(|aluOut);	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :84:22, :196:29, :198:33, :199:56
+      automatic logic [7:0]  _GEN_52 =
         {{~(|aluOut)},
          {|aluOut},
          {~(|aluOut)},
@@ -752,43 +753,40 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
          {_branchTaken_T_4},
          {_branchTaken_T_4},
          {|aluOut},
-         {_branchTaken_T_4}};	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :186:29, :187:29, :189:56, :193:26
+         {_branchTaken_T_4}};	// src/main/scala/mycpu/core/processes/CPUProsses.scala:84:22, :196:29, :197:29, :199:56, :203:26
       wIdx_1 <= ~writeReqSignals_0_1;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:82:22, :94:61
       activeWData_1 <=
-        writeReqSignals_0_1 & activeReg & _GEN_7 & rfDone & ~res_doneReg_4
+        writeReqSignals_0_1 & activeReg & _GEN_10 & rfDone & ~res_doneReg_4
           ? {32'h0,
              ctrl_service == 3'h3
-               ? (_GEN_47[pkt_inst[14:12]] ? pkt_pc + immVal : _nextPC_T)
-               : _GEN_37 ? aluOut : _nextPC_T}
-          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :76:22, :79:22, :80:22, :175:32, :177:33, :178:27, :181:18, :184:{33,41}, :185:{27,51}, :188:33, :189:56, :197:{30,39,49}, :198:56, :199:19, :202:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+               ? (_GEN_52[pkt_inst[14:12]] ? pkt_pc + immVal : _nextPC_T)
+               : _GEN_42 ? aluOut : _nextPC_T}
+          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :80:22, :83:22, :84:22, :185:32, :187:33, :188:27, :191:18, :194:{33,41}, :195:{27,51}, :198:33, :199:56, :207:{30,39,49}, :208:56, :209:19, :212:23, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     end
     if (~rBusy_2 & (|readReqs_2)) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :81:22, :96:53, :103:{12,20}, :104:{23,28}, :106:17
       rIdx_2 <= ~readReqSignals_0_2;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:81:22, :93:60
-      activeRAddr_2 <= readReqSignals_0_2 ? channel_4_req_addr : channel_8_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :86:28, :93:60, :108:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      activeRSize_2 <= readReqSignals_0_2 ? channel_4_req_size : channel_8_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, :87:28, :93:60, :109:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :32:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      activeRAddr_2 <= readReqSignals_0_2 ? channel_4_req_addr : channel_8_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :86:28, :93:60, :108:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      activeRSize_2 <= readReqSignals_0_2 ? channel_4_req_size : channel_8_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, :87:28, :93:60, :109:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :32:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     end
     if (~wBusy_2 & writeReqSignals_0_2) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :82:22, :94:61, :131:{12,20}, :132:29, :134:17
       wIdx_2 <= ~writeReqSignals_0_2;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:82:22, :94:61
-      activeWAddr_2 <= writeReqSignals_0_2 ? channel_4_req_addr : channel_8_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :88:28, :94:61, :136:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      activeWAddr_2 <= writeReqSignals_0_2 ? channel_4_req_addr : channel_8_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :88:28, :94:61, :136:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
       activeWData_2 <=
-        ~writeReqSignals_0_2 | ~_GEN_35 | _layer_probe_0 | ~_GEN_36
-          ? 64'h0
-          : {32'h0, rs2Val};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, :37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:78:22, :148:{27,51}, :154:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-      activeWSize_2 <= writeReqSignals_0_2 ? channel_4_req_size : channel_8_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, :90:28, :94:61, :138:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :32:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+        ~writeReqSignals_0_2 | ~_GEN_40 | _GEN_7 | ~_GEN_41 ? 64'h0 : {32'h0, rs2Val};	// src/main/scala/mycpu/core/kernel/Kernel.scala:35:23, :36:23, :37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:82:22, :160:{27,51}, :165:56, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+      activeWSize_2 <= writeReqSignals_0_2 ? channel_4_req_size : channel_8_req_size;	// src/main/scala/mycpu/core/kernel/Kernel.scala:38:23, :90:28, :94:61, :138:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:29:24, :32:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:160:51, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     end
     if (~wBusy_3 & writeReqSignals_0_3) begin	// src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :88:28, :94:61, :131:{12,20}, :132:29, :136:23
-      automatic logic [31:0]      shiftedData = memVal >> {27'h0, aluOut[1:0], 3'h0};	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :81:22, :163:32, :165:34
-      automatic logic [3:0][31:0] _GEN_48 =
+      automatic logic [31:0]      shiftedData = memVal >> {27'h0, aluOut[1:0], 3'h0};	// src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:31:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:84:22, :85:22, :173:32, :175:34
+      automatic logic [3:0][31:0] _GEN_53 =
         {{shiftedData},
          {shiftedData},
          {{16'h0, shiftedData[15:0]}},
-         {{24'h0, shiftedData[7:0]}}};	// src/main/scala/mycpu/core/processes/CPUProsses.scala:165:34, :167:64, :168:49, :169:49
+         {{24'h0, shiftedData[7:0]}}};	// src/main/scala/mycpu/core/processes/CPUProsses.scala:175:34, :177:64, :178:49, :179:49
       activeWAddr_3 <= channel_2_req_addr;	// src/main/scala/mycpu/core/kernel/Kernel.scala:36:23, :88:28, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
       activeWData_3 <=
-        activeReg & _GEN_9
-          ? {32'h0,
-             _layer_probe_0 ? _GEN_48[ctrl_memSize] : _GEN_37 ? pkt_pc + 32'h4 : aluOut}
-          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :76:22, :80:22, :148:27, :167:64, :173:36, :174:{51,63}, :175:{32,54,66,76}, :178:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:32
+        activeReg & _GEN_12
+          ? {32'h0, _GEN_7 ? _GEN_53[ctrl_memSize] : _GEN_42 ? pkt_pc + 32'h4 : aluOut}
+          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:80:24, :83:29, :84:29, src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :80:22, :84:22, :160:27, :177:64, :183:36, :184:{51,63}, :185:{32,54,66,76}, :188:27, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:32
     end
     if (~rBusy_4 & (|readReqs_3))	// src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :81:22, :96:53, :103:{12,20}, :104:{23,28}, :106:17
       rIdx_4 <= ~readReqSignals_0_4;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:81:22, :93:60
@@ -796,8 +794,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
       wIdx_4 <= ~writeReqSignals_0_4;	// src/main/scala/chisel3/util/Mux.scala:58:84, src/main/scala/mycpu/core/kernel/Kernel.scala:82:22, :94:61
       activeWData_4 <=
         writeReqSignals_0_4
-          ? {63'h0, activeReg & _GEN_7 & rfDone & res_isReadyNow_4 & ~tRes_doneReg}
-          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:177:33, :178:27, :181:18, :202:23, :206:46, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
+          ? {63'h0, activeReg & _GEN_10 & rfDone & res_isReadyNow_4 & ~tRes_doneReg}
+          : 64'h0;	// src/main/scala/mycpu/core/kernel/Kernel.scala:37:23, :89:28, :94:61, :137:23, src/main/scala/mycpu/core/kernel/VirtualResourceHandle.scala:72:30, :80:{14,24}, :84:29, :92:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:187:33, :188:27, :191:18, :212:23, :216:46, src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :123:24, :128:{21,32}
     end
   end // always @(posedge)
   Queue2_UInt64 queue (	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21
@@ -820,8 +818,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .io_deq_valid (_queue_1_io_deq_valid),
     .io_deq_bits  (/* unused */)
   );	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:12:21
-  ControlUnit decoder (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-    .io_inst         (immGen_io_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :102:44, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  ControlUnit decoder (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+    .io_inst         (immGen_io_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :114:44, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     .io_ctrl_service (_decoder_io_ctrl_service),
     .io_ctrl_aluOp   (_decoder_io_ctrl_aluOp),
     .io_ctrl_arg1    (_decoder_io_ctrl_arg1),
@@ -829,33 +827,33 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .io_ctrl_immType (_decoder_io_ctrl_immType),
     .io_ctrl_regWen  (_decoder_io_ctrl_regWen),
     .io_ctrl_memSize (_decoder_io_ctrl_memSize)
-  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25
-  ImmGen immGen (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:72:25
-    .io_inst (immGen_io_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :102:44, :104:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    .io_sel  (_GEN_2 ? _decoder_io_ctrl_immType : ctrl_immType),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:71:25, :75:26, :76:22, :102:44, :104:15, :108:16, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25
+  ImmGen immGen (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:25
+    .io_inst (immGen_io_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :114:44, :116:15, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    .io_sel  (_GEN_2 ? _decoder_io_ctrl_immType : ctrl_immType),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:74:25, :79:26, :80:22, :114:44, :116:15, :120:16, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     .io_out  (_immGen_io_out)
-  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:72:25
-  ALU alu (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:73:25
+  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:25
+  ALU alu (	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:25
     .io_a
       (_GEN_5
          ? (ctrl_arg1 == 2'h0 ? rs1Val : ctrl_arg1 == 2'h1 ? pkt_pc : 32'h0)
-         : 32'h0),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:75:26, :76:22, :77:22, :88:21, :130:27, :131:35, :132:35, :142:19, :167:64, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+         : 32'h0),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:79:26, :80:22, :81:22, :91:21, :142:27, :143:35, :144:35, :154:19, :177:64, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
     .io_b
       (_GEN_5
          ? (ctrl_arg2 == 2'h0
               ? rs2Val
               : ctrl_arg2 == 2'h1 ? immVal : {29'h0, ctrl_arg2 == 2'h2, 2'h0})
-         : 32'h0),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :78:22, :79:22, :88:21, :89:21, :128:31, :136:27, :137:38, :138:38, :139:38, :142:19, :143:19, :167:64, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
-    .io_op  (ctrl_aluOp),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22
+         : 32'h0),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :82:22, :83:22, :91:21, :92:21, :140:31, :148:27, :149:38, :150:38, :151:38, :154:19, :155:19, :177:64, src/main/scala/mycpu/utils/HardwareAgent.scala:123:24, :128:32
+    .io_op  (ctrl_aluOp),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22
     .io_out (_alu_io_out)
-  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:73:25
+  );	// src/main/scala/mycpu/core/processes/CPUProsses.scala:76:25
   InlineSimState simState (	// src/main/scala/mycpu/core/Core.scala:57:26
     .clk     (clock),
     .reset   (reset),
-    .valid   (dpi_valid),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:92:29
-    .pc      (dpi_pc),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:93:29
+    .valid   (dpi_valid),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:95:29
+    .pc      (dpi_pc),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:96:29
     .dnpc    (32'h0),
-    .inst    (dpi_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:94:29
+    .inst    (dpi_inst),	// src/main/scala/mycpu/core/processes/CPUProsses.scala:97:29
     .regs
       ({rfVec_31,
         rfVec_30,
@@ -895,19 +893,19 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:13:7
     .mcause  (32'h0)
   );	// src/main/scala/mycpu/core/Core.scala:57:26
   InlineSimEbreak simEbreak (	// src/main/scala/mycpu/core/Core.scala:63:27
-    .valid     (dpi_valid & dpi_inst == 32'h100073),	// src/main/scala/mycpu/core/Core.scala:62:39, :64:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:92:29, :94:29
-    .is_ebreak (dpi_inst)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:94:29
+    .valid     (dpi_valid & dpi_inst == 32'h100073),	// src/main/scala/mycpu/core/Core.scala:62:39, :64:40, src/main/scala/mycpu/core/processes/CPUProsses.scala:95:29, :97:29
+    .is_ebreak (dpi_inst)	// src/main/scala/mycpu/core/processes/CPUProsses.scala:97:29
   );	// src/main/scala/mycpu/core/Core.scala:63:27
-  assign io_master_aw_valid = wBusy_2 & ~wState & ~wDoneAW;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :18:24, :70:20, :72:{20,23}, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  assign io_master_aw_valid = wBusy_2 & ~wState & ~wDoneAW;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :18:24, :75:20, :77:{20,23}, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
   assign io_master_aw_bits_addr = activeWAddr_2;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/kernel/Kernel.scala:88:28
-  assign io_master_aw_bits_size = {1'h0, activeWSize_2};	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:74:32, src/main/scala/mycpu/core/kernel/Kernel.scala:90:28
-  assign io_master_w_valid = wBusy_2 & ~wState & ~wDoneW;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :19:24, :70:20, :76:{19,22}, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
-  assign io_master_w_bits_data = _res_io_master_w_bits_data_T_1[31:0];	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:81:{25,40}
-  assign io_master_w_bits_strb = _res_io_master_w_bits_strb_T_6[3:0];	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:83:25, :87:12
-  assign io_master_b_ready = ~(~wBusy_2 | ~wState) & wState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :70:20, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:{12,20}, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
-  assign io_master_ar_valid = rBusy_2 & ~rState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :46:20, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  assign io_master_aw_bits_size = {1'h0, activeWSize_2};	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:79:32, src/main/scala/mycpu/core/kernel/Kernel.scala:90:28
+  assign io_master_w_valid = wBusy_2 & ~wState & ~wDoneW;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :19:24, :75:20, :81:{19,22}, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  assign io_master_w_bits_data = _res_io_master_w_bits_data_T_1[31:0];	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:85:{25,40}
+  assign io_master_w_bits_strb = _res_io_master_w_bits_strb_T_6[3:0];	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:87:25, :91:12
+  assign io_master_b_ready = ~(~wBusy_2 | ~wState) & wState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:17:23, :75:20, src/main/scala/mycpu/core/kernel/Kernel.scala:80:26, :131:{12,20}, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  assign io_master_ar_valid = rBusy_2 & ~rState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :51:20, src/main/scala/mycpu/core/kernel/Kernel.scala:79:26, :103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
   assign io_master_ar_bits_addr = activeRAddr_2;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/kernel/Kernel.scala:86:28
-  assign io_master_ar_bits_size = {1'h0, activeRSize_2};	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:51:32, src/main/scala/mycpu/core/kernel/Kernel.scala:87:28
-  assign io_master_r_ready = ~_GEN_24 & rState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :46:20, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
+  assign io_master_ar_bits_size = {1'h0, activeRSize_2};	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:55:32, src/main/scala/mycpu/core/kernel/Kernel.scala:87:28
+  assign io_master_r_ready = ~_GEN_29 & rState;	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/drivers/SmartAXIDriver.scala:14:23, :51:20, src/main/scala/mycpu/core/kernel/Kernel.scala:103:20, src/main/scala/mycpu/utils/HardwareAgent.scala:40:68
 endmodule
 

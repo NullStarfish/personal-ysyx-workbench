@@ -43,11 +43,15 @@ class SmartAXIDriver(bus: AXI4Bundle) extends PhysicalDriver(
     val done = WireDefault(false.B)
     val err  = WireDefault(Errno.ESUCCESS)
     
+    // [Fix] Data Bypass Logic
+    // If valid data is on the bus right now, use it. Otherwise use the register.
+    val isReadValid = (rState === sWaitResp) && bus.r.valid
+    val outData = Mux(isReadValid, bus.r.bits.data, rData)
+    
     switch(rState) {
       is(sIdle) {
         p_ar_valid := true.B
         bus.ar.bits.addr := addr
-        // [修复] size 是 2位，AXI 需要 3位。补0即可。
         bus.ar.bits.size := Cat(0.U(1.W), size) 
         when(bus.ar.ready) { rState := sWaitResp }
       }
@@ -60,7 +64,8 @@ class SmartAXIDriver(bus: AXI4Bundle) extends PhysicalDriver(
         }
       }
     }
-    (rData, err, done)
+    // Return the bypassed data instead of the register
+    (outData, err, done)
   }
 
   override def seqWrite(addr: UInt, data: UInt, size: UInt): (UInt, Bool) = {
@@ -75,15 +80,14 @@ class SmartAXIDriver(bus: AXI4Bundle) extends PhysicalDriver(
         
         p_w_valid := !wDoneW
         
-        // [核心修复] 根据地址低位生成 WSTRB 和移位数据
         val offset = addr(1, 0)
-        val shift  = Cat(offset, 0.U(3.W)) // offset * 8
+        val shift  = Cat(offset, 0.U(3.W)) 
         bus.w.bits.data := data(31, 0) << shift
         
         bus.w.bits.strb := MuxLookup(size, "b1111".U)(Seq(
-          0.U -> "b0001".U, // Byte
-          1.U -> "b0011".U, // Half
-          2.U -> "b1111".U  // Word
+          0.U -> "b0001".U, 
+          1.U -> "b0011".U, 
+          2.U -> "b1111".U  
         )) << offset
         
         when(bus.aw.ready) { wDoneAW := true.B }
