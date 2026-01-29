@@ -9,31 +9,33 @@ import mycpu.common._
 class PipeDriver(val name: String, depth: Int) extends PhysicalDriver(
   DriverMeta(name, DriverTiming.Sequential, DriverTiming.Sequential)
 ) {
-  // [修复] Queue 使用 KERNEL_DATA_WIDTH (64位)
   val queue = Module(new Queue(UInt(KERNEL_DATA_WIDTH.W), depth)) 
 
-  val io_enq = Wire(Decoupled(UInt(KERNEL_DATA_WIDTH.W)))
-  val io_deq = Wire(Decoupled(UInt(KERNEL_DATA_WIDTH.W)))
-  
-  queue.io.enq <> io_enq
-  queue.io.deq <> io_deq
+  // 定义内部代理信号
+  private var p_enq_valid: Bool = _
+  private var p_enq_bits:  UInt = _
+  private var p_deq_ready: Bool = _
 
-  io_enq.valid := false.B; io_enq.bits := 0.U
-  io_deq.ready := false.B
+  override def setup(agent: HardwareAgent): Unit = {
+    // 使用 managed 机制，由 Kernel Arbiter 驱动
+    p_enq_valid = agent.driveManaged(queue.io.enq.valid, false.B)
+    p_enq_bits  = agent.driveManaged(queue.io.enq.bits,  0.U)
+    p_deq_ready = agent.driveManaged(queue.io.deq.ready, false.B)
+  }
 
   override def seqRead(addr: UInt, size: UInt): (UInt, UInt, Bool) = {
-    io_deq.ready := true.B
-    val data = io_deq.bits
-    val done = io_deq.valid 
+    p_deq_ready := true.B
+    val data = queue.io.deq.bits
+    val done = queue.io.deq.valid 
     val err  = Mux(done, Errno.ESUCCESS, Errno.EBUSY) 
     (data, err, done)
   }
 
   override def seqWrite(addr: UInt, data: UInt, size: UInt): (UInt, Bool) = {
-    io_enq.valid := true.B
-    io_enq.bits  := data
+    p_enq_valid := true.B
+    p_enq_bits  := data
     
-    val done = io_enq.ready
+    val done = queue.io.enq.ready
     val err  = Mux(done, Errno.ESUCCESS, Errno.EBUSY)
     (err, done)
   }

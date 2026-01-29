@@ -1,3 +1,4 @@
+
 package mycpu.utils
 
 import chisel3._
@@ -31,13 +32,6 @@ trait HardwareAgent {
   }
 
   def driveManaged[T <: Data](target: T, default: T): T = driveManaged(target, default, default)
-
-  def write[T <: Data](proxy: T, value: T): Unit = {
-    if (!managedSignals.contains(proxy)) {
-       throw new Exception(s"[$name] [Safety Error] Attempting to write to an unmanaged signal: $proxy.")
-    }
-    proxy := value
-  }
 }
 
 class HardwareLogic(val name: String, val debugEnable: Boolean = true) extends HardwareAgent {
@@ -55,67 +49,64 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true, val isMe
   private val stepNames = ArrayBuffer[String]()
   private val globals = ArrayBuffer[() => Unit]()
 
-  private var pcEntity: UInt = _
-  
   private val activeReg = RegInit(false.B)
   
-  // [关键修复] 将原本的 var Bool 改为 WireInit
-  // 这样无论 entry 和 startWhen 的调用顺序如何，Chisel 都能通过 Wire 连接起来
-  private val startWire = WireInit(false.B)
-  private val abortWire = WireInit(false.B)
-  private val pauseWire = WireInit(false.B)
+  // [修复] 提供一个预先定义的稳定 PC 信号
+  // 即使 pcReg 还没创建，sys_read 也能引用这个 wire
+  private val pcWire = WireInit(0.U(32.W))
+  def pc: UInt = pcWire
 
-  private var _startCondSet = false
+  // 核心控制线网
+  private val startWire  = WireInit(false.B)
+  private val abortWire  = WireInit(false.B)
+  private val pauseWire  = WireInit(false.B)
+  
+  // [修复] stepDone 必须定义在 class 作用域，以便全局访问
+  private val stepDoneWire = WireInit(true.B) 
+
   private var _generated = false
   private var _isLooping = false
+  private var _startCondSet = false
 
-  def hasStartCondition: Boolean = _startCondSet
-  def isGenerated: Boolean = _generated
-
-  private val sessionCycles = RegInit(0.U(32.W))
-  private val sessionStalls = RegInit(0.U(32.W))
-
-  def pc: UInt = if (pcEntity == null) 0.U else pcEntity
-
-  // [关键修复] 使用 startWire
   def isRunning: Bool = if (isMealy) (activeReg || startWire) else activeReg
+  def hasStartCondition: Boolean = _startCondSet
 
-  // [关键修复] 驱动 Wire
-  def startWhen(cond: Bool): Unit = { 
-    startWire := cond
-    _startCondSet = true 
-  }
+  def startWhen(cond: Bool): Unit = { startWire := cond; _startCondSet = true }
   def abortWhen(cond: Bool): Unit = { abortWire := cond }
   def pauseWhen(cond: Bool): Unit = { pauseWire := cond }
+  
+  def setStepNotDone(): Unit = { stepDoneWire := false.B }
 
   def entry(block: => Unit): Unit = {
     if (_generated) throw new Exception(s"Thread '$name' generated twice")
     _generated = true
 
-    ContextScope.withContext(ThreadCtx(this)) {
-      block 
-    }
+    // 1. 设置 Context 并执行用户定义的 Steps
+    // 此时内部 sys_read 会引用 pcWire
+    ContextScope.withContext(ThreadCtx(this)) { block }
 
     val totalSteps = steps.length
     if (totalSteps == 0) return
 
     val width = log2Ceil(totalSteps + 1)
     val pcReg = RegInit(0.U(width.W))
-    pcEntity = pcReg
+    
+    // [关键连接] 将物理寄存器连接到稳定的 pcWire
+    pcWire := pcReg
 
+    // 默认驱动管理信号
     managedSignals.foreach { case (proxy, (_, default)) => proxy := default }
+
+    // 每一拍默认 stepDone 为 true，除非在 func() 中调用了 waitCondition
+    stepDoneWire := true.B
 
     val active = isRunning 
 
+    // Debug Log
     if (debugEnable) {
       val wasActive = RegNext(active)
       val lastPc    = RegNext(pcReg)
-      
-      when (!wasActive && active) {
-        agentPrint("--- ONLINE ---")
-        sessionCycles := 0.U; sessionStalls := 0.U
-      }
-      
+      when (!wasActive && active) { agentPrint("--- ONLINE ---") }
       val justStarted = active && !wasActive
       when ((active && pcReg =/= lastPc) || justStarted) {
         for ((name, idx) <- stepNames.zipWithIndex) {
@@ -124,100 +115,68 @@ class HardwareThread(val name: String, val debugEnable: Boolean = true, val isMe
       }
     }
 
-    // [关键修复] 在逻辑中使用 Wire
+    // 状态机核心逻辑
     when (abortWire) {
       activeReg := false.B
       pcReg     := 0.U
     }
     .elsewhen (active) {
-      sessionCycles := sessionCycles + 1.U
-      
-      when (!pauseWire) {
+      // 执行当前 PC 对应的 Step 逻辑
+      // 如果 Step 内部调用了 waitCondition，会驱动 stepDoneWire 变低
+      stepDoneWire := true.B
+      for ((func, idx) <- steps.zipWithIndex) {
+        when (pcReg === idx.U) { func() }
+      }
+
+      if (debugEnable) {
+        when (!pauseWire && !stepDoneWire) {
+           // 由于 Chisel 打印字符串限制，打印 PC 即可定位
+           printf(p"[$name] THREAD STALL AT PC=$pcReg\n")
+        }
+      }
+
+      // 只有在没被外部暂停且内部逻辑允许（stepDone）时才步进
+      when (!pauseWire && stepDoneWire) {
         pcReg := pcReg + 1.U
         activeReg := true.B
         
         when (pcReg >= (totalSteps - 1).U) {
           if (_isLooping) {
-            activeReg := true.B
-            pcReg     := 0.U
+            pcReg := 0.U
           } else {
             activeReg := false.B
             pcReg     := 0.U
           }
         }
-
-        for ((func, idx) <- steps.zipWithIndex) {
-          when (pcReg === idx.U) { func() }
-        }
       } .otherwise {
-        sessionStalls := sessionStalls + 1.U
+        // Stall: 保持 PC
+        pcReg := pcReg
       }
     }
     .otherwise {
-       // [关键修复] 这里的 startWire 是 Wire，即使在生成这段电路后才连接 true.B 也没问题
        when (startWire) {
          activeReg := true.B
          pcReg     := 0.U
        }
     }
-    
+
     globals.foreach(_())
   }
 
-  def Exit(): Unit = {
-    activeReg := false.B
-    if (pcEntity != null) pcEntity := 0.U
-  }
-  
   def Loop(): Unit = { _isLooping = true }
   
   def Step(name: String)(block: => Unit): Unit = {
     stepNames += name
     steps += { () => 
-        ContextScope.withContext(AtomicCtx(this)) {
-          block
-        }
+        ContextScope.withContext(AtomicCtx(this)) { block }
       }
   }
-  
-  def Step(block: => Unit): Unit = Step(s"Step_${steps.length}")(block)
 
   def waitCondition(cond: Bool): Unit = { 
-      when(!cond) { 
-          if(pcEntity != null) pcEntity := pcEntity 
-      } 
+    when(!cond) { 
+      this.stepDoneWire := false.B
+    } 
   }
-  
-  def Label: UInt = steps.length.U
 
   def Global(block: => Unit): Unit = { globals += { () => block } }
-
-  def Par(blocks: (() => Unit)*): Unit = {
-    val children = blocks.zipWithIndex.map { case (block, i) =>
-      val t = new HardwareThread(s"${name}_fork_$i", debugEnable, isMealy = true)
-      t.entry {
-        ContextScope.withContext(ThreadCtx(t)) { block() }
-      }
-      t
-    }
-
-    this.Step(s"Par_Fork_${children.length}") {
-      val childrenActive = VecInit(children.map(_.isRunning))
-      val hasRun = RegInit(VecInit(Seq.fill(children.length)(false.B)))
-      
-      children.zipWithIndex.foreach { case (t, i) =>
-        t.startWhen(!hasRun(i))
-        when(t.isRunning) { hasRun(i) := true.B }
-      }
-      
-      val allStarted = hasRun.asUInt.andR
-      val noneRunning = !childrenActive.asUInt.orR
-      
-      when (allStarted && noneRunning) {
-        hasRun.foreach(_ := false.B)
-      } .otherwise {
-        this.waitCondition(false.B)
-      }
-    }
-  }
 }

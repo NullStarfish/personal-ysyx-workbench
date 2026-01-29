@@ -16,60 +16,40 @@ class FetchProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Fetc
   override def entry(): Unit = {
     val t = createThread("F_Thread")
     
-    val pcDev   = sys_open("PC")
-    val pcCheck = sys_open("PC") 
-    val imem    = sys_open("AXI_BUS") 
-    
-    // [新增] 接收来自 Main 的跳转意图信号
-    val mainJumpFlag = WireInit(false.B)
-    BoringUtils.addSink(mainJumpFlag, "Main_Jump_Active")
+    val pcDev    = sys_open("PC")
+    val axi      = sys_open("AXI_BUS")
+    val toMain   = sys_open("Fetch2Main") 
+    val tokenIn  = sys_open("TokenPass")
 
     t.entry {
       t.Loop() 
       
       val currentPC = Reg(UInt(32.W))
       val inst      = Reg(UInt(32.W))
-      
+
       t.Step("ReadPC") {
         val res = pcDev.sys_read(0.U)
         currentPC := res.value
       }
       
       t.Step("FetchIMEM") {
-        val res = imem.sys_read(currentPC)
-        t.waitCondition(res.isError === 0.U)
+        val res = axi.sys_read(currentPC, 2.U)
+        t.waitCondition(res.errno === Errno.ESUCCESS)
         inst := res.value
       }
       
-      t.Step("DispatchQueue") {
+      t.Step("Dispatch") {
         val pkt = Wire(new FetchPacket)
         pkt.inst := inst
-        pkt.pc   := currentPC 
+        pkt.pc   := currentPC
         
-        // [关键修复] 死锁破除机制
-        // 如果 Main 正在发起跳转 (mainJumpFlag=true)，说明当前 inst 是错误路径指令。
-        // 此时无论队列是否已满，都直接丢弃该指令，不要尝试写入。
-        // 这防止了 Fetch 阻塞在队列写操作上，从而允许 Fetch 快速流转到 ReadPC 读取新地址。
-        when (!mainJumpFlag) {
-            val res = stdout.sys_write(0.U, pkt.asUInt)
-            t.waitCondition(res.isError === 0.U)
-        }
+        val res = toMain.sys_write(0.U, pkt.asUInt)
+        t.waitCondition(res.errno === Errno.ESUCCESS)
       }
 
-      t.Step("UpdatePC") {
-        val realPC = pcCheck.sys_read(0.U)
-        
-        // 冲突检测逻辑：
-        // 1. realPC 未变 (物理检测)
-        // 2. Main 此时没有正在发起跳转 (意图检测)
-        val safeToUpdate = (realPC.value === currentPC) && !mainJumpFlag
-
-        when (safeToUpdate) {
-           val res = pcDev.sys_write(0.U, currentPC + 4.U)
-           // 必须等待写完成
-           t.waitCondition(res.isError === 0.U)
-        }
-        // 如果不安全，跳过更新，下一次 ReadPC 将读取 Main 更新后的新 PC
+      t.Step("WaitToken") {
+        val res = tokenIn.sys_read(0.U)
+        t.waitCondition(res.errno === Errno.ESUCCESS)
       }
     }
   }
@@ -82,175 +62,155 @@ class MainProcess(p: Option[ProcessContext], k: Kernel) extends HwProcess("Main"
   override def entry(): Unit = {
     val t = createThread("M_Thread")
     
-    val rf    = sys_open("RF")
-    val pcDev = sys_open("PC")
-    val dmem  = sys_open("AXI_BUS")
+    val rf      = sys_open("RF")
+    val pcDev   = sys_open("PC")
+    val dmem    = sys_open("AXI_BUS")
+    val fromFet = sys_open("Fetch2Main")
+    val tokenOut= sys_open("TokenPass")
     
     val decoder = Module(new ControlUnit)
     val immGen  = Module(new ImmGen)
     val alu     = Module(new ALU)
+
+    val pkt     = RegInit(0.U.asTypeOf(new FetchPacket))
+    val ctrl    = Reg(new CtrlSignals)
+    val rs1Val  = Reg(UInt(32.W))
+    val rs2Val  = Reg(UInt(32.W))
+    val immVal  = Reg(UInt(32.W))
+    val aluOut  = Reg(UInt(32.W))
+    val memVal  = Reg(UInt(32.W))
+
+    // === [修复] 默认驱动赋值，防止 "not fully initialized" 错误 ===
+    // 即使 Thread 没运行，这些 Sink 也会被驱动
+    decoder.io.inst := pkt.inst
+    immGen.io.inst  := pkt.inst
+    immGen.io.sel   := ctrl.immType
+    alu.io.a        := 0.U
+    alu.io.b        := 0.U
+    alu.io.op       := ctrl.aluOp
     
     val dpi_valid = WireInit(false.B); BoringUtils.addSource(dpi_valid, "DPI_Commit_Valid")
     val dpi_pc    = WireInit(0.U(32.W)); BoringUtils.addSource(dpi_pc, "DPI_Commit_PC")
     val dpi_inst  = WireInit(0.U(32.W)); BoringUtils.addSource(dpi_inst, "DPI_Commit_Inst")
-    
-    // [新增] 广播跳转意图
-    val jumpActive = WireInit(false.B); BoringUtils.addSource(jumpActive, "Main_Jump_Active")
 
     t.entry {
-      decoder.io.inst := 0.U
-      immGen.io.inst  := 0.U
-      immGen.io.sel   := ImmType.I
-      alu.io.a        := 0.U
-      alu.io.b        := 0.U
-      alu.io.op       := ALUOp.ADD
-
       t.Loop()
 
-      val expectedPC = RegInit(START_ADDR.U(32.W)) 
-      val validInst  = Reg(Bool())
-
-      val pkt     = Reg(new FetchPacket)
-      val inst    = Wire(UInt(32.W)); inst := pkt.inst
-      val pc      = Wire(UInt(32.W)); pc   := pkt.pc
-      
-      val rs1Val  = Reg(UInt(32.W))
-      val rs2Val  = Reg(UInt(32.W))
-      val immVal  = Reg(UInt(32.W))
-      val aluOut  = Reg(UInt(32.W))
-      val ctrl    = Reg(new CtrlSignals)
-      
-      val memReadVal = Reg(UInt(32.W))
-
-      t.Step("Decode") {
-        val res = stdin.sys_read(0.U)
-        t.waitCondition(res.isError === 0.U)
-        val rawPkt = res.value.asTypeOf(new FetchPacket)
-        
-        when (res.isError === 0.U) {
-          when (rawPkt.pc === expectedPC) {
-            pkt       := rawPkt
-            validInst := true.B
-            
-            decoder.io.inst := rawPkt.inst
-            ctrl := decoder.io.ctrl
-            
-            immGen.io.inst := rawPkt.inst
-            immGen.io.sel  := decoder.io.ctrl.immType
-            immVal := immGen.io.out
-            
-            val rs1Addr = rawPkt.inst(19, 15)
-            val rs2Addr = rawPkt.inst(24, 20)
-            rs1Val := rf.sys_read(rs1Addr).value
-            rs2Val := rf.sys_read(rs2Addr).value
-          } .otherwise {
-            validInst := false.B 
-          }
+      t.Step("FetchPkt") {
+        val res = fromFet.sys_read(0.U)
+        t.waitCondition(res.errno === Errno.ESUCCESS)
+        when(res.errno === Errno.ESUCCESS) {
+          val rawPkt = res.value.asTypeOf(new FetchPacket)
+          pkt := rawPkt
+          
+          // 立即更新译码和立即数（此时 PC 处于 FetchPkt 步）
+          decoder.io.inst := rawPkt.inst
+          ctrl := decoder.io.ctrl
+          
+          immGen.io.inst := rawPkt.inst
+          immGen.io.sel  := decoder.io.ctrl.immType
+          immVal := immGen.io.out
         }
+      }
+
+      t.Step("ReadRS1") {
+        val rs1 = rf.sys_read(pkt.inst(19, 15))
+        rs1Val := rs1.value
+      }
+
+      t.Step("ReadRS2") {
+        val rs2 = rf.sys_read(pkt.inst(24, 20))
+        rs2Val := rs2.value
       }
 
       t.Step("Execute") {
-        when(validInst) {
-          val src1 = WireDefault(0.U(32.W))
-          val src2 = WireDefault(0.U(32.W))
+        val src1 = WireDefault(0.U(32.W))
+        val src2 = WireDefault(0.U(32.W))
 
-          switch(ctrl.arg1) {
-            is(Arg1Type.REG) { src1 := rs1Val }
-            is(Arg1Type.PC)  { src1 := pc }
-            is(Arg1Type.ZERO){ src1 := 0.U }
-          }
-          
-          switch(ctrl.arg2) {
-            is(Arg2Type.REG)    { src2 := rs2Val }
-            is(Arg2Type.IMM)    { src2 := immVal }
-            is(Arg2Type.CONST_4){ src2 := 4.U }
-          }
-
-          alu.io.op := ctrl.aluOp
-          alu.io.a  := src1
-          alu.io.b  := src2
-          aluOut    := alu.io.out
+        switch(ctrl.arg1) {
+          is(Arg1Type.REG) { src1 := rs1Val }
+          is(Arg1Type.PC)  { src1 := pkt.pc }
+          is(Arg1Type.ZERO){ src1 := 0.U }
         }
+        
+        switch(ctrl.arg2) {
+          is(Arg2Type.REG)    { src2 := rs2Val }
+          is(Arg2Type.IMM)    { src2 := immVal }
+          is(Arg2Type.CONST_4){ src2 := 4.U }
+        }
+
+        alu.io.a  := src1
+        alu.io.b  := src2
+        aluOut    := alu.io.out
       }
 
       t.Step("Mem") {
-        when(validInst) {
-           when(ctrl.service === ServiceType.MEM_RD) {
-             val res = dmem.sys_read(aluOut, ctrl.memSize)
-             t.waitCondition(res.isError === 0.U)
-             memReadVal := res.value
-           } 
-           .elsewhen(ctrl.service === ServiceType.MEM_WR) {
-             val res = dmem.sys_write(aluOut, rs2Val, ctrl.memSize)
-             t.waitCondition(res.isError === 0.U)
-           }
+        when(ctrl.service === ServiceType.MEM_RD) {
+           printf("[DEBUG] Main MEM_RD Start: addr=0x%x\n", aluOut)
+           val res = dmem.sys_read(aluOut, ctrl.memSize)
+           t.waitCondition(res.errno === Errno.ESUCCESS)
+           memVal := res.value
+        } 
+        .elsewhen(ctrl.service === ServiceType.MEM_WR) {
+           printf("[DEBUG] Main MEM_WR Start: addr=0x%x\n", aluOut)
+           val res = dmem.sys_write(aluOut, rs2Val, ctrl.memSize)
+           t.waitCondition(res.errno === Errno.ESUCCESS)
         }
       }
 
-      t.Step("WB") {
-        when(validInst) {
-          val finalData = WireDefault(aluOut)
+      t.Step("Commit") {
+        // --- Load 数据对齐处理 (针对 LBU 等) ---
+        val addrOffset = aluOut(1, 0)
+        val shiftAmount = Cat(addrOffset, 0.U(3.W)) // offset * 8
+        val shiftedData = memVal >> shiftAmount
+        
+        val memFormatted = MuxLookup(ctrl.memSize, shiftedData)(Seq(
+          0.U -> Mux(ctrl.memSigned, shiftedData(7, 0).asSInt.asUInt, shiftedData(7, 0)),
+          1.U -> Mux(ctrl.memSigned, shiftedData(15, 0).asSInt.asUInt, shiftedData(15, 0)),
+          2.U -> shiftedData(31, 0)
+        ))
+
+        val finalData = WireDefault(aluOut)
+        when(ctrl.service === ServiceType.MEM_RD) { finalData := memFormatted }
+        .elsewhen(ctrl.service === ServiceType.JUMP) { finalData := pkt.pc + 4.U }
+
+        val rfDone = WireDefault(true.B)
+        when(ctrl.regWen) {
+          val res = rf.sys_write(pkt.inst(11, 7), finalData)
+          t.waitCondition(res.errno === Errno.ESUCCESS)
+          rfDone := (res.errno === Errno.ESUCCESS)
+        }
+
+        val nextPC = WireDefault(pkt.pc + 4.U)
+        when(ctrl.service === ServiceType.BRANCH) {
+           val eq = (aluOut === 0.U)
+           val lt = (aluOut =/= 0.U)
+           val funct3 = pkt.inst(14, 12)
+           val branchTaken = MuxLookup(funct3, false.B)(Seq(
+             "b000".U -> eq,     // BEQ
+             "b001".U -> !eq,    // BNE
+             "b100".U -> lt,     // BLT
+             "b101".U -> !lt,    // BGE
+             "b110".U -> lt,     // BLTU
+             "b111".U -> !lt     // BGEU
+           ))
+           when(branchTaken) { nextPC := pkt.pc + immVal }
+        } .elsewhen(ctrl.service === ServiceType.JUMP) {
+           nextPC := aluOut
+        }
+
+        when (rfDone) {
+          val res = pcDev.sys_write(0.U, nextPC)
+          t.waitCondition(res.errno === Errno.ESUCCESS)
           
-          when(ctrl.service === ServiceType.MEM_RD) { finalData := memReadVal }
-          .elsewhen(ctrl.service === ServiceType.JUMP) { finalData := pc + 4.U }
-
-          val rfReady = WireDefault(true.B)
-          val pcReady = WireDefault(true.B)
-
-          // 1. 写寄存器堆
-          when(ctrl.regWen) {
-            val rd = inst(11, 7)
-            val res = rf.sys_write(rd, finalData)
-            t.waitCondition(res.isError === 0.U)
-            rfReady := (res.isError === 0.U)
-          }
-
-          val nextPC = WireDefault(pc + 4.U)
-          val branchTaken = Wire(Bool())
-          branchTaken := false.B
-          
-          when(ctrl.service === ServiceType.BRANCH) {
-             val eq  = (aluOut === 0.U) 
-             val lt  = (aluOut =/= 0.U)
-             val funct3 = inst(14, 12)
-             switch(funct3) {
-               is("b000".U) { branchTaken := eq }
-               is("b001".U) { branchTaken := !eq }
-               is("b100".U) { branchTaken := lt }
-               is("b101".U) { branchTaken := !lt }
-               is("b110".U) { branchTaken := lt }
-               is("b111".U) { branchTaken := !lt }
-             }
-             when (branchTaken) { nextPC := pc + immVal }
-          }
-          .elsewhen(ctrl.service === ServiceType.JUMP) {
-             branchTaken := true.B
-             nextPC := aluOut
-          }
-          
-          // [新增] 驱动跳转意图信号
-          jumpActive := branchTaken
-
-          // 2. 写 PC
-          if (true) {
-              when(branchTaken) {
-                 val res = pcDev.sys_write(0.U, nextPC)
-                 t.waitCondition(res.isError === 0.U)
-                 pcReady := (res.isError === 0.U)
-                 
-                 when (res.isError === 0.U) {
-                    expectedPC := nextPC
-                 }
-              } .otherwise {
-                 expectedPC := nextPC
-              }
-
-              // 3. Commit
-              when (rfReady && pcReady) {
-                  dpi_valid := true.B
-                  dpi_pc    := pc
-                  dpi_inst  := inst
-              }
+          when(res.errno === Errno.ESUCCESS) {
+            dpi_valid := true.B
+            dpi_pc    := pkt.pc
+            dpi_inst  := pkt.inst
+            
+            // 发送令牌唤醒 Fetch
+            val tRes = tokenOut.sys_write(0.U, 1.U)
+            t.waitCondition(tRes.errno === Errno.ESUCCESS)
           }
         }
       }

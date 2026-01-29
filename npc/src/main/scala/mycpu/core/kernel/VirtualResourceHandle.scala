@@ -2,6 +2,7 @@ package mycpu.core.kernel
 
 import chisel3._
 import chisel3.util._
+import mycpu.common._
 import mycpu.core.os._
 import mycpu.utils._
 
@@ -9,75 +10,54 @@ class VirtualResourceHandle(val driverMeta: DriverMeta, channel: ClientChannel) 
 
   def sys_read(addr: UInt, size: UInt = 2.U): SysResult = {
     val res = Wire(new SysResult)
-    // 默认值
     res.errno := Errno.ESUCCESS
     res.value := 0.U
 
     ContextScope.current match {
-      case LogicCtx(_) =>
-        // 纯逻辑上下文中，只允许组合逻辑读取
-        if (driverMeta.readTiming == DriverTiming.Combinational) {
-          channel.req.valid := true.B 
-          channel.req.wen   := false.B
+      case AtomicCtx(t) => 
+        val doneReg = RegInit(false.B)
+        val dataReg = Reg(UInt(KERNEL_DATA_WIDTH.W))
+        val errReg  = RegInit(Errno.ESUCCESS)
+
+        // PC 变动（Step 切换）或 线程刚启动时，重置 done 状态
+        val isFirstCycle = RegNext(t.pc) =/= t.pc || (RegNext(t.isRunning) === false.B && t.isRunning === true.B)
+        when(isFirstCycle) { doneReg := false.B }
+
+        channel.req.valid := false.B
+        channel.req.wen   := false.B
+
+        when(!doneReg) {
+          channel.req.valid := true.B
           channel.req.addr  := addr
           channel.req.size  := size
-          channel.req.data  := 0.U
           
-          res.value := channel.respData
-          res.errno := channel.error
-        } else {
-           throw new Exception(s"[Error] Cannot perform Combinational Read on Sequential device '${driverMeta.name}' inside LogicCtx")
+          when(channel.ready) {
+            doneReg := true.B
+            dataReg := channel.respData
+            errReg  := channel.error
+          }
+          if (driverMeta.readTiming == DriverTiming.Sequential) {
+            t.waitCondition(channel.ready)
+          }
         }
 
-      case AtomicCtx(_) => 
-        // [修复] 在 Step 内部 (AtomicCtx)，允许对时序设备发起请求
-        // 这是一个 "Fire-and-Wait" 模式
-        channel.req.valid := true.B
-        channel.req.wen   := false.B
-        channel.req.addr  := addr
-        channel.req.size  := size
-        channel.req.data  := 0.U
-        
-        // [关键] 映射结果
-        if (driverMeta.readTiming == DriverTiming.Combinational) {
-            // 组合设备：立即完成
-            res.value := channel.respData
-            res.errno := channel.error
-        } else {
-            // 时序设备：如果未 Ready，则返回 EBUSY，迫使 waitCondition 阻塞
-            res.value := channel.respData
-            res.errno := Mux(channel.ready, channel.error, Errno.EBUSY)
-        }
+        // [关键修复] isReadyNow 逻辑：组合判定 Ready，消除一拍延迟带来的死锁
+        val isReadyNow = channel.ready || doneReg
+        res.value := Mux(doneReg, dataReg, channel.respData)
+        res.errno := Mux(isReadyNow, Mux(doneReg, errReg, channel.error), Errno.EBUSY)
 
       case ThreadCtx(t) =>
-        // 这种模式是 sys_read 自己生成 Step，通常用于 entry 代码块顶层
-        if (driverMeta.readTiming == DriverTiming.Combinational) {
-          channel.req.valid := true.B
-          channel.req.wen   := false.B
-          channel.req.addr  := addr
-          channel.req.size  := size
-          channel.req.data  := 0.U
-          
-          res.value := channel.respData
-          res.errno := channel.error
-        } else {
-          val latchData = Reg(UInt(32.W))
-          val latchErr  = Reg(UInt(8.W))
-          
-          t.Step(s"Read_${driverMeta.name}") {
-            channel.req.valid := true.B
-            channel.req.wen   := false.B
-            channel.req.addr  := addr
-            channel.req.size  := size
-            channel.req.data  := 0.U
-            
-            t.waitCondition(channel.ready)
-            latchData := channel.respData
-            latchErr  := channel.error
-          }
-          res.value := latchData
-          res.errno := latchErr
+        val latchData = Reg(UInt(KERNEL_DATA_WIDTH.W))
+        t.Step(s"Read_${driverMeta.name}") {
+          val sRes = this.sys_read(addr, size)
+          t.waitCondition(sRes.errno === Errno.ESUCCESS)
+          latchData := sRes.value
         }
+        res.value := latchData
+        res.errno := Errno.ESUCCESS
+      case _ =>
+        channel.req.valid := true.B; channel.req.addr := addr; channel.req.size := size
+        res.value := channel.respData; res.errno := channel.error
     }
     res
   }
@@ -88,34 +68,36 @@ class VirtualResourceHandle(val driverMeta: DriverMeta, channel: ClientChannel) 
     res.value := 0.U
 
     ContextScope.current match {
-      case LogicCtx(_) =>
-        throw new Exception("Cannot perform sys_write inside LogicCtx (Side-effects forbidden in pure logic)")
-        
-      case AtomicCtx(_) =>
-        // [修复] Step 内部写操作
-        channel.req.valid := true.B
+      case AtomicCtx(t) =>
+        val doneReg = RegInit(false.B)
+        val errReg  = RegInit(Errno.ESUCCESS)
+        val isFirstCycle = RegNext(t.pc) =/= t.pc || (RegNext(t.isRunning) === false.B && t.isRunning === true.B)
+        when(isFirstCycle) { doneReg := false.B }
+
+        channel.req.valid := false.B
         channel.req.wen   := true.B
-        channel.req.addr  := addr
-        channel.req.data  := data
-        channel.req.size  := size
-        
-        // [关键] 返回 EBUSY 直到 Ready
-        // 组合写（如 RegFile）通常立即 Ready，时序写（如 RAM）需要等待
-        res.errno := Mux(channel.ready, channel.error, Errno.EBUSY)
-        
-      case ThreadCtx(t) =>
-        val latchErr = Reg(UInt(8.W))
-        t.Step(s"Write_${driverMeta.name}") {
+
+        when(!doneReg) {
           channel.req.valid := true.B
           channel.req.wen   := true.B
           channel.req.addr  := addr
           channel.req.data  := data
           channel.req.size  := size
-          
+          when(channel.ready) {
+            doneReg := true.B
+            errReg  := channel.error
+          }
           t.waitCondition(channel.ready)
-          latchErr := channel.error
         }
-        res.errno := latchErr
+        val isReadyNow = channel.ready || doneReg
+        res.errno := Mux(isReadyNow, Mux(doneReg, errReg, channel.error), Errno.EBUSY)
+      case ThreadCtx(t) =>
+        t.Step(s"Write_${driverMeta.name}") {
+          val sRes = this.sys_write(addr, data, size)
+          t.waitCondition(sRes.errno === Errno.ESUCCESS)
+        }
+        res.errno := Errno.ESUCCESS
+      case _ => throw new Exception("Write denied")
     }
     res
   }

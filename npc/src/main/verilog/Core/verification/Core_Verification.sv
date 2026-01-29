@@ -8,46 +8,63 @@
     `define PRINTF_COND_ 1
   `endif // PRINTF_COND
 `endif // not def PRINTF_COND_
-module Core_Verification();	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:46:11
-  reg       wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:30
-  reg [2:0] lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:112:30
-  reg       wasActive_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:30
-  reg [2:0] lastPc_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:112:30
-  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-    always @(posedge Core.clock) begin	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      automatic logic _GEN;	// src/main/scala/mycpu/utils/HardwareAgent.scala:120:42
-      automatic logic _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:120:42
-      _GEN = Core.activeReg_0 & Core.pcReg_1_0 != lastPc | Core.activeReg_0 & ~wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:60:34, :103:24, :111:30, :112:30, :114:13, :119:32, :120:{21,30,42}
-      _GEN_0 =
+module Core_Verification();	// src/main/scala/mycpu/core/drivers/MissingDrivers.scala:48:11
+  reg       wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:107:30
+  reg [2:0] lastPc;	// src/main/scala/mycpu/utils/HardwareAgent.scala:108:30
+  reg       wasActive_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:107:30
+  reg [2:0] lastPc_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:108:30
+  `ifndef SYNTHESIS	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+    always @(posedge Core.clock) begin	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      automatic logic _GEN;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:42
+      automatic logic _GEN_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:128:32
+      automatic logic _GEN_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:111:42
+      _GEN = Core.activeReg_0 & Core.pcReg_1_0 != lastPc | Core.activeReg_0 & ~wasActive;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :107:30, :108:30, :109:13, :110:32, :111:{21,30,42}
+      _GEN_0 = Core.activeReg_0 & Core._layer_probe;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :128:{21,32}
+      _GEN_1 =
         Core.activeReg_1_0 & Core.pcReg_2_0 != lastPc_1 | Core.activeReg_1_0
-        & ~wasActive_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:60:34, :103:24, :111:30, :112:30, :114:13, :119:32, :120:{21,30,42}
-      if ((`PRINTF_COND_) & ~wasActive & Core.activeReg_0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :60:34, :111:30, :114:{13,24}
-        $fwrite(32'h80000002, "[Init/Main_M_Thread] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 0] Decode\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h1 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 1] Execute\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h2 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 2] Mem\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h3 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 3] WB\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & ~wasActive_1 & Core.activeReg_1_0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :60:34, :111:30, :114:{13,24}
-        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN_0 & Core.pcReg_2_0 == 3'h0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 0] ReadPC\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN_0 & Core.pcReg_2_0 == 3'h1 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 1] FetchIMEM\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN_0 & Core.pcReg_2_0 == 3'h2 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 2] DispatchQueue\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
-      if ((`PRINTF_COND_) & _GEN_0 & Core.pcReg_2_0 == 3'h3 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:16:13, :103:24, :120:42, :122:{23,34}
-        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 3] UpdatePC\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:16:13
+        & ~wasActive_1;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :92:24, :107:30, :108:30, :109:13, :110:32, :111:{21,30,42}
+      if ((`PRINTF_COND_) & ~wasActive & Core.activeReg_0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :52:34, :107:30, :109:{13,24}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 0] FetchPkt\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h1 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 1] ReadRS1\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h2 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 2] ReadRS2\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h3 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 3] Execute\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h4 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 4] Mem\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN & Core.pcReg_1_0 == 3'h5 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] EXEC [PC 5] Commit\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN_0 & Core._layer_probe_0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/processes/CPUProsses.scala:148:{27,51}, :149:18, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :128:32
+        $fwrite(32'h80000002, "[DEBUG] Main MEM_RD Start: addr=0x%x\n", Core.aluOut_0);	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :149:18
+      if ((`PRINTF_COND_) & _GEN_0 & Core.ctrl_service_0 != 3'h1 & Core._layer_probe_1
+          & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/core/processes/CPUProsses.scala:76:22, :148:{27,51}, :154:{32,56}, :155:18, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :128:32
+        $fwrite(32'h80000002, "[DEBUG] Main MEM_WR Start: addr=0x%x\n", Core.aluOut_0);	// src/main/scala/mycpu/core/processes/CPUProsses.scala:80:22, :155:18
+      if ((`PRINTF_COND_) & Core.activeReg_0 & ~Core.stepDoneWire & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :52:34, :101:18, :123:24, :128:32, :132:{29,44}, :134:18
+        $fwrite(32'h80000002, "[Init/Main_M_Thread] THREAD STALL AT PC=%d\n",
+                Core.pcReg_1_0);	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :134:18
+      if ((`PRINTF_COND_) & ~wasActive_1 & Core.activeReg_1_0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :52:34, :107:30, :109:{13,24}
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] --- ONLINE ---\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN_1 & Core.pcReg_2_0 == 3'h0 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 0] ReadPC\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN_1 & Core.pcReg_2_0 == 3'h1 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 1] FetchIMEM\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN_1 & Core.pcReg_2_0 == 3'h2 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 2] Dispatch\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & _GEN_1 & Core.pcReg_2_0 == 3'h3 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :92:24, :111:42, :113:{23,34}
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] EXEC [PC 3] WaitToken\n");	// src/main/scala/mycpu/utils/HardwareAgent.scala:17:13
+      if ((`PRINTF_COND_) & Core.activeReg_1_0 & ~Core.stepDoneWire_1 & ~Core.reset)	// src/main/scala/mycpu/core/Core.scala:13:7, src/main/scala/mycpu/utils/HardwareAgent.scala:17:13, :52:34, :101:18, :123:24, :128:32, :132:{29,44}, :134:18
+        $fwrite(32'h80000002, "[Init/Fetch_F_Thread] THREAD STALL AT PC=%d\n",
+                Core.pcReg_2_0);	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :134:18
     end // always @(posedge)
   `endif // not def SYNTHESIS
   always @(posedge Core.clock) begin	// src/main/scala/mycpu/core/Core.scala:13:7
-    wasActive <= Core.activeReg_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:60:34, :111:30
-    lastPc <= Core.pcReg_1_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:103:24, :112:30
-    wasActive_1 <= Core.activeReg_1_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:60:34, :111:30
-    lastPc_1 <= Core.pcReg_2_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:103:24, :112:30
+    wasActive <= Core.activeReg_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :107:30
+    lastPc <= Core.pcReg_1_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :108:30
+    wasActive_1 <= Core.activeReg_1_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:52:34, :107:30
+    lastPc_1 <= Core.pcReg_2_0;	// src/main/scala/mycpu/utils/HardwareAgent.scala:92:24, :108:30
   end // always @(posedge)
 endmodule
 

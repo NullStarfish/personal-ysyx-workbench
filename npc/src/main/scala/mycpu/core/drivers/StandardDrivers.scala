@@ -23,7 +23,7 @@ class RegFileDriver(regs: Vec[UInt]) extends PhysicalDriver(
   DriverMeta("RF", DriverTiming.Combinational, DriverTiming.Sequential)
 ) {
   override def combRead(addr: UInt, size: UInt): UInt = {
-    Mux(addr === 0.U, 0.U, regs(addr))
+    Mux(addr(4,0) === 0.U, 0.U, regs(addr))
   }
 
   override def seqWrite(addr: UInt, data: UInt, size: UInt): (UInt, Bool) = {

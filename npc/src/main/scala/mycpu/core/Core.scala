@@ -17,7 +17,9 @@ class Core extends Module {
 
   implicit val kernel: Kernel = new Kernel()
 
-  kernel.mount(new SmartAXIDriver(io.master))
+  // 1. 挂载物理驱动
+  val axiDrv = new SmartAXIDriver(io.master)
+  kernel.mount(axiDrv)
   
   val pcReg  = RegInit(START_ADDR.U(32.W))
   val rfVec  = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
@@ -26,35 +28,26 @@ class Core extends Module {
   kernel.mount(new PCDriver(pcReg))
   kernel.mount(new mycpu.core.drivers.RegFileDriver(rfVec))
   kernel.mount(new CSRDriver(csrVec))
-  
-  kernel.mount(new PipeDriver("Fetch2Main", depth = 4))
+  kernel.mount(new PipeDriver("Fetch2Main", depth = 2)) // 严格串行化，深度2足够
+  kernel.mount(new PipeDriver("TokenPass", depth = 2))
   kernel.mount(new TerminalDriver("term"))
 
+  // 3. 别名挂载 (方便 Process 查找)
+
+  // 4. 初始化进程
   object Init extends HwProcess("Init")(None, kernel) {
-    val pipeOut = sys_open("Fetch2Main")
-    val pipeIn  = sys_open("Fetch2Main")
-    
     override def entry(): Unit = {
-      spawn((p, k) => new MainProcess(p, k))(in = pipeIn).build()
-      spawn((p, k) => new FetchProcess(p, k))(out = pipeOut).build()
+      // 启动 Fetch 和 Main
+      // 不需要显式传递 handle，它们会在内部通过 sys_open 打开
+      spawn((p, k) => new MainProcess(p, k))().build()
+      spawn((p, k) => new FetchProcess(p, k))().build()
     }
   }
   
-  class AliasDriver(val aliasName: String, target: PhysicalDriver) extends PhysicalDriver(target.meta) {
-    override val meta = target.meta.copy(name = aliasName)
-    override def combRead(a: UInt, s: UInt) = target.combRead(a, s)
-    override def seqRead(a: UInt, s: UInt) = target.seqRead(a, s)
-    override def seqWrite(a: UInt, d: UInt, s: UInt) = target.seqWrite(a, d, s)
-    override def setup(a: HardwareAgent) = target.setup(a)
-  }
-  
-  val axiDrv = new SmartAXIDriver(io.master)
-  kernel.mount(new AliasDriver("IMEM", axiDrv))
-  kernel.mount(new AliasDriver("DMEM", axiDrv))
-
   Init.build()
   kernel.boot()
 
+  // 5. DPI 验证探针
   if (true) {
     val commit_valid = WireInit(false.B); BoringUtils.addSink(commit_valid, "DPI_Commit_Valid")
     val commit_pc    = WireInit(0.U(32.W)); BoringUtils.addSink(commit_pc,    "DPI_Commit_PC")
@@ -66,8 +59,6 @@ class Core extends Module {
     simState.io.pc := commit_pc; simState.io.inst := commit_inst; simState.io.regs := rf_flat
     simState.io.dnpc := 0.U; simState.io.mstatus := 0.U; simState.io.mtvec := 0.U; simState.io.mepc := 0.U; simState.io.mcause := 0.U
 
-    // [修复] 实例化 Ebreak DPI
-    // 当指令为 EBREAK (0x00100073) 且提交有效时触发
     val is_ebreak_inst = (commit_inst === "h00100073".U)
     val simEbreak = Module(new InlineSimEbreak)
     simEbreak.io.valid := commit_valid && is_ebreak_inst
