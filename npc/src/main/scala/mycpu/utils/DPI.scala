@@ -34,7 +34,11 @@ class InlineSimState extends BlackBox with HasBlackBoxInline {
       |        input int mtvec, input int mepc, input int mstatus, input int mcause, input int inst
       |    );
       |    always @(posedge clk) begin
-      |        if (!reset && valid) dpi_update_state(pc, dnpc, regs, mtvec, mepc, mstatus, mcause, inst);
+      |        if (!reset && valid) begin
+      |            // [DEBUG] 打印提交到 C 环境的 PC 和 Inst
+      |            $display("[DPI COMMIT] PC=%h, Inst=%h", pc, inst);
+      |            dpi_update_state(pc, dnpc, regs, mtvec, mepc, mstatus, mcause, inst);
+      |        end
       |    end
       |endmodule
     """.stripMargin)
@@ -49,19 +53,6 @@ class InlineSimEbreak extends BlackBox with HasBlackBoxInline {
     """module InlineSimEbreak(input valid, input [31:0] is_ebreak);
       |    import "DPI-C" function void ebreak();
       |    always @(*) if (valid) ebreak();
-      |endmodule
-    """.stripMargin)
-}
-
-class InlineDifftestSkip extends BlackBox with HasBlackBoxInline {
-  val io = IO(new Bundle {
-    val clock = Input(Clock())
-    val skip  = Input(Bool())
-  })
-  setInline("InlineDifftestSkip.sv",
-    """module InlineDifftestSkip(input clock, input skip);
-      |    import "DPI-C" function void difftest_skip_ref_cpp();
-      |    always @(posedge clock) if (skip) difftest_skip_ref_cpp();
       |endmodule
     """.stripMargin)
 }

@@ -6,8 +6,8 @@ module ALU(	// src/main/scala/mycpu/core/components/ALU.scala:7:7
   output [31:0] io_out	// src/main/scala/mycpu/core/components/ALU.scala:8:14
 );
 
-  wire [62:0]       _out_T_11 = {31'h0, io_a} << io_b[4:0];	// src/main/scala/mycpu/core/components/ALU.scala:16:19, :29:25, :33:33
-  wire [31:0]       _GEN = {27'h0, io_b[4:0]};	// src/main/scala/mycpu/core/components/ALU.scala:16:19, :34:33
+  wire [62:0]       _io_out_T_11 = {31'h0, io_a} << io_b[4:0];	// src/main/scala/mycpu/core/components/ALU.scala:19:19, :29:28, :32:36
+  wire [31:0]       _GEN = {27'h0, io_b[4:0]};	// src/main/scala/mycpu/core/components/ALU.scala:19:19, :33:36
   wire [15:0][31:0] _GEN_0 =
     {{32'h0},
      {32'h0},
@@ -17,14 +17,14 @@ module ALU(	// src/main/scala/mycpu/core/components/ALU.scala:7:7
      {io_a},
      {$signed($signed(io_a) >>> _GEN)},
      {io_a >> _GEN},
-     {_out_T_11[31:0]},
+     {_io_out_T_11[31:0]},
      {{31'h0, io_a < io_b}},
      {{31'h0, $signed(io_a) < $signed(io_b)}},
      {io_a ^ io_b},
      {io_a | io_b},
      {io_a & io_b},
      {io_a - io_b},
-     {io_a + io_b}};	// src/main/scala/mycpu/core/components/ALU.scala:18:17, :20:{25,33}, :21:{25,33}, :24:{25,33}, :25:{25,33}, :26:{25,33}, :29:{25,41}, :30:{25,34}, :33:{25,33}, :34:{25,33}, :35:{25,41}, :38:28, :39:28
-  assign io_out = _GEN_0[io_op];	// src/main/scala/mycpu/core/components/ALU.scala:7:7, :18:17, :20:25, :21:25, :24:25, :25:25, :26:25, :29:25, :30:25, :33:25, :34:25, :35:25, :38:28, :39:28
+     {io_a + io_b}};	// src/main/scala/mycpu/core/components/ALU.scala:21:17, :22:{28,36}, :23:{28,36}, :25:{28,36}, :26:{28,36}, :27:{28,36}, :29:{28,44}, :30:{28,37}, :32:{28,36}, :33:{28,36}, :34:{28,44}, :36:31, :37:31
+  assign io_out = _GEN_0[io_op];	// src/main/scala/mycpu/core/components/ALU.scala:7:7, :21:17, :22:28, :23:28, :25:28, :26:28, :27:28, :29:28, :30:28, :32:28, :33:28, :34:28, :36:31, :37:31
 endmodule
 

@@ -8,39 +8,36 @@ class ALU extends Module {
   val io = IO(new Bundle {
     val a   = Input(UInt(XLEN.W))
     val b   = Input(UInt(XLEN.W))
-    val op  = Input(ALUOp()) // 使用之前定义的 Enum
+    val op  = Input(ALUOp()) 
     val out = Output(UInt(XLEN.W))
   })
 
-  val out = WireDefault(0.U(XLEN.W))
-  val shamt = io.b(4, 0) // 移位量仅取低5位
+  // 默认输出
+  io.out := 0.U
+
+  // 移位量只取低5位 (RV32I)
+  val shamt = io.b(4, 0)
 
   switch(io.op) {
-    // 算术运算
-    is(ALUOp.ADD) { out := io.a + io.b }
-    is(ALUOp.SUB) { out := io.a - io.b }
+    is(ALUOp.ADD) { io.out := io.a + io.b }
+    is(ALUOp.SUB) { io.out := io.a - io.b }
     
-    // 逻辑运算
-    is(ALUOp.AND) { out := io.a & io.b }
-    is(ALUOp.OR)  { out := io.a | io.b }
-    is(ALUOp.XOR) { out := io.a ^ io.b }
+    is(ALUOp.AND) { io.out := io.a & io.b }
+    is(ALUOp.OR)  { io.out := io.a | io.b }
+    is(ALUOp.XOR) { io.out := io.a ^ io.b }
     
-    // 比较运算 (结果置 1 或 0)
-    is(ALUOp.SLT) { out := (io.a.asSInt < io.b.asSInt).asUInt } // 有符号比较
-    is(ALUOp.SLTU){ out := (io.a < io.b).asUInt }               // 无符号比较
+    is(ALUOp.SLT) { io.out := (io.a.asSInt < io.b.asSInt).asUInt }
+    is(ALUOp.SLTU){ io.out := (io.a < io.b).asUInt }
     
-    // 移位运算
-    is(ALUOp.SLL) { out := io.a << shamt }
-    is(ALUOp.SRL) { out := io.a >> shamt }
-    is(ALUOp.SRA) { out := (io.a.asSInt >> shamt).asUInt }      // 算术右移 (保留符号位)
+    is(ALUOp.SLL) { io.out := io.a << shamt }
+    is(ALUOp.SRL) { io.out := io.a >> shamt }
+    is(ALUOp.SRA) { io.out := (io.a.asSInt >> shamt).asUInt }
     
-    // 透传 (用于 LUI 等指令)
-    is(ALUOp.COPY_A) { out := io.a }
-    is(ALUOp.COPY_B) { out := io.b }
+    is(ALUOp.COPY_A) { io.out := io.a }
+    is(ALUOp.COPY_B) { io.out := io.b }
     
-    // 乘除法占位 (返回 0 或保持原值，防止综合报错)
-    is(ALUOp.MUL, ALUOp.DIV, ALUOp.REM) { out := 0.U } 
+    // 乘除法单元暂留空 (返回0或a，防止Latches)
+    is(ALUOp.MUL, ALUOp.DIV, ALUOp.REM) { io.out := 0.U }
+    is(ALUOp.NOP) { io.out := 0.U }
   }
-
-  io.out := out
 }

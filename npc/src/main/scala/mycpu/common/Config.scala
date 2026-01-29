@@ -10,6 +10,7 @@ package object common {
   val AXI_ID_WIDTH = 4
 
   def XLenU = UInt(XLEN.W)
+  val KERNEL_DATA_WIDTH = 64 
 
   // === 枚举定义 ===
   

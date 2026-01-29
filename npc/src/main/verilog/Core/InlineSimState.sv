@@ -10,7 +10,11 @@ module InlineSimState(
         input int mtvec, input int mepc, input int mstatus, input int mcause, input int inst
     );
     always @(posedge clk) begin
-        if (!reset && valid) dpi_update_state(pc, dnpc, regs, mtvec, mepc, mstatus, mcause, inst);
+        if (!reset && valid) begin
+            // [DEBUG] 打印提交到 C 环境的 PC 和 Inst
+            $display("[DPI COMMIT] PC=%h, Inst=%h", pc, inst);
+            dpi_update_state(pc, dnpc, regs, mtvec, mepc, mstatus, mcause, inst);
+        end
     end
 endmodule
     
