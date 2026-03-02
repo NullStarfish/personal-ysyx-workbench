@@ -88,8 +88,8 @@ C_SRCS   := $(C_SRCS_BASE)
 INC_DIRS_BASE := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
                  $(CSRC_DIR)/trace $(CSRC_DIR)/log
 
-VERILATOR_INC_DIRS := /usr/local/share/verilator/include \
-                      /usr/local/share/verilator/include/vltstd
+VERILATOR_INC_DIRS := /usr/share/verilator/include \
+                      /usr/share/verilator/include/vltstd
 VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
 
 INC_DIRS  := $(VERILATOR_OBJ_DIR) $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS)

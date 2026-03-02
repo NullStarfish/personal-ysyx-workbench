@@ -2,7 +2,7 @@
 
 #include <ctime>
 #include <sys/types.h>
-#include <verilated.h>
+#include "verilated.h"
 #include "VysyxSoCFull.h"
 #include "svdpi.h" 
 //#include "VTop__Dpi.h" // 确保包含 Verilator 生成的 DPI 头文件

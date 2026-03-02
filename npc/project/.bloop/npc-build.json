@@ -122,9 +122,9 @@
             ],
             "jars": [
                 "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-library.jar",
+                "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-compiler.jar",
                 "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-xml_2.12-2.1.0.jar",
-                "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-reflect.jar",
-                "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-compiler.jar"
+                "/home/nullstarfish/.sbt/boot/scala-2.12.18/lib/scala-reflect.jar"
             ],
             "setup": {
                 "order": "mixed",
