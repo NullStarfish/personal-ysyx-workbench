@@ -34,14 +34,12 @@ class AxiReadOnceHarness extends Module {
 
     override def entry(): Unit = {
       worker.entry {
-        val value = WireDefault(0.U(XLEN.W))
-        val site = SysCall.CallSite(AXI4Api.axi_read_once(bus, 0.U, addrReg, 2.U))
-        site.edge.add {
+        val value = SysCall.Inline(AXI4Api.axi_read_once(bus, 0.U, addrReg, 2.U))
+        worker.Prev.edge.add {
           dataReg := value
           doneReg := true.B
         }
-
-        value := SysCall.Call(site)
+        SysCall.Return()
       }
 
       daemon.run {
@@ -125,8 +123,8 @@ class AxiWriteOnceHarness extends Module {
 
     override def entry(): Unit = {
       worker.entry {
-        SysCall.Call(AXI4Api.axi_write_once(bus, 0.U, addrReg, 2.U, dataReg, strbReg), "Done")
-        worker.Step("Done") {
+        SysCall.Inline(AXI4Api.axi_write_once(bus, 0.U, addrReg, 2.U, dataReg, strbReg))
+        worker.Prev.edge.add {
           doneReg := true.B
         }
         SysCall.Return()

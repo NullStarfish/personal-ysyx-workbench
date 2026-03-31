@@ -26,8 +26,7 @@ object AXI4Api {
           "axi_read only accepts AXI OKAY/EXOKAY responses in this demo",
         )
         responseData := bus.r.bits.data
-        SysCall.Return()
-        printf(p"axi read data: $responseData\n")
+        printf(p"axi read data: ${bus.r.bits.data}\n")
       }
     }
 
@@ -72,7 +71,6 @@ object AXI4Api {
           bus.b.bits.resp === 0.U || bus.b.bits.resp === 1.U,
           "axi_write only accepts AXI OKAY/EXOKAY responses in this demo",
         )
-        SysCall.Return()
       }
     }
   }
