@@ -1,26 +1,22 @@
 {
     "version": "1.4.0",
     "project": {
-        "name": "root-test",
-        "directory": "/home/nullstarfish/personal-ysyx-workbench/npc",
+        "name": "hwos",
+        "directory": "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS",
         "workspaceDir": "/home/nullstarfish/personal-ysyx-workbench/npc",
         "sources": [
-            "/home/nullstarfish/personal-ysyx-workbench/npc/src/test/scala",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/src/test/scala-2.13",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/src/test/scala-2",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/src/test/java",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/target/scala-2.13/src_managed/test"
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/src/main/scala",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/src/main/scala-2.13",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/src/main/scala-2",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/src/main/java",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/target/scala-2.13/src_managed/main"
         ],
         "dependencies": [
-            "hwos",
-            "root"
+            
         ],
         "classpath": [
-            "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos/scala-2.13/classes",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0/chisel_2.13-7.0.0.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest_2.13/3.2.19/scalatest_2.13-3.2.19.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.13.1/commons-text-1.13.1.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.7/os-lib_2.13-0.10.7.jar",
@@ -29,19 +25,6 @@
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.16/scala-reflect-2.13.16.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.1/upickle_2.13-3.3.1.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.1/firtool-resolver_2.13-2.0.1.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-core_2.13/3.2.19/scalatest-core_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-featurespec_2.13/3.2.19/scalatest-featurespec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-flatspec_2.13/3.2.19/scalatest-flatspec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-freespec_2.13/3.2.19/scalatest-freespec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funsuite_2.13/3.2.19/scalatest-funsuite_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funspec_2.13/3.2.19/scalatest-funspec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-propspec_2.13/3.2.19/scalatest-propspec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-refspec_2.13/3.2.19/scalatest-refspec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-wordspec_2.13/3.2.19/scalatest-wordspec_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-diagrams_2.13/3.2.19/scalatest-diagrams_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-matchers-core_2.13/3.2.19/scalatest-matchers-core_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-shouldmatchers_2.13/3.2.19/scalatest-shouldmatchers_2.13-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-mustmatchers_2.13/3.2.19/scalatest-mustmatchers_2.13-3.2.19.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.1/geny_2.13-1.1.1.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7.jar",
@@ -51,18 +34,16 @@
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.1/upickle-implicits_2.13-3.3.1.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-compatible/3.2.19/scalatest-compatible-3.2.19.jar",
-            "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalactic/scalactic_2.13/3.2.19/scalactic_2.13-3.2.19.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.1/upickle-core_2.13-3.3.1.jar"
         ],
-        "out": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root",
-        "classesDir": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root/scala-2.13/test-classes",
+        "out": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos",
+        "classesDir": "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos/scala-2.13/classes",
         "resources": [
-            "/home/nullstarfish/personal-ysyx-workbench/npc/src/test/resources",
-            "/home/nullstarfish/personal-ysyx-workbench/npc/target/scala-2.13/resource_managed/test"
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/src/main/resources",
+            "/home/nullstarfish/personal-ysyx-workbench/npc/HwOS/target/scala-2.13/resource_managed/main"
         ],
         "scala": {
             "organization": "org.scala-lang",
@@ -169,6 +150,38 @@
             },
             "mainClass": [
                 
+            ],
+            "runtimeConfig": {
+                "home": "/usr/lib/jvm/java-21-openjdk-amd64",
+                "options": [
+                    "-Duser.dir=/home/nullstarfish/personal-ysyx-workbench/npc"
+                ]
+            },
+            "classpath": [
+                "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos/scala-2.13/classes",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0/chisel_2.13-7.0.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.13.1/commons-text-1.13.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.7/os-lib_2.13-0.10.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native_2.13/4.0.7/json4s-native_2.13-4.0.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.7/data-class_2.13-0.2.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.16/scala-reflect-2.13.16.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.1/upickle_2.13-3.3.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.1/firtool-resolver_2.13-2.0.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.1/geny_2.13-1.1.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-core_2.13/4.0.7/json4s-core_2.13-4.0.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-native-core_2.13/4.0.7/json4s-native-core_2.13-4.0.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.1/ujson_2.13-3.3.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.1/upack_2.13-3.3.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.1/upickle-implicits_2.13-3.3.1.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.13/2.2.0/scala-xml_2.13-2.2.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-collection-compat_2.13/2.11.0/scala-collection-compat_2.13-2.11.0.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-ast_2.13/4.0.7/json4s-ast_2.13-4.0.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-scalap_2.13/4.0.7/json4s-scalap_2.13-4.0.7.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar",
+                "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.1/upickle-core_2.13-3.3.1.jar"
             ]
         },
         "resolution": {
@@ -580,283 +593,11 @@
                             "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16-sources.jar"
                         }
                     ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest_2.13/3.2.19/scalatest_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest_2.13/3.2.19/scalatest_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-core_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-core_2.13/3.2.19/scalatest-core_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-core_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-core_2.13/3.2.19/scalatest-core_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-featurespec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-featurespec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-featurespec_2.13/3.2.19/scalatest-featurespec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-featurespec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-featurespec_2.13/3.2.19/scalatest-featurespec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-flatspec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-flatspec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-flatspec_2.13/3.2.19/scalatest-flatspec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-flatspec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-flatspec_2.13/3.2.19/scalatest-flatspec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-freespec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-freespec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-freespec_2.13/3.2.19/scalatest-freespec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-freespec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-freespec_2.13/3.2.19/scalatest-freespec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-funsuite_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-funsuite_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funsuite_2.13/3.2.19/scalatest-funsuite_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-funsuite_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funsuite_2.13/3.2.19/scalatest-funsuite_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-funspec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-funspec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funspec_2.13/3.2.19/scalatest-funspec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-funspec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-funspec_2.13/3.2.19/scalatest-funspec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-propspec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-propspec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-propspec_2.13/3.2.19/scalatest-propspec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-propspec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-propspec_2.13/3.2.19/scalatest-propspec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-refspec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-refspec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-refspec_2.13/3.2.19/scalatest-refspec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-refspec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-refspec_2.13/3.2.19/scalatest-refspec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-wordspec_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-wordspec_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-wordspec_2.13/3.2.19/scalatest-wordspec_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-wordspec_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-wordspec_2.13/3.2.19/scalatest-wordspec_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-diagrams_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-diagrams_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-diagrams_2.13/3.2.19/scalatest-diagrams_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-diagrams_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-diagrams_2.13/3.2.19/scalatest-diagrams_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-matchers-core_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-matchers-core_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-matchers-core_2.13/3.2.19/scalatest-matchers-core_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-matchers-core_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-matchers-core_2.13/3.2.19/scalatest-matchers-core_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-shouldmatchers_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-shouldmatchers_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-shouldmatchers_2.13/3.2.19/scalatest-shouldmatchers_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-shouldmatchers_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-shouldmatchers_2.13/3.2.19/scalatest-shouldmatchers_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-mustmatchers_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-mustmatchers_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-mustmatchers_2.13/3.2.19/scalatest-mustmatchers_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-mustmatchers_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-mustmatchers_2.13/3.2.19/scalatest-mustmatchers_2.13-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalatest",
-                    "name": "scalatest-compatible",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalatest-compatible",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-compatible/3.2.19/scalatest-compatible-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalatest-compatible",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalatest/scalatest-compatible/3.2.19/scalatest-compatible-3.2.19-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.scalactic",
-                    "name": "scalactic_2.13",
-                    "version": "3.2.19",
-                    "configurations": "default",
-                    "artifacts": [
-                        {
-                            "name": "scalactic_2.13",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalactic/scalactic_2.13/3.2.19/scalactic_2.13-3.2.19.jar"
-                        },
-                        {
-                            "name": "scalactic_2.13",
-                            "classifier": "sources",
-                            "path": "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalactic/scalactic_2.13/3.2.19/scalactic_2.13-3.2.19-sources.jar"
-                        }
-                    ]
                 }
             ]
         },
         "tags": [
-            "test"
+            "library"
         ]
     }
 }

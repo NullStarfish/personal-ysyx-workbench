@@ -12,9 +12,10 @@
             "/home/nullstarfish/personal-ysyx-workbench/npc/target/scala-2.13/src_managed/main"
         ],
         "dependencies": [
-            
+            "hwos"
         ],
         "classpath": [
+            "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos/scala-2.13/classes",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0/chisel_2.13-7.0.0.jar",
             "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar",
@@ -159,6 +160,7 @@
             },
             "classpath": [
                 "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/root/scala-2.13/classes",
+                "/home/nullstarfish/personal-ysyx-workbench/npc/.bloop/hwos/scala-2.13/classes",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0/chisel_2.13-7.0.0.jar",
                 "/home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.13/4.1.0/scopt_2.13-4.1.0.jar",

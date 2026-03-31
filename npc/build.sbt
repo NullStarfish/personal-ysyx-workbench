@@ -5,8 +5,9 @@ ThisBuild / version          := "0.1.0"
 ThisBuild / organization     := "%ORGANIZATION%"
 
 val chiselVersion = "7.0.0"
-
+lazy val hwos = (project in file("HwOS"))
 lazy val root = (project in file("."))
+  .dependsOn(hwos)
   .settings(
     name := "%NAME%",
     libraryDependencies ++= Seq(

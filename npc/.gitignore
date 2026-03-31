@@ -15,4 +15,5 @@
 !Kconfig
 !.config
 !README.md
+!HwOS/
 build/
