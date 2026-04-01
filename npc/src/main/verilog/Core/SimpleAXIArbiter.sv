@@ -7,10 +7,9 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   input  [31:0] io_left_ar_bits_addr,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input         io_left_r_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output        io_left_r_valid,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  output [2:0]  io_left_r_bits_id,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   output [31:0] io_left_r_bits_data,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-  output        io_left_r_bits_last,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
-                io_right_aw_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
+  output [1:0]  io_left_r_bits_resp,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
+  output        io_right_aw_ready,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input         io_right_aw_valid,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input  [2:0]  io_right_aw_bits_id,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
   input  [31:0] io_right_aw_bits_addr,	// src/main/scala/mycpu/utils/Arbiter.scala:9:14
@@ -90,9 +89,8 @@ module SimpleAXIArbiter(	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   end // always @(posedge)
   assign io_left_ar_ready = _GEN_2 & io_out_ar_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :27:16, :69:{29,67}, :70:12
   assign io_left_r_valid = _GEN_2 & io_out_r_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :30:16, :69:{29,67}, :70:12
-  assign io_left_r_bits_id = io_out_r_bits_id;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_left_r_bits_data = io_out_r_bits_data;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
-  assign io_left_r_bits_last = io_out_r_bits_last;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
+  assign io_left_r_bits_resp = io_out_r_bits_resp;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7
   assign io_right_aw_ready = ~_GEN_2 & _GEN_3 & io_out_aw_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :69:{29,67}, :72:{35,74}, :73:12
   assign io_right_w_ready = ~_GEN_2 & _GEN_3 & io_out_w_ready;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :29:16, :69:{29,67}, :72:{35,74}, :73:12
   assign io_right_b_valid = ~_GEN_2 & _GEN_3 & io_out_b_valid;	// src/main/scala/mycpu/utils/Arbiter.scala:8:7, :28:16, :31:16, :69:{29,67}, :72:{35,74}, :73:12

@@ -2,4 +2,5 @@
 `ifndef layers_myCore_Verification_Assert	// src/main/scala/mycpu/CoreWrapper.scala:14:7
   `define layers_myCore_Verification_Assert
   `include "layers-myCore-Verification.sv"	// src/main/scala/mycpu/CoreWrapper.scala:14:7
+  `include "layers-Core-Verification-Assert.sv"	// src/main/scala/mycpu/CoreWrapper.scala:14:7
 `endif // not def layers_myCore_Verification_Assert
