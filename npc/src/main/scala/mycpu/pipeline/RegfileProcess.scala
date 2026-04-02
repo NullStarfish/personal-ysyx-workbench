@@ -12,16 +12,14 @@ final class RegfileProcess(
 
   private val base = spawn(new BaseRegfileProcess(depth = 32, width = XLEN, zeroReg = true, localName = "Base"))
 
-  final class RegfileApi {
-    def read(addr: UInt): HwInline[UInt] = base.Read(addr)
+  val api: RegfileApiDecl = new RegfileApiDecl {
+    override def read(addr: UInt): HwInline[UInt] = base.Read(addr)
 
-    def write(addr: UInt, data: UInt): HwInline[Unit] = base.Write(addr, data)
+    override def write(addr: UInt, data: UInt): HwInline[Unit] = base.Write(addr, data)
   }
 
-  private val regfileApi = new RegfileApi
-
-  def RequestRegfileApi(): HwInline[RegfileApi] = HwInline.bindings(s"${name}_regfile_api") { _ =>
-    regfileApi
+  def RequestRegfileApi(): HwInline[RegfileApiDecl] = HwInline.bindings(s"${name}_regfile_api") { _ =>
+    api
   }
 
   override def entry(): Unit = {}

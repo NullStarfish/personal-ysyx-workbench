@@ -1,7 +1,6 @@
 package mycpu.pipeline
 
 import HwOS.kernel._
-import HwOS.kernel.process.ProcessBuilder
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import chisel3.util._
@@ -42,18 +41,10 @@ class FetchProcessHarness extends Module {
   bus.setAsMasterInit()
 
   object Init extends HwProcess("Init") {
-    private def adoptChild[T <: HwProcess](child: => T): T = {
-      ProcessBuilder.push(this)
-      val c = child
-      ProcessBuilder.pop()
-      children += c
-      c
-    }
-
-    val decodeRef = new ApiRef[DecodeApiDecl]
+    val links = new PipelineLinks
     private val memory = spawn(new Memory(bus, maxClients = 1))
     lazy val decode = spawn(new StubFetchDecodeProcess("Decode"))
-    lazy val fetch: FetchProcess = adoptChild(new FetchProcess(memory, decodeRef, "Fetch"))
+    lazy val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
     private val pcWriter = createThread("PcWriter")
     private val daemon = createLogic("Daemon")
 
@@ -77,7 +68,7 @@ class FetchProcessHarness extends Module {
     }
   }
 
-  Init.decodeRef.bind(Init.decode.api)
+  Init.links.decode.bind(Init.decode.api)
   Init.fetch.build()
   Init.build()
 

@@ -29,15 +29,15 @@ object InstFamily extends ChiselEnum {
 
 final class DecodeProcess(
     executeRef: ApiRef[ExecuteApiDecl],
-    regfile: RegfileProcess,
+    regfileRef: ApiRef[RegfileApiDecl],
     localName: String = "Decode",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
   val api: DecodeApiDecl = new DecodeApiDecl {
     def decode(inst: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_decode") { _ =>
-      val exec = SysCall.Inline(HwInline.bindings(s"${name}_execute_link") { _ => executeRef.get })
-      val regApi = SysCall.Inline(regfile.RequestRegfileApi())
+      val exec = executeRef.get
+      val regApi = regfileRef.get
 
       val format = decodeFormat(inst)
       val family = decodeFamily(inst, format)

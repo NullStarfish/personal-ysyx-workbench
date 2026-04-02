@@ -1,7 +1,6 @@
 package mycpu.pipeline
 
 import HwOS.kernel._
-import HwOS.kernel.process.ProcessBuilder
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import chisel3.util._
@@ -24,22 +23,12 @@ class DecodeProcessHarness extends Module {
   bus.setAsMasterInit()
 
   object Init extends HwProcess("Init") {
-    private def adoptChild[T <: HwProcess](child: => T): T = {
-      ProcessBuilder.push(this)
-      val c = child
-      ProcessBuilder.pop()
-      children += c
-      c
-    }
-
-    val fetchRef = new ApiRef[FetchApiDecl]
-    val decodeRef = new ApiRef[DecodeApiDecl]
-    val executeRef = new ApiRef[ExecuteApiDecl]
+    val links = new PipelineLinks
     private val memory = spawn(new Memory(bus, maxClients = 1))
-    private val regfile = spawn(new RegfileProcess("Regfile"))
-    val fetch: FetchProcess = adoptChild(new FetchProcess(memory, decodeRef, "Fetch"))
-    val execute: ExecuteProcess = spawn(new ExecuteProcess(fetchRef, regfile, "Execute"))
-    val decode: DecodeProcess = spawn(new DecodeProcess(executeRef, regfile, "Decode"))
+    val regfile = spawn(new RegfileProcess("Regfile"))
+    val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
+    val execute: ExecuteProcess = spawn(new ExecuteProcess(links.fetch, links.regfile, "Execute"))
+    val decode: DecodeProcess = spawn(new DecodeProcess(links.execute, links.regfile, "Decode"))
     private val worker = createThread("Worker")
     private val daemon = createLogic("Daemon")
 
@@ -90,9 +79,10 @@ class DecodeProcessHarness extends Module {
     }
   }
 
-  Init.decodeRef.bind(Init.decode.api)
-  Init.fetchRef.bind(Init.fetch.api)
-  Init.executeRef.bind(Init.execute.api)
+  Init.links.decode.bind(Init.decode.api)
+  Init.links.fetch.bind(Init.fetch.api)
+  Init.links.execute.bind(Init.execute.api)
+  Init.links.regfile.bind(Init.regfile.api)
   Init.fetch.build()
   Init.build()
 

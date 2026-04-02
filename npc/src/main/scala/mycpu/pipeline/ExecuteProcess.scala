@@ -6,18 +6,20 @@ import mycpu.common._
 
 final class ExecuteProcess(
     fetchRef: ApiRef[FetchApiDecl],
-    regfile: RegfileProcess,
+    regfileRef: ApiRef[RegfileApiDecl],
     localName: String = "Execute",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
   val api: ExecuteApiDecl = new ExecuteApiDecl {
+    private def fetchApi = fetchRef.get
+    private def regApi = regfileRef.get
+
     private def commitReg(opName: String, rd: UInt, result: UInt): Unit = {
       printf(p"[EXEC] ${opName} write rd=${Decimal(rd)} data=${Hexadecimal(result)}\n")
     }
 
     private def writeComputedReg(opName: String, rd: UInt, result: UInt): Unit = {
-      val regApi = SysCall.Inline(regfile.RequestRegfileApi())
       printf(p"[EXEC] ${opName} lhs-result write rd=${Decimal(rd)} data=${Hexadecimal(result)}\n")
       SysCall.Inline(regApi.write(rd, result))
     }
@@ -86,25 +88,21 @@ final class ExecuteProcess(
     }
 
     def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
-      val regApi = SysCall.Inline(regfile.RequestRegfileApi())
       printf(p"[EXEC] writeReg rd=${Decimal(rd)} data=${Hexadecimal(data)}\n")
       SysCall.Inline(regApi.write(rd, data))
     }
 
     def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_abs") { _ => fetchRef.get })
       printf(p"[EXEC] redirect nextPc=${Hexadecimal(nextPc)}\n")
       SysCall.Inline(fetchApi.writePC(nextPc))
     }
 
     def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_rel") { _ => fetchRef.get })
       printf(p"[EXEC] redirectRelative delta=${Hexadecimal(delta.asUInt)}\n")
       SysCall.Inline(fetchApi.offsetPC(delta))
     }
 
     def eq(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_eq") { _ => fetchRef.get })
       val result = lhs === rhs
       printf(p"[EXEC] eq lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
@@ -113,7 +111,6 @@ final class ExecuteProcess(
     }
 
     def ne(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_ne") { _ => fetchRef.get })
       val result = lhs =/= rhs
       printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
@@ -122,7 +119,6 @@ final class ExecuteProcess(
     }
 
     def lt(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_lt") { _ => fetchRef.get })
       val result = lhs.asSInt < rhs.asSInt
       printf(p"[EXEC] lt lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
@@ -131,7 +127,6 @@ final class ExecuteProcess(
     }
 
     def ltu(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
-      val fetchApi = SysCall.Inline(HwInline.bindings(s"${name}_fetch_link_ltu") { _ => fetchRef.get })
       val result = lhs < rhs
       printf(p"[EXEC] ltu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {

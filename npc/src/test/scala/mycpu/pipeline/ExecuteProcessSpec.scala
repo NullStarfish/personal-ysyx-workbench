@@ -1,7 +1,6 @@
 package mycpu.pipeline
 
 import HwOS.kernel._
-import HwOS.kernel.process.ProcessBuilder
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import mycpu.axi._
@@ -37,21 +36,12 @@ class ExecuteProcessHarness extends Module {
   io.eqResult := DontCare
 
   object Init extends HwProcess("Init") {
-    private def adoptChild[T <: HwProcess](child: => T): T = {
-      ProcessBuilder.push(this)
-      val c = child
-      ProcessBuilder.pop()
-      children += c
-      c
-    }
-
-    val fetchRef = new ApiRef[FetchApiDecl]
-    val decodeRef = new ApiRef[DecodeApiDecl]
+    val links = new PipelineLinks
     private val memory = spawn(new Memory(bus, maxClients = 1))
-    private val regfile = spawn(new RegfileProcess("Regfile"))
+    val regfile = spawn(new RegfileProcess("Regfile"))
     lazy val decode = spawn(new StubExecuteDecodeProcess("Decode"))
-    lazy val fetch: FetchProcess = adoptChild(new FetchProcess(memory, decodeRef, "Fetch"))
-    val execute = spawn(new ExecuteProcess(fetchRef, regfile, "Execute"))
+    lazy val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
+    val execute = spawn(new ExecuteProcess(links.fetch, links.regfile, "Execute"))
     private val worker = createThread("Worker")
     private val daemon = createLogic("Daemon")
 
@@ -104,8 +94,9 @@ class ExecuteProcessHarness extends Module {
     }
   }
 
-  Init.decodeRef.bind(Init.decode.api)
-  Init.fetchRef.bind(Init.fetch.api)
+  Init.links.decode.bind(Init.decode.api)
+  Init.links.fetch.bind(Init.fetch.api)
+  Init.links.regfile.bind(Init.regfile.api)
   Init.fetch.build()
   Init.build()
 

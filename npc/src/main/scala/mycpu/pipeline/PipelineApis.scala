@@ -13,6 +13,11 @@ trait DecodeApiDecl {
   def decodeInst(inst: UInt): HwInline[Unit]
 }
 
+trait RegfileApiDecl {
+  def read(addr: UInt): HwInline[UInt]
+  def write(addr: UInt, data: UInt): HwInline[Unit]
+}
+
 trait ExecuteApiDecl {
   def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]
   def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]
