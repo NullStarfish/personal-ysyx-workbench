@@ -3,67 +3,121 @@ package mycpu.pipeline
 import HwOS.kernel._
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
-import chisel3.util._
-import mycpu.axi._
 import mycpu.common._
-import mycpu.mem.Memory
 import org.scalatest.flatspec.AnyFlatSpec
+
+final class DummyDecodeRegfileProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  private val regs = RegInit(VecInit(Seq.fill(32)(0.U(XLEN.W))))
+
+  regs(1) := 10.U
+  regs(2) := 20.U
+  regs(3) := 30.U
+
+  val api: RegfileApiDecl = new RegfileApiDecl {
+    override def read(addr: UInt): HwInline[UInt] = HwInline.bindings(s"${name}_read") { _ =>
+      Mux(addr === 0.U, 0.U(XLEN.W), regs(addr))
+    }
+
+    override def write(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write") { _ =>
+      when(addr =/= 0.U) {
+        regs(addr) := data
+      }
+    }
+  }
+
+  def RequestRegfileApi(): HwInline[RegfileApiDecl] = HwInline.bindings(s"${name}_regfile_api") { _ =>
+    api
+  }
+
+  override def entry(): Unit = {}
+}
+
+final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val opKind = RegInit(0.U(8.W))
+  val rdReg = RegInit(0.U(5.W))
+  val lhsReg = RegInit(0.U(XLEN.W))
+  val rhsReg = RegInit(0.U(XLEN.W))
+  val targetReg = RegInit(0.U(XLEN.W))
+  val unsignedReg = RegInit(false.B)
+
+  private def record(kind: UInt, rd: UInt = 0.U, lhs: UInt = 0.U, rhs: UInt = 0.U, target: UInt = 0.U, unsigned: Bool = false.B): Unit = {
+    opKind := kind
+    rdReg := rd
+    lhsReg := lhs
+    rhsReg := rhs
+    targetReg := target
+    unsignedReg := unsigned
+  }
+
+  val api: ExecuteApiDecl = new ExecuteApiDecl {
+    override def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_add") { _ => record(1.U, rd, lhs, rhs) }
+    override def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sub") { _ => record(2.U, rd, lhs, rhs) }
+    override def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_and") { _ => record(3.U, rd, lhs, rhs) }
+    override def or(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_or") { _ => record(4.U, rd, lhs, rhs) }
+    override def xor(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_xor") { _ => record(5.U, rd, lhs, rhs) }
+    override def sll(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sll") { _ => record(6.U, rd, lhs, rhs) }
+    override def srl(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_srl") { _ => record(7.U, rd, lhs, rhs) }
+    override def sra(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sra") { _ => record(8.U, rd, lhs, rhs) }
+    override def slt(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_slt") { _ => record(9.U, rd, lhs, rhs) }
+    override def sltu(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sltu") { _ => record(10.U, rd, lhs, rhs) }
+    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ => record(11.U, rd, data) }
+    override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => record(12.U, target = nextPc) }
+    override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_rel") { _ => record(13.U, target = delta.asUInt) }
+    override def eq(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
+    override def ne(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ => record(15.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
+    override def lt(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ => record(16.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
+    override def ltu(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
+    override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ => record(18.U, rd, base, offset) }
+    override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { _ => record(19.U, lhs = base, rhs = offset, target = data) }
+    override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      HwInline.atomic(s"${name}_load_byte") { _ => record(20.U, rd, base, offset, unsigned = unsigned) }
+    override def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      HwInline.atomic(s"${name}_load_half") { _ => record(21.U, rd, base, offset, unsigned = unsigned) }
+    override def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_store_byte") { _ => record(22.U, lhs = base, rhs = offset, target = data) }
+    override def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_store_half") { _ => record(23.U, lhs = base, rhs = offset, target = data) }
+    override def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rw") { _ => record(24.U, rd, addr, src) }
+    override def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rs") { _ => record(25.U, rd, addr, src) }
+    override def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rc") { _ => record(26.U, rd, addr, src) }
+  }
+
+  def RequestExecuteApi(): HwInline[ExecuteApiDecl] = HwInline.bindings(s"${name}_execute_api") { _ =>
+    api
+  }
+
+  override def entry(): Unit = {}
+}
 
 class DecodeProcessHarness extends Module {
   val io = IO(new Bundle {
     val inst = Input(UInt(32.W))
     val done = Output(Bool())
-    val beforePc = Output(UInt(XLEN.W))
-    val afterPc = Output(UInt(XLEN.W))
+    val opKind = Output(UInt(8.W))
+    val rd = Output(UInt(5.W))
+    val lhs = Output(UInt(XLEN.W))
+    val rhs = Output(UInt(XLEN.W))
+    val target = Output(UInt(XLEN.W))
+    val unsigned = Output(Bool())
   })
 
   implicit val kernel: Kernel = new Kernel()
 
-  val bus = Wire(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
-  bus.setAsMasterInit()
-
   object Init extends HwProcess("Init") {
     val links = new PipelineLinks
-    val memory = spawn(new Memory(bus, maxClients = 2))
-    val regfile = spawn(new RegfileProcess("Regfile"))
-    val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
-    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, "Writeback"))
-    val execute: ExecuteProcess = spawn(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
-    val decode: DecodeProcess = spawn(new DecodeProcess(links.execute, links.regfile, "Decode"))
+    val regfile = spawn(new DummyDecodeRegfileProcess("Regfile"))
+    val execute = spawn(new DummyDecodeExecuteProcess("Execute"))
+    val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
     private val worker = createThread("Worker")
     private val daemon = createLogic("Daemon")
 
     private val doneReg = RegInit(false.B)
-    private val beforePcReg = RegInit(0.U(XLEN.W))
-    private val afterPcReg = RegInit(0.U(XLEN.W))
 
     override def entry(): Unit = {
       worker.entry {
-        val fetchApi = SysCall.Inline(fetch.RequestFetchApi())
         val decodeApi = SysCall.Inline(decode.RequestDecodeApi())
-        val beforePcWire = WireInit(0.U(XLEN.W))
-        val afterPcWire = WireInit(0.U(XLEN.W))
-
-        worker.Step("ReadBeforePc") {
-          beforePcWire := SysCall.Inline(fetchApi.currentPC())
-        }
-        worker.Prev.edge.add {
-          beforePcReg := beforePcWire
-        }
-
-        worker.Step("Decode") {
-          SysCall.Inline(decodeApi.decodeInst(io.inst))
-        }
-
-        worker.Step("ReadAfterPc") {
-          afterPcWire := SysCall.Inline(fetchApi.currentPC())
-        }
-        worker.Prev.edge.add {
-          afterPcReg := afterPcWire
-        }
-
-        worker.Step("Finish") {
+        SysCall.Call(decodeApi.decodeInst(io.inst), "AfterDecode")
+        worker.Step("AfterDecode") {
           doneReg := true.B
         }
         SysCall.Return()
@@ -75,30 +129,20 @@ class DecodeProcessHarness extends Module {
         }
 
         io.done := doneReg
-        io.beforePc := beforePcReg
-        io.afterPc := afterPcReg
+        io.opKind := execute.opKind
+        io.rd := execute.rdReg
+        io.lhs := execute.lhsReg
+        io.rhs := execute.rhsReg
+        io.target := execute.targetReg
+        io.unsigned := execute.unsignedReg
       }
     }
   }
 
-  Init.links.decode.bind(Init.decode.api)
-  Init.links.fetch.bind(Init.fetch.api)
   Init.links.execute.bind(Init.execute.api)
   Init.links.regfile.bind(Init.regfile.api)
-  Init.links.memory.bind(Init.memory.api(1))
-  Init.links.lsu.bind(Init.lsu.api)
-  Init.links.writeback.bind(Init.writeback.api)
-  Init.lsu.build()
-  Init.fetch.build()
+  Init.decode.build()
   Init.build()
-
-  bus.aw.ready := false.B
-  bus.w.ready := false.B
-  bus.b.valid := false.B
-  bus.b.bits := DontCare
-  bus.ar.ready := false.B
-  bus.r.valid := false.B
-  bus.r.bits := DontCare
 }
 
 class DecodeProcessSpec extends AnyFlatSpec {
@@ -107,25 +151,31 @@ class DecodeProcessSpec extends AnyFlatSpec {
     BigInt(imm12) << 20 | BigInt(rs1) << 15 | BigInt(0) << 12 | BigInt(rd) << 7 | BigInt(0x13)
   }
 
-  private def encodeJal(rd: Int, imm: Int): BigInt = {
-    val imm21 = imm & 0x1fffff
-    val bit20 = (imm21 >> 20) & 0x1
-    val bits10To1 = (imm21 >> 1) & 0x3ff
-    val bit11 = (imm21 >> 11) & 0x1
-    val bits19To12 = (imm21 >> 12) & 0xff
-
-    BigInt(bit20) << 31 |
-    BigInt(bits19To12) << 12 |
-    BigInt(bit11) << 20 |
-    BigInt(bits10To1) << 21 |
-    BigInt(rd) << 7 |
-    BigInt(0x6f)
+  private def encodeLw(rd: Int, rs1: Int, imm: Int): BigInt = {
+    val imm12 = imm & 0xfff
+    BigInt(imm12) << 20 | BigInt(rs1) << 15 | BigInt(2) << 12 | BigInt(rd) << 7 | BigInt(0x03)
   }
 
-  "DecodeProcess" should "leave pc unchanged for a non-control ALU instruction" in {
+  private def encodeBeq(rs1: Int, rs2: Int, imm: Int): BigInt = {
+    val v = imm & 0x1fff
+    val bit12 = (v >> 12) & 1
+    val bit11 = (v >> 11) & 1
+    val bits10to5 = (v >> 5) & 0x3f
+    val bits4to1 = (v >> 1) & 0xf
+    (BigInt(bit12) << 31) |
+    (BigInt(bits10to5) << 25) |
+    (BigInt(rs2) << 20) |
+    (BigInt(rs1) << 15) |
+    (BigInt(0) << 12) |
+    (BigInt(bits4to1) << 8) |
+    (BigInt(bit11) << 7) |
+    BigInt(0x63)
+  }
+
+  "DecodeProcess" should "dispatch addi using decoded register value and immediate" in {
     simulate(new DecodeProcessHarness) { c =>
       c.reset.poke(true.B)
-      c.io.inst.poke(encodeAddi(rd = 1, rs1 = 0, imm = 4).U(32.W))
+      c.io.inst.poke(encodeAddi(rd = 5, rs1 = 1, imm = 4).U(32.W))
       c.clock.step()
       c.reset.poke(false.B)
 
@@ -136,17 +186,17 @@ class DecodeProcessSpec extends AnyFlatSpec {
       }
 
       c.io.done.expect(true.B)
-      c.io.beforePc.expect(START_ADDR.U)
-      c.io.afterPc.expect(START_ADDR.U)
+      c.io.opKind.expect(1.U)
+      c.io.rd.expect(5.U)
+      c.io.lhs.expect(10.U)
+      c.io.rhs.expect(4.U)
     }
   }
 
-  it should "redirect fetch pc for a jal instruction" in {
+  it should "dispatch lw with base register, offset and destination register" in {
     simulate(new DecodeProcessHarness) { c =>
-      val offset = 32
-
       c.reset.poke(true.B)
-      c.io.inst.poke(encodeJal(rd = 1, imm = offset).U(32.W))
+      c.io.inst.poke(encodeLw(rd = 6, rs1 = 2, imm = 12).U(32.W))
       c.clock.step()
       c.reset.poke(false.B)
 
@@ -157,8 +207,31 @@ class DecodeProcessSpec extends AnyFlatSpec {
       }
 
       c.io.done.expect(true.B)
-      c.io.beforePc.expect(START_ADDR.U)
-      c.io.afterPc.expect((START_ADDR + offset).U)
+      c.io.opKind.expect(18.U)
+      c.io.rd.expect(6.U)
+      c.io.lhs.expect(20.U)
+      c.io.rhs.expect(12.U)
+    }
+  }
+
+  it should "dispatch beq with decoded operands and branch target" in {
+    simulate(new DecodeProcessHarness) { c =>
+      c.reset.poke(true.B)
+      c.io.inst.poke(encodeBeq(rs1 = 1, rs2 = 2, imm = 16).U(32.W))
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      var cycles = 0
+      while (c.io.done.peek().litValue == 0 && cycles < 30) {
+        c.clock.step()
+        cycles += 1
+      }
+
+      c.io.done.expect(true.B)
+      c.io.opKind.expect(14.U)
+      c.io.lhs.expect(10.U)
+      c.io.rhs.expect(20.U)
+      c.io.target.expect(16.U)
     }
   }
 }

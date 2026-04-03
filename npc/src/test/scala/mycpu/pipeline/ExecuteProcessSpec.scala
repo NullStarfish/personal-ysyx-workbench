@@ -3,19 +3,85 @@ package mycpu.pipeline
 import HwOS.kernel._
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
-import mycpu.axi._
 import mycpu.common._
-import mycpu.mem.Memory
 import org.scalatest.flatspec.AnyFlatSpec
 
-final class StubExecuteDecodeProcess(localName: String)(implicit kernel: Kernel)
-    extends HwProcess(localName)
-{
-  val api: DecodeApiDecl = new DecodeApiDecl {
-    override def decodeInst(inst: UInt): HwInline[Unit] = HwInline.thread(s"${name}_decode_inst") { _ =>
+final class DummyExecuteLsuProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val opKind = RegInit(0.U(8.W))
+  val rdReg = RegInit(0.U(5.W))
+  val addrReg = RegInit(0.U(XLEN.W))
+  val dataReg = RegInit(0.U(XLEN.W))
+  val unsignedReg = RegInit(false.B)
+
+  val api: LsuApiDecl = new LsuApiDecl {
+    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.thread(s"${name}_load_word") { _ =>
+      opKind := 1.U
+      rdReg := rd
+      addrReg := addr
+      SysCall.Return()
+    }
+
+    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_word") { _ =>
+      opKind := 2.U
+      addrReg := addr
+      dataReg := data
+      SysCall.Return()
+    }
+
+    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.thread(s"${name}_load_byte") { _ =>
+      opKind := 3.U
+      rdReg := rd
+      addrReg := addr
+      unsignedReg := unsigned
+      SysCall.Return()
+    }
+
+    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.thread(s"${name}_load_half") { _ =>
+      opKind := 4.U
+      rdReg := rd
+      addrReg := addr
+      unsignedReg := unsigned
+      SysCall.Return()
+    }
+
+    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_byte") { _ =>
+      opKind := 5.U
+      addrReg := addr
+      dataReg := data
+      SysCall.Return()
+    }
+
+    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_half") { _ =>
+      opKind := 6.U
+      addrReg := addr
+      dataReg := data
       SysCall.Return()
     }
   }
+
+  override def entry(): Unit = {}
+}
+
+final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val x = RegInit(VecInit(Seq.fill(32)(0.U(XLEN.W))))
+  val pc = RegInit(START_ADDR.U(XLEN.W))
+
+  val api: WritebackApiDecl = new WritebackApiDecl {
+    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
+      when(rd =/= 0.U) {
+        x(rd) := data
+      }
+    }
+
+    override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>
+      pc := nextPc
+    }
+
+    override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
+      pc := (pc.asSInt + delta).asUInt
+    }
+  }
+
   override def entry(): Unit = {}
 }
 
@@ -29,48 +95,28 @@ class ExecuteProcessHarness extends Module {
     val x5 = Output(UInt(XLEN.W))
     val x6 = Output(UInt(XLEN.W))
     val pc = Output(UInt(XLEN.W))
+    val lsuOp = Output(UInt(8.W))
+    val lsuRd = Output(UInt(5.W))
+    val lsuAddr = Output(UInt(XLEN.W))
+    val lsuData = Output(UInt(XLEN.W))
+    val lsuUnsigned = Output(Bool())
   })
 
   implicit val kernel: Kernel = new Kernel()
 
-  val bus = Wire(new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN))
-  bus.setAsMasterInit()
-
-  io.done := DontCare
-  io.x1 := DontCare
-  io.x2 := DontCare
-  io.x3 := DontCare
-  io.x4 := DontCare
-  io.x5 := DontCare
-  io.x6 := DontCare
-  io.pc := DontCare
-
   object Init extends HwProcess("Init") {
     val links = new PipelineLinks
-    val memory = spawn(new Memory(bus, maxClients = 2))
-    val regfile = spawn(new RegfileProcess("Regfile"))
-    lazy val decode = spawn(new StubExecuteDecodeProcess("Decode"))
-    lazy val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
-    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, "Writeback"))
-    val execute = spawn(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
+    val lsu = spawn(new DummyExecuteLsuProcess("Lsu"))
+    val writeback = spawn(new DummyExecuteWritebackProcess("Writeback"))
+    val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
     private val worker = createThread("Worker")
     private val daemon = createLogic("Daemon")
-
     private val doneReg = RegInit(false.B)
-    private val x1Reg = RegInit(0.U(XLEN.W))
-    private val x2Reg = RegInit(0.U(XLEN.W))
-    private val x3Reg = RegInit(0.U(XLEN.W))
-    private val x4Reg = RegInit(0.U(XLEN.W))
-    private val x5Reg = RegInit(0.U(XLEN.W))
-    private val x6Reg = RegInit(0.U(XLEN.W))
-    private val pcReg = RegInit(0.U(XLEN.W))
 
     override def entry(): Unit = {
       worker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
-        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
-        val fetchApi = SysCall.Inline(fetch.RequestFetchApi())
+
         worker.Step("Add") {
           SysCall.Inline(exec.add(1.U, 7.U(XLEN.W), 5.U(XLEN.W)))
         }
@@ -103,14 +149,15 @@ class ExecuteProcessHarness extends Module {
           SysCall.Inline(exec.redirect("h30000020".U(XLEN.W)))
         }
 
-        worker.Step("Sample") {
-          x1Reg := SysCall.Inline(regApi.read(1.U))
-          x2Reg := SysCall.Inline(regApi.read(2.U))
-          x3Reg := SysCall.Inline(regApi.read(3.U))
-          x4Reg := SysCall.Inline(regApi.read(4.U))
-          x5Reg := SysCall.Inline(regApi.read(5.U))
-          x6Reg := SysCall.Inline(regApi.read(6.U))
-          pcReg := SysCall.Inline(fetchApi.currentPC())
+        worker.Step("LoadWord") {
+          SysCall.Inline(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)))
+        }
+
+        worker.Step("StoreHalf") {
+          SysCall.Inline(exec.storeHalf(20.U(XLEN.W), 8.U(XLEN.W), "h1234".U(XLEN.W)))
+        }
+
+        worker.Step("Finish") {
           doneReg := true.B
         }
         SysCall.Return()
@@ -122,45 +169,37 @@ class ExecuteProcessHarness extends Module {
         }
 
         io.done := doneReg
-        io.x1 := x1Reg
-        io.x2 := x2Reg
-        io.x3 := x3Reg
-        io.x4 := x4Reg
-        io.x5 := x5Reg
-        io.x6 := x6Reg
-        io.pc := pcReg
+        io.x1 := writeback.x(1)
+        io.x2 := writeback.x(2)
+        io.x3 := writeback.x(3)
+        io.x4 := writeback.x(4)
+        io.x5 := writeback.x(5)
+        io.x6 := writeback.x(6)
+        io.pc := writeback.pc
+        io.lsuOp := lsu.opKind
+        io.lsuRd := lsu.rdReg
+        io.lsuAddr := lsu.addrReg
+        io.lsuData := lsu.dataReg
+        io.lsuUnsigned := lsu.unsignedReg
       }
     }
   }
 
-  Init.links.decode.bind(Init.decode.api)
-  Init.links.fetch.bind(Init.fetch.api)
-  Init.links.regfile.bind(Init.regfile.api)
-  Init.links.memory.bind(Init.memory.api(1))
   Init.links.lsu.bind(Init.lsu.api)
   Init.links.writeback.bind(Init.writeback.api)
-  Init.lsu.build()
-  Init.fetch.build()
+  Init.execute.build()
   Init.build()
-
-  bus.aw.ready := false.B
-  bus.w.ready := false.B
-  bus.b.valid := false.B
-  bus.b.bits := DontCare
-  bus.ar.ready := false.B
-  bus.r.valid := false.B
-  bus.r.bits := DontCare
 }
 
 class ExecuteProcessSpec extends AnyFlatSpec {
-  "ExecuteProcess" should "compose alu, csr and writeback through real backend processes" in {
+  "ExecuteProcess" should "compose alu, csr, writeback and lsu requests through dummy backend processes" in {
     simulate(new ExecuteProcessHarness) { c =>
       c.reset.poke(true.B)
       c.clock.step()
       c.reset.poke(false.B)
 
       var cycles = 0
-      while (c.io.done.peek().litValue == 0 && cycles < 30) {
+      while (c.io.done.peek().litValue == 0 && cycles < 50) {
         c.clock.step()
         cycles += 1
       }
@@ -173,6 +212,9 @@ class ExecuteProcessSpec extends AnyFlatSpec {
       c.io.x5.expect("h5f".U)
       c.io.x6.expect("h50".U)
       c.io.pc.expect("h30000020".U(XLEN.W))
+      c.io.lsuOp.expect(6.U)
+      c.io.lsuAddr.expect(28.U)
+      c.io.lsuData.expect("h1234".U(XLEN.W))
     }
   }
 }
