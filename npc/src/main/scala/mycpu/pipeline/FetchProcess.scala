@@ -52,8 +52,9 @@ final class FetchProcess(
       }
 
       fetchThread.Step("Decode") {
-        SysCall.Inline(decodeRef.get.decodeInst(fetchedInstReg))
+        SysCall.Call(decodeRef.get.decodeInst(fetchedInstReg), "AfterDecode")
       }
+      fetchThread.Step("AfterDecode") {}
       SysCall.Return()
     }
 

@@ -1,0 +1,44 @@
+package mycpu.pipeline
+
+import HwOS.kernel._
+import chisel3._
+import mycpu.common._
+
+final class CsrProcess(
+    localName: String = "Csr",
+)(implicit kernel: Kernel)
+    extends HwProcess(localName) {
+
+  private val csrFile = RegInit(VecInit(Seq.fill(4096)(0.U(XLEN.W))))
+
+  val api: CsrApiDecl = new CsrApiDecl {
+    override def rw(addr: UInt, src: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_rw") { _ =>
+      val oldValue = csrFile(addr)
+      csrFile(addr) := src
+      printf(p"[CSR] rw addr=${Hexadecimal(addr)} old=${Hexadecimal(oldValue)} new=${Hexadecimal(src)}\n")
+      oldValue
+    }
+
+    override def rs(addr: UInt, src: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_rs") { _ =>
+      val oldValue = csrFile(addr)
+      val newValue = oldValue | src
+      csrFile(addr) := newValue
+      printf(p"[CSR] rs addr=${Hexadecimal(addr)} old=${Hexadecimal(oldValue)} src=${Hexadecimal(src)} new=${Hexadecimal(newValue)}\n")
+      oldValue
+    }
+
+    override def rc(addr: UInt, src: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_rc") { _ =>
+      val oldValue = csrFile(addr)
+      val newValue = oldValue & (~src).asUInt
+      csrFile(addr) := newValue
+      printf(p"[CSR] rc addr=${Hexadecimal(addr)} old=${Hexadecimal(oldValue)} src=${Hexadecimal(src)} new=${Hexadecimal(newValue)}\n")
+      oldValue
+    }
+  }
+
+  def RequestCsrApi(): HwInline[CsrApiDecl] = HwInline.bindings(s"${name}_csr_api") { _ =>
+    api
+  }
+
+  override def entry(): Unit = {}
+}

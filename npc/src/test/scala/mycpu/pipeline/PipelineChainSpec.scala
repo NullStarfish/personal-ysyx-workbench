@@ -22,10 +22,12 @@ class PipelineChainHarness extends Module {
 
   object Init extends HwProcess("Init") {
     val links = new PipelineLinks
-    private val memory = spawn(new Memory(bus, maxClients = 1))
+    val memory = spawn(new Memory(bus, maxClients = 2))
     val regfile = spawn(new RegfileProcess("Regfile"))
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
-    val execute: ExecuteProcess = spawn(new ExecuteProcess(links.fetch, links.regfile, "Execute"))
+    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
+    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, "Writeback"))
+    val execute: ExecuteProcess = spawn(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
     val decode: DecodeProcess = spawn(new DecodeProcess(links.execute, links.regfile, "Decode"))
     private val observer = createThread("Observer")
     private val daemon = createLogic("Daemon")
@@ -64,6 +66,10 @@ class PipelineChainHarness extends Module {
   Init.links.fetch.bind(Init.fetch.api)
   Init.links.execute.bind(Init.execute.api)
   Init.links.regfile.bind(Init.regfile.api)
+  Init.links.memory.bind(Init.memory.api(1))
+  Init.links.lsu.bind(Init.lsu.api)
+  Init.links.writeback.bind(Init.writeback.api)
+  Init.lsu.build()
   Init.fetch.build()
   Init.build()
 
