@@ -3,10 +3,10 @@ package mycpu.pipeline
 import HwOS.kernel._
 import chisel3._
 import mycpu.common._
-import mycpu.mem.Memory
+import mycpu.mem.SharedMemoryProcess
 
 final class FetchProcess(
-    memory: Memory,
+    memory: SharedMemoryProcess,
     decodeRef: ApiRef[DecodeApiDecl],
     localName: String = "Fetch",
 )(implicit kernel: Kernel)
@@ -39,6 +39,9 @@ final class FetchProcess(
     fetchThread.entry {
       val memApi = SysCall.Inline(memory.RequestMemoryApi(0))
       val decodeApi = SysCall.Inline(RequestDecodeApi())
+      fetchThread.Step("CapturePc") {
+        fetchAddrReg := pcReg
+      }
       val fetchedInst = SysCall.Inline(memApi.read_once(fetchAddrReg, 2.U))
       fetchThread.Prev.edge.add {
         fetchedInstReg := fetchedInst
@@ -56,7 +59,6 @@ final class FetchProcess(
     val daemon = createLogic("Daemon")
     daemon.run {
       when(!fetchThread.active) {
-        fetchAddrReg := pcReg
         SysCall.Inline(SysCall.start(fetchThread))
       }
     }

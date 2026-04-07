@@ -8,7 +8,7 @@ import mycpu.axi._
 import mycpu.common._
 import mycpu.compatibility.DecoupledApi
 import mycpu.core.bundles._
-import mycpu.mem.Memory
+import mycpu.mem.AXIMemory
 
 class Fetch extends Module {
   val io = IO(new Bundle {
@@ -28,7 +28,7 @@ class Fetch extends Module {
   implicit val kernel: Kernel = new Kernel()
 
   object Init extends HwProcess("Init") {
-    private val memory = spawn(new Memory(io.axi, maxClients = 1))
+    private val memory = spawn(new AXIMemory(io.axi, maxClients = 1))
     private val fetchWorker = createThread("Fetch")
     private val daemon = createLogic("Daemon")
     private val fetchAddrReg = RegInit(0.U(XLEN.W))

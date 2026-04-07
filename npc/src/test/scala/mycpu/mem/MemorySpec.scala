@@ -30,7 +30,7 @@ class MemoryReadHarness extends Module {
   io.secondData := DontCare
 
   object Init extends HwProcess("Init") {
-    val memory = spawn(new Memory(bus, maxClients = 2))
+    val memory = spawn(new AXIMemory(bus, maxClients = 2))
     val reader0 = createThread("Reader0")
     val reader1 = createThread("Reader1")
     val main = createThread("Main")
@@ -133,7 +133,7 @@ class MemoryReadHarness extends Module {
 }
 
 class MemorySpec extends AnyFlatSpec {
-  "Memory" should "serialize two clients through the mutex-backed AXI bus service" in {
+  "AXIMemory" should "serialize two clients through the mutex-backed AXI bus service" in {
     simulate(new MemoryReadHarness) { c =>
       c.reset.poke(true.B)
       c.clock.step()
