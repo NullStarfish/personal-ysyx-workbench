@@ -8,6 +8,7 @@ import mycpu.mem.SharedMemoryProcess
 final class FetchProcess(
     memory: SharedMemoryProcess,
     decodeRef: ApiRef[DecodeApiDecl],
+    traceRef: ApiRef[TraceApiDecl],
     localName: String = "Fetch",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
@@ -39,6 +40,7 @@ final class FetchProcess(
     fetchThread.entry {
       val memApi = SysCall.Inline(memory.RequestMemoryApi(0))
       val decodeApi = SysCall.Inline(RequestDecodeApi())
+      val traceApi = SysCall.Inline(RequestTraceApi())
       fetchThread.Step("CapturePc") {
         fetchAddrReg := pcReg
       }
@@ -51,6 +53,9 @@ final class FetchProcess(
         pcReg := fetchAddrReg + 4.U
       }
 
+      fetchThread.Step("TraceIssue") {
+        SysCall.Inline(traceApi.issue(fetchAddrReg, fetchedInstReg))
+      }
       SysCall.Call(decodeApi.decodeInst(fetchedInstReg), "AfterDecode")
       fetchThread.Step("AfterDecode") {}
       SysCall.Return()
@@ -66,5 +71,9 @@ final class FetchProcess(
 
   private def RequestDecodeApi(): HwInline[DecodeApiDecl] = HwInline.bindings(s"${name}_decode_api") { _ =>
     decodeRef.get
+  }
+
+  private def RequestTraceApi(): HwInline[TraceApiDecl] = HwInline.bindings(s"${name}_trace_api") { _ =>
+    traceRef.get
   }
 }

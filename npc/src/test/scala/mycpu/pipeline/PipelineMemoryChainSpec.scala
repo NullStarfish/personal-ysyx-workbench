@@ -46,9 +46,10 @@ class PipelineMemoryChainHarness extends Module {
       localName = "DummyMemory",
     ))
     val regfile = spawn(new RegfileProcess("Regfile"))
-    val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
+    val trace = spawn(new DummyTraceProcess(localName = "Trace"))
+    val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, "Writeback"))
+    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, links.trace, "Writeback"))
     val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
     val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
     private val observer = createThread("Observer")
@@ -58,6 +59,9 @@ class PipelineMemoryChainHarness extends Module {
     private val x3Reg = RegInit(0.U(XLEN.W))
     private val x4Reg = RegInit(0.U(XLEN.W))
     private val pcReg = RegInit(0.U(XLEN.W))
+    private val commitCountReg = RegInit(0.U(32.W))
+    private val lastCommitPcReg = RegInit(0.U(XLEN.W))
+    private val lastCommitInstReg = RegInit(0.U(32.W))
 
     override def entry(): Unit = {
       observer.entry {
@@ -65,10 +69,10 @@ class PipelineMemoryChainHarness extends Module {
         val regApi = SysCall.Inline(regfile.RequestRegfileApi())
 
         observer.Step("WaitRetire") {
-          val currentPc = SysCall.Inline(fetchApi.currentPC())
           observer.waitCondition(
-            memory.mutableData(1) === "h11223345".U(XLEN.W) &&
-            currentPc >= (START_ADDR + 24).U(XLEN.W),
+            trace.commitCount >= 5.U &&
+            trace.lastCommittedInst === instr4 &&
+            trace.lastCommittedPc === (START_ADDR + 16).U(XLEN.W),
           )
         }
         observer.Step("Sample") {
@@ -77,6 +81,9 @@ class PipelineMemoryChainHarness extends Module {
           x3Reg := SysCall.Inline(regApi.read(3.U))
           x4Reg := SysCall.Inline(regApi.read(4.U))
           pcReg := SysCall.Inline(fetchApi.currentPC())
+          commitCountReg := trace.commitCount
+          lastCommitPcReg := trace.lastCommittedPc
+          lastCommitInstReg := trace.lastCommittedInst
         }
         SysCall.Return()
       }
@@ -96,6 +103,7 @@ class PipelineMemoryChainHarness extends Module {
 
   Init.links.decode.bind(Init.decode.api)
   Init.links.fetch.bind(Init.fetch.api)
+  Init.links.trace.bind(Init.trace.api)
   Init.links.execute.bind(Init.execute.api)
   Init.links.regfile.bind(Init.regfile.api)
   Init.links.memory.bind(Init.memory.api(1))

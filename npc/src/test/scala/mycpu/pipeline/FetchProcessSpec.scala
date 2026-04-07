@@ -47,8 +47,9 @@ class FetchProcessHarness extends Module {
       maxClients = 1,
       localName = "DummyMemory",
     ))
+    val trace = spawn(new NoopTraceProcess("Trace"))
     lazy val decode = spawn(new StubFetchDecodeProcess("Decode"))
-    lazy val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, "Fetch"))
+    lazy val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     private val pcWriter = createThread("PcWriter")
     private val daemon = createLogic("Daemon")
 
@@ -73,6 +74,7 @@ class FetchProcessHarness extends Module {
   }
 
   Init.links.decode.bind(Init.decode.api)
+  Init.links.trace.bind(Init.trace.api)
   Init.fetch.build()
   Init.build()
 }

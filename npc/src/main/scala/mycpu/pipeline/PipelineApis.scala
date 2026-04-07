@@ -9,6 +9,11 @@ trait FetchApiDecl {
   def currentPC(): HwInline[UInt]
 }
 
+trait TraceApiDecl {
+  def issue(pc: UInt, inst: UInt): HwInline[Unit]
+  def commit(): HwInline[Unit]
+}
+
 trait DecodeApiDecl {
   def decodeInst(inst: UInt): HwInline[Unit]
 }
