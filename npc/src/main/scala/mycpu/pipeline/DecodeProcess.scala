@@ -203,10 +203,12 @@ final class DecodeProcess(
       t.Step(s"${stepTag}_AcquireSlot") {
         SysCall.Inline(lock.Acquire())
       }
-
-      t.Step(s"${stepTag}_Issue") {
+      t.Prev.edge.add {
         decodeInstReg := inst
         decodeCompleted := false.B
+      }
+
+      t.Step(s"${stepTag}_StartWorker") {
         SysCall.Inline(SysCall.start(decodeWorker))
       }
 
