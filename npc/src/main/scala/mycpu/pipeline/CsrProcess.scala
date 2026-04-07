@@ -36,8 +36,23 @@ final class CsrProcess(
     }
   }
 
+  val probeApi: CsrProbeApiDecl = new CsrProbeApiDecl {
+    override def read(addr: UInt): HwInline[UInt] = HwInline.bindings(s"${name}_csr_probe_read") { _ =>
+      csrFile(addr)
+    }
+
+    override def mtvec(): HwInline[UInt] = read("h305".U(12.W))
+    override def mepc(): HwInline[UInt] = read("h341".U(12.W))
+    override def mstatus(): HwInline[UInt] = read("h300".U(12.W))
+    override def mcause(): HwInline[UInt] = read("h342".U(12.W))
+  }
+
   def RequestCsrApi(): HwInline[CsrApiDecl] = HwInline.bindings(s"${name}_csr_api") { _ =>
     api
+  }
+
+  def RequestCsrProbeApi(): HwInline[CsrProbeApiDecl] = HwInline.bindings(s"${name}_csr_probe_api") { _ =>
+    probeApi
   }
 
   override def entry(): Unit = {}

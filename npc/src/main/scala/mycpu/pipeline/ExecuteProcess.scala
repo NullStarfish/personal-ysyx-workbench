@@ -378,6 +378,8 @@ final class ExecuteProcess(
     api
   }
 
+  val csrProbeApi: CsrProbeApiDecl = csr.probeApi
+
   private def RequestLsuApi(): HwInline[LsuApiDecl] = HwInline.bindings(s"${name}_lsu_api") { _ =>
     lsuRef.get
   }

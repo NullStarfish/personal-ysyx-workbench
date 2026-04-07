@@ -23,6 +23,11 @@ trait RegfileApiDecl {
   def write(addr: UInt, data: UInt): HwInline[Unit]
 }
 
+trait RegfileProbeApiDecl {
+  def read(addr: UInt): HwInline[UInt]
+  def readAllFlat(): HwInline[UInt]
+}
+
 trait MemoryApiDecl {
   def read_once(addr: UInt, size: UInt): HwInline[UInt]
   def write_once(addr: UInt, size: UInt, data: UInt, strb: UInt): HwInline[Unit]
@@ -55,6 +60,14 @@ trait CsrApiDecl {
   def rw(addr: UInt, src: UInt): HwInline[UInt]
   def rs(addr: UInt, src: UInt): HwInline[UInt]
   def rc(addr: UInt, src: UInt): HwInline[UInt]
+}
+
+trait CsrProbeApiDecl {
+  def read(addr: UInt): HwInline[UInt]
+  def mtvec(): HwInline[UInt]
+  def mepc(): HwInline[UInt]
+  def mstatus(): HwInline[UInt]
+  def mcause(): HwInline[UInt]
 }
 
 trait LsuApiDecl {

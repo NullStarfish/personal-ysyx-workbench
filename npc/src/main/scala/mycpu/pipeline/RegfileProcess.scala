@@ -18,8 +18,18 @@ final class RegfileProcess(
     override def write(addr: UInt, data: UInt): HwInline[Unit] = base.Write(addr, data)
   }
 
+  val probeApi: RegfileProbeApiDecl = new RegfileProbeApiDecl {
+    override def read(addr: UInt): HwInline[UInt] = base.Read(addr)
+
+    override def readAllFlat(): HwInline[UInt] = base.ObserveFlat()
+  }
+
   def RequestRegfileApi(): HwInline[RegfileApiDecl] = HwInline.bindings(s"${name}_regfile_api") { _ =>
     api
+  }
+
+  def RequestRegfileProbeApi(): HwInline[RegfileProbeApiDecl] = HwInline.bindings(s"${name}_regfile_probe_api") { _ =>
+    probeApi
   }
 
   override def entry(): Unit = {}

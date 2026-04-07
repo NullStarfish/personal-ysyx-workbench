@@ -46,7 +46,7 @@ class PipelineMemoryChainHarness extends Module {
       localName = "DummyMemory",
     ))
     val regfile = spawn(new RegfileProcess("Regfile"))
-    val trace = spawn(new DummyTraceProcess(localName = "Trace"))
+    val trace = spawn(new DummyTracerProcess(localName = "Tracer"))
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
     val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, links.trace, "Writeback"))
