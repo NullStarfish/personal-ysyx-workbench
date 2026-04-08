@@ -258,49 +258,57 @@ final class ExecuteProcess(
       SysCall.Inline(wbApi.redirectRelative(delta))
     }
 
-    def eq(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
+    private def branchTarget(pc: UInt, offset: UInt): UInt = SysCall.Inline(aluApi.add(pc, offset))
+
+    def eq(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
       val result = SysCall.Inline(aluApi.eq(lhs, rhs))
-      printf(p"[EXEC] eq lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] eq lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
+    def ne(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
       val result = !SysCall.Inline(aluApi.eq(lhs, rhs))
-      printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def lt(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
+    def lt(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
       val result = SysCall.Inline(aluApi.lt(lhs, rhs))
-      printf(p"[EXEC] lt lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] lt lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def ltu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
+    def ltu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
       val result = SysCall.Inline(aluApi.ltu(lhs, rhs))
-      printf(p"[EXEC] ltu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] ltu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ =>
+    def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ =>
       val result = !SysCall.Inline(aluApi.lt(lhs, rhs))
-      printf(p"[EXEC] ge lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] ge lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ =>
+    def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ =>
       val result = !SysCall.Inline(aluApi.ltu(lhs, rhs))
-      printf(p"[EXEC] geu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      val target = branchTarget(pc, offset)
+      printf(p"[EXEC] geu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
       }

@@ -38,14 +38,24 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
   val lhsReg = RegInit(0.U(XLEN.W))
   val rhsReg = RegInit(0.U(XLEN.W))
   val targetReg = RegInit(0.U(XLEN.W))
+  val pcReg = RegInit(0.U(XLEN.W))
   val unsignedReg = RegInit(false.B)
 
-  private def record(kind: UInt, rd: UInt = 0.U, lhs: UInt = 0.U, rhs: UInt = 0.U, target: UInt = 0.U, unsigned: Bool = false.B): Unit = {
+  private def record(
+      kind: UInt,
+      rd: UInt = 0.U,
+      lhs: UInt = 0.U,
+      rhs: UInt = 0.U,
+      target: UInt = 0.U,
+      pc: UInt = 0.U,
+      unsigned: Bool = false.B,
+  ): Unit = {
     opKind := kind
     rdReg := rd
     lhsReg := lhs
     rhsReg := rhs
     targetReg := target
+    pcReg := pc
     unsignedReg := unsigned
   }
 
@@ -63,12 +73,12 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ => record(11.U, rd, data) }
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => record(12.U, target = nextPc) }
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_rel") { _ => record(13.U, target = delta.asUInt) }
-    override def eq(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = target) }
-    override def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ => record(15.U, lhs = lhs, rhs = rhs, target = target) }
-    override def lt(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ => record(16.U, lhs = lhs, rhs = rhs, target = target) }
-    override def ltu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = target) }
-    override def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ => record(30.U, lhs = lhs, rhs = rhs, target = target) }
-    override def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = target) }
+    override def eq(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
+    override def ne(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ => record(15.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
+    override def lt(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ => record(16.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
+    override def ltu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
+    override def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ => record(30.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
+    override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ => record(18.U, rd, base, offset) }
     override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { _ => record(19.U, lhs = base, rhs = offset, target = data) }
     override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
@@ -106,6 +116,7 @@ class DecodeProcessHarness extends Module {
     val lhs = Output(UInt(XLEN.W))
     val rhs = Output(UInt(XLEN.W))
     val target = Output(UInt(XLEN.W))
+    val pc = Output(UInt(XLEN.W))
     val unsigned = Output(Bool())
   })
 
@@ -142,6 +153,7 @@ class DecodeProcessHarness extends Module {
         io.lhs := execute.lhsReg
         io.rhs := execute.rhsReg
         io.target := execute.targetReg
+        io.pc := execute.pcReg
         io.unsigned := execute.unsignedReg
       }
     }
@@ -239,7 +251,8 @@ class DecodeProcessSpec extends AnyFlatSpec {
       c.io.opKind.expect(14.U)
       c.io.lhs.expect(10.U)
       c.io.rhs.expect(20.U)
-      c.io.target.expect("h30000010".U)
+      c.io.pc.expect(START_ADDR.U)
+      c.io.target.expect(16.U)
     }
   }
 }

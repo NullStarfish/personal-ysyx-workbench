@@ -129,7 +129,7 @@ class ExecuteProcessHarness extends Module {
         }
 
         worker.Step("Eq") {
-          SysCall.Inline(exec.eq(9.U(XLEN.W), 9.U(XLEN.W), "h30000010".U(XLEN.W)))
+          SysCall.Inline(exec.eq(9.U(XLEN.W), 9.U(XLEN.W), START_ADDR.U(XLEN.W), "h10".U(XLEN.W)))
         }
 
         worker.Step("CsrRw") {

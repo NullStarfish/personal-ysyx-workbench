@@ -146,14 +146,13 @@ final class DecodeProcess(
           }
 
           is(InstFamily.BRANCH) {
-            val branchTarget = (decodePcReg.asSInt + immB.asSInt).asUInt
             switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.eq(rs1Value, rs2Value, branchTarget)) }
-              is("b001".U) { SysCall.Inline(exec.ne(rs1Value, rs2Value, branchTarget)) }
-              is("b100".U) { SysCall.Inline(exec.lt(rs1Value, rs2Value, branchTarget)) }
-              is("b110".U) { SysCall.Inline(exec.ltu(rs1Value, rs2Value, branchTarget)) }
-              is("b101".U) { SysCall.Inline(exec.ge(rs1Value, rs2Value, branchTarget)) }
-              is("b111".U) { SysCall.Inline(exec.geu(rs1Value, rs2Value, branchTarget)) }
+              is("b000".U) { SysCall.Inline(exec.eq(rs1Value, rs2Value, decodePcReg, immB)) }
+              is("b001".U) { SysCall.Inline(exec.ne(rs1Value, rs2Value, decodePcReg, immB)) }
+              is("b100".U) { SysCall.Inline(exec.lt(rs1Value, rs2Value, decodePcReg, immB)) }
+              is("b110".U) { SysCall.Inline(exec.ltu(rs1Value, rs2Value, decodePcReg, immB)) }
+              is("b101".U) { SysCall.Inline(exec.ge(rs1Value, rs2Value, decodePcReg, immB)) }
+              is("b111".U) { SysCall.Inline(exec.geu(rs1Value, rs2Value, decodePcReg, immB)) }
             }
           }
 
