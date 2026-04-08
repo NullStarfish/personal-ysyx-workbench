@@ -33,12 +33,8 @@ final class ExecuteProcess(
   private val storeSlotLock = spawn(new MutexProcess(1, "StoreSlotLock"))
   private val loadReqBuffer = spawn(new PipelineBuffer(new LoadReq, "LoadReqBuffer"))
   private val storeReqBuffer = spawn(new PipelineBuffer(new StoreReq, "StoreReqBuffer"))
-  private val loadWordWorker = createThread("LoadWordWorker")
-  private val loadByteWorker = createThread("LoadByteWorker")
-  private val loadHalfWorker = createThread("LoadHalfWorker")
-  private val storeWordWorker = createThread("StoreWordWorker")
-  private val storeByteWorker = createThread("StoreByteWorker")
-  private val storeHalfWorker = createThread("StoreHalfWorker")
+  private val loadWorker = createThread("LoadWorker")
+  private val storeWorker = createThread("StoreWorker")
 
   private val LOAD_WORD = 0.U(2.W)
   private val LOAD_BYTE = 1.U(2.W)
@@ -54,133 +50,63 @@ final class ExecuteProcess(
   private val storeIssued = RegInit(false.B)
 
   override def entry(): Unit = {
-    loadWordWorker.entry {
+    loadWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
       val reqReg = RegInit(0.U.asTypeOf(new LoadReq))
       val addrReg = RegInit(0.U(XLEN.W))
-      loadWordWorker.Step("TakeReq") {
+
+      loadWorker.Step("TakeReq") {
         reqReg := SysCall.Inline(loadReqBuffer.pop())
       }
-      loadWordWorker.Step("ComputeAddr") {
+      loadWorker.Step("ComputeAddr") {
         addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
       }
-      SysCall.Call(lsuApi.loadWord(reqReg.rd, addrReg), "AfterLoadWord")
-      loadWordWorker.Step("AfterLoadWord") {
-        loadCompleted := true.B
-        SysCall.Return()
+      when(reqReg.kind === LOAD_WORD) {
+        SysCall.Call(lsuApi.loadWord(reqReg.rd, addrReg), "AfterLoad")
+      }.elsewhen(reqReg.kind === LOAD_BYTE) {
+        SysCall.Call(lsuApi.loadByte(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoad")
+      }.otherwise {
+        SysCall.Call(lsuApi.loadHalf(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoad")
       }
+      loadWorker.Step("AfterLoad") {
+        loadCompleted := true.B
+      }
+      SysCall.Return()
     }
 
-    loadByteWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
-      val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new LoadReq))
-      val addrReg = RegInit(0.U(XLEN.W))
-      loadByteWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(loadReqBuffer.pop())
-      }
-      loadByteWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
-      }
-      SysCall.Call(lsuApi.loadByte(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoadByte")
-      loadByteWorker.Step("AfterLoadByte") {
-        loadCompleted := true.B
-        SysCall.Return()
-      }
-    }
-
-    loadHalfWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
-      val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new LoadReq))
-      val addrReg = RegInit(0.U(XLEN.W))
-      loadHalfWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(loadReqBuffer.pop())
-      }
-      loadHalfWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
-      }
-      SysCall.Call(lsuApi.loadHalf(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoadHalf")
-      loadHalfWorker.Step("AfterLoadHalf") {
-        loadCompleted := true.B
-        SysCall.Return()
-      }
-    }
-
-    storeWordWorker.entry {
+    storeWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
       val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
       val addrReg = RegInit(0.U(XLEN.W))
-      storeWordWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(storeReqBuffer.pop())
-      }
-      storeWordWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
-      }
-      SysCall.Call(lsuApi.storeWord(addrReg, reqReg.data), "AfterStoreWord")
-      storeWordWorker.Step("AfterStoreWord") {
-        storeCompleted := true.B
-        SysCall.Return()
-      }
-    }
 
-    storeByteWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
-      val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
-      val addrReg = RegInit(0.U(XLEN.W))
-      storeByteWorker.Step("TakeReq") {
+      storeWorker.Step("TakeReq") {
         reqReg := SysCall.Inline(storeReqBuffer.pop())
       }
-      storeByteWorker.Step("ComputeAddr") {
+      storeWorker.Step("ComputeAddr") {
         addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
       }
-      SysCall.Call(lsuApi.storeByte(addrReg, reqReg.data), "AfterStoreByte")
-      storeByteWorker.Step("AfterStoreByte") {
+      when(reqReg.kind === STORE_WORD) {
+        SysCall.Call(lsuApi.storeWord(addrReg, reqReg.data), "AfterStore")
+      }.elsewhen(reqReg.kind === STORE_BYTE) {
+        SysCall.Call(lsuApi.storeByte(addrReg, reqReg.data), "AfterStore")
+      }.otherwise {
+        SysCall.Call(lsuApi.storeHalf(addrReg, reqReg.data), "AfterStore")
+      }
+      storeWorker.Step("AfterStore") {
         storeCompleted := true.B
-        SysCall.Return()
       }
-    }
-
-    storeHalfWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
-      val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
-      val addrReg = RegInit(0.U(XLEN.W))
-      storeHalfWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(storeReqBuffer.pop())
-      }
-      storeHalfWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
-      }
-      SysCall.Call(lsuApi.storeHalf(addrReg, reqReg.data), "AfterStoreHalf")
-      storeHalfWorker.Step("AfterStoreHalf") {
-        storeCompleted := true.B
-        SysCall.Return()
-      }
+      SysCall.Return()
     }
 
     val daemon = createLogic("Daemon")
     daemon.run {
-      when(loadReqBuffer.valid && !loadWordWorker.active && !loadByteWorker.active && !loadHalfWorker.active) {
-        when(loadReqBuffer.bits.kind === LOAD_WORD) {
-          SysCall.Inline(SysCall.start(loadWordWorker))
-        }.elsewhen(loadReqBuffer.bits.kind === LOAD_BYTE) {
-          SysCall.Inline(SysCall.start(loadByteWorker))
-        }.otherwise {
-          SysCall.Inline(SysCall.start(loadHalfWorker))
-        }
+      when(loadReqBuffer.valid && !loadWorker.active) {
+        SysCall.Inline(SysCall.start(loadWorker))
       }
-      when(storeReqBuffer.valid && !storeWordWorker.active && !storeByteWorker.active && !storeHalfWorker.active) {
-        when(storeReqBuffer.bits.kind === STORE_WORD) {
-          SysCall.Inline(SysCall.start(storeWordWorker))
-        }.elsewhen(storeReqBuffer.bits.kind === STORE_BYTE) {
-          SysCall.Inline(SysCall.start(storeByteWorker))
-        }.otherwise {
-          SysCall.Inline(SysCall.start(storeHalfWorker))
-        }
+      when(storeReqBuffer.valid && !storeWorker.active) {
+        SysCall.Inline(SysCall.start(storeWorker))
       }
     }
   }

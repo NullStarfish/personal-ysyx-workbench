@@ -16,7 +16,7 @@ final class PipelineBuffer[T <: Data](
 
   private val entryReg = RegInit(0.U.asTypeOf(new PipelineEntry(gen)))
   private val clearPendingReg = RegInit(false.B)
-  private val canPushNode = !entryReg.valid
+  private val canPushNode = !entryReg.valid && !clearPendingReg
   private val canPopNode = entryReg.valid
 
   when(clearPendingReg) {
