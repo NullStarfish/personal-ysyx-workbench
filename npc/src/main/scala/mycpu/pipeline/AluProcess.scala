@@ -29,11 +29,8 @@ final class AluProcess(
     override def slt(lhs: UInt, rhs: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_slt") { _ => Mux(lhs.asSInt < rhs.asSInt, 1.U(XLEN.W), 0.U(XLEN.W)) }
     override def sltu(lhs: UInt, rhs: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_sltu") { _ => Mux(lhs < rhs, 1.U(XLEN.W), 0.U(XLEN.W)) }
     override def eq(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_eq") { _ => lhs === rhs }
-    override def ne(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ne") { _ => lhs =/= rhs }
     override def lt(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_lt") { _ => lhs.asSInt < rhs.asSInt }
     override def ltu(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ltu") { _ => lhs < rhs }
-    override def ge(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ge") { _ => lhs.asSInt >= rhs.asSInt }
-    override def geu(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_geu") { _ => lhs >= rhs }
   }
 
   def RequestAluApi(): HwInline[AluApiDecl] = HwInline.bindings(s"${name}_alu_api") { _ =>

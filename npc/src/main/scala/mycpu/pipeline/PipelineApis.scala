@@ -52,11 +52,8 @@ trait AluApiDecl {
   def slt(lhs: UInt, rhs: UInt): HwInline[UInt]
   def sltu(lhs: UInt, rhs: UInt): HwInline[UInt]
   def eq(lhs: UInt, rhs: UInt): HwInline[Bool]
-  def ne(lhs: UInt, rhs: UInt): HwInline[Bool]
   def lt(lhs: UInt, rhs: UInt): HwInline[Bool]
   def ltu(lhs: UInt, rhs: UInt): HwInline[Bool]
-  def ge(lhs: UInt, rhs: UInt): HwInline[Bool]
-  def geu(lhs: UInt, rhs: UInt): HwInline[Bool]
 }
 
 trait CsrApiDecl {

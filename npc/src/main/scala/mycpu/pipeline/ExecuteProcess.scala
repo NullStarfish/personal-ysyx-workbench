@@ -267,7 +267,7 @@ final class ExecuteProcess(
     }
 
     def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
-      val result = SysCall.Inline(aluApi.ne(lhs, rhs))
+      val result = !SysCall.Inline(aluApi.eq(lhs, rhs))
       printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
@@ -291,7 +291,7 @@ final class ExecuteProcess(
     }
 
     def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ =>
-      val result = SysCall.Inline(aluApi.ge(lhs, rhs))
+      val result = !SysCall.Inline(aluApi.lt(lhs, rhs))
       printf(p"[EXEC] ge lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
@@ -299,7 +299,7 @@ final class ExecuteProcess(
     }
 
     def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ =>
-      val result = SysCall.Inline(aluApi.geu(lhs, rhs))
+      val result = !SysCall.Inline(aluApi.ltu(lhs, rhs))
       printf(p"[EXEC] geu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
         SysCall.Inline(wbApi.redirect(target))
