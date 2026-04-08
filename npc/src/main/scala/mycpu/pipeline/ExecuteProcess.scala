@@ -16,8 +16,12 @@ final class ExecuteProcess(
   private val csr = spawn(new CsrProcess("Csr"))
   private val loadSlotLock = spawn(new MutexProcess(1, "LoadSlotLock"))
   private val storeSlotLock = spawn(new MutexProcess(1, "StoreSlotLock"))
-  private val loadWorker = createThread("LoadWorker")
-  private val storeWorker = createThread("StoreWorker")
+  private val loadWordWorker = createThread("LoadWordWorker")
+  private val loadByteWorker = createThread("LoadByteWorker")
+  private val loadHalfWorker = createThread("LoadHalfWorker")
+  private val storeWordWorker = createThread("StoreWordWorker")
+  private val storeByteWorker = createThread("StoreByteWorker")
+  private val storeHalfWorker = createThread("StoreHalfWorker")
 
   private val LOAD_WORD = 0.U(2.W)
   private val LOAD_BYTE = 1.U(2.W)
@@ -33,6 +37,7 @@ final class ExecuteProcess(
       base: UInt,
       offset: UInt,
       unsigned: Bool,
+      pending: Bool,
       issued: Bool,
       completed: Bool,
   )
@@ -42,6 +47,7 @@ final class ExecuteProcess(
       base: UInt,
       offset: UInt,
       data: UInt,
+      pending: Bool,
       issued: Bool,
       completed: Bool,
   )
@@ -52,6 +58,7 @@ final class ExecuteProcess(
     base = RegInit(0.U(XLEN.W)),
     offset = RegInit(0.U(XLEN.W)),
     unsigned = RegInit(false.B),
+    pending = RegInit(false.B),
     issued = RegInit(false.B),
     completed = RegInit(false.B),
   )
@@ -61,66 +68,117 @@ final class ExecuteProcess(
     base = RegInit(0.U(XLEN.W)),
     offset = RegInit(0.U(XLEN.W)),
     data = RegInit(0.U(XLEN.W)),
+    pending = RegInit(false.B),
     issued = RegInit(false.B),
     completed = RegInit(false.B),
   )
 
   override def entry(): Unit = {
-    loadWorker.entry {
+    loadWordWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
       val addrReg = RegInit(0.U(XLEN.W))
-      loadWorker.Step("ComputeAddr") {
+      loadWordWorker.Step("ComputeAddr") {
         addrReg := SysCall.Inline(aluApi.add(loadSlot.base, loadSlot.offset))
       }
-      when(loadSlot.kind === LOAD_WORD) {
-        SysCall.Call(lsuApi.loadWord(loadSlot.rd, addrReg), "AfterLoadWord")
-      }.elsewhen(loadSlot.kind === LOAD_BYTE) {
-        SysCall.Call(lsuApi.loadByte(loadSlot.rd, addrReg, loadSlot.unsigned), "AfterLoadByte")
-      }.otherwise {
-        SysCall.Call(lsuApi.loadHalf(loadSlot.rd, addrReg, loadSlot.unsigned), "AfterLoadHalf")
-      }
-
-      loadWorker.Step("AfterLoadWord") {
-        loadSlot.completed := true.B
-        SysCall.Return()
-      }
-      loadWorker.Step("AfterLoadByte") {
-        loadSlot.completed := true.B
-        SysCall.Return()
-      }
-      loadWorker.Step("AfterLoadHalf") {
+      SysCall.Call(lsuApi.loadWord(loadSlot.rd, addrReg), "AfterLoadWord")
+      loadWordWorker.Step("AfterLoadWord") {
         loadSlot.completed := true.B
         SysCall.Return()
       }
     }
 
-    storeWorker.entry {
+    loadByteWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
       val addrReg = RegInit(0.U(XLEN.W))
-      storeWorker.Step("ComputeAddr") {
+      loadByteWorker.Step("ComputeAddr") {
+        addrReg := SysCall.Inline(aluApi.add(loadSlot.base, loadSlot.offset))
+      }
+      SysCall.Call(lsuApi.loadByte(loadSlot.rd, addrReg, loadSlot.unsigned), "AfterLoadByte")
+      loadByteWorker.Step("AfterLoadByte") {
+        loadSlot.completed := true.B
+        SysCall.Return()
+      }
+    }
+
+    loadHalfWorker.entry {
+      val lsuApi = SysCall.Inline(RequestLsuApi())
+      val aluApi = alu.api
+      val addrReg = RegInit(0.U(XLEN.W))
+      loadHalfWorker.Step("ComputeAddr") {
+        addrReg := SysCall.Inline(aluApi.add(loadSlot.base, loadSlot.offset))
+      }
+      SysCall.Call(lsuApi.loadHalf(loadSlot.rd, addrReg, loadSlot.unsigned), "AfterLoadHalf")
+      loadHalfWorker.Step("AfterLoadHalf") {
+        loadSlot.completed := true.B
+        SysCall.Return()
+      }
+    }
+
+    storeWordWorker.entry {
+      val lsuApi = SysCall.Inline(RequestLsuApi())
+      val aluApi = alu.api
+      val addrReg = RegInit(0.U(XLEN.W))
+      storeWordWorker.Step("ComputeAddr") {
         addrReg := SysCall.Inline(aluApi.add(storeSlot.base, storeSlot.offset))
       }
-      when(storeSlot.kind === STORE_WORD) {
-        SysCall.Call(lsuApi.storeWord(addrReg, storeSlot.data), "AfterStoreWord")
-      }.elsewhen(storeSlot.kind === STORE_BYTE) {
-        SysCall.Call(lsuApi.storeByte(addrReg, storeSlot.data), "AfterStoreByte")
-      }.otherwise {
-        SysCall.Call(lsuApi.storeHalf(addrReg, storeSlot.data), "AfterStoreHalf")
+      SysCall.Call(lsuApi.storeWord(addrReg, storeSlot.data), "AfterStoreWord")
+      storeWordWorker.Step("AfterStoreWord") {
+        storeSlot.completed := true.B
+        SysCall.Return()
       }
+    }
 
-      storeWorker.Step("AfterStoreWord") {
+    storeByteWorker.entry {
+      val lsuApi = SysCall.Inline(RequestLsuApi())
+      val aluApi = alu.api
+      val addrReg = RegInit(0.U(XLEN.W))
+      storeByteWorker.Step("ComputeAddr") {
+        addrReg := SysCall.Inline(aluApi.add(storeSlot.base, storeSlot.offset))
+      }
+      SysCall.Call(lsuApi.storeByte(addrReg, storeSlot.data), "AfterStoreByte")
+      storeByteWorker.Step("AfterStoreByte") {
         storeSlot.completed := true.B
         SysCall.Return()
       }
-      storeWorker.Step("AfterStoreByte") {
+    }
+
+    storeHalfWorker.entry {
+      val lsuApi = SysCall.Inline(RequestLsuApi())
+      val aluApi = alu.api
+      val addrReg = RegInit(0.U(XLEN.W))
+      storeHalfWorker.Step("ComputeAddr") {
+        addrReg := SysCall.Inline(aluApi.add(storeSlot.base, storeSlot.offset))
+      }
+      SysCall.Call(lsuApi.storeHalf(addrReg, storeSlot.data), "AfterStoreHalf")
+      storeHalfWorker.Step("AfterStoreHalf") {
         storeSlot.completed := true.B
         SysCall.Return()
       }
-      storeWorker.Step("AfterStoreHalf") {
-        storeSlot.completed := true.B
-        SysCall.Return()
+    }
+
+    val daemon = createLogic("Daemon")
+    daemon.run {
+      when(loadSlot.pending && !loadWordWorker.active && !loadByteWorker.active && !loadHalfWorker.active) {
+        loadSlot.pending := false.B
+        when(loadSlot.kind === LOAD_WORD) {
+          SysCall.Inline(SysCall.start(loadWordWorker))
+        }.elsewhen(loadSlot.kind === LOAD_BYTE) {
+          SysCall.Inline(SysCall.start(loadByteWorker))
+        }.otherwise {
+          SysCall.Inline(SysCall.start(loadHalfWorker))
+        }
+      }
+      when(storeSlot.pending && !storeWordWorker.active && !storeByteWorker.active && !storeHalfWorker.active) {
+        storeSlot.pending := false.B
+        when(storeSlot.kind === STORE_WORD) {
+          SysCall.Inline(SysCall.start(storeWordWorker))
+        }.elsewhen(storeSlot.kind === STORE_BYTE) {
+          SysCall.Inline(SysCall.start(storeByteWorker))
+        }.otherwise {
+          SysCall.Inline(SysCall.start(storeHalfWorker))
+        }
       }
     }
   }
@@ -200,35 +258,51 @@ final class ExecuteProcess(
       SysCall.Inline(wbApi.redirectRelative(delta))
     }
 
-    def eq(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
+    def eq(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
       val result = SysCall.Inline(aluApi.eq(lhs, rhs))
       printf(p"[EXEC] eq lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
-        SysCall.Inline(wbApi.redirectRelative(target))
+        SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def ne(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
+    def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
       val result = SysCall.Inline(aluApi.ne(lhs, rhs))
       printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
-        SysCall.Inline(wbApi.redirectRelative(target))
+        SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def lt(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
+    def lt(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
       val result = SysCall.Inline(aluApi.lt(lhs, rhs))
       printf(p"[EXEC] lt lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
-        SysCall.Inline(wbApi.redirectRelative(target))
+        SysCall.Inline(wbApi.redirect(target))
       }
     }
 
-    def ltu(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
+    def ltu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
       val result = SysCall.Inline(aluApi.ltu(lhs, rhs))
       printf(p"[EXEC] ltu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
       when(result) {
-        SysCall.Inline(wbApi.redirectRelative(target))
+        SysCall.Inline(wbApi.redirect(target))
+      }
+    }
+
+    def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ =>
+      val result = SysCall.Inline(aluApi.ge(lhs, rhs))
+      printf(p"[EXEC] ge lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      when(result) {
+        SysCall.Inline(wbApi.redirect(target))
+      }
+    }
+
+    def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ =>
+      val result = SysCall.Inline(aluApi.geu(lhs, rhs))
+      printf(p"[EXEC] geu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} result=${result}\n")
+      when(result) {
+        SysCall.Inline(wbApi.redirect(target))
       }
     }
 
@@ -242,9 +316,9 @@ final class ExecuteProcess(
         loadSlot.base := base
         loadSlot.offset := offset
         loadSlot.unsigned := false.B
+        loadSlot.pending := true.B
         loadSlot.issued := true.B
         loadSlot.completed := false.B
-        SysCall.Inline(SysCall.start(loadWorker))
       }
       t.waitCondition(loadSlot.completed)
       when(loadSlot.completed) {
@@ -262,9 +336,9 @@ final class ExecuteProcess(
         storeSlot.base := base
         storeSlot.offset := offset
         storeSlot.data := data
+        storeSlot.pending := true.B
         storeSlot.issued := true.B
         storeSlot.completed := false.B
-        SysCall.Inline(SysCall.start(storeWorker))
       }
       t.waitCondition(storeSlot.completed)
       when(storeSlot.completed) {
@@ -283,9 +357,9 @@ final class ExecuteProcess(
         loadSlot.base := base
         loadSlot.offset := offset
         loadSlot.unsigned := unsigned
+        loadSlot.pending := true.B
         loadSlot.issued := true.B
         loadSlot.completed := false.B
-        SysCall.Inline(SysCall.start(loadWorker))
       }
       t.waitCondition(loadSlot.completed)
       when(loadSlot.completed) {
@@ -304,9 +378,9 @@ final class ExecuteProcess(
         loadSlot.base := base
         loadSlot.offset := offset
         loadSlot.unsigned := unsigned
+        loadSlot.pending := true.B
         loadSlot.issued := true.B
         loadSlot.completed := false.B
-        SysCall.Inline(SysCall.start(loadWorker))
       }
       t.waitCondition(loadSlot.completed)
       when(loadSlot.completed) {
@@ -324,9 +398,9 @@ final class ExecuteProcess(
         storeSlot.base := base
         storeSlot.offset := offset
         storeSlot.data := data
+        storeSlot.pending := true.B
         storeSlot.issued := true.B
         storeSlot.completed := false.B
-        SysCall.Inline(SysCall.start(storeWorker))
       }
       t.waitCondition(storeSlot.completed)
       when(storeSlot.completed) {
@@ -344,9 +418,9 @@ final class ExecuteProcess(
         storeSlot.base := base
         storeSlot.offset := offset
         storeSlot.data := data
+        storeSlot.pending := true.B
         storeSlot.issued := true.B
         storeSlot.completed := false.B
-        SysCall.Inline(SysCall.start(storeWorker))
       }
       t.waitCondition(storeSlot.completed)
       when(storeSlot.completed) {

@@ -63,10 +63,12 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ => record(11.U, rd, data) }
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => record(12.U, target = nextPc) }
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_rel") { _ => record(13.U, target = delta.asUInt) }
-    override def eq(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
-    override def ne(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ => record(15.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
-    override def lt(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ => record(16.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
-    override def ltu(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = target.asUInt) }
+    override def eq(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = target) }
+    override def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ => record(15.U, lhs = lhs, rhs = rhs, target = target) }
+    override def lt(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ => record(16.U, lhs = lhs, rhs = rhs, target = target) }
+    override def ltu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = target) }
+    override def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ => record(30.U, lhs = lhs, rhs = rhs, target = target) }
+    override def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = target) }
     override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ => record(18.U, rd, base, offset) }
     override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { _ => record(19.U, lhs = base, rhs = offset, target = data) }
     override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
@@ -237,7 +239,7 @@ class DecodeProcessSpec extends AnyFlatSpec {
       c.io.opKind.expect(14.U)
       c.io.lhs.expect(10.U)
       c.io.rhs.expect(20.U)
-      c.io.target.expect(16.U)
+      c.io.target.expect("h30000010".U)
     }
   }
 }

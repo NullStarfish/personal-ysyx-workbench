@@ -80,6 +80,9 @@ final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Ker
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
       pc := (pc.asSInt + delta).asUInt
     }
+
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+    }
   }
 
   override def entry(): Unit = {}
@@ -126,7 +129,7 @@ class ExecuteProcessHarness extends Module {
         }
 
         worker.Step("Eq") {
-          SysCall.Inline(exec.eq(9.U(XLEN.W), 9.U(XLEN.W), 16.S(XLEN.W)))
+          SysCall.Inline(exec.eq(9.U(XLEN.W), 9.U(XLEN.W), "h30000010".U(XLEN.W)))
         }
 
         worker.Step("CsrRw") {
@@ -207,7 +210,7 @@ class ExecuteProcessSpec extends AnyFlatSpec {
       c.io.done.expect(true.B)
       c.io.x1.expect(12.U)
       c.io.x2.expect(2.U)
-      c.io.x3.expect(0.U)
+      c.io.x3.expect("h1800".U)
       c.io.x4.expect("h55".U)
       c.io.x5.expect("h5f".U)
       c.io.x6.expect("h50".U)

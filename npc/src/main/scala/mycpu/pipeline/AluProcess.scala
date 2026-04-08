@@ -32,6 +32,8 @@ final class AluProcess(
     override def ne(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ne") { _ => lhs =/= rhs }
     override def lt(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_lt") { _ => lhs.asSInt < rhs.asSInt }
     override def ltu(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ltu") { _ => lhs < rhs }
+    override def ge(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_ge") { _ => lhs.asSInt >= rhs.asSInt }
+    override def geu(lhs: UInt, rhs: UInt): HwInline[Bool] = HwInline.atomic(s"${name}_geu") { _ => lhs >= rhs }
   }
 
   def RequestAluApi(): HwInline[AluApiDecl] = HwInline.bindings(s"${name}_alu_api") { _ =>

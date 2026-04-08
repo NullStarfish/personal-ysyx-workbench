@@ -37,6 +37,7 @@ trait WritebackApiDecl {
   def writeReg(rd: UInt, data: UInt): HwInline[Unit]
   def redirect(nextPc: UInt): HwInline[Unit]
   def redirectRelative(delta: SInt): HwInline[Unit]
+  def commit(): HwInline[Unit]
 }
 
 trait AluApiDecl {
@@ -54,6 +55,8 @@ trait AluApiDecl {
   def ne(lhs: UInt, rhs: UInt): HwInline[Bool]
   def lt(lhs: UInt, rhs: UInt): HwInline[Bool]
   def ltu(lhs: UInt, rhs: UInt): HwInline[Bool]
+  def ge(lhs: UInt, rhs: UInt): HwInline[Bool]
+  def geu(lhs: UInt, rhs: UInt): HwInline[Bool]
 }
 
 trait CsrApiDecl {
@@ -93,10 +96,12 @@ trait ExecuteApiDecl {
   def writeReg(rd: UInt, data: UInt): HwInline[Unit]
   def redirect(nextPc: UInt): HwInline[Unit]
   def redirectRelative(delta: SInt): HwInline[Unit]
-  def eq(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit]
-  def ne(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit]
-  def lt(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit]
-  def ltu(lhs: UInt, rhs: UInt, target: SInt): HwInline[Unit]
+  def eq(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
+  def ne(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
+  def lt(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
+  def ltu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
+  def ge(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
+  def geu(lhs: UInt, rhs: UInt, target: UInt): HwInline[Unit]
   def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit]
   def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit]
   def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit]

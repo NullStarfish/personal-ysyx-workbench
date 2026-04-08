@@ -31,6 +31,7 @@ final class LsuProcess(
       rd: UInt,
       addr: UInt,
       unsigned: Bool,
+      pending: Bool,
       completed: Bool,
   )
 
@@ -38,6 +39,7 @@ final class LsuProcess(
       storeKind: UInt,
       addr: UInt,
       data: UInt,
+      pending: Bool,
       completed: Bool,
   )
 
@@ -46,6 +48,7 @@ final class LsuProcess(
     rd = RegInit(0.U(5.W)),
     addr = RegInit(0.U(XLEN.W)),
     unsigned = RegInit(false.B),
+    pending = RegInit(false.B),
     completed = RegInit(false.B),
   )
 
@@ -53,6 +56,7 @@ final class LsuProcess(
     storeKind = RegInit(0.U(2.W)),
     addr = RegInit(0.U(XLEN.W)),
     data = RegInit(0.U(XLEN.W)),
+    pending = RegInit(false.B),
     completed = RegInit(false.B),
   )
 
@@ -71,7 +75,6 @@ final class LsuProcess(
       val memory = memoryRef.get
       val wbApi = writebackRef.get
       val rawReadData = RegInit(0.U(XLEN.W))
-      val resultReg = RegInit(0.U(XLEN.W))
       val alignedAddr = WireInit(Mux(
         loadSlot.loadKind === LOAD_WORD,
         loadSlot.addr,
@@ -81,17 +84,14 @@ final class LsuProcess(
       loadWorker.Prev.edge.add {
         rawReadData := loaded
       }
-      loadWorker.Step("Finish") {
-        when(loadSlot.loadKind === LOAD_WORD) {
-          resultReg := rawReadData
-        }.elsewhen(loadSlot.loadKind === LOAD_BYTE) {
-          resultReg := extractByte(rawReadData, loadSlot.addr(1, 0), loadSlot.unsigned)
-        }.otherwise {
-          resultReg := extractHalf(rawReadData, loadSlot.addr(1), loadSlot.unsigned)
-        }
-      }
       loadWorker.Step("Writeback") {
-        SysCall.Inline(wbApi.writeReg(loadSlot.rd, resultReg))
+        val resultData = WireInit(rawReadData)
+        when(loadSlot.loadKind === LOAD_BYTE) {
+          resultData := extractByte(rawReadData, loadSlot.addr(1, 0), loadSlot.unsigned)
+        }.elsewhen(loadSlot.loadKind === LOAD_HALF) {
+          resultData := extractHalf(rawReadData, loadSlot.addr(1), loadSlot.unsigned)
+        }
+        SysCall.Inline(wbApi.writeReg(loadSlot.rd, resultData))
         loadSlot.completed := true.B
       }
       SysCall.Return()
@@ -99,6 +99,7 @@ final class LsuProcess(
 
     storeWorker.entry {
       val memory = memoryRef.get
+      val wbApi = writebackRef.get
       val writeData = WireInit(0.U(XLEN.W))
       val writeSize = WireInit(0.U(2.W))
       val writeStrb = WireInit(0.U(4.W))
@@ -119,9 +120,22 @@ final class LsuProcess(
 
       SysCall.Inline(memory.write_once(storeSlot.addr, writeSize, writeData, writeStrb))
       storeWorker.Prev.edge.add {
+        SysCall.Inline(wbApi.commit())
         storeSlot.completed := true.B
       }
       SysCall.Return()
+    }
+
+    val daemon = createLogic("Daemon")
+    daemon.run {
+      when(loadSlot.pending && !loadWorker.active) {
+        loadSlot.pending := false.B
+        SysCall.Inline(SysCall.start(loadWorker))
+      }
+      when(storeSlot.pending && !storeWorker.active) {
+        storeSlot.pending := false.B
+        SysCall.Inline(SysCall.start(storeWorker))
+      }
     }
   }
 
@@ -138,8 +152,8 @@ final class LsuProcess(
         loadSlot.rd := rd
         loadSlot.addr := addr
         loadSlot.unsigned := unsigned
+        loadSlot.pending := true.B
         loadSlot.completed := false.B
-        SysCall.Inline(SysCall.start(loadWorker))
       }
 
       t.Step(s"${stepTag}_WaitDone") {
@@ -163,8 +177,8 @@ final class LsuProcess(
         storeSlot.storeKind := kind
         storeSlot.addr := addr
         storeSlot.data := data
+        storeSlot.pending := true.B
         storeSlot.completed := false.B
-        SysCall.Inline(SysCall.start(storeWorker))
       }
 
       t.Step(s"${stepTag}_WaitDone") {

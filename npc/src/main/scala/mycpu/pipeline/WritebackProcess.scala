@@ -33,6 +33,10 @@ final class WritebackProcess(
       SysCall.Inline(fetchApi.offsetPC(delta))
       SysCall.Inline(traceApi.commit())
     }
+
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+      SysCall.Inline(traceApi.commit())
+    }
   }
 
   def RequestWritebackApi(): HwInline[WritebackApiDecl] = HwInline.bindings(s"${name}_writeback_api") { _ =>

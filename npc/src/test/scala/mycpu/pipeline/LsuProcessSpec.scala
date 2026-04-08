@@ -80,6 +80,9 @@ final class DummyWritebackProcess(localName: String)(implicit kernel: Kernel) ex
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
       pc := (pc.asSInt + delta).asUInt
     }
+
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+    }
   }
 
   def readReg(idx: Int): UInt = regs(idx)
