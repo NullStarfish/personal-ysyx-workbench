@@ -11,17 +11,20 @@ final class StubFetchDecodeProcess(localName: String)(implicit kernel: Kernel)
     extends HwProcess(localName)
 {
   private val decodeCountReg = RegInit(0.U(8.W))
+  private val lastPcReg = RegInit(0.U(XLEN.W))
   private val lastInstReg = RegInit(0.U(32.W))
 
   val api: DecodeApiDecl = new DecodeApiDecl {
-    override def decodeInst(inst: UInt): HwInline[Unit] = HwInline.thread(s"${name}_decode_inst") { _ =>
+    override def decodeInst(pc: UInt, inst: UInt): HwInline[Unit] = HwInline.thread(s"${name}_decode_inst") { _ =>
       decodeCountReg := decodeCountReg + 1.U
+      lastPcReg := pc
       lastInstReg := inst
       SysCall.Return()
     }
   }
 
   def count: UInt = decodeCountReg
+  def lastPc: UInt = lastPcReg
   def lastInst: UInt = lastInstReg
   override def entry(): Unit = {}
 }

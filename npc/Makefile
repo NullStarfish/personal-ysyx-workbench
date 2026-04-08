@@ -77,6 +77,7 @@ VERILATOR_INC_FLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
 CXX_SRCS_BASE := $(shell find $(CSRC_DIR) -name "*.cpp")
 C_SRCS_BASE   := $(shell find $(CSRC_DIR) -name "*.c")
 C_SRCS_BASE   := $(filter-out %/disasm.c, $(C_SRCS_BASE))
+CXX_SRCS_BASE := $(filter-out %/dpi/dpi_tracer_smoke_main.cpp, $(CXX_SRCS_BASE))
 
 CXX_SRCS := $(CXX_SRCS_BASE)
 C_SRCS   := $(C_SRCS_BASE)
@@ -164,7 +165,7 @@ ysyxsoc_scala:
 
 local_scala:
 	@echo -e "\033[31m SCALA!!! \033[0m\n"
-	sbt run
+	sbt 'runMain mycpu.GenCore'
 
 scala: ysyxsoc_scala local_scala
 

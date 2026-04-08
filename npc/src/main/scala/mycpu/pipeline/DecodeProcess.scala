@@ -37,6 +37,7 @@ final class DecodeProcess(
 
   private val decodeSlotLock = spawn(new MutexProcess(1, "DecodeSlotLock"))
   private val decodeWorker = createThread("DecodeWorker")
+  private val decodePcReg = RegInit(0.U(XLEN.W))
   private val decodeInstReg = RegInit(0.U(32.W))
   private val decodeCompleted = RegInit(false.B)
 
@@ -79,7 +80,7 @@ final class DecodeProcess(
         val rs2Value = SysCall.Inline(regApi.read(rs2))
 
         printf(
-          p"[DECODE] inst=${Hexadecimal(decodeInstReg)} format=${format.asUInt} family=${family.asUInt} rd=${Decimal(rd)} rs1=${Decimal(rs1)} rs2=${Decimal(rs2)} funct3=${Hexadecimal(funct3)} funct7=${Hexadecimal(funct7)}\n",
+          p"[DECODE] pc=${Hexadecimal(decodePcReg)} inst=${Hexadecimal(decodeInstReg)} format=${format.asUInt} family=${family.asUInt} rd=${Decimal(rd)} rs1=${Decimal(rs1)} rs2=${Decimal(rs2)} funct3=${Hexadecimal(funct3)} funct7=${Hexadecimal(funct7)}\n",
         )
         switch(family) {
           is(InstFamily.ALU) {
@@ -154,11 +155,10 @@ final class DecodeProcess(
           }
 
           is(InstFamily.JUMP) {
-            SysCall.Inline(exec.writeReg(rd, 0.U(XLEN.W)))
             when(decodeInstReg(6, 0) === "b1101111".U) {
-              SysCall.Inline(exec.redirectRelative(immJ.asSInt))
+              SysCall.Inline(exec.jal(rd, decodePcReg, immJ.asSInt))
             }.otherwise {
-              SysCall.Inline(exec.redirect(immI))
+              SysCall.Inline(exec.jalr(rd, decodePcReg, rs1Value, immI))
             }
           }
 
@@ -166,7 +166,7 @@ final class DecodeProcess(
             when(decodeInstReg(6, 0) === "b0110111".U) {
               SysCall.Inline(exec.writeReg(rd, immU))
             }.otherwise {
-              SysCall.Inline(exec.add(rd, 0.U(XLEN.W), immU))
+              SysCall.Inline(exec.auipc(rd, decodePcReg, immU))
             }
           }
 
@@ -196,7 +196,7 @@ final class DecodeProcess(
   }
 
   val api: DecodeApiDecl = new DecodeApiDecl {
-    def decode(inst: UInt): HwInline[Unit] = HwInline.thread(s"${name}_decode") { t =>
+    def decode(pc: UInt, inst: UInt): HwInline[Unit] = HwInline.thread(s"${name}_decode") { t =>
       val stepTag = s"${name}_decode_${System.identityHashCode(new Object())}"
       val lock = SysCall.Inline(decodeSlotLock.RequestLease(0))
 
@@ -204,6 +204,7 @@ final class DecodeProcess(
         SysCall.Inline(lock.Acquire())
       }
       t.Prev.edge.add {
+        decodePcReg := pc
         decodeInstReg := inst
         decodeCompleted := false.B
       }
@@ -222,14 +223,14 @@ final class DecodeProcess(
       SysCall.Return()
       ()
     }
-    override def decodeInst(inst: UInt): HwInline[Unit] = decode(inst)
+    override def decodeInst(pc: UInt, inst: UInt): HwInline[Unit] = decode(pc, inst)
   }
 
   def RequestDecodeApi(): HwInline[DecodeApiDecl] = HwInline.bindings(s"${name}_decode_api") { _ =>
     api
   }
 
-  def decodeInst(inst: UInt): HwInline[Unit] = api.decodeInst(inst)
+  def decodeInst(pc: UInt, inst: UInt): HwInline[Unit] = api.decodeInst(pc, inst)
 
   private def RequestExecuteApi(): HwInline[ExecuteApiDecl] = HwInline.bindings(s"${name}_execute_link") { _ =>
     executeRef.get

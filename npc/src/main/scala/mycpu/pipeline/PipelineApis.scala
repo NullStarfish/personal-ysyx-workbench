@@ -15,7 +15,7 @@ trait TraceApiDecl {
 }
 
 trait DecodeApiDecl {
-  def decodeInst(inst: UInt): HwInline[Unit]
+  def decodeInst(pc: UInt, inst: UInt): HwInline[Unit]
 }
 
 trait RegfileApiDecl {
@@ -103,6 +103,9 @@ trait ExecuteApiDecl {
   def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit]
   def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit]
   def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit]
+  def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit]
+  def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit]
+  def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit]
   def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit]
   def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit]
   def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit]

@@ -77,6 +77,12 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
       HwInline.atomic(s"${name}_store_byte") { _ => record(22.U, lhs = base, rhs = offset, target = data) }
     override def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_store_half") { _ => record(23.U, lhs = base, rhs = offset, target = data) }
+    override def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_auipc") { _ => record(27.U, rd, pc, imm) }
+    override def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_jal") { _ => record(28.U, rd, pc, target = offset.asUInt) }
+    override def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_jalr") { _ => record(29.U, rd, pc, base, offset) }
     override def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rw") { _ => record(24.U, rd, addr, src) }
     override def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rs") { _ => record(25.U, rd, addr, src) }
     override def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rc") { _ => record(26.U, rd, addr, src) }
@@ -116,7 +122,7 @@ class DecodeProcessHarness extends Module {
     override def entry(): Unit = {
       worker.entry {
         val decodeApi = SysCall.Inline(decode.RequestDecodeApi())
-        SysCall.Call(decodeApi.decodeInst(io.inst), "AfterDecode")
+        SysCall.Call(decodeApi.decodeInst(START_ADDR.U(XLEN.W), io.inst), "AfterDecode")
         worker.Step("AfterDecode") {
           doneReg := true.B
         }

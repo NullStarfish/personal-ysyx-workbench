@@ -56,7 +56,7 @@ final class FetchProcess(
       fetchThread.Step("TraceIssue") {
         SysCall.Inline(traceApi.issue(fetchAddrReg, fetchedInstReg))
       }
-      SysCall.Call(decodeApi.decodeInst(fetchedInstReg), "AfterDecode")
+      SysCall.Call(decodeApi.decodeInst(fetchAddrReg, fetchedInstReg), "AfterDecode")
       fetchThread.Step("AfterDecode") {}
       SysCall.Return()
     }
