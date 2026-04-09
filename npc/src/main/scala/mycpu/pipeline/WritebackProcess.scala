@@ -57,17 +57,15 @@ final class WritebackProcess(
         }
       }
 
-      wbWorker.Step("WriteRegStart") {
-        SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
-      }
+      wbWorker.Step("WriteRegStart") {}
+      SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
       wbWorker.Step("AfterWriteReg") {
         SysCall.Inline(traceApi.commit())
         wbWorker.jump(wbWorker.stepRef("WaitReq"))
       }
 
-      wbWorker.Step("WriteRegRedirectStart") {
-        SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
-      }
+      wbWorker.Step("WriteRegRedirectStart") {}
+      SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
       wbWorker.Step("AfterWriteRegRedirect") {
         SysCall.Inline(fetchApi.writePC(reqReg.nextPc))
         SysCall.Inline(traceApi.commit())

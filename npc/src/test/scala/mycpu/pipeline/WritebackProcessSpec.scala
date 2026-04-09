@@ -75,15 +75,9 @@ class WritebackProcessHarness extends Module {
         val wbApi = SysCall.Inline(writeback.RequestWritebackApi())
         val regApi = SysCall.Inline(regfile.RequestRegfileApi())
         val tokenReg = RegInit(0.U(4.W))
-        writeRegWorker.Step("Reserve") {
-          SysCall.Inline(regApi.reservePath(1.U))
-        }
-        writeRegWorker.Step("WaitReserve") {
-          writeRegWorker.waitCondition(SysCall.Inline(regApi.reserveDone()))
-        }
+        val token = SysCall.Inline(regApi.reserve(1.U))
         writeRegWorker.Step("LatchToken") {
-          tokenReg := SysCall.Inline(regApi.reserveToken())
-          SysCall.Inline(regApi.consumeReserveResp())
+          tokenReg := token
         }
         writeRegWorker.Step("WriteReg") {
           SysCall.Inline(wbApi.writeReg(tokenReg, "h12345678".U(XLEN.W)))
@@ -97,15 +91,9 @@ class WritebackProcessHarness extends Module {
         val wbApi = SysCall.Inline(writeback.RequestWritebackApi())
         val regApi = SysCall.Inline(regfile.RequestRegfileApi())
         val tokenReg = RegInit(0.U(4.W))
-        writeRegRedirectWorker.Step("Reserve") {
-          SysCall.Inline(regApi.reservePath(5.U))
-        }
-        writeRegRedirectWorker.Step("WaitReserve") {
-          writeRegRedirectWorker.waitCondition(SysCall.Inline(regApi.reserveDone()))
-        }
+        val token = SysCall.Inline(regApi.reserve(5.U))
         writeRegRedirectWorker.Step("LatchToken") {
-          tokenReg := SysCall.Inline(regApi.reserveToken())
-          SysCall.Inline(regApi.consumeReserveResp())
+          tokenReg := token
         }
         writeRegRedirectWorker.Step("WriteRegAndRedirect") {
           SysCall.Inline(wbApi.writeRegAndRedirect(tokenReg, "hdeadbeef".U(XLEN.W), "h30000020".U(XLEN.W)))

@@ -40,6 +40,20 @@ final class DecodeProcess(
   private val decodePcReg = RegInit(0.U(XLEN.W))
   private val decodeInstReg = RegInit(0.U(32.W))
   private val decodeCompleted = RegInit(false.B)
+  private val familyReg = RegInit(InstFamily.Unknown)
+  private val formatReg = RegInit(InstFormat.Unknown)
+  private val rdReg = RegInit(0.U(5.W))
+  private val rs1ValueReg = RegInit(0.U(XLEN.W))
+  private val rs2ValueReg = RegInit(0.U(XLEN.W))
+  private val funct3Reg = RegInit(0.U(3.W))
+  private val funct7Reg = RegInit(0.U(7.W))
+  private val immIReg = RegInit(0.U(XLEN.W))
+  private val immSReg = RegInit(0.U(XLEN.W))
+  private val immBReg = RegInit(0.U(XLEN.W))
+  private val immUReg = RegInit(0.U(XLEN.W))
+  private val immJReg = RegInit(0.U(XLEN.W))
+  private val reserveRdReg = RegInit(0.U(5.W))
+  private val wbTokenReg = RegInit(0.U(4.W))
 
   override def entry(): Unit = {
     decodeWorker.entry {
@@ -92,109 +106,127 @@ final class DecodeProcess(
             (family === InstFamily.JUMP) ||
             (family === InstFamily.UPPER) ||
             (family === InstFamily.CSR)
-        val wbToken = WireDefault(0.U(4.W))
-        when(willWriteRd && rd =/= 0.U) {
-          wbToken := SysCall.Inline(regApi.reserve(rd))
-        }
-        switch(family) {
+        formatReg := format
+        familyReg := family
+        rdReg := rd
+        rs1ValueReg := rs1Value
+        rs2ValueReg := rs2Value
+        funct3Reg := funct3
+        funct7Reg := funct7
+        immIReg := immI
+        immSReg := immS
+        immBReg := immB
+        immUReg := immU
+        immJReg := immJ
+        reserveRdReg := Mux(willWriteRd && rd =/= 0.U, rd, 0.U)
+      }
+
+      val wbToken = SysCall.Inline(regApi.reserve(reserveRdReg))
+
+      decodeWorker.Step("LatchToken") {
+        wbTokenReg := wbToken
+      }
+
+      decodeWorker.Step("DispatchExecute") {
+        switch(familyReg) {
           is(InstFamily.ALU) {
-            when(format === InstFormat.I) {
-              switch(funct3) {
-                is("b000".U) { SysCall.Inline(exec.add(rd, wbToken, rs1Value, immI)) }
-                is("b111".U) { SysCall.Inline(exec.and(rd, wbToken, rs1Value, immI)) }
-                is("b110".U) { SysCall.Inline(exec.or(rd, wbToken, rs1Value, immI)) }
-                is("b100".U) { SysCall.Inline(exec.xor(rd, wbToken, rs1Value, immI)) }
-                is("b001".U) { SysCall.Inline(exec.sll(rd, wbToken, rs1Value, immI)) }
+            when(formatReg === InstFormat.I) {
+              switch(funct3Reg) {
+                is("b000".U) { SysCall.Inline(exec.add(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+                is("b111".U) { SysCall.Inline(exec.and(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+                is("b110".U) { SysCall.Inline(exec.or(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+                is("b100".U) { SysCall.Inline(exec.xor(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+                is("b001".U) { SysCall.Inline(exec.sll(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
                 is("b101".U) {
-                  when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sra(rd, wbToken, rs1Value, immI))
+                  when(funct7Reg === "b0100000".U) {
+                    SysCall.Inline(exec.sra(rdReg, wbTokenReg, rs1ValueReg, immIReg))
                   }.otherwise {
-                    SysCall.Inline(exec.srl(rd, wbToken, rs1Value, immI))
+                    SysCall.Inline(exec.srl(rdReg, wbTokenReg, rs1ValueReg, immIReg))
                   }
                 }
-                is("b010".U) { SysCall.Inline(exec.slt(rd, wbToken, rs1Value, immI)) }
-                is("b011".U) { SysCall.Inline(exec.sltu(rd, wbToken, rs1Value, immI)) }
+                is("b010".U) { SysCall.Inline(exec.slt(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+                is("b011".U) { SysCall.Inline(exec.sltu(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
               }
             }.otherwise {
-              switch(funct3) {
+              switch(funct3Reg) {
                 is("b000".U) {
-                  when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sub(rd, wbToken, rs1Value, rs2Value))
+                  when(funct7Reg === "b0100000".U) {
+                    SysCall.Inline(exec.sub(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg))
                   }.otherwise {
-                    SysCall.Inline(exec.add(rd, wbToken, rs1Value, rs2Value))
+                    SysCall.Inline(exec.add(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg))
                   }
                 }
-                is("b111".U) { SysCall.Inline(exec.and(rd, wbToken, rs1Value, rs2Value)) }
-                is("b110".U) { SysCall.Inline(exec.or(rd, wbToken, rs1Value, rs2Value)) }
-                is("b100".U) { SysCall.Inline(exec.xor(rd, wbToken, rs1Value, rs2Value)) }
-                is("b001".U) { SysCall.Inline(exec.sll(rd, wbToken, rs1Value, rs2Value)) }
+                is("b111".U) { SysCall.Inline(exec.and(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
+                is("b110".U) { SysCall.Inline(exec.or(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
+                is("b100".U) { SysCall.Inline(exec.xor(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
+                is("b001".U) { SysCall.Inline(exec.sll(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
                 is("b101".U) {
-                  when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sra(rd, wbToken, rs1Value, rs2Value))
+                  when(funct7Reg === "b0100000".U) {
+                    SysCall.Inline(exec.sra(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg))
                   }.otherwise {
-                    SysCall.Inline(exec.srl(rd, wbToken, rs1Value, rs2Value))
+                    SysCall.Inline(exec.srl(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg))
                   }
                 }
-                is("b010".U) { SysCall.Inline(exec.slt(rd, wbToken, rs1Value, rs2Value)) }
-                is("b011".U) { SysCall.Inline(exec.sltu(rd, wbToken, rs1Value, rs2Value)) }
+                is("b010".U) { SysCall.Inline(exec.slt(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
+                is("b011".U) { SysCall.Inline(exec.sltu(rdReg, wbTokenReg, rs1ValueReg, rs2ValueReg)) }
               }
             }
           }
 
           is(InstFamily.LOAD) {
-            switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.loadByte(rd, wbToken, rs1Value, immI, false.B)) }
-              is("b001".U) { SysCall.Inline(exec.loadHalf(rd, wbToken, rs1Value, immI, false.B)) }
-              is("b010".U) { SysCall.Inline(exec.loadWord(rd, wbToken, rs1Value, immI)) }
-              is("b100".U) { SysCall.Inline(exec.loadByte(rd, wbToken, rs1Value, immI, true.B)) }
-              is("b101".U) { SysCall.Inline(exec.loadHalf(rd, wbToken, rs1Value, immI, true.B)) }
+            switch(funct3Reg) {
+              is("b000".U) { SysCall.Inline(exec.loadByte(rdReg, wbTokenReg, rs1ValueReg, immIReg, false.B)) }
+              is("b001".U) { SysCall.Inline(exec.loadHalf(rdReg, wbTokenReg, rs1ValueReg, immIReg, false.B)) }
+              is("b010".U) { SysCall.Inline(exec.loadWord(rdReg, wbTokenReg, rs1ValueReg, immIReg)) }
+              is("b100".U) { SysCall.Inline(exec.loadByte(rdReg, wbTokenReg, rs1ValueReg, immIReg, true.B)) }
+              is("b101".U) { SysCall.Inline(exec.loadHalf(rdReg, wbTokenReg, rs1ValueReg, immIReg, true.B)) }
             }
           }
 
           is(InstFamily.STORE) {
-            switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.storeByte(rs1Value, immS, rs2Value)) }
-              is("b001".U) { SysCall.Inline(exec.storeHalf(rs1Value, immS, rs2Value)) }
-              is("b010".U) { SysCall.Inline(exec.storeWord(rs1Value, immS, rs2Value)) }
+            switch(funct3Reg) {
+              is("b000".U) { SysCall.Inline(exec.storeByte(rs1ValueReg, immSReg, rs2ValueReg)) }
+              is("b001".U) { SysCall.Inline(exec.storeHalf(rs1ValueReg, immSReg, rs2ValueReg)) }
+              is("b010".U) { SysCall.Inline(exec.storeWord(rs1ValueReg, immSReg, rs2ValueReg)) }
             }
           }
 
           is(InstFamily.BRANCH) {
-            switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.eq(rs1Value, rs2Value, decodePcReg, immB)) }
-              is("b001".U) { SysCall.Inline(exec.ne(rs1Value, rs2Value, decodePcReg, immB)) }
-              is("b100".U) { SysCall.Inline(exec.lt(rs1Value, rs2Value, decodePcReg, immB)) }
-              is("b110".U) { SysCall.Inline(exec.ltu(rs1Value, rs2Value, decodePcReg, immB)) }
-              is("b101".U) { SysCall.Inline(exec.ge(rs1Value, rs2Value, decodePcReg, immB)) }
-              is("b111".U) { SysCall.Inline(exec.geu(rs1Value, rs2Value, decodePcReg, immB)) }
+            switch(funct3Reg) {
+              is("b000".U) { SysCall.Inline(exec.eq(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
+              is("b001".U) { SysCall.Inline(exec.ne(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
+              is("b100".U) { SysCall.Inline(exec.lt(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
+              is("b110".U) { SysCall.Inline(exec.ltu(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
+              is("b101".U) { SysCall.Inline(exec.ge(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
+              is("b111".U) { SysCall.Inline(exec.geu(rs1ValueReg, rs2ValueReg, decodePcReg, immBReg)) }
             }
           }
 
           is(InstFamily.JUMP) {
             when(decodeInstReg(6, 0) === "b1101111".U) {
-              SysCall.Inline(exec.jal(rd, wbToken, decodePcReg, immJ.asSInt))
+              SysCall.Inline(exec.jal(rdReg, wbTokenReg, decodePcReg, immJReg.asSInt))
             }.otherwise {
-              SysCall.Inline(exec.jalr(rd, wbToken, decodePcReg, rs1Value, immI))
+              SysCall.Inline(exec.jalr(rdReg, wbTokenReg, decodePcReg, rs1ValueReg, immIReg))
             }
           }
 
           is(InstFamily.UPPER) {
             when(decodeInstReg(6, 0) === "b0110111".U) {
-              SysCall.Inline(exec.writeReg(rd, wbToken, immU))
+              SysCall.Inline(exec.writeReg(rdReg, wbTokenReg, immUReg))
             }.otherwise {
-              SysCall.Inline(exec.auipc(rd, wbToken, decodePcReg, immU))
+              SysCall.Inline(exec.auipc(rdReg, wbTokenReg, decodePcReg, immUReg))
             }
           }
 
           is(InstFamily.CSR) {
-            val csrSrc = Mux(funct3(2), rs1.pad(XLEN), rs1Value)
-            switch(funct3) {
-              is("b001".U) { SysCall.Inline(exec.csrRw(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
-              is("b010".U) { SysCall.Inline(exec.csrRs(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
-              is("b011".U) { SysCall.Inline(exec.csrRc(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
-              is("b101".U) { SysCall.Inline(exec.csrRw(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
-              is("b110".U) { SysCall.Inline(exec.csrRs(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
-              is("b111".U) { SysCall.Inline(exec.csrRc(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+            val csrSrc = Mux(funct3Reg(2), decodeInstReg(19, 15).pad(XLEN), rs1ValueReg)
+            switch(funct3Reg) {
+              is("b001".U) { SysCall.Inline(exec.csrRw(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
+              is("b010".U) { SysCall.Inline(exec.csrRs(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
+              is("b011".U) { SysCall.Inline(exec.csrRc(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
+              is("b101".U) { SysCall.Inline(exec.csrRw(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
+              is("b110".U) { SysCall.Inline(exec.csrRs(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
+              is("b111".U) { SysCall.Inline(exec.csrRc(rdReg, wbTokenReg, decodeInstReg(31, 20), csrSrc)) }
             }
           }
 
@@ -203,7 +235,7 @@ final class DecodeProcess(
           }
         }
 
-        when(family === InstFamily.SYSTEM || family === InstFamily.Unknown) {
+        when(familyReg === InstFamily.SYSTEM || familyReg === InstFamily.Unknown) {
           decodeWorker.jump(decodeWorker.stepRef("Finish"))
         }
       }

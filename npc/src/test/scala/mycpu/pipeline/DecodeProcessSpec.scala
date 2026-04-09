@@ -8,6 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 final class DummyDecodeRegfileProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
   private val regs = RegInit(VecInit(Seq.fill(32)(0.U(XLEN.W))))
+  private val reserveResult = RegInit(0.U(4.W))
 
   regs(1) := 10.U
   regs(2) := 20.U
@@ -18,7 +19,14 @@ final class DummyDecodeRegfileProcess(localName: String)(implicit kernel: Kernel
       Mux(addr === 0.U, 0.U(XLEN.W), regs(addr))
     }
 
-    override def reserve(addr: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_reserve") { _ => addr }
+    override def reserve(addr: UInt): HwInline[UInt] = HwInline.thread(s"${name}_reserve") { t =>
+      val stepTag = s"${name}_reserve_${System.identityHashCode(new Object())}"
+      t.Step(s"${stepTag}_Capture") {
+        reserveResult := addr
+        t.waitCondition(true.B)
+      }
+      reserveResult
+    }
 
     override def reservePath(addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_reserve_path") { _ => () }
 

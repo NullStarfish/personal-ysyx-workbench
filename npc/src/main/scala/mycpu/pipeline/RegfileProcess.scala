@@ -57,9 +57,6 @@ final class RegfileProcess(
       t.Step(s"${stepTag}_Allocate") {
         reserveResult := Mux(reserveAddrReg === 0.U, 0.U(TokenWidth.W), reserveAllocIdx + 1.U)
         when(reserveAddrReg =/= 0.U) {
-          printf(p"[REGFILE] reserve token=${Decimal(reserveAllocIdx + 1.U)} addr=${Decimal(reserveAddrReg)}\n")
-        }
-        when(reserveAddrReg =/= 0.U) {
           tokenValid(reserveAllocIdx) := true.B
           tokenAddr(reserveAllocIdx) := reserveAddrReg
         }
@@ -98,9 +95,6 @@ final class RegfileProcess(
         val stepTag = s"${name}_writeback_and_clear_${System.identityHashCode(new Object())}"
 
         t.Step(s"${stepTag}_Capture") {
-          printf(
-            p"[REGFILE] commit capture in token=${Decimal(token)} data=${Hexadecimal(data)}\n",
-          )
           t.Prev.edge.add {
             commitTokenReg := token
             commitDataReg := data
@@ -108,19 +102,10 @@ final class RegfileProcess(
           }
         }
         t.Step(s"${stepTag}_WaitValid") {
-          printf(
-            p"[REGFILE] commit wait tokenReg=${Decimal(commitTokenReg)} idxReg=${Decimal(commitIdxReg)} valid=${Decimal(tokenValid(commitIdxReg))}\n",
-          )
           t.waitCondition((commitTokenReg === 0.U) || tokenValid(commitIdxReg))
         }
         t.Step(s"${stepTag}_Write") {
-          printf(
-            p"[REGFILE] commit write tokenReg=${Decimal(commitTokenReg)} idxReg=${Decimal(commitIdxReg)} addr=${Decimal(tokenAddr(commitIdxReg))} dataReg=${Hexadecimal(commitDataReg)}\n",
-          )
           when(commitTokenReg =/= 0.U) {
-            printf(
-              p"[REGFILE] commit token=${Decimal(commitTokenReg)} addr=${Decimal(tokenAddr(commitIdxReg))} data=${Hexadecimal(commitDataReg)}\n",
-            )
             when(tokenAddr(commitIdxReg) =/= 0.U) {
               regs(tokenAddr(commitIdxReg)) := commitDataReg
             }
@@ -140,7 +125,6 @@ final class RegfileProcess(
       }
 
     override def write(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write") { _ =>
-      printf(p"[REGFILE] direct write addr=${Decimal(addr)} data=${Hexadecimal(data)}\n")
       when(addr =/= 0.U) {
         regs(addr) := data
       }
@@ -178,7 +162,6 @@ final class RegfileProcess(
         reserveResultReg := 0.U
       }.elsewhen(reserveReqPending && hasFree) {
         val tokenValue = allocIdx + 1.U
-        printf(p"[REGFILE] reserve token=${Decimal(tokenValue)} addr=${Decimal(reserveAddrReg)}\n")
         tokenValid(allocIdx) := true.B
         tokenAddr(allocIdx) := reserveAddrReg
         reserveReqPending := false.B
