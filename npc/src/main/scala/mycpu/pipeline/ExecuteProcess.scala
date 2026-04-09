@@ -367,7 +367,7 @@ final class ExecuteProcess(
     }
 
     def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_jal") { _ =>
-      val ret = SysCall.Inline(aluApi.add(pc, 4.U(XLEN.W)))
+      val ret = pc + 4.U(XLEN.W)
       val target = (pc.asSInt + offset).asUInt
       printf(p"[EXEC] jal pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset.asUInt)} rd=${Decimal(rd)} ret=${Hexadecimal(ret)} target=${Hexadecimal(target)}\n")
       SysCall.Inline(wbApi.writeReg(rd, ret))
@@ -375,7 +375,7 @@ final class ExecuteProcess(
     }
 
     def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_jalr") { _ =>
-      val ret = SysCall.Inline(aluApi.add(pc, 4.U(XLEN.W)))
+      val ret = pc + 4.U(XLEN.W)
       val rawTarget = SysCall.Inline(aluApi.add(base, offset))
       val target = rawTarget & (~1.U(XLEN.W))
       printf(p"[EXEC] jalr pc=${Hexadecimal(pc)} base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} rd=${Decimal(rd)} ret=${Hexadecimal(ret)} target=${Hexadecimal(target)}\n")
