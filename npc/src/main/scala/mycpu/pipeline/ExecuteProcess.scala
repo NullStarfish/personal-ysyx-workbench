@@ -12,29 +12,21 @@ final class ExecuteProcess(
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
-  final class LoadReq extends Bundle {
+  final class MemReq extends Bundle {
+    val isLoad = Bool()
     val kind = UInt(2.W)
     val rd = UInt(5.W)
     val base = UInt(XLEN.W)
     val offset = UInt(XLEN.W)
-    val unsigned = Bool()
-  }
-
-  final class StoreReq extends Bundle {
-    val kind = UInt(2.W)
-    val base = UInt(XLEN.W)
-    val offset = UInt(XLEN.W)
     val data = UInt(XLEN.W)
+    val unsigned = Bool()
   }
 
   private val alu = spawn(new AluProcess("Alu"))
   private val csr = spawn(new CsrProcess("Csr"))
-  private val loadSlotLock = spawn(new MutexProcess(1, "LoadSlotLock"))
-  private val storeSlotLock = spawn(new MutexProcess(1, "StoreSlotLock"))
-  private val loadReqBuffer = spawn(new PipelineBuffer(new LoadReq, "LoadReqBuffer"))
-  private val storeReqBuffer = spawn(new PipelineBuffer(new StoreReq, "StoreReqBuffer"))
-  private val loadWorker = createThread("LoadWorker")
-  private val storeWorker = createThread("StoreWorker")
+  private val memSlotLock = spawn(new MutexProcess(1, "MemSlotLock"))
+  private val memReqBuffer = spawn(new PipelineBuffer(new MemReq, "MemReqBuffer"))
+  private val memWorker = createThread("MemWorker")
 
   private val LOAD_WORD = 0.U(2.W)
   private val LOAD_BYTE = 1.U(2.W)
@@ -44,69 +36,91 @@ final class ExecuteProcess(
   private val STORE_BYTE = 1.U(2.W)
   private val STORE_HALF = 2.U(2.W)
 
-  private val loadCompleted = RegInit(false.B)
-  private val storeCompleted = RegInit(false.B)
-  private val loadIssued = RegInit(false.B)
-  private val storeIssued = RegInit(false.B)
+  private val memCompleted = RegInit(false.B)
+  private val memReqReg = RegInit(0.U.asTypeOf(new MemReq))
+  private val memAddrReg = RegInit(0.U(XLEN.W))
+  private val launchMemReqReg = RegInit(0.U.asTypeOf(new MemReq))
 
   override def entry(): Unit = {
-    loadWorker.entry {
+    memWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new LoadReq))
-      val addrReg = RegInit(0.U(XLEN.W))
+      val loadWordStepTag = s"${name}_mem_load_word_${System.identityHashCode(new Object())}"
+      val loadByteStepTag = s"${name}_mem_load_byte_${System.identityHashCode(new Object())}"
+      val loadHalfStepTag = s"${name}_mem_load_half_${System.identityHashCode(new Object())}"
+      val storeWordStepTag = s"${name}_mem_store_word_${System.identityHashCode(new Object())}"
+      val storeByteStepTag = s"${name}_mem_store_byte_${System.identityHashCode(new Object())}"
+      val storeHalfStepTag = s"${name}_mem_store_half_${System.identityHashCode(new Object())}"
 
-      loadWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(loadReqBuffer.pop())
+      memWorker.Step("WaitReq") {
+        memWorker.waitCondition(memReqBuffer.valid)
       }
-      loadWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
+      memWorker.Step("TakeReq") {
+        memReqReg := SysCall.Inline(memReqBuffer.pop())
       }
-      when(reqReg.kind === LOAD_WORD) {
-        SysCall.Call(lsuApi.loadWord(reqReg.rd, addrReg), "AfterLoad")
-      }.elsewhen(reqReg.kind === LOAD_BYTE) {
-        SysCall.Call(lsuApi.loadByte(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoad")
-      }.otherwise {
-        SysCall.Call(lsuApi.loadHalf(reqReg.rd, addrReg, reqReg.unsigned), "AfterLoad")
+      memWorker.Step("ComputeAddr") {
+        memAddrReg := SysCall.Inline(aluApi.add(memReqReg.base, memReqReg.offset))
+        when(memReqReg.isLoad && memReqReg.kind === LOAD_WORD) {
+          memWorker.jump(memWorker.stepRef(s"${loadWordStepTag}_Acquire"))
+        }.elsewhen(memReqReg.isLoad && memReqReg.kind === LOAD_BYTE) {
+          memWorker.jump(memWorker.stepRef(s"${loadByteStepTag}_Acquire"))
+        }.elsewhen(memReqReg.isLoad && memReqReg.kind === LOAD_HALF) {
+          memWorker.jump(memWorker.stepRef(s"${loadHalfStepTag}_Acquire"))
+        }.elsewhen(memReqReg.kind === STORE_WORD) {
+          memWorker.jump(memWorker.stepRef(s"${storeWordStepTag}_Acquire"))
+        }.elsewhen(memReqReg.kind === STORE_BYTE) {
+          memWorker.jump(memWorker.stepRef(s"${storeByteStepTag}_Acquire"))
+        }.otherwise {
+          memWorker.jump(memWorker.stepRef(s"${storeHalfStepTag}_Acquire"))
+        }
       }
-      loadWorker.Step("AfterLoad") {
-        loadCompleted := true.B
-      }
-      SysCall.Return()
-    }
 
-    storeWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
-      val aluApi = alu.api
-      val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
-      val addrReg = RegInit(0.U(XLEN.W))
+      memWorker.Step(s"${loadWordStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.loadWord(memReqReg.rd, memAddrReg), s"${loadWordStepTag}_AfterCall")
+      memWorker.Step(s"${loadWordStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
+      }
 
-      storeWorker.Step("TakeReq") {
-        reqReg := SysCall.Inline(storeReqBuffer.pop())
+      memWorker.Step(s"${loadByteStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.loadByte(memReqReg.rd, memAddrReg, memReqReg.unsigned), s"${loadByteStepTag}_AfterCall")
+      memWorker.Step(s"${loadByteStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
       }
-      storeWorker.Step("ComputeAddr") {
-        addrReg := SysCall.Inline(aluApi.add(reqReg.base, reqReg.offset))
+
+      memWorker.Step(s"${loadHalfStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.loadHalf(memReqReg.rd, memAddrReg, memReqReg.unsigned), s"${loadHalfStepTag}_AfterCall")
+      memWorker.Step(s"${loadHalfStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
       }
-      when(reqReg.kind === STORE_WORD) {
-        SysCall.Call(lsuApi.storeWord(addrReg, reqReg.data), "AfterStore")
-      }.elsewhen(reqReg.kind === STORE_BYTE) {
-        SysCall.Call(lsuApi.storeByte(addrReg, reqReg.data), "AfterStore")
-      }.otherwise {
-        SysCall.Call(lsuApi.storeHalf(addrReg, reqReg.data), "AfterStore")
+
+      memWorker.Step(s"${storeWordStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.storeWord(memAddrReg, memReqReg.data), s"${storeWordStepTag}_AfterCall")
+      memWorker.Step(s"${storeWordStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
       }
-      storeWorker.Step("AfterStore") {
-        storeCompleted := true.B
+
+      memWorker.Step(s"${storeByteStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.storeByte(memAddrReg, memReqReg.data), s"${storeByteStepTag}_AfterCall")
+      memWorker.Step(s"${storeByteStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
       }
-      SysCall.Return()
+
+      memWorker.Step(s"${storeHalfStepTag}_Acquire") {}
+      SysCall.Call(lsuApi.storeHalf(memAddrReg, memReqReg.data), s"${storeHalfStepTag}_AfterCall")
+      memWorker.Step(s"${storeHalfStepTag}_AfterCall") {
+        memWorker.jump(memWorker.stepRef("AfterMem"))
+      }
+
+      memWorker.Step("AfterMem") {
+        memCompleted := true.B
+        memWorker.jump(memWorker.stepRef("WaitReq"))
+      }
     }
 
     val daemon = createLogic("Daemon")
     daemon.run {
-      when(loadReqBuffer.valid && !loadWorker.active) {
-        SysCall.Inline(SysCall.start(loadWorker))
-      }
-      when(storeReqBuffer.valid && !storeWorker.active) {
-        SysCall.Inline(SysCall.start(storeWorker))
+      when(!memWorker.active) {
+        SysCall.Inline(SysCall.start(memWorker))
       }
     }
   }
@@ -115,7 +129,6 @@ final class ExecuteProcess(
     private def aluApi = alu.api
     private def csrApi = csr.api
     private def wbApi = writebackRef.get
-
     private def writeComputedReg(opName: String, rd: UInt, result: UInt): Unit = {
       printf(p"[EXEC] ${opName} lhs-result write rd=${Decimal(rd)} data=${Hexadecimal(result)}\n")
       SysCall.Inline(wbApi.writeReg(rd, result))
@@ -242,120 +255,65 @@ final class ExecuteProcess(
       }
     }
 
-    private def pushLoad(kind: UInt, rd: UInt, base: UInt, offset: UInt, unsigned: Bool): Unit = {
-      SysCall.Inline(loadReqBuffer.pushAssign { req =>
-        req.kind := kind
-        req.rd := rd
-        req.base := base
-        req.offset := offset
-        req.unsigned := unsigned
-      })
-    }
+    def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      HwInline.thread(s"${name}_mem") { t =>
+        val stepTag = s"${name}_mem_${System.identityHashCode(new Object())}"
+        val lock = SysCall.Inline(memSlotLock.RequestLease(0))
 
-    private def pushStore(kind: UInt, base: UInt, offset: UInt, data: UInt): Unit = {
-      SysCall.Inline(storeReqBuffer.pushAssign { req =>
-        req.kind := kind
-        req.base := base
-        req.offset := offset
-        req.data := data
-      })
-    }
+        t.Step(s"${stepTag}_AcquireSlot") {
+          SysCall.Inline(lock.Acquire())
+          memCompleted := false.B
+        }
+        t.Prev.edge.add {
+          launchMemReqReg.isLoad := isLoad
+          launchMemReqReg.kind := kind
+          launchMemReqReg.rd := rd
+          launchMemReqReg.base := base
+          launchMemReqReg.offset := offset
+          launchMemReqReg.data := data
+          launchMemReqReg.unsigned := unsigned
+        }
 
-    def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
-      val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!loadIssued) {
-        printf(p"[EXEC] loadWord base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} rd=${Decimal(rd)}\n")
-        loadCompleted := false.B
-        loadIssued := true.B
-        pushLoad(LOAD_WORD, rd, base, offset, false.B)
-      }
-      t.waitCondition(loadCompleted)
-      when(loadCompleted) {
-        loadIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
+        t.Step(s"${stepTag}_PushReq") {
+          printf(
+            p"[EXEC] mem isLoad=${isLoad} kind=${Decimal(kind)} base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} data=${Hexadecimal(data)} unsigned=${unsigned} rd=${Decimal(rd)}\n",
+          )
+          SysCall.Inline(memReqBuffer.push(launchMemReqReg))
+        }
 
-    def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { t =>
-      val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!storeIssued) {
-        printf(p"[EXEC] storeWord base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} data=${Hexadecimal(data)}\n")
-        storeCompleted := false.B
-        storeIssued := true.B
-        pushStore(STORE_WORD, base, offset, data)
-      }
-      t.waitCondition(storeCompleted)
-      when(storeCompleted) {
-        storeIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
+        t.Step(s"${stepTag}_WaitDone") {
+          t.waitCondition(memCompleted)
+        }
 
-    def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { t =>
-      val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!loadIssued) {
-        printf(p"[EXEC] loadByte base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} unsigned=${unsigned} rd=${Decimal(rd)}\n")
-        loadCompleted := false.B
-        loadIssued := true.B
-        pushLoad(LOAD_BYTE, rd, base, offset, unsigned)
+        t.Step(s"${stepTag}_ReleaseSlot") {
+          SysCall.Inline(lock.Release())
+          SysCall.Return()
+        }
       }
-      t.waitCondition(loadCompleted)
-      when(loadCompleted) {
-        loadIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
 
-    def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { t =>
-      val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!loadIssued) {
-        printf(p"[EXEC] loadHalf base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} unsigned=${unsigned} rd=${Decimal(rd)}\n")
-        loadCompleted := false.B
-        loadIssued := true.B
-        pushLoad(LOAD_HALF, rd, base, offset, unsigned)
-      }
-      t.waitCondition(loadCompleted)
-      when(loadCompleted) {
-        loadIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
+    def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      mem(true.B, rd, base, offset, 0.U, kind, unsigned)
 
-    def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_byte") { t =>
-      val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!storeIssued) {
-        printf(p"[EXEC] storeByte base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} data=${Hexadecimal(data)}\n")
-        storeCompleted := false.B
-        storeIssued := true.B
-        pushStore(STORE_BYTE, base, offset, data)
-      }
-      t.waitCondition(storeCompleted)
-      when(storeCompleted) {
-        storeIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
+    def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] =
+      mem(false.B, 0.U, base, offset, data, kind, false.B)
 
-    def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_half") { t =>
-      val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
-      SysCall.Inline(lock.Acquire())
-      when(!storeIssued) {
-        printf(p"[EXEC] storeHalf base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} data=${Hexadecimal(data)}\n")
-        storeCompleted := false.B
-        storeIssued := true.B
-        pushStore(STORE_HALF, base, offset, data)
-      }
-      t.waitCondition(storeCompleted)
-      when(storeCompleted) {
-        storeIssued := false.B
-        SysCall.Inline(lock.Release())
-      }
-    }
+    def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      load(rd, base, offset, LOAD_WORD, false.B)
+
+    def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      store(base, offset, data, STORE_WORD)
+
+    def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      load(rd, base, offset, LOAD_BYTE, unsigned)
+
+    def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      load(rd, base, offset, LOAD_HALF, unsigned)
+
+    def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      store(base, offset, data, STORE_BYTE)
+
+    def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      store(base, offset, data, STORE_HALF)
 
     def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_auipc") { _ =>
       val result = SysCall.Inline(aluApi.add(pc, imm))

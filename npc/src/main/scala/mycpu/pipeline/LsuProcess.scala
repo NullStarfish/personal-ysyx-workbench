@@ -43,6 +43,8 @@ final class LsuProcess(
 
   private val loadCompleted = RegInit(false.B)
   private val storeCompleted = RegInit(false.B)
+  private val launchLoadReqReg = RegInit(0.U.asTypeOf(new LoadReq))
+  private val launchStoreReqReg = RegInit(0.U.asTypeOf(new StoreReq))
 
   private def extractByte(word: UInt, byteSel: UInt, unsigned: Bool): UInt = {
     val shifted = (word >> (byteSel << 3))(7, 0)
@@ -61,6 +63,9 @@ final class LsuProcess(
       val reqReg = RegInit(0.U.asTypeOf(new LoadReq))
       val rawReadData = RegInit(0.U(XLEN.W))
 
+      loadWorker.Step("WaitReq") {
+        loadWorker.waitCondition(loadReqBuffer.valid)
+      }
       loadWorker.Step("TakeReq") {
         reqReg := SysCall.Inline(loadReqBuffer.pop())
       }
@@ -84,8 +89,8 @@ final class LsuProcess(
         }
         SysCall.Inline(wbApi.writeReg(reqReg.rd, resultData))
         loadCompleted := true.B
+        loadWorker.jump(loadWorker.stepRef("WaitReq"))
       }
-      SysCall.Return()
     }
 
     storeWorker.entry {
@@ -93,6 +98,9 @@ final class LsuProcess(
       val wbApi = writebackRef.get
       val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
 
+      storeWorker.Step("WaitReq") {
+        storeWorker.waitCondition(storeReqBuffer.valid)
+      }
       storeWorker.Step("TakeReq") {
         reqReg := SysCall.Inline(storeReqBuffer.pop())
       }
@@ -119,23 +127,24 @@ final class LsuProcess(
       storeWorker.Prev.edge.add {
         SysCall.Inline(wbApi.commit())
         storeCompleted := true.B
+        storeWorker.jump(storeWorker.stepRef("WaitReq"))
       }
-      SysCall.Return()
     }
 
     val daemon = createLogic("Daemon")
     daemon.run {
-      when(loadReqBuffer.valid && !loadWorker.active) {
+      when(!loadWorker.active) {
         SysCall.Inline(SysCall.start(loadWorker))
       }
-      when(storeReqBuffer.valid && !storeWorker.active) {
+      when(!storeWorker.active) {
         SysCall.Inline(SysCall.start(storeWorker))
       }
     }
   }
 
   val api: LsuApiDecl = new LsuApiDecl {
-    private def launchLoad(kind: UInt, rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.thread(s"${name}_launch_load") { t =>
+    private def launchLoad(loadKind: UInt, rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
+      HwInline.thread(s"${name}_launch_load") { t =>
       val stepTag = s"${name}_load_${System.identityHashCode(new Object())}"
       val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
 
@@ -143,14 +152,15 @@ final class LsuProcess(
         SysCall.Inline(lock.Acquire())
         loadCompleted := false.B
       }
+      t.Prev.edge.add {
+        launchLoadReqReg.loadKind := loadKind
+        launchLoadReqReg.rd := rd
+        launchLoadReqReg.addr := addr
+        launchLoadReqReg.unsigned := unsigned
+      }
 
       t.Step(s"${stepTag}_PushReq") {
-        SysCall.Inline(loadReqBuffer.pushAssign { req =>
-          req.loadKind := kind
-          req.rd := rd
-          req.addr := addr
-          req.unsigned := unsigned
-        })
+        SysCall.Inline(loadReqBuffer.push(launchLoadReqReg))
       }
 
       t.Step(s"${stepTag}_WaitDone") {
@@ -161,9 +171,11 @@ final class LsuProcess(
         SysCall.Inline(lock.Release())
         SysCall.Return()
       }
+      }
     }
 
-    private def launchStore(kind: UInt, addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_launch_store") { t =>
+    private def launchStore(storeKind: UInt, addr: UInt, data: UInt): HwInline[Unit] = {
+      HwInline.thread(s"${name}_launch_store") { t =>
       val stepTag = s"${name}_store_${System.identityHashCode(new Object())}"
       val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
 
@@ -171,13 +183,14 @@ final class LsuProcess(
         SysCall.Inline(lock.Acquire())
         storeCompleted := false.B
       }
+      t.Prev.edge.add {
+        launchStoreReqReg.storeKind := storeKind
+        launchStoreReqReg.addr := addr
+        launchStoreReqReg.data := data
+      }
 
       t.Step(s"${stepTag}_PushReq") {
-        SysCall.Inline(storeReqBuffer.pushAssign { req =>
-          req.storeKind := kind
-          req.addr := addr
-          req.data := data
-        })
+        SysCall.Inline(storeReqBuffer.push(launchStoreReqReg))
       }
 
       t.Step(s"${stepTag}_WaitDone") {
@@ -188,15 +201,28 @@ final class LsuProcess(
         SysCall.Inline(lock.Release())
         SysCall.Return()
       }
+      }
     }
 
-    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = launchLoad(LOAD_WORD, rd, addr, false.B)
-    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = launchLoad(LOAD_BYTE, rd, addr, unsigned)
-    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = launchLoad(LOAD_HALF, rd, addr, unsigned)
+    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = {
+      launchLoad(LOAD_WORD, rd, addr, false.B)
+    }
+    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
+      launchLoad(LOAD_BYTE, rd, addr, unsigned)
+    }
+    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
+      launchLoad(LOAD_HALF, rd, addr, unsigned)
+    }
 
-    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = launchStore(STORE_WORD, addr, data)
-    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = launchStore(STORE_BYTE, addr, data)
-    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = launchStore(STORE_HALF, addr, data)
+    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = {
+      launchStore(STORE_WORD, addr, data)
+    }
+    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = {
+      launchStore(STORE_BYTE, addr, data)
+    }
+    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = {
+      launchStore(STORE_HALF, addr, data)
+    }
   }
 
   def RequestLsuApi(): HwInline[LsuApiDecl] = HwInline.bindings(s"${name}_lsu_api") { _ =>

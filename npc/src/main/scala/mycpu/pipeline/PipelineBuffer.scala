@@ -38,15 +38,6 @@ final class PipelineBuffer[T <: Data](
       }
     }
 
-  def pushAssign(assign: T => Unit): HwInline[Unit] =
-    HwInline.atomic(s"${name}_push_assign") { t =>
-      t.waitCondition(canPushNode)
-      t.Prev.edge.add {
-        assign(entryReg.bits)
-        entryReg.valid := true.B
-      }
-    }
-
   def pop(): HwInline[T] =
     HwInline.atomic(s"${name}_pop") { t =>
       t.waitCondition(canPopNode)

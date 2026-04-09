@@ -81,6 +81,25 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ => record(18.U, rd, base, offset) }
     override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { _ => record(19.U, lhs = base, rhs = offset, target = data) }
+    override def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      HwInline.atomic(s"${name}_load") { _ => record(32.U, rd, base, offset, target = kind, unsigned = unsigned) }
+    override def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_store") { _ => record(33.U, lhs = base, rhs = offset, target = data, pc = kind) }
+    override def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      HwInline.thread(s"${name}_mem") { t =>
+        t.Step("Run") {
+          record(
+            Mux(isLoad, 32.U, 33.U),
+            rd,
+            base,
+            offset,
+            target = Mux(isLoad, kind, data),
+            pc = Mux(isLoad, 0.U, kind),
+            unsigned = unsigned,
+          )
+        }
+        SysCall.Return()
+      }
     override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
       HwInline.atomic(s"${name}_load_byte") { _ => record(20.U, rd, base, offset, unsigned = unsigned) }
     override def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
@@ -227,10 +246,11 @@ class DecodeProcessSpec extends AnyFlatSpec {
       }
 
       c.io.done.expect(true.B)
-      c.io.opKind.expect(18.U)
+      c.io.opKind.expect(32.U)
       c.io.rd.expect(6.U)
       c.io.lhs.expect(20.U)
       c.io.rhs.expect(12.U)
+      c.io.target.expect(0.U)
     }
   }
 

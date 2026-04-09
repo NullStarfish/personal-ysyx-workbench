@@ -152,13 +152,13 @@ class ExecuteProcessHarness extends Module {
           SysCall.Inline(exec.redirect("h30000020".U(XLEN.W)))
         }
 
-        worker.Step("LoadWord") {
-          SysCall.Inline(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)))
-        }
+        worker.Step("LoadWord") {}
+        SysCall.Call(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)), "AfterLoadWord")
+        worker.Step("AfterLoadWord") {}
 
-        worker.Step("StoreHalf") {
-          SysCall.Inline(exec.storeHalf(20.U(XLEN.W), 8.U(XLEN.W), "h1234".U(XLEN.W)))
-        }
+        worker.Step("StoreHalf") {}
+        SysCall.Call(exec.storeHalf(20.U(XLEN.W), 8.U(XLEN.W), "h1234".U(XLEN.W)), "AfterStoreHalf")
+        worker.Step("AfterStoreHalf") {}
 
         worker.Step("Finish") {
           doneReg := true.B

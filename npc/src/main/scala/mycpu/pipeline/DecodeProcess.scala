@@ -40,11 +40,32 @@ final class DecodeProcess(
   private val decodePcReg = RegInit(0.U(XLEN.W))
   private val decodeInstReg = RegInit(0.U(32.W))
   private val decodeCompleted = RegInit(false.B)
+  private val memIsLoadReg = RegInit(false.B)
+  private val memRdReg = RegInit(0.U(5.W))
+  private val memBaseReg = RegInit(0.U(XLEN.W))
+  private val memOffsetReg = RegInit(0.U(XLEN.W))
+  private val memDataReg = RegInit(0.U(XLEN.W))
+  private val memKindReg = RegInit(0.U(2.W))
+  private val memUnsignedReg = RegInit(false.B)
 
   override def entry(): Unit = {
     decodeWorker.entry {
       val exec = SysCall.Inline(RequestExecuteApi())
       val regApi = SysCall.Inline(RequestRegfileApi())
+      val memStepTag = s"${name}_exec_mem_${System.identityHashCode(new Object())}"
+
+      decodeWorker.Step("Start") {
+        decodeWorker.jump(decodeWorker.stepRef("DecodeDispatch"))
+      }
+
+      decodeWorker.Step(s"${memStepTag}_Acquire") {}
+      SysCall.Call(
+        exec.mem(memIsLoadReg, memRdReg, memBaseReg, memOffsetReg, memDataReg, memKindReg, memUnsignedReg),
+        s"${memStepTag}_AfterCall",
+      )
+      decodeWorker.Step(s"${memStepTag}_AfterCall") {
+        decodeWorker.jump(decodeWorker.stepRef("Finish"))
+      }
 
       decodeWorker.Step("DecodeDispatch") {
         val format = decodeFormat(decodeInstReg)
@@ -128,21 +149,52 @@ final class DecodeProcess(
           }
 
           is(InstFamily.LOAD) {
+            val loadKind = WireDefault(0.U(2.W))
+            val loadUnsigned = WireDefault(false.B)
             switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.loadByte(rd, rs1Value, immI, false.B)) }
-              is("b001".U) { SysCall.Inline(exec.loadHalf(rd, rs1Value, immI, false.B)) }
-              is("b010".U) { SysCall.Inline(exec.loadWord(rd, rs1Value, immI)) }
-              is("b100".U) { SysCall.Inline(exec.loadByte(rd, rs1Value, immI, true.B)) }
-              is("b101".U) { SysCall.Inline(exec.loadHalf(rd, rs1Value, immI, true.B)) }
+              is("b000".U) {
+                loadKind := 1.U
+              }
+              is("b001".U) {
+                loadKind := 2.U
+              }
+              is("b010".U) {
+                loadKind := 0.U
+              }
+              is("b100".U) {
+                loadKind := 1.U
+                loadUnsigned := true.B
+              }
+              is("b101".U) {
+                loadKind := 2.U
+                loadUnsigned := true.B
+              }
             }
+            memIsLoadReg := true.B
+            memRdReg := rd
+            memBaseReg := rs1Value
+            memOffsetReg := immI
+            memDataReg := 0.U
+            memKindReg := loadKind
+            memUnsignedReg := loadUnsigned
+            decodeWorker.jump(decodeWorker.stepRef(s"${memStepTag}_Acquire"))
           }
 
           is(InstFamily.STORE) {
+            val storeKind = WireDefault(0.U(2.W))
             switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.storeByte(rs1Value, immS, rs2Value)) }
-              is("b001".U) { SysCall.Inline(exec.storeHalf(rs1Value, immS, rs2Value)) }
-              is("b010".U) { SysCall.Inline(exec.storeWord(rs1Value, immS, rs2Value)) }
+              is("b000".U) { storeKind := 1.U }
+              is("b001".U) { storeKind := 2.U }
+              is("b010".U) { storeKind := 0.U }
             }
+            memIsLoadReg := false.B
+            memRdReg := 0.U
+            memBaseReg := rs1Value
+            memOffsetReg := immS
+            memDataReg := rs2Value
+            memKindReg := storeKind
+            memUnsignedReg := false.B
+            decodeWorker.jump(decodeWorker.stepRef(s"${memStepTag}_Acquire"))
           }
 
           is(InstFamily.BRANCH) {
@@ -192,7 +244,9 @@ final class DecodeProcess(
 
       decodeWorker.Step("Finish") {
         decodeCompleted := true.B
+        decodeWorker.jump(decodeWorker.stepRef("Done"))
       }
+      decodeWorker.Step("Done") {}
       SysCall.Return()
     }
   }
