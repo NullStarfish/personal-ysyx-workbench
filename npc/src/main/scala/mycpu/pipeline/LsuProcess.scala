@@ -143,85 +143,90 @@ final class LsuProcess(
   }
 
   val api: LsuApiDecl = new LsuApiDecl {
-    private def launchLoad(loadKind: UInt, rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
-      HwInline.thread(s"${name}_launch_load") { t =>
-      val stepTag = s"${name}_load_${System.identityHashCode(new Object())}"
+    private val loadAcquireRefName = s"${name}_Load_AcquireSlot"
+    private val storeAcquireRefName = s"${name}_Store_AcquireSlot"
+
+    override def loadPath(): HwInline[Unit] = HwInline.thread(s"${name}_load_path") { t =>
       val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
 
-      t.Step(s"${stepTag}_AcquireSlot") {
+      t.Step(loadAcquireRefName) {
         SysCall.Inline(lock.Acquire())
         loadCompleted := false.B
       }
-      t.Prev.edge.add {
-        launchLoadReqReg.loadKind := loadKind
-        launchLoadReqReg.rd := rd
-        launchLoadReqReg.addr := addr
-        launchLoadReqReg.unsigned := unsigned
-      }
 
-      t.Step(s"${stepTag}_PushReq") {
+      t.Step(s"${name}_Load_PushReq") {
         SysCall.Inline(loadReqBuffer.push(launchLoadReqReg))
       }
 
-      t.Step(s"${stepTag}_WaitDone") {
+      t.Step(s"${name}_Load_WaitDone") {
         t.waitCondition(loadCompleted)
       }
 
-      t.Step(s"${stepTag}_ReleaseSlot") {
+      t.Step(s"${name}_Load_ReleaseSlot") {
         SysCall.Inline(lock.Release())
-        SysCall.Return()
-      }
       }
     }
 
-    private def launchStore(storeKind: UInt, addr: UInt, data: UInt): HwInline[Unit] = {
-      HwInline.thread(s"${name}_launch_store") { t =>
-      val stepTag = s"${name}_store_${System.identityHashCode(new Object())}"
+    override def storePath(): HwInline[Unit] = HwInline.thread(s"${name}_store_path") { t =>
       val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
 
-      t.Step(s"${stepTag}_AcquireSlot") {
+      t.Step(storeAcquireRefName) {
         SysCall.Inline(lock.Acquire())
         storeCompleted := false.B
       }
-      t.Prev.edge.add {
-        launchStoreReqReg.storeKind := storeKind
-        launchStoreReqReg.addr := addr
-        launchStoreReqReg.data := data
-      }
 
-      t.Step(s"${stepTag}_PushReq") {
+      t.Step(s"${name}_Store_PushReq") {
         SysCall.Inline(storeReqBuffer.push(launchStoreReqReg))
       }
 
-      t.Step(s"${stepTag}_WaitDone") {
+      t.Step(s"${name}_Store_WaitDone") {
         t.waitCondition(storeCompleted)
       }
 
-      t.Step(s"${stepTag}_ReleaseSlot") {
+      t.Step(s"${name}_Store_ReleaseSlot") {
         SysCall.Inline(lock.Release())
-        SysCall.Return()
-      }
       }
     }
 
-    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = {
-      launchLoad(LOAD_WORD, rd, addr, false.B)
+    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
+      launchLoadReqReg.loadKind := LOAD_WORD
+      launchLoadReqReg.rd := rd
+      launchLoadReqReg.addr := addr
+      launchLoadReqReg.unsigned := false.B
+      t.jump(t.stepRef(loadAcquireRefName))
     }
-    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
-      launchLoad(LOAD_BYTE, rd, addr, unsigned)
+    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { t =>
+      launchLoadReqReg.loadKind := LOAD_BYTE
+      launchLoadReqReg.rd := rd
+      launchLoadReqReg.addr := addr
+      launchLoadReqReg.unsigned := unsigned
+      t.jump(t.stepRef(loadAcquireRefName))
     }
-    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = {
-      launchLoad(LOAD_HALF, rd, addr, unsigned)
+    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { t =>
+      launchLoadReqReg.loadKind := LOAD_HALF
+      launchLoadReqReg.rd := rd
+      launchLoadReqReg.addr := addr
+      launchLoadReqReg.unsigned := unsigned
+      t.jump(t.stepRef(loadAcquireRefName))
     }
 
-    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = {
-      launchStore(STORE_WORD, addr, data)
+    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { t =>
+      launchStoreReqReg.storeKind := STORE_WORD
+      launchStoreReqReg.addr := addr
+      launchStoreReqReg.data := data
+      t.jump(t.stepRef(storeAcquireRefName))
     }
-    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = {
-      launchStore(STORE_BYTE, addr, data)
+    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_byte") { t =>
+      launchStoreReqReg.storeKind := STORE_BYTE
+      launchStoreReqReg.addr := addr
+      launchStoreReqReg.data := data
+      t.jump(t.stepRef(storeAcquireRefName))
     }
-    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = {
-      launchStore(STORE_HALF, addr, data)
+    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_half") { t =>
+      launchStoreReqReg.storeKind := STORE_HALF
+      launchStoreReqReg.addr := addr
+      launchStoreReqReg.data := data
+      t.jump(t.stepRef(storeAcquireRefName))
     }
   }
 

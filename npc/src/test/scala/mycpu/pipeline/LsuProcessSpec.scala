@@ -105,7 +105,13 @@ class LsuProcessHarness extends Module {
     val memory = spawn(new DummyMemoryProcess("DummyMemory"))
     val writeback = spawn(new DummyWritebackProcess("DummyWriteback"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    private val worker = createThread("Worker")
+    private val loadSignedByteWorker = createThread("LoadSignedByteWorker")
+    private val loadUnsignedHalfWorker = createThread("LoadUnsignedHalfWorker")
+    private val storeByteWorker = createThread("StoreByteWorker")
+    private val storeHalfWorker = createThread("StoreHalfWorker")
+    private val readBackWord0Worker = createThread("ReadBackWord0Worker")
+    private val storeWord1Worker = createThread("StoreWord1Worker")
+    private val readBackWord1Worker = createThread("ReadBackWord1Worker")
     private val daemon = createLogic("Daemon")
 
     private val doneReg = RegInit(false.B)
@@ -113,37 +119,96 @@ class LsuProcessHarness extends Module {
     private val unsignedHalfReg = RegInit(0.U(XLEN.W))
     private val storedWord0Reg = RegInit(0.U(XLEN.W))
     private val storedWord1Reg = RegInit(0.U(XLEN.W))
+    private val loadSignedByteDone = RegInit(false.B)
+    private val loadUnsignedHalfDone = RegInit(false.B)
+    private val storeByteDone = RegInit(false.B)
+    private val storeHalfDone = RegInit(false.B)
+    private val readBackWord0Done = RegInit(false.B)
+    private val storeWord1Done = RegInit(false.B)
 
     override def entry(): Unit = {
-      worker.entry {
+      loadSignedByteWorker.entry {
         val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
-
-        SysCall.Call(lsuApi.loadByte(1.U, 2.U, false.B), "AfterLoadSignedByte")
-        worker.Step("AfterLoadSignedByte") {
+        loadSignedByteWorker.Step("Run") {
+          SysCall.Inline(lsuApi.loadByte(1.U, 2.U, false.B))
+        }
+        SysCall.Inline(lsuApi.loadPath())
+        loadSignedByteWorker.Step("Finish") {
           signedByteReg := writeback.readReg(1)
+          loadSignedByteDone := true.B
         }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.loadHalf(2.U, 2.U, true.B), "AfterLoadUnsignedHalf")
-        worker.Step("AfterLoadUnsignedHalf") {
+      loadUnsignedHalfWorker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        loadUnsignedHalfWorker.Step("Run") {
+          SysCall.Inline(lsuApi.loadHalf(2.U, 2.U, true.B))
+        }
+        SysCall.Inline(lsuApi.loadPath())
+        loadUnsignedHalfWorker.Step("Finish") {
           unsignedHalfReg := writeback.readReg(2)
+          loadUnsignedHalfDone := true.B
         }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.storeByte(1.U, "hAA".U(XLEN.W)), "AfterStoreByte")
-        worker.Step("AfterStoreByte") {}
+      storeByteWorker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        storeByteWorker.Step("Run") {
+          SysCall.Inline(lsuApi.storeByte(1.U, "hAA".U(XLEN.W)))
+        }
+        SysCall.Inline(lsuApi.storePath())
+        storeByteWorker.Step("Finish") {
+          storeByteDone := true.B
+        }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.storeHalf(2.U, "hBEEF".U(XLEN.W)), "AfterStoreHalf")
-        worker.Step("AfterStoreHalf") {}
+      storeHalfWorker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        storeHalfWorker.Step("Run") {
+          SysCall.Inline(lsuApi.storeHalf(2.U, "hBEEF".U(XLEN.W)))
+        }
+        SysCall.Inline(lsuApi.storePath())
+        storeHalfWorker.Step("Finish") {
+          storeHalfDone := true.B
+        }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.loadWord(3.U, 0.U), "AfterReadBackWord0")
-        worker.Step("AfterReadBackWord0") {
+      readBackWord0Worker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        readBackWord0Worker.Step("Run") {
+          SysCall.Inline(lsuApi.loadWord(3.U, 0.U))
+        }
+        SysCall.Inline(lsuApi.loadPath())
+        readBackWord0Worker.Step("Finish") {
           storedWord0Reg := writeback.readReg(3)
+          readBackWord0Done := true.B
         }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.storeWord(4.U, "h55667788".U(XLEN.W)), "AfterStoreWord1")
-        worker.Step("AfterStoreWord1") {}
+      storeWord1Worker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        storeWord1Worker.Step("Run") {
+          SysCall.Inline(lsuApi.storeWord(4.U, "h55667788".U(XLEN.W)))
+        }
+        SysCall.Inline(lsuApi.storePath())
+        storeWord1Worker.Step("Finish") {
+          storeWord1Done := true.B
+        }
+        SysCall.Return()
+      }
 
-        SysCall.Call(lsuApi.loadWord(4.U, 4.U), "AfterReadBackWord1")
-        worker.Step("AfterReadBackWord1") {
+      readBackWord1Worker.entry {
+        val lsuApi = SysCall.Inline(lsu.RequestLsuApi())
+        readBackWord1Worker.Step("Run") {
+          SysCall.Inline(lsuApi.loadWord(4.U, 4.U))
+        }
+        SysCall.Inline(lsuApi.loadPath())
+        readBackWord1Worker.Step("Finish") {
           storedWord1Reg := writeback.readReg(4)
           doneReg := true.B
         }
@@ -151,8 +216,26 @@ class LsuProcessHarness extends Module {
       }
 
       daemon.run {
-        when(!worker.active && !worker.done) {
-          SysCall.Inline(SysCall.start(worker))
+        when(!loadSignedByteWorker.active && !loadSignedByteWorker.done) {
+          SysCall.Inline(SysCall.start(loadSignedByteWorker))
+        }
+        when(loadSignedByteDone && !loadUnsignedHalfWorker.active && !loadUnsignedHalfWorker.done) {
+          SysCall.Inline(SysCall.start(loadUnsignedHalfWorker))
+        }
+        when(loadUnsignedHalfDone && !storeByteWorker.active && !storeByteWorker.done) {
+          SysCall.Inline(SysCall.start(storeByteWorker))
+        }
+        when(storeByteDone && !storeHalfWorker.active && !storeHalfWorker.done) {
+          SysCall.Inline(SysCall.start(storeHalfWorker))
+        }
+        when(storeHalfDone && !readBackWord0Worker.active && !readBackWord0Worker.done) {
+          SysCall.Inline(SysCall.start(readBackWord0Worker))
+        }
+        when(readBackWord0Done && !storeWord1Worker.active && !storeWord1Worker.done) {
+          SysCall.Inline(SysCall.start(storeWord1Worker))
+        }
+        when(storeWord1Done && !readBackWord1Worker.active && !readBackWord1Worker.done) {
+          SysCall.Inline(SysCall.start(readBackWord1Worker))
         }
         io.done := doneReg
         io.signedByte := signedByteReg
@@ -178,7 +261,7 @@ class LsuProcessSpec extends AnyFlatSpec {
       c.reset.poke(false.B)
 
       var cycles = 0
-      while (c.io.done.peek().litValue == 0 && cycles < 80) {
+      while (c.io.done.peek().litValue == 0 && cycles < 120) {
         c.clock.step()
         cycles += 1
       }

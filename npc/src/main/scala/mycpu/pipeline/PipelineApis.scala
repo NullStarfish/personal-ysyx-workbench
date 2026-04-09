@@ -71,6 +71,8 @@ trait CsrProbeApiDecl {
 }
 
 trait LsuApiDecl {
+  def loadPath(): HwInline[Unit]
+  def storePath(): HwInline[Unit]
   def loadWord(rd: UInt, addr: UInt): HwInline[Unit]
   def storeWord(addr: UInt, data: UInt): HwInline[Unit]
   def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit]

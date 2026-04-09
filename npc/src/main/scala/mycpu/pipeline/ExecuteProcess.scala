@@ -45,12 +45,6 @@ final class ExecuteProcess(
     memWorker.entry {
       val lsuApi = SysCall.Inline(RequestLsuApi())
       val aluApi = alu.api
-      val loadWordStepTag = s"${name}_mem_load_word_${System.identityHashCode(new Object())}"
-      val loadByteStepTag = s"${name}_mem_load_byte_${System.identityHashCode(new Object())}"
-      val loadHalfStepTag = s"${name}_mem_load_half_${System.identityHashCode(new Object())}"
-      val storeWordStepTag = s"${name}_mem_store_word_${System.identityHashCode(new Object())}"
-      val storeByteStepTag = s"${name}_mem_store_byte_${System.identityHashCode(new Object())}"
-      val storeHalfStepTag = s"${name}_mem_store_half_${System.identityHashCode(new Object())}"
 
       memWorker.Step("WaitReq") {
         memWorker.waitCondition(memReqBuffer.valid)
@@ -59,55 +53,40 @@ final class ExecuteProcess(
         memReqReg := SysCall.Inline(memReqBuffer.pop())
       }
       memWorker.Step("ComputeAddr") {
-        memAddrReg := SysCall.Inline(aluApi.add(memReqReg.base, memReqReg.offset))
-        when(memReqReg.isLoad && memReqReg.kind === LOAD_WORD) {
-          memWorker.jump(memWorker.stepRef(s"${loadWordStepTag}_Acquire"))
-        }.elsewhen(memReqReg.isLoad && memReqReg.kind === LOAD_BYTE) {
-          memWorker.jump(memWorker.stepRef(s"${loadByteStepTag}_Acquire"))
-        }.elsewhen(memReqReg.isLoad && memReqReg.kind === LOAD_HALF) {
-          memWorker.jump(memWorker.stepRef(s"${loadHalfStepTag}_Acquire"))
-        }.elsewhen(memReqReg.kind === STORE_WORD) {
-          memWorker.jump(memWorker.stepRef(s"${storeWordStepTag}_Acquire"))
-        }.elsewhen(memReqReg.kind === STORE_BYTE) {
-          memWorker.jump(memWorker.stepRef(s"${storeByteStepTag}_Acquire"))
+        val computedAddr = SysCall.Inline(aluApi.add(memReqReg.base, memReqReg.offset))
+        memAddrReg := computedAddr
+        when(memReqReg.isLoad) {
+          memWorker.jump(memWorker.stepRef("LsuLoadDispatch"))
         }.otherwise {
-          memWorker.jump(memWorker.stepRef(s"${storeHalfStepTag}_Acquire"))
+          memWorker.jump(memWorker.stepRef("LsuStoreDispatch"))
         }
       }
 
-      memWorker.Step(s"${loadWordStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.loadWord(memReqReg.rd, memAddrReg), s"${loadWordStepTag}_AfterCall")
-      memWorker.Step(s"${loadWordStepTag}_AfterCall") {
+      memWorker.Step("LsuLoadDispatch") {
+        when(memReqReg.kind === LOAD_WORD) {
+          SysCall.Inline(lsuApi.loadWord(memReqReg.rd, memAddrReg))
+        }.elsewhen(memReqReg.kind === LOAD_BYTE) {
+          SysCall.Inline(lsuApi.loadByte(memReqReg.rd, memAddrReg, memReqReg.unsigned))
+        }.otherwise {
+          SysCall.Inline(lsuApi.loadHalf(memReqReg.rd, memAddrReg, memReqReg.unsigned))
+        }
+      }
+      SysCall.Inline(lsuApi.loadPath())
+      memWorker.Step("AfterLoadPath") {
         memWorker.jump(memWorker.stepRef("AfterMem"))
       }
 
-      memWorker.Step(s"${loadByteStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.loadByte(memReqReg.rd, memAddrReg, memReqReg.unsigned), s"${loadByteStepTag}_AfterCall")
-      memWorker.Step(s"${loadByteStepTag}_AfterCall") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
+      memWorker.Step("LsuStoreDispatch") {
+        when(memReqReg.kind === STORE_WORD) {
+          SysCall.Inline(lsuApi.storeWord(memAddrReg, memReqReg.data))
+        }.elsewhen(memReqReg.kind === STORE_BYTE) {
+          SysCall.Inline(lsuApi.storeByte(memAddrReg, memReqReg.data))
+        }.otherwise {
+          SysCall.Inline(lsuApi.storeHalf(memAddrReg, memReqReg.data))
+        }
       }
-
-      memWorker.Step(s"${loadHalfStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.loadHalf(memReqReg.rd, memAddrReg, memReqReg.unsigned), s"${loadHalfStepTag}_AfterCall")
-      memWorker.Step(s"${loadHalfStepTag}_AfterCall") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
-      }
-
-      memWorker.Step(s"${storeWordStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.storeWord(memAddrReg, memReqReg.data), s"${storeWordStepTag}_AfterCall")
-      memWorker.Step(s"${storeWordStepTag}_AfterCall") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
-      }
-
-      memWorker.Step(s"${storeByteStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.storeByte(memAddrReg, memReqReg.data), s"${storeByteStepTag}_AfterCall")
-      memWorker.Step(s"${storeByteStepTag}_AfterCall") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
-      }
-
-      memWorker.Step(s"${storeHalfStepTag}_Acquire") {}
-      SysCall.Call(lsuApi.storeHalf(memAddrReg, memReqReg.data), s"${storeHalfStepTag}_AfterCall")
-      memWorker.Step(s"${storeHalfStepTag}_AfterCall") {
+      SysCall.Inline(lsuApi.storePath())
+      memWorker.Step("AfterStorePath") {
         memWorker.jump(memWorker.stepRef("AfterMem"))
       }
 

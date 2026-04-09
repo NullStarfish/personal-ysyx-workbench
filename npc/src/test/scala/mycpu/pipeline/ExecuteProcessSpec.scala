@@ -14,48 +14,51 @@ final class DummyExecuteLsuProcess(localName: String)(implicit kernel: Kernel) e
   val unsignedReg = RegInit(false.B)
 
   val api: LsuApiDecl = new LsuApiDecl {
-    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.thread(s"${name}_load_word") { _ =>
+    override def loadPath(): HwInline[Unit] = HwInline.thread(s"${name}_load_path") { t =>
+      t.Step(s"${name}_Load_Idle") {}
+    }
+
+    override def storePath(): HwInline[Unit] = HwInline.thread(s"${name}_store_path") { t =>
+      t.Step(s"${name}_Store_Idle") {}
+    }
+
+    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ =>
       opKind := 1.U
       rdReg := rd
       addrReg := addr
-      SysCall.Return()
+      unsignedReg := false.B
     }
 
-    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_word") { _ =>
+    override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { _ =>
       opKind := 2.U
       addrReg := addr
       dataReg := data
-      SysCall.Return()
     }
 
-    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.thread(s"${name}_load_byte") { _ =>
+    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { _ =>
       opKind := 3.U
       rdReg := rd
       addrReg := addr
       unsignedReg := unsigned
-      SysCall.Return()
     }
 
-    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.thread(s"${name}_load_half") { _ =>
+    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { _ =>
       opKind := 4.U
       rdReg := rd
       addrReg := addr
       unsignedReg := unsigned
-      SysCall.Return()
     }
 
-    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_byte") { _ =>
+    override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_byte") { _ =>
       opKind := 5.U
       addrReg := addr
       dataReg := data
-      SysCall.Return()
     }
 
-    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = HwInline.thread(s"${name}_store_half") { _ =>
+    override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_half") { _ =>
       opKind := 6.U
       addrReg := addr
       dataReg := data
-      SysCall.Return()
     }
   }
 
@@ -222,6 +225,7 @@ class ExecuteProcessSpec extends AnyFlatSpec {
         c.clock.step()
         cycles += 1
       }
+      c.clock.step()
 
       c.io.done.expect(true.B)
       c.io.x1.expect(12.U)
