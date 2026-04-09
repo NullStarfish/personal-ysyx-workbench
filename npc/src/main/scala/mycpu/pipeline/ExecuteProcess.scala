@@ -34,7 +34,6 @@ final class ExecuteProcess(
   private val STORE_BYTE = 1.U(2.W)
   private val STORE_HALF = 2.U(2.W)
 
-  private val memCompleted = RegInit(false.B)
   private val memReqReg = RegInit(0.U.asTypeOf(new MemReq))
   private val memAddrReg = RegInit(0.U(XLEN.W))
   private val launchMemReqReg = RegInit(0.U.asTypeOf(new MemReq))
@@ -89,7 +88,6 @@ final class ExecuteProcess(
       }
 
       memWorker.Step("AfterMem") {
-        memCompleted := true.B
         memWorker.jump(memWorker.stepRef("WaitReq"))
       }
     }
@@ -234,19 +232,13 @@ final class ExecuteProcess(
     }
 
     def memPath(): HwInline[Unit] = HwInline.thread(s"${name}_mem_path") { t =>
-      t.Step(memAcquireRefName) {
-        memCompleted := false.B
-      }
+      t.Step(memAcquireRefName) {}
 
       t.Step(s"${name}_Mem_PushReq") {
         printf(
           p"[EXEC] mem isLoad=${launchMemReqReg.isLoad} kind=${Decimal(launchMemReqReg.kind)} base=${Hexadecimal(launchMemReqReg.base)} offset=${Hexadecimal(launchMemReqReg.offset)} data=${Hexadecimal(launchMemReqReg.data)} unsigned=${launchMemReqReg.unsigned} rd=${Decimal(launchMemReqReg.rd)}\n",
         )
         SysCall.Inline(memReqBuffer.push(launchMemReqReg))
-      }
-
-      t.Step(s"${name}_Mem_WaitDone") {
-        t.waitCondition(memCompleted)
       }
 
       t.Step(s"${name}_Mem_ReleaseSlot") {}

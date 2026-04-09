@@ -133,6 +133,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.loadByte(1.U, 2.U, false.B))
         }
         SysCall.Inline(lsuApi.loadPath())
+        loadSignedByteWorker.Step("WaitResult") {
+          loadSignedByteWorker.waitCondition(writeback.readReg(1) === "hffffffff".U(XLEN.W))
+        }
         loadSignedByteWorker.Step("Finish") {
           signedByteReg := writeback.readReg(1)
           loadSignedByteDone := true.B
@@ -146,6 +149,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.loadHalf(2.U, 2.U, true.B))
         }
         SysCall.Inline(lsuApi.loadPath())
+        loadUnsignedHalfWorker.Step("WaitResult") {
+          loadUnsignedHalfWorker.waitCondition(writeback.readReg(2) === "h000080ff".U(XLEN.W))
+        }
         loadUnsignedHalfWorker.Step("Finish") {
           unsignedHalfReg := writeback.readReg(2)
           loadUnsignedHalfDone := true.B
@@ -159,6 +165,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.storeByte(1.U, "hAA".U(XLEN.W)))
         }
         SysCall.Inline(lsuApi.storePath())
+        storeByteWorker.Step("WaitWrite") {
+          storeByteWorker.waitCondition(memory.readWord(0) === "h80ffaa34".U(XLEN.W))
+        }
         storeByteWorker.Step("Finish") {
           storeByteDone := true.B
         }
@@ -171,6 +180,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.storeHalf(2.U, "hBEEF".U(XLEN.W)))
         }
         SysCall.Inline(lsuApi.storePath())
+        storeHalfWorker.Step("WaitWrite") {
+          storeHalfWorker.waitCondition(memory.readWord(0) === "hbeefaa34".U(XLEN.W))
+        }
         storeHalfWorker.Step("Finish") {
           storeHalfDone := true.B
         }
@@ -183,6 +195,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.loadWord(3.U, 0.U))
         }
         SysCall.Inline(lsuApi.loadPath())
+        readBackWord0Worker.Step("WaitResult") {
+          readBackWord0Worker.waitCondition(writeback.readReg(3) === "hbeefaa34".U(XLEN.W))
+        }
         readBackWord0Worker.Step("Finish") {
           storedWord0Reg := writeback.readReg(3)
           readBackWord0Done := true.B
@@ -196,6 +211,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.storeWord(4.U, "h55667788".U(XLEN.W)))
         }
         SysCall.Inline(lsuApi.storePath())
+        storeWord1Worker.Step("WaitWrite") {
+          storeWord1Worker.waitCondition(memory.readWord(1) === "h55667788".U(XLEN.W))
+        }
         storeWord1Worker.Step("Finish") {
           storeWord1Done := true.B
         }
@@ -208,6 +226,9 @@ class LsuProcessHarness extends Module {
           SysCall.Inline(lsuApi.loadWord(4.U, 4.U))
         }
         SysCall.Inline(lsuApi.loadPath())
+        readBackWord1Worker.Step("WaitResult") {
+          readBackWord1Worker.waitCondition(writeback.readReg(4) === "h55667788".U(XLEN.W))
+        }
         readBackWord1Worker.Step("Finish") {
           storedWord1Reg := writeback.readReg(4)
           doneReg := true.B

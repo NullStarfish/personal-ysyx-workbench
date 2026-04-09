@@ -176,6 +176,9 @@ class ExecuteProcessHarness extends Module {
         }
 
         SysCall.Inline(exec.memPath())
+        memWorker.Step("WaitStoreObserved") {
+          memWorker.waitCondition(lsu.opKind === 6.U)
+        }
         memWorker.Step("Finish") {
           doneReg := true.B
         }

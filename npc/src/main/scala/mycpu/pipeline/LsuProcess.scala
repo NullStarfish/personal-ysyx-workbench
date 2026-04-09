@@ -38,8 +38,6 @@ final class LsuProcess(
   private val STORE_BYTE = 1.U(2.W)
   private val STORE_HALF = 2.U(2.W)
 
-  private val loadCompleted = RegInit(false.B)
-  private val storeCompleted = RegInit(false.B)
   private val launchLoadReqReg = RegInit(0.U.asTypeOf(new LoadReq))
   private val launchStoreReqReg = RegInit(0.U.asTypeOf(new StoreReq))
 
@@ -85,7 +83,6 @@ final class LsuProcess(
           resultData := extractHalf(rawReadData, reqReg.addr(1), reqReg.unsigned)
         }
         SysCall.Inline(wbApi.writeReg(reqReg.rd, resultData))
-        loadCompleted := true.B
         loadWorker.jump(loadWorker.stepRef("WaitReq"))
       }
     }
@@ -123,7 +120,6 @@ final class LsuProcess(
       SysCall.Inline(memory.write_once(reqReg.addr, writeSize, writeData, writeStrb))
       storeWorker.Prev.edge.add {
         SysCall.Inline(wbApi.commit())
-        storeCompleted := true.B
         storeWorker.jump(storeWorker.stepRef("WaitReq"))
       }
     }
@@ -144,32 +140,20 @@ final class LsuProcess(
     private val storeAcquireRefName = s"${name}_Store_AcquireSlot"
 
     override def loadPath(): HwInline[Unit] = HwInline.thread(s"${name}_load_path") { t =>
-      t.Step(loadAcquireRefName) {
-        loadCompleted := false.B
-      }
+      t.Step(loadAcquireRefName) {}
 
       t.Step(s"${name}_Load_PushReq") {
         SysCall.Inline(loadReqBuffer.push(launchLoadReqReg))
-      }
-
-      t.Step(s"${name}_Load_WaitDone") {
-        t.waitCondition(loadCompleted)
       }
 
       t.Step(s"${name}_Load_ReleaseSlot") {}
     }
 
     override def storePath(): HwInline[Unit] = HwInline.thread(s"${name}_store_path") { t =>
-      t.Step(storeAcquireRefName) {
-        storeCompleted := false.B
-      }
+      t.Step(storeAcquireRefName) {}
 
       t.Step(s"${name}_Store_PushReq") {
         SysCall.Inline(storeReqBuffer.push(launchStoreReqReg))
-      }
-
-      t.Step(s"${name}_Store_WaitDone") {
-        t.waitCondition(storeCompleted)
       }
 
       t.Step(s"${name}_Store_ReleaseSlot") {}
