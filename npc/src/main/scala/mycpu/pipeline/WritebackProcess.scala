@@ -13,7 +13,7 @@ final class WritebackProcess(
 
   final class WbReq extends Bundle {
     val kind = UInt(3.W)
-    val rd = UInt(5.W)
+    val wbToken = UInt(4.W)
     val data = UInt(32.W)
     val nextPc = UInt(32.W)
     val delta = SInt(32.W)
@@ -57,15 +57,17 @@ final class WritebackProcess(
         }
       }
 
-      wbWorker.Step("WriteRegStart") {}
-      SysCall.Inline(regApi.write(reqReg.rd, reqReg.data))
+      wbWorker.Step("WriteRegStart") {
+        SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
+      }
       wbWorker.Step("AfterWriteReg") {
         SysCall.Inline(traceApi.commit())
         wbWorker.jump(wbWorker.stepRef("WaitReq"))
       }
 
-      wbWorker.Step("WriteRegRedirectStart") {}
-      SysCall.Inline(regApi.write(reqReg.rd, reqReg.data))
+      wbWorker.Step("WriteRegRedirectStart") {
+        SysCall.Inline(regApi.writebackAndClear(reqReg.wbToken, reqReg.data))
+      }
       wbWorker.Step("AfterWriteRegRedirect") {
         SysCall.Inline(fetchApi.writePC(reqReg.nextPc))
         SysCall.Inline(traceApi.commit())
@@ -108,10 +110,10 @@ final class WritebackProcess(
       t.Step(s"${tag}_Release") {}
     }
 
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { t =>
-      printf(p"[WB] writeReg rd=${Decimal(rd)} data=${Hexadecimal(data)}\n")
+    override def writeReg(token: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { t =>
+      printf(p"[WB] writeReg token=${Decimal(token)} data=${Hexadecimal(data)}\n")
       writeRegPacket.kind := WB_WRITE_REG
-      writeRegPacket.rd := rd
+      writeRegPacket.wbToken := token
       writeRegPacket.data := data
       writeRegPacket.nextPc := 0.U
       writeRegPacket.delta := 0.S
@@ -120,11 +122,11 @@ final class WritebackProcess(
       }
     }
 
-    override def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit] =
+    override def writeRegAndRedirect(token: UInt, data: UInt, nextPc: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_write_reg_and_redirect") { t =>
-        printf(p"[WB] writeReg+redirect rd=${Decimal(rd)} data=${Hexadecimal(data)} nextPc=${Hexadecimal(nextPc)}\n")
+        printf(p"[WB] writeReg+redirect token=${Decimal(token)} data=${Hexadecimal(data)} nextPc=${Hexadecimal(nextPc)}\n")
         writeRegAndRedirectPacket.kind := WB_WRITE_REG_REDIRECT
-        writeRegAndRedirectPacket.rd := rd
+        writeRegAndRedirectPacket.wbToken := token
         writeRegAndRedirectPacket.data := data
         writeRegAndRedirectPacket.nextPc := nextPc
         writeRegAndRedirectPacket.delta := 0.S
@@ -136,7 +138,7 @@ final class WritebackProcess(
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { t =>
       printf(p"[WB] redirect nextPc=${Hexadecimal(nextPc)}\n")
       redirectPacket.kind := WB_REDIRECT
-      redirectPacket.rd := 0.U
+      redirectPacket.wbToken := 0.U
       redirectPacket.data := 0.U
       redirectPacket.nextPc := nextPc
       redirectPacket.delta := 0.S
@@ -148,7 +150,7 @@ final class WritebackProcess(
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { t =>
       printf(p"[WB] redirectRelative delta=${Hexadecimal(delta.asUInt)}\n")
       redirectRelativePacket.kind := WB_REDIRECT_REL
-      redirectRelativePacket.rd := 0.U
+      redirectRelativePacket.wbToken := 0.U
       redirectRelativePacket.data := 0.U
       redirectRelativePacket.nextPc := 0.U
       redirectRelativePacket.delta := delta
@@ -159,7 +161,7 @@ final class WritebackProcess(
 
     override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { t =>
       commitPacket.kind := WB_COMMIT
-      commitPacket.rd := 0.U
+      commitPacket.wbToken := 0.U
       commitPacket.data := 0.U
       commitPacket.nextPc := 0.U
       commitPacket.delta := 0.S

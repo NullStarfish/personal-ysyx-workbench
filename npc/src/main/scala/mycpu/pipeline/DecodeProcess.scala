@@ -86,58 +86,68 @@ final class DecodeProcess(
         printf(
           p"[DECODE] pc=${Hexadecimal(decodePcReg)} inst=${Hexadecimal(decodeInstReg)} format=${format.asUInt} family=${family.asUInt} rd=${Decimal(rd)} rs1=${Decimal(rs1)} rs2=${Decimal(rs2)} funct3=${Hexadecimal(funct3)} funct7=${Hexadecimal(funct7)}\n",
         )
+        val willWriteRd =
+          (family === InstFamily.ALU) ||
+            (family === InstFamily.LOAD) ||
+            (family === InstFamily.JUMP) ||
+            (family === InstFamily.UPPER) ||
+            (family === InstFamily.CSR)
+        val wbToken = WireDefault(0.U(4.W))
+        when(willWriteRd && rd =/= 0.U) {
+          wbToken := SysCall.Inline(regApi.reserve(rd))
+        }
         switch(family) {
           is(InstFamily.ALU) {
             when(format === InstFormat.I) {
               switch(funct3) {
-                is("b000".U) { SysCall.Inline(exec.add(rd, rs1Value, immI)) }
-                is("b111".U) { SysCall.Inline(exec.and(rd, rs1Value, immI)) }
-                is("b110".U) { SysCall.Inline(exec.or(rd, rs1Value, immI)) }
-                is("b100".U) { SysCall.Inline(exec.xor(rd, rs1Value, immI)) }
-                is("b001".U) { SysCall.Inline(exec.sll(rd, rs1Value, immI)) }
+                is("b000".U) { SysCall.Inline(exec.add(rd, wbToken, rs1Value, immI)) }
+                is("b111".U) { SysCall.Inline(exec.and(rd, wbToken, rs1Value, immI)) }
+                is("b110".U) { SysCall.Inline(exec.or(rd, wbToken, rs1Value, immI)) }
+                is("b100".U) { SysCall.Inline(exec.xor(rd, wbToken, rs1Value, immI)) }
+                is("b001".U) { SysCall.Inline(exec.sll(rd, wbToken, rs1Value, immI)) }
                 is("b101".U) {
                   when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sra(rd, rs1Value, immI))
+                    SysCall.Inline(exec.sra(rd, wbToken, rs1Value, immI))
                   }.otherwise {
-                    SysCall.Inline(exec.srl(rd, rs1Value, immI))
+                    SysCall.Inline(exec.srl(rd, wbToken, rs1Value, immI))
                   }
                 }
-                is("b010".U) { SysCall.Inline(exec.slt(rd, rs1Value, immI)) }
-                is("b011".U) { SysCall.Inline(exec.sltu(rd, rs1Value, immI)) }
+                is("b010".U) { SysCall.Inline(exec.slt(rd, wbToken, rs1Value, immI)) }
+                is("b011".U) { SysCall.Inline(exec.sltu(rd, wbToken, rs1Value, immI)) }
               }
             }.otherwise {
               switch(funct3) {
                 is("b000".U) {
                   when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sub(rd, rs1Value, rs2Value))
+                    SysCall.Inline(exec.sub(rd, wbToken, rs1Value, rs2Value))
                   }.otherwise {
-                    SysCall.Inline(exec.add(rd, rs1Value, rs2Value))
+                    SysCall.Inline(exec.add(rd, wbToken, rs1Value, rs2Value))
                   }
                 }
-                is("b111".U) { SysCall.Inline(exec.and(rd, rs1Value, rs2Value)) }
-                is("b110".U) { SysCall.Inline(exec.or(rd, rs1Value, rs2Value)) }
-                is("b100".U) { SysCall.Inline(exec.xor(rd, rs1Value, rs2Value)) }
-                is("b001".U) { SysCall.Inline(exec.sll(rd, rs1Value, rs2Value)) }
+                is("b111".U) { SysCall.Inline(exec.and(rd, wbToken, rs1Value, rs2Value)) }
+                is("b110".U) { SysCall.Inline(exec.or(rd, wbToken, rs1Value, rs2Value)) }
+                is("b100".U) { SysCall.Inline(exec.xor(rd, wbToken, rs1Value, rs2Value)) }
+                is("b001".U) { SysCall.Inline(exec.sll(rd, wbToken, rs1Value, rs2Value)) }
                 is("b101".U) {
                   when(funct7 === "b0100000".U) {
-                    SysCall.Inline(exec.sra(rd, rs1Value, rs2Value))
+                    SysCall.Inline(exec.sra(rd, wbToken, rs1Value, rs2Value))
                   }.otherwise {
-                    SysCall.Inline(exec.srl(rd, rs1Value, rs2Value))
+                    SysCall.Inline(exec.srl(rd, wbToken, rs1Value, rs2Value))
                   }
                 }
-                is("b010".U) { SysCall.Inline(exec.slt(rd, rs1Value, rs2Value)) }
-                is("b011".U) { SysCall.Inline(exec.sltu(rd, rs1Value, rs2Value)) }
+                is("b010".U) { SysCall.Inline(exec.slt(rd, wbToken, rs1Value, rs2Value)) }
+                is("b011".U) { SysCall.Inline(exec.sltu(rd, wbToken, rs1Value, rs2Value)) }
               }
             }
           }
 
           is(InstFamily.LOAD) {
             switch(funct3) {
-              is("b000".U) { SysCall.Inline(exec.loadByte(rd, rs1Value, immI, false.B)) }
-              is("b001".U) { SysCall.Inline(exec.loadHalf(rd, rs1Value, immI, false.B)) }
-              is("b010".U) { SysCall.Inline(exec.loadWord(rd, rs1Value, immI)) }
-              is("b100".U) { SysCall.Inline(exec.loadByte(rd, rs1Value, immI, true.B)) }
-              is("b101".U) { SysCall.Inline(exec.loadHalf(rd, rs1Value, immI, true.B)) }
+              is("b000".U) { SysCall.Inline(exec.loadByte(rd, wbToken, rs1Value, immI, false.B)) }
+              is("b001".U) { SysCall.Inline(exec.loadHalf(rd, wbToken, rs1Value, immI, false.B)) }
+              is("b010".U) { SysCall.Inline(exec.loadWord(rd, wbToken, rs1Value, immI)) }
+              is("b100".U) { SysCall.Inline(exec.loadByte(rd, wbToken, rs1Value, immI, true.B)) }
+              is("b101".U) { SysCall.Inline(exec.loadHalf(rd, wbToken, rs1Value, immI, true.B)) }
             }
           }
 
@@ -162,29 +172,29 @@ final class DecodeProcess(
 
           is(InstFamily.JUMP) {
             when(decodeInstReg(6, 0) === "b1101111".U) {
-              SysCall.Inline(exec.jal(rd, decodePcReg, immJ.asSInt))
+              SysCall.Inline(exec.jal(rd, wbToken, decodePcReg, immJ.asSInt))
             }.otherwise {
-              SysCall.Inline(exec.jalr(rd, decodePcReg, rs1Value, immI))
+              SysCall.Inline(exec.jalr(rd, wbToken, decodePcReg, rs1Value, immI))
             }
           }
 
           is(InstFamily.UPPER) {
             when(decodeInstReg(6, 0) === "b0110111".U) {
-              SysCall.Inline(exec.writeReg(rd, immU))
+              SysCall.Inline(exec.writeReg(rd, wbToken, immU))
             }.otherwise {
-              SysCall.Inline(exec.auipc(rd, decodePcReg, immU))
+              SysCall.Inline(exec.auipc(rd, wbToken, decodePcReg, immU))
             }
           }
 
           is(InstFamily.CSR) {
             val csrSrc = Mux(funct3(2), rs1.pad(XLEN), rs1Value)
             switch(funct3) {
-              is("b001".U) { SysCall.Inline(exec.csrRw(rd, decodeInstReg(31, 20), csrSrc)) }
-              is("b010".U) { SysCall.Inline(exec.csrRs(rd, decodeInstReg(31, 20), csrSrc)) }
-              is("b011".U) { SysCall.Inline(exec.csrRc(rd, decodeInstReg(31, 20), csrSrc)) }
-              is("b101".U) { SysCall.Inline(exec.csrRw(rd, decodeInstReg(31, 20), csrSrc)) }
-              is("b110".U) { SysCall.Inline(exec.csrRs(rd, decodeInstReg(31, 20), csrSrc)) }
-              is("b111".U) { SysCall.Inline(exec.csrRc(rd, decodeInstReg(31, 20), csrSrc)) }
+              is("b001".U) { SysCall.Inline(exec.csrRw(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+              is("b010".U) { SysCall.Inline(exec.csrRs(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+              is("b011".U) { SysCall.Inline(exec.csrRc(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+              is("b101".U) { SysCall.Inline(exec.csrRw(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+              is("b110".U) { SysCall.Inline(exec.csrRs(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
+              is("b111".U) { SysCall.Inline(exec.csrRc(rd, wbToken, decodeInstReg(31, 20), csrSrc)) }
             }
           }
 

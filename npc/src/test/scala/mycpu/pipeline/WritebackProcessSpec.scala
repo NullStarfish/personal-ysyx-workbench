@@ -73,8 +73,13 @@ class WritebackProcessHarness extends Module {
     override def entry(): Unit = {
       writeRegWorker.entry {
         val wbApi = SysCall.Inline(writeback.RequestWritebackApi())
+        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
+        val tokenReg = RegInit(0.U(4.W))
+        writeRegWorker.Step("Reserve") {
+          tokenReg := SysCall.Call(regApi.reserve(1.U), "WriteReg")
+        }
         writeRegWorker.Step("WriteReg") {
-          SysCall.Inline(wbApi.writeReg(1.U, "h12345678".U(XLEN.W)))
+          SysCall.Inline(wbApi.writeReg(tokenReg, "h12345678".U(XLEN.W)))
         }
         SysCall.Inline(wbApi.wbPath())
         writeRegWorker.Step("Done") {}
@@ -83,8 +88,13 @@ class WritebackProcessHarness extends Module {
 
       writeRegRedirectWorker.entry {
         val wbApi = SysCall.Inline(writeback.RequestWritebackApi())
+        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
+        val tokenReg = RegInit(0.U(4.W))
+        writeRegRedirectWorker.Step("Reserve") {
+          tokenReg := SysCall.Call(regApi.reserve(5.U), "WriteRegAndRedirect")
+        }
         writeRegRedirectWorker.Step("WriteRegAndRedirect") {
-          SysCall.Inline(wbApi.writeRegAndRedirect(5.U, "hdeadbeef".U(XLEN.W), "h30000020".U(XLEN.W)))
+          SysCall.Inline(wbApi.writeRegAndRedirect(tokenReg, "hdeadbeef".U(XLEN.W), "h30000020".U(XLEN.W)))
         }
         SysCall.Inline(wbApi.wbPath())
         writeRegRedirectWorker.Step("Done") {}

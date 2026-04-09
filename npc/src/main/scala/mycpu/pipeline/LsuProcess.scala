@@ -14,7 +14,7 @@ final class LsuProcess(
 
   final class LoadReq extends Bundle {
     val loadKind = UInt(2.W)
-    val rd = UInt(5.W)
+    val wbToken = UInt(4.W)
     val addr = UInt(XLEN.W)
     val unsigned = Bool()
   }
@@ -82,7 +82,7 @@ final class LsuProcess(
         }.elsewhen(reqReg.loadKind === LOAD_HALF) {
           resultData := extractHalf(rawReadData, reqReg.addr(1), reqReg.unsigned)
         }
-        SysCall.Inline(wbApi.writeReg(reqReg.rd, resultData))
+        SysCall.Inline(wbApi.writeReg(reqReg.wbToken, resultData))
       }
       SysCall.Inline(wbApi.wbPath())
       loadWorker.Step("AfterWriteback") {
@@ -164,21 +164,21 @@ final class LsuProcess(
       t.Step(s"${tag}_Release") {}
     }
 
-    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
+    override def loadWord(wbToken: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
       launchLoadReqReg.loadKind := LOAD_WORD
-      launchLoadReqReg.rd := rd
+      launchLoadReqReg.wbToken := wbToken
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := false.B
     }
-    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { t =>
+    override def loadByte(wbToken: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { t =>
       launchLoadReqReg.loadKind := LOAD_BYTE
-      launchLoadReqReg.rd := rd
+      launchLoadReqReg.wbToken := wbToken
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := unsigned
     }
-    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { t =>
+    override def loadHalf(wbToken: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { t =>
       launchLoadReqReg.loadKind := LOAD_HALF
-      launchLoadReqReg.rd := rd
+      launchLoadReqReg.wbToken := wbToken
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := unsigned
     }

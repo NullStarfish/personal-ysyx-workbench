@@ -24,9 +24,9 @@ final class DummyExecuteLsuProcess(localName: String)(implicit kernel: Kernel) e
       t.Step(s"${tag}_idle") {}
     }
 
-    override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ =>
+    override def loadWord(wbToken: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { _ =>
       opKind := 1.U
-      rdReg := rd
+      rdReg := wbToken
       addrReg := addr
       unsignedReg := false.B
     }
@@ -37,16 +37,16 @@ final class DummyExecuteLsuProcess(localName: String)(implicit kernel: Kernel) e
       dataReg := data
     }
 
-    override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { _ =>
+    override def loadByte(wbToken: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { _ =>
       opKind := 3.U
-      rdReg := rd
+      rdReg := wbToken
       addrReg := addr
       unsignedReg := unsigned
     }
 
-    override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { _ =>
+    override def loadHalf(wbToken: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { _ =>
       opKind := 4.U
-      rdReg := rd
+      rdReg := wbToken
       addrReg := addr
       unsignedReg := unsigned
     }
@@ -78,17 +78,17 @@ final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Ker
         t.Step(s"${tag}_idle") {}
       }
     }
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
-      when(rd =/= 0.U) {
-        x(rd) := data
+    override def writeReg(token: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
+      when(token =/= 0.U) {
+        x(token) := data
       }
     }
 
-    override def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit] = HwInline.atomic(
+    override def writeRegAndRedirect(token: UInt, data: UInt, nextPc: UInt): HwInline[Unit] = HwInline.atomic(
       s"${name}_write_reg_and_redirect",
     ) { _ =>
-      when(rd =/= 0.U) {
-        x(rd) := data
+      when(token =/= 0.U) {
+        x(token) := data
       }
       pc := nextPc
     }
@@ -148,7 +148,7 @@ class ExecuteProcessHarness extends Module {
       addWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         addWorker.Step("Add") {
-          SysCall.Inline(exec.add(1.U, 7.U(XLEN.W), 5.U(XLEN.W)))
+          SysCall.Inline(exec.add(1.U, 1.U, 7.U(XLEN.W), 5.U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         addWorker.Step("Done") {}
@@ -158,7 +158,7 @@ class ExecuteProcessHarness extends Module {
       subWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         subWorker.Step("Sub") {
-          SysCall.Inline(exec.sub(2.U, 7.U(XLEN.W), 5.U(XLEN.W)))
+          SysCall.Inline(exec.sub(2.U, 2.U, 7.U(XLEN.W), 5.U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         subWorker.Step("Done") {}
@@ -168,7 +168,7 @@ class ExecuteProcessHarness extends Module {
       csrRwWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         csrRwWorker.Step("CsrRw") {
-          SysCall.Inline(exec.csrRw(3.U, "h300".U, "h55".U(XLEN.W)))
+          SysCall.Inline(exec.csrRw(3.U, 3.U, "h300".U, "h55".U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         csrRwWorker.Step("Done") {}
@@ -178,7 +178,7 @@ class ExecuteProcessHarness extends Module {
       csrRsWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         csrRsWorker.Step("CsrRs") {
-          SysCall.Inline(exec.csrRs(4.U, "h300".U, "h0a".U(XLEN.W)))
+          SysCall.Inline(exec.csrRs(4.U, 4.U, "h300".U, "h0a".U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         csrRsWorker.Step("Done") {}
@@ -188,7 +188,7 @@ class ExecuteProcessHarness extends Module {
       csrRcWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         csrRcWorker.Step("CsrRc") {
-          SysCall.Inline(exec.csrRc(5.U, "h300".U, "h0f".U(XLEN.W)))
+          SysCall.Inline(exec.csrRc(5.U, 5.U, "h300".U, "h0f".U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         csrRcWorker.Step("Done") {}
@@ -198,7 +198,7 @@ class ExecuteProcessHarness extends Module {
       csrReadBackWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         csrReadBackWorker.Step("CsrReadBack") {
-          SysCall.Inline(exec.csrRs(6.U, "h300".U, 0.U(XLEN.W)))
+          SysCall.Inline(exec.csrRs(6.U, 6.U, "h300".U, 0.U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         csrReadBackWorker.Step("Done") {}
@@ -218,7 +218,7 @@ class ExecuteProcessHarness extends Module {
       loadWordWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
         loadWordWorker.Step("LoadWord") {
-          SysCall.Inline(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)))
+          SysCall.Inline(exec.loadWord(7.U, 7.U, 10.U(XLEN.W), 4.U(XLEN.W)))
         }
         SysCall.Inline(exec.execPath())
         loadWordWorker.Step("Done") {}

@@ -70,17 +70,17 @@ final class DummyWritebackProcess(localName: String)(implicit kernel: Kernel) ex
     override def wbPath(): HwInline[Unit] = HwInline.thread(s"${name}_wb_path") { t =>
       t.Step(s"${name}_Wb_Idle") {}
     }
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
-      when(rd =/= 0.U) {
-        regs(rd) := data
+    override def writeReg(token: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
+      when(token =/= 0.U) {
+        regs(token) := data
       }
     }
 
-    override def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit] = HwInline.atomic(
+    override def writeRegAndRedirect(token: UInt, data: UInt, nextPc: UInt): HwInline[Unit] = HwInline.atomic(
       s"${name}_write_reg_and_redirect",
     ) { _ =>
-      when(rd =/= 0.U) {
-        regs(rd) := data
+      when(token =/= 0.U) {
+        regs(token) := data
       }
       pc := nextPc
     }

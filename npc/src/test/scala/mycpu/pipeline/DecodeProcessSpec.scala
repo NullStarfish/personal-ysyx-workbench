@@ -18,6 +18,14 @@ final class DummyDecodeRegfileProcess(localName: String)(implicit kernel: Kernel
       Mux(addr === 0.U, 0.U(XLEN.W), regs(addr))
     }
 
+    override def reserve(addr: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_reserve") { _ => addr }
+
+    override def writebackAndClear(token: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_writeback_and_clear") { _ =>
+      when(token =/= 0.U) {
+        regs(token) := data
+      }
+    }
+
     override def write(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write") { _ =>
       when(addr =/= 0.U) {
         regs(addr) := data
@@ -63,17 +71,17 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def execPath(): HwInline[Unit] = HwInline.thread(s"${name}_exec_path") { t =>
       t.Step(s"${name}_Exec_Idle") {}
     }
-    override def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_add") { _ => record(1.U, rd, lhs, rhs) }
-    override def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sub") { _ => record(2.U, rd, lhs, rhs) }
-    override def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_and") { _ => record(3.U, rd, lhs, rhs) }
-    override def or(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_or") { _ => record(4.U, rd, lhs, rhs) }
-    override def xor(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_xor") { _ => record(5.U, rd, lhs, rhs) }
-    override def sll(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sll") { _ => record(6.U, rd, lhs, rhs) }
-    override def srl(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_srl") { _ => record(7.U, rd, lhs, rhs) }
-    override def sra(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sra") { _ => record(8.U, rd, lhs, rhs) }
-    override def slt(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_slt") { _ => record(9.U, rd, lhs, rhs) }
-    override def sltu(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sltu") { _ => record(10.U, rd, lhs, rhs) }
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ => record(11.U, rd, data) }
+    override def add(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_add") { _ => record(1.U, rd, lhs, rhs) }
+    override def sub(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sub") { _ => record(2.U, rd, lhs, rhs) }
+    override def and(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_and") { _ => record(3.U, rd, lhs, rhs) }
+    override def or(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_or") { _ => record(4.U, rd, lhs, rhs) }
+    override def xor(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_xor") { _ => record(5.U, rd, lhs, rhs) }
+    override def sll(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sll") { _ => record(6.U, rd, lhs, rhs) }
+    override def srl(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_srl") { _ => record(7.U, rd, lhs, rhs) }
+    override def sra(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sra") { _ => record(8.U, rd, lhs, rhs) }
+    override def slt(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_slt") { _ => record(9.U, rd, lhs, rhs) }
+    override def sltu(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sltu") { _ => record(10.U, rd, lhs, rhs) }
+    override def writeReg(rd: UInt, wbToken: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ => record(11.U, rd, data) }
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => record(12.U, target = nextPc) }
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_rel") { _ => record(13.U, target = delta.asUInt) }
     override def eq(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ => record(14.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
@@ -83,7 +91,7 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ => record(30.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def memPath(): HwInline[Unit] = execPath()
-    override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+    override def loadWord(rd: UInt, wbToken: UInt, base: UInt, offset: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_load_word") { _ =>
         record(18.U, rd, base, offset)
       }
@@ -91,7 +99,7 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
       HwInline.atomic(s"${name}_store_word") { _ =>
         record(19.U, lhs = base, rhs = offset, target = data)
       }
-    override def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+    override def load(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
       HwInline.atomic(s"${name}_load") { _ =>
         record(32.U, rd, base, offset, target = kind, unsigned = unsigned)
       }
@@ -99,7 +107,7 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
       HwInline.atomic(s"${name}_store") { _ =>
         record(33.U, lhs = base, rhs = offset, target = data, pc = kind)
       }
-    override def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+    override def mem(isLoad: Bool, rd: UInt, wbToken: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
       HwInline.atomic(s"${name}_mem") { _ =>
         record(
           Mux(isLoad, 32.U, 33.U),
@@ -111,11 +119,11 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
           unsigned = unsigned,
         )
       }
-    override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+    override def loadByte(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
       HwInline.atomic(s"${name}_load_byte") { _ =>
         record(20.U, rd, base, offset, unsigned = unsigned)
       }
-    override def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+    override def loadHalf(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
       HwInline.atomic(s"${name}_load_half") { _ =>
         record(21.U, rd, base, offset, unsigned = unsigned)
       }
@@ -127,15 +135,15 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
       HwInline.atomic(s"${name}_store_half") { _ =>
         record(23.U, lhs = base, rhs = offset, target = data)
       }
-    override def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
+    override def auipc(rd: UInt, wbToken: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_auipc") { _ => record(27.U, rd, pc, imm) }
-    override def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
+    override def jal(rd: UInt, wbToken: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_jal") { _ => record(28.U, rd, pc, target = offset.asUInt) }
-    override def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+    override def jalr(rd: UInt, wbToken: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_jalr") { _ => record(29.U, rd, pc, base, offset) }
-    override def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rw") { _ => record(24.U, rd, addr, src) }
-    override def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rs") { _ => record(25.U, rd, addr, src) }
-    override def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rc") { _ => record(26.U, rd, addr, src) }
+    override def csrRw(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rw") { _ => record(24.U, rd, addr, src) }
+    override def csrRs(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rs") { _ => record(25.U, rd, addr, src) }
+    override def csrRc(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rc") { _ => record(26.U, rd, addr, src) }
   }
 
   def RequestExecuteApi(): HwInline[ExecuteApiDecl] = HwInline.bindings(s"${name}_execute_api") { _ =>

@@ -15,6 +15,7 @@ final class ExecuteProcess(
   final class ExecuteReq extends Bundle {
     val kind = UInt(6.W)
     val rd = UInt(5.W)
+    val wbToken = UInt(4.W)
     val lhs = UInt(XLEN.W)
     val rhs = UInt(XLEN.W)
     val pc = UInt(XLEN.W)
@@ -117,7 +118,7 @@ final class ExecuteProcess(
       }
 
       def issueWriteReg(result: UInt): Unit = {
-        SysCall.Inline(wbApi.writeReg(execReqReg.rd, result))
+        SysCall.Inline(wbApi.writeReg(execReqReg.wbToken, result))
       }
 
       def issueRedirect(nextPc: UInt): Unit = {
@@ -125,7 +126,7 @@ final class ExecuteProcess(
       }
 
       def issueWriteRegAndRedirect(result: UInt, nextPc: UInt): Unit = {
-        SysCall.Inline(wbApi.writeRegAndRedirect(execReqReg.rd, result, nextPc))
+        SysCall.Inline(wbApi.writeRegAndRedirect(execReqReg.wbToken, result, nextPc))
       }
 
       def branchTarget: UInt = SysCall.Inline(aluApi.add(execReqReg.pc, execReqReg.data))
@@ -272,7 +273,7 @@ final class ExecuteProcess(
       executeWorker.Step("AfterExecBranchGeu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecLoadWord") {
-        SysCall.Inline(lsuApi.loadWord(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))))
+        SysCall.Inline(lsuApi.loadWord(execReqReg.wbToken, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))))
       }
       SysCall.Inline(lsuApi.loadPath())
       executeWorker.Step("AfterExecLoadWord") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
@@ -285,7 +286,7 @@ final class ExecuteProcess(
 
       executeWorker.Step("ExecLoadByte") {
         SysCall.Inline(
-          lsuApi.loadByte(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
+          lsuApi.loadByte(execReqReg.wbToken, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
         )
       }
       SysCall.Inline(lsuApi.loadPath())
@@ -293,7 +294,7 @@ final class ExecuteProcess(
 
       executeWorker.Step("ExecLoadHalf") {
         SysCall.Inline(
-          lsuApi.loadHalf(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
+          lsuApi.loadHalf(execReqReg.wbToken, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
         )
       }
       SysCall.Inline(lsuApi.loadPath())
@@ -408,28 +409,28 @@ final class ExecuteProcess(
       t.jump(t.stepRef(execAcquireRefName))
     }
 
-    override def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { addPacket.kind := EXEC_ADD; addPacket.rd := rd; addPacket.lhs := lhs; addPacket.rhs := rhs; enqueue(s"${name}_enqueue_add", addPacket) }
-    override def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { subPacket.kind := EXEC_SUB; subPacket.rd := rd; subPacket.lhs := lhs; subPacket.rhs := rhs; enqueue(s"${name}_enqueue_sub", subPacket) }
-    override def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { andPacket.kind := EXEC_AND; andPacket.rd := rd; andPacket.lhs := lhs; andPacket.rhs := rhs; enqueue(s"${name}_enqueue_and", andPacket) }
-    override def or(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { orPacket.kind := EXEC_OR; orPacket.rd := rd; orPacket.lhs := lhs; orPacket.rhs := rhs; enqueue(s"${name}_enqueue_or", orPacket) }
-    override def xor(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { xorPacket.kind := EXEC_XOR; xorPacket.rd := rd; xorPacket.lhs := lhs; xorPacket.rhs := rhs; enqueue(s"${name}_enqueue_xor", xorPacket) }
-    override def sll(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { sllPacket.kind := EXEC_SLL; sllPacket.rd := rd; sllPacket.lhs := lhs; sllPacket.rhs := rhs; enqueue(s"${name}_enqueue_sll", sllPacket) }
-    override def srl(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { srlPacket.kind := EXEC_SRL; srlPacket.rd := rd; srlPacket.lhs := lhs; srlPacket.rhs := rhs; enqueue(s"${name}_enqueue_srl", srlPacket) }
-    override def sra(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { sraPacket.kind := EXEC_SRA; sraPacket.rd := rd; sraPacket.lhs := lhs; sraPacket.rhs := rhs; enqueue(s"${name}_enqueue_sra", sraPacket) }
-    override def slt(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { sltPacket.kind := EXEC_SLT; sltPacket.rd := rd; sltPacket.lhs := lhs; sltPacket.rhs := rhs; enqueue(s"${name}_enqueue_slt", sltPacket) }
-    override def sltu(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
-      { sltuPacket.kind := EXEC_SLTU; sltuPacket.rd := rd; sltuPacket.lhs := lhs; sltuPacket.rhs := rhs; enqueue(s"${name}_enqueue_sltu", sltuPacket) }
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] =
-      { writeRegPacket.kind := EXEC_WRITE_REG; writeRegPacket.rd := rd; writeRegPacket.data := data; enqueue(s"${name}_enqueue_write_reg", writeRegPacket) }
+    override def add(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { addPacket.kind := EXEC_ADD; addPacket.rd := rd; addPacket.wbToken := wbToken; addPacket.lhs := lhs; addPacket.rhs := rhs; enqueue(s"${name}_enqueue_add", addPacket) }
+    override def sub(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { subPacket.kind := EXEC_SUB; subPacket.rd := rd; subPacket.wbToken := wbToken; subPacket.lhs := lhs; subPacket.rhs := rhs; enqueue(s"${name}_enqueue_sub", subPacket) }
+    override def and(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { andPacket.kind := EXEC_AND; andPacket.rd := rd; andPacket.wbToken := wbToken; andPacket.lhs := lhs; andPacket.rhs := rhs; enqueue(s"${name}_enqueue_and", andPacket) }
+    override def or(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { orPacket.kind := EXEC_OR; orPacket.rd := rd; orPacket.wbToken := wbToken; orPacket.lhs := lhs; orPacket.rhs := rhs; enqueue(s"${name}_enqueue_or", orPacket) }
+    override def xor(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { xorPacket.kind := EXEC_XOR; xorPacket.rd := rd; xorPacket.wbToken := wbToken; xorPacket.lhs := lhs; xorPacket.rhs := rhs; enqueue(s"${name}_enqueue_xor", xorPacket) }
+    override def sll(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sllPacket.kind := EXEC_SLL; sllPacket.rd := rd; sllPacket.wbToken := wbToken; sllPacket.lhs := lhs; sllPacket.rhs := rhs; enqueue(s"${name}_enqueue_sll", sllPacket) }
+    override def srl(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { srlPacket.kind := EXEC_SRL; srlPacket.rd := rd; srlPacket.wbToken := wbToken; srlPacket.lhs := lhs; srlPacket.rhs := rhs; enqueue(s"${name}_enqueue_srl", srlPacket) }
+    override def sra(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sraPacket.kind := EXEC_SRA; sraPacket.rd := rd; sraPacket.wbToken := wbToken; sraPacket.lhs := lhs; sraPacket.rhs := rhs; enqueue(s"${name}_enqueue_sra", sraPacket) }
+    override def slt(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sltPacket.kind := EXEC_SLT; sltPacket.rd := rd; sltPacket.wbToken := wbToken; sltPacket.lhs := lhs; sltPacket.rhs := rhs; enqueue(s"${name}_enqueue_slt", sltPacket) }
+    override def sltu(rd: UInt, wbToken: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sltuPacket.kind := EXEC_SLTU; sltuPacket.rd := rd; sltuPacket.wbToken := wbToken; sltuPacket.lhs := lhs; sltuPacket.rhs := rhs; enqueue(s"${name}_enqueue_sltu", sltuPacket) }
+    override def writeReg(rd: UInt, wbToken: UInt, data: UInt): HwInline[Unit] =
+      { writeRegPacket.kind := EXEC_WRITE_REG; writeRegPacket.rd := rd; writeRegPacket.wbToken := wbToken; writeRegPacket.data := data; enqueue(s"${name}_enqueue_write_reg", writeRegPacket) }
     override def redirect(nextPc: UInt): HwInline[Unit] =
       { redirectPacket.kind := EXEC_REDIRECT; redirectPacket.data := nextPc; enqueue(s"${name}_enqueue_redirect", redirectPacket) }
     override def redirectRelative(delta: SInt): HwInline[Unit] =
@@ -446,31 +447,31 @@ final class ExecuteProcess(
       { branchGePacket.kind := EXEC_BRANCH_GE; branchGePacket.lhs := lhs; branchGePacket.rhs := rhs; branchGePacket.pc := pc; branchGePacket.data := offset; enqueue(s"${name}_enqueue_branch_ge", branchGePacket) }
     override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
       { branchGeuPacket.kind := EXEC_BRANCH_GEU; branchGeuPacket.lhs := lhs; branchGeuPacket.rhs := rhs; branchGeuPacket.pc := pc; branchGeuPacket.data := offset; enqueue(s"${name}_enqueue_branch_geu", branchGeuPacket) }
-    override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
-      { loadWordPacket.kind := EXEC_MEM_LOAD_WORD; loadWordPacket.rd := rd; loadWordPacket.lhs := base; loadWordPacket.rhs := offset; enqueue(s"${name}_enqueue_load_word", loadWordPacket) }
+    override def loadWord(rd: UInt, wbToken: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      { loadWordPacket.kind := EXEC_MEM_LOAD_WORD; loadWordPacket.rd := rd; loadWordPacket.wbToken := wbToken; loadWordPacket.lhs := base; loadWordPacket.rhs := offset; enqueue(s"${name}_enqueue_load_word", loadWordPacket) }
     override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
       { storeWordPacket.kind := EXEC_MEM_STORE_WORD; storeWordPacket.lhs := base; storeWordPacket.rhs := offset; storeWordPacket.data := data; enqueue(s"${name}_enqueue_store_word", storeWordPacket) }
-    override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      { loadBytePacket.kind := EXEC_MEM_LOAD_BYTE; loadBytePacket.rd := rd; loadBytePacket.lhs := base; loadBytePacket.rhs := offset; loadBytePacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_byte", loadBytePacket) }
-    override def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      { loadHalfPacket.kind := EXEC_MEM_LOAD_HALF; loadHalfPacket.rd := rd; loadHalfPacket.lhs := base; loadHalfPacket.rhs := offset; loadHalfPacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_half", loadHalfPacket) }
+    override def loadByte(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      { loadBytePacket.kind := EXEC_MEM_LOAD_BYTE; loadBytePacket.rd := rd; loadBytePacket.wbToken := wbToken; loadBytePacket.lhs := base; loadBytePacket.rhs := offset; loadBytePacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_byte", loadBytePacket) }
+    override def loadHalf(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      { loadHalfPacket.kind := EXEC_MEM_LOAD_HALF; loadHalfPacket.rd := rd; loadHalfPacket.wbToken := wbToken; loadHalfPacket.lhs := base; loadHalfPacket.rhs := offset; loadHalfPacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_half", loadHalfPacket) }
     override def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
       { storeBytePacket.kind := EXEC_MEM_STORE_BYTE; storeBytePacket.lhs := base; storeBytePacket.rhs := offset; storeBytePacket.data := data; enqueue(s"${name}_enqueue_store_byte", storeBytePacket) }
     override def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
       { storeHalfPacket.kind := EXEC_MEM_STORE_HALF; storeHalfPacket.lhs := base; storeHalfPacket.rhs := offset; storeHalfPacket.data := data; enqueue(s"${name}_enqueue_store_half", storeHalfPacket) }
-    override def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
-      if (isLoad.litToBooleanOption.contains(true)) load(rd, base, offset, kind, unsigned)
+    override def mem(isLoad: Bool, rd: UInt, wbToken: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      if (isLoad.litToBooleanOption.contains(true)) load(rd, wbToken, base, offset, kind, unsigned)
       else store(base, offset, data, kind)
 
-    override def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(
+    override def load(rd: UInt, wbToken: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(
       s"${name}_enqueue_load",
     ) { _ =>
       when(kind === 0.U) {
-        SysCall.Inline(loadWord(rd, base, offset))
+        SysCall.Inline(loadWord(rd, wbToken, base, offset))
       }.elsewhen(kind === 1.U) {
-        SysCall.Inline(loadByte(rd, base, offset, unsigned))
+        SysCall.Inline(loadByte(rd, wbToken, base, offset, unsigned))
       }.otherwise {
-        SysCall.Inline(loadHalf(rd, base, offset, unsigned))
+        SysCall.Inline(loadHalf(rd, wbToken, base, offset, unsigned))
       }
     }
     override def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] = HwInline.atomic(
@@ -484,18 +485,18 @@ final class ExecuteProcess(
         SysCall.Inline(storeHalf(base, offset, data))
       }
     }
-    override def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
-      { auipcPacket.kind := EXEC_AUIPC; auipcPacket.rd := rd; auipcPacket.pc := pc; auipcPacket.data := imm; enqueue(s"${name}_enqueue_auipc", auipcPacket) }
-    override def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
-      { jalPacket.kind := EXEC_JAL; jalPacket.rd := rd; jalPacket.pc := pc; jalPacket.data := offset.asUInt; enqueue(s"${name}_enqueue_jal", jalPacket) }
-    override def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
-      { jalrPacket.kind := EXEC_JALR; jalrPacket.rd := rd; jalrPacket.pc := pc; jalrPacket.lhs := base; jalrPacket.rhs := offset; enqueue(s"${name}_enqueue_jalr", jalrPacket) }
-    override def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
-      { csrRwPacket.kind := EXEC_CSR_RW; csrRwPacket.rd := rd; csrRwPacket.csrAddr := addr; csrRwPacket.data := src; enqueue(s"${name}_enqueue_csr_rw", csrRwPacket) }
-    override def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
-      { csrRsPacket.kind := EXEC_CSR_RS; csrRsPacket.rd := rd; csrRsPacket.csrAddr := addr; csrRsPacket.data := src; enqueue(s"${name}_enqueue_csr_rs", csrRsPacket) }
-    override def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
-      { csrRcPacket.kind := EXEC_CSR_RC; csrRcPacket.rd := rd; csrRcPacket.csrAddr := addr; csrRcPacket.data := src; enqueue(s"${name}_enqueue_csr_rc", csrRcPacket) }
+    override def auipc(rd: UInt, wbToken: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
+      { auipcPacket.kind := EXEC_AUIPC; auipcPacket.rd := rd; auipcPacket.wbToken := wbToken; auipcPacket.pc := pc; auipcPacket.data := imm; enqueue(s"${name}_enqueue_auipc", auipcPacket) }
+    override def jal(rd: UInt, wbToken: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
+      { jalPacket.kind := EXEC_JAL; jalPacket.rd := rd; jalPacket.wbToken := wbToken; jalPacket.pc := pc; jalPacket.data := offset.asUInt; enqueue(s"${name}_enqueue_jal", jalPacket) }
+    override def jalr(rd: UInt, wbToken: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      { jalrPacket.kind := EXEC_JALR; jalrPacket.rd := rd; jalrPacket.wbToken := wbToken; jalrPacket.pc := pc; jalrPacket.lhs := base; jalrPacket.rhs := offset; enqueue(s"${name}_enqueue_jalr", jalrPacket) }
+    override def csrRw(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRwPacket.kind := EXEC_CSR_RW; csrRwPacket.rd := rd; csrRwPacket.wbToken := wbToken; csrRwPacket.csrAddr := addr; csrRwPacket.data := src; enqueue(s"${name}_enqueue_csr_rw", csrRwPacket) }
+    override def csrRs(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRsPacket.kind := EXEC_CSR_RS; csrRsPacket.rd := rd; csrRsPacket.wbToken := wbToken; csrRsPacket.csrAddr := addr; csrRsPacket.data := src; enqueue(s"${name}_enqueue_csr_rs", csrRsPacket) }
+    override def csrRc(rd: UInt, wbToken: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRcPacket.kind := EXEC_CSR_RC; csrRcPacket.rd := rd; csrRcPacket.wbToken := wbToken; csrRcPacket.csrAddr := addr; csrRcPacket.data := src; enqueue(s"${name}_enqueue_csr_rc", csrRcPacket) }
   }
 
   def RequestExecuteApi(): HwInline[ExecuteApiDecl] = HwInline.bindings(s"${name}_execute_api") { _ =>
