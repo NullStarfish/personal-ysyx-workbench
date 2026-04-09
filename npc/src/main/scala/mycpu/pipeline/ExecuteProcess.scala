@@ -1,7 +1,6 @@
 package mycpu.pipeline
 
 import HwOS.kernel._
-import HwOS.stdlib.sync._
 import chisel3._
 import mycpu.common._
 
@@ -24,7 +23,6 @@ final class ExecuteProcess(
 
   private val alu = spawn(new AluProcess("Alu"))
   private val csr = spawn(new CsrProcess("Csr"))
-  private val memSlotLock = spawn(new MutexProcess(1, "MemSlotLock"))
   private val memReqBuffer = spawn(new PipelineBuffer(new MemReq, "MemReqBuffer"))
   private val memWorker = createThread("MemWorker")
 
@@ -236,10 +234,7 @@ final class ExecuteProcess(
     }
 
     def memPath(): HwInline[Unit] = HwInline.thread(s"${name}_mem_path") { t =>
-      val lock = SysCall.Inline(memSlotLock.RequestLease(0))
-
       t.Step(memAcquireRefName) {
-        SysCall.Inline(lock.Acquire())
         memCompleted := false.B
       }
 
@@ -254,9 +249,7 @@ final class ExecuteProcess(
         t.waitCondition(memCompleted)
       }
 
-      t.Step(s"${name}_Mem_ReleaseSlot") {
-        SysCall.Inline(lock.Release())
-      }
+      t.Step(s"${name}_Mem_ReleaseSlot") {}
     }
 
     def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =

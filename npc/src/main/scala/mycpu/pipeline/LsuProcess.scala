@@ -1,7 +1,6 @@
 package mycpu.pipeline
 
 import HwOS.kernel._
-import HwOS.stdlib.sync._
 import chisel3._
 import chisel3.util._
 import mycpu.common._
@@ -26,8 +25,6 @@ final class LsuProcess(
     val data = UInt(XLEN.W)
   }
 
-  private val loadSlotLock = spawn(new MutexProcess(1, "LoadSlotLock"))
-  private val storeSlotLock = spawn(new MutexProcess(1, "StoreSlotLock"))
   private val loadReqBuffer = spawn(new PipelineBuffer(new LoadReq, "LoadReqBuffer"))
   private val storeReqBuffer = spawn(new PipelineBuffer(new StoreReq, "StoreReqBuffer"))
   private val loadWorker = createThread("LoadWorker")
@@ -147,10 +144,7 @@ final class LsuProcess(
     private val storeAcquireRefName = s"${name}_Store_AcquireSlot"
 
     override def loadPath(): HwInline[Unit] = HwInline.thread(s"${name}_load_path") { t =>
-      val lock = SysCall.Inline(loadSlotLock.RequestLease(0))
-
       t.Step(loadAcquireRefName) {
-        SysCall.Inline(lock.Acquire())
         loadCompleted := false.B
       }
 
@@ -162,16 +156,11 @@ final class LsuProcess(
         t.waitCondition(loadCompleted)
       }
 
-      t.Step(s"${name}_Load_ReleaseSlot") {
-        SysCall.Inline(lock.Release())
-      }
+      t.Step(s"${name}_Load_ReleaseSlot") {}
     }
 
     override def storePath(): HwInline[Unit] = HwInline.thread(s"${name}_store_path") { t =>
-      val lock = SysCall.Inline(storeSlotLock.RequestLease(0))
-
       t.Step(storeAcquireRefName) {
-        SysCall.Inline(lock.Acquire())
         storeCompleted := false.B
       }
 
@@ -183,9 +172,7 @@ final class LsuProcess(
         t.waitCondition(storeCompleted)
       }
 
-      t.Step(s"${name}_Store_ReleaseSlot") {
-        SysCall.Inline(lock.Release())
-      }
+      t.Step(s"${name}_Store_ReleaseSlot") {}
     }
 
     override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
