@@ -20,6 +20,14 @@ final class DummyDecodeRegfileProcess(localName: String)(implicit kernel: Kernel
 
     override def reserve(addr: UInt): HwInline[UInt] = HwInline.atomic(s"${name}_reserve") { _ => addr }
 
+    override def reservePath(addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_reserve_path") { _ => () }
+
+    override def reserveDone(): HwInline[Bool] = HwInline.bindings(s"${name}_reserve_done") { _ => true.B }
+
+    override def reserveToken(): HwInline[UInt] = HwInline.bindings(s"${name}_reserve_token") { _ => 0.U(4.W) }
+
+    override def consumeReserveResp(): HwInline[Unit] = HwInline.atomic(s"${name}_consume_reserve_resp") { _ => () }
+
     override def writebackAndClear(token: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_writeback_and_clear") { _ =>
       when(token =/= 0.U) {
         regs(token) := data

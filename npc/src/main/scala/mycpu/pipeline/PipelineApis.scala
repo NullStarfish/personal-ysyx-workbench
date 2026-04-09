@@ -21,6 +21,10 @@ trait DecodeApiDecl {
 trait RegfileApiDecl {
   def read(addr: UInt): HwInline[UInt]
   def reserve(addr: UInt): HwInline[UInt]
+  def reservePath(addr: UInt): HwInline[Unit]
+  def reserveDone(): HwInline[Bool]
+  def reserveToken(): HwInline[UInt]
+  def consumeReserveResp(): HwInline[Unit]
   def writebackAndClear(token: UInt, data: UInt): HwInline[Unit]
   def write(addr: UInt, data: UInt): HwInline[Unit]
 }

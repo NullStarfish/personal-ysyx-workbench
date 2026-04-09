@@ -31,41 +31,47 @@ class RegfileProcessHarness extends Module {
     private val x1Reg = RegInit(0.U(XLEN.W))
     private val x2Reg = RegInit(0.U(XLEN.W))
 
+    val regApi = regfile.api
     override def entry(): Unit = {
       reserveX1Worker.entry {
-        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
-        val token = SysCall.Inline(regApi.reserve(1.U))
+        reserveX1Worker.Step("Issue") {
+          SysCall.Inline(regApi.reservePath(1.U))
+        }
+        reserveX1Worker.Step("WaitResp") {
+          reserveX1Worker.waitCondition(SysCall.Inline(regApi.reserveDone()))
+        }
         reserveX1Worker.Step("Latch") {
-          token1Reg := token
+          token1Reg := SysCall.Inline(regApi.reserveToken())
+          SysCall.Inline(regApi.consumeReserveResp())
         }
         reserveX1Worker.Step("Done") {}
         SysCall.Return()
       }
 
       reserveX2Worker.entry {
-        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
-        val token = SysCall.Inline(regApi.reserve(2.U))
+        reserveX2Worker.Step("Issue") {
+          SysCall.Inline(regApi.reservePath(2.U))
+        }
+        reserveX2Worker.Step("WaitResp") {
+          reserveX2Worker.waitCondition(SysCall.Inline(regApi.reserveDone()))
+        }
         reserveX2Worker.Step("Latch") {
-          token2Reg := token
+          token2Reg := SysCall.Inline(regApi.reserveToken())
+          SysCall.Inline(regApi.consumeReserveResp())
         }
         reserveX2Worker.Step("Done") {}
         SysCall.Return()
       }
 
       commitWorker.entry {
-        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
-        commitWorker.Step("CommitX1") {
-          SysCall.Inline(regApi.writebackAndClear(token1Reg, "h11111111".U(XLEN.W)))
-        }
-        commitWorker.Step("CommitX2") {
-          SysCall.Inline(regApi.writebackAndClear(token2Reg, "h22222222".U(XLEN.W)))
-        }
+        SysCall.Inline(regApi.writebackAndClear(token1Reg, "h11111111".U(XLEN.W)))
+        SysCall.Inline(regApi.writebackAndClear(token2Reg, "h22222222".U(XLEN.W)))
         commitWorker.Step("Done") {}
         SysCall.Return()
       }
 
+      val probeApi = regfile.probeApi
       observer.entry {
-        val probeApi = SysCall.Inline(regfile.RequestRegfileProbeApi())
         val x1Seen = RegInit(0.U(XLEN.W))
         val x2Seen = RegInit(0.U(XLEN.W))
         observer.Step("WaitWrites") {
