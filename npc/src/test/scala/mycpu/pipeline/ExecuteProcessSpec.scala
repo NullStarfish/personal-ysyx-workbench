@@ -112,63 +112,79 @@ class ExecuteProcessHarness extends Module {
     val lsu = spawn(new DummyExecuteLsuProcess("Lsu"))
     val writeback = spawn(new DummyExecuteWritebackProcess("Writeback"))
     val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
-    private val worker = createThread("Worker")
+    private val mainWorker = createThread("MainWorker")
+    private val memWorker = createThread("MemWorker")
     private val daemon = createLogic("Daemon")
     private val doneReg = RegInit(false.B)
+    private val mainDoneReg = RegInit(false.B)
 
     override def entry(): Unit = {
-      worker.entry {
+      mainWorker.entry {
         val exec = SysCall.Inline(execute.RequestExecuteApi())
 
-        worker.Step("Add") {
+        mainWorker.Step("Add") {
           SysCall.Inline(exec.add(1.U, 7.U(XLEN.W), 5.U(XLEN.W)))
         }
 
-        worker.Step("Sub") {
+        mainWorker.Step("Sub") {
           SysCall.Inline(exec.sub(2.U, 7.U(XLEN.W), 5.U(XLEN.W)))
         }
 
-        worker.Step("Eq") {
+        mainWorker.Step("Eq") {
           SysCall.Inline(exec.eq(9.U(XLEN.W), 9.U(XLEN.W), START_ADDR.U(XLEN.W), "h10".U(XLEN.W)))
         }
 
-        worker.Step("CsrRw") {
+        mainWorker.Step("CsrRw") {
           SysCall.Inline(exec.csrRw(3.U, "h300".U, "h55".U(XLEN.W)))
         }
 
-        worker.Step("CsrRs") {
+        mainWorker.Step("CsrRs") {
           SysCall.Inline(exec.csrRs(4.U, "h300".U, "h0a".U(XLEN.W)))
         }
 
-        worker.Step("CsrRc") {
+        mainWorker.Step("CsrRc") {
           SysCall.Inline(exec.csrRc(5.U, "h300".U, "h0f".U(XLEN.W)))
         }
 
-        worker.Step("CsrReadBack") {
+        mainWorker.Step("CsrReadBack") {
           SysCall.Inline(exec.csrRs(6.U, "h300".U, 0.U(XLEN.W)))
         }
 
-        worker.Step("Redirect") {
+        mainWorker.Step("Redirect") {
           SysCall.Inline(exec.redirect("h30000020".U(XLEN.W)))
         }
 
-        worker.Step("LoadWord") {}
-        SysCall.Call(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)), "AfterLoadWord")
-        worker.Step("AfterLoadWord") {}
+        mainWorker.Step("LoadWord") {
+          SysCall.Inline(exec.loadWord(7.U, 10.U(XLEN.W), 4.U(XLEN.W)))
+        }
 
-        worker.Step("StoreHalf") {}
-        SysCall.Call(exec.storeHalf(20.U(XLEN.W), 8.U(XLEN.W), "h1234".U(XLEN.W)), "AfterStoreHalf")
-        worker.Step("AfterStoreHalf") {}
+        SysCall.Inline(exec.memPath())
+        mainWorker.Step("Finish") {
+          mainDoneReg := true.B
+        }
+        SysCall.Return()
+      }
 
-        worker.Step("Finish") {
+      memWorker.entry {
+        val exec = SysCall.Inline(execute.RequestExecuteApi())
+
+        memWorker.Step("StoreHalf") {
+          SysCall.Inline(exec.storeHalf(20.U(XLEN.W), 8.U(XLEN.W), "h1234".U(XLEN.W)))
+        }
+
+        SysCall.Inline(exec.memPath())
+        memWorker.Step("Finish") {
           doneReg := true.B
         }
         SysCall.Return()
       }
 
       daemon.run {
-        when(!worker.active && !worker.done) {
-          SysCall.Inline(SysCall.start(worker))
+        when(!mainWorker.active && !mainWorker.done) {
+          SysCall.Inline(SysCall.start(mainWorker))
+        }
+        when(mainDoneReg && !memWorker.active && !memWorker.done) {
+          SysCall.Inline(SysCall.start(memWorker))
         }
 
         io.done := doneReg

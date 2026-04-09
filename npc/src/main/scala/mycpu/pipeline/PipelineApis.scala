@@ -80,6 +80,7 @@ trait LsuApiDecl {
 }
 
 trait ExecuteApiDecl {
+  def memPath(): HwInline[Unit]
   def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]
   def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]
   def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]

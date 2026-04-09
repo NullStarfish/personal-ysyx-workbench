@@ -129,6 +129,7 @@ final class ExecuteProcess(
     private def aluApi = alu.api
     private def csrApi = csr.api
     private def wbApi = writebackRef.get
+    private val memAcquireRefName = s"${name}_Mem_AcquireSlot"
     private def writeComputedReg(opName: String, rd: UInt, result: UInt): Unit = {
       printf(p"[EXEC] ${opName} lhs-result write rd=${Decimal(rd)} data=${Hexadecimal(result)}\n")
       SysCall.Inline(wbApi.writeReg(rd, result))
@@ -255,65 +256,137 @@ final class ExecuteProcess(
       }
     }
 
+    def memPath(): HwInline[Unit] = HwInline.thread(s"${name}_mem_path") { t =>
+      val lock = SysCall.Inline(memSlotLock.RequestLease(0))
+
+      t.Step(memAcquireRefName) {
+        SysCall.Inline(lock.Acquire())
+        memCompleted := false.B
+      }
+
+      t.Step(s"${name}_Mem_PushReq") {
+        printf(
+          p"[EXEC] mem isLoad=${launchMemReqReg.isLoad} kind=${Decimal(launchMemReqReg.kind)} base=${Hexadecimal(launchMemReqReg.base)} offset=${Hexadecimal(launchMemReqReg.offset)} data=${Hexadecimal(launchMemReqReg.data)} unsigned=${launchMemReqReg.unsigned} rd=${Decimal(launchMemReqReg.rd)}\n",
+        )
+        SysCall.Inline(memReqBuffer.push(launchMemReqReg))
+      }
+
+      t.Step(s"${name}_Mem_WaitDone") {
+        t.waitCondition(memCompleted)
+      }
+
+      t.Step(s"${name}_Mem_ReleaseSlot") {
+        SysCall.Inline(lock.Release())
+      }
+    }
+
     def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
-      HwInline.thread(s"${name}_mem") { t =>
-        val stepTag = s"${name}_mem_${System.identityHashCode(new Object())}"
-        val lock = SysCall.Inline(memSlotLock.RequestLease(0))
-
-        t.Step(s"${stepTag}_AcquireSlot") {
-          SysCall.Inline(lock.Acquire())
-          memCompleted := false.B
-        }
-        t.Prev.edge.add {
-          launchMemReqReg.isLoad := isLoad
-          launchMemReqReg.kind := kind
-          launchMemReqReg.rd := rd
-          launchMemReqReg.base := base
-          launchMemReqReg.offset := offset
-          launchMemReqReg.data := data
-          launchMemReqReg.unsigned := unsigned
-        }
-
-        t.Step(s"${stepTag}_PushReq") {
-          printf(
-            p"[EXEC] mem isLoad=${isLoad} kind=${Decimal(kind)} base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} data=${Hexadecimal(data)} unsigned=${unsigned} rd=${Decimal(rd)}\n",
-          )
-          SysCall.Inline(memReqBuffer.push(launchMemReqReg))
-        }
-
-        t.Step(s"${stepTag}_WaitDone") {
-          t.waitCondition(memCompleted)
-        }
-
-        t.Step(s"${stepTag}_ReleaseSlot") {
-          SysCall.Inline(lock.Release())
-          SysCall.Return()
-        }
+      HwInline.atomic(s"${name}_mem") { t =>
+        launchMemReqReg.isLoad := isLoad
+        launchMemReqReg.kind := kind
+        launchMemReqReg.rd := rd
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := data
+        launchMemReqReg.unsigned := unsigned
+        t.jump(t.stepRef(memAcquireRefName))
       }
 
     def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
-      mem(true.B, rd, base, offset, 0.U, kind, unsigned)
+      HwInline.atomic(s"${name}_load") { t =>
+        launchMemReqReg.isLoad := true.B
+        launchMemReqReg.kind := kind
+        launchMemReqReg.rd := rd
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := 0.U
+        launchMemReqReg.unsigned := unsigned
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] =
-      mem(false.B, 0.U, base, offset, data, kind, false.B)
+      HwInline.atomic(s"${name}_store") { t =>
+        launchMemReqReg.isLoad := false.B
+        launchMemReqReg.kind := kind
+        launchMemReqReg.rd := 0.U
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := data
+        launchMemReqReg.unsigned := false.B
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
-      load(rd, base, offset, LOAD_WORD, false.B)
+      HwInline.atomic(s"${name}_load_word") { t =>
+        launchMemReqReg.isLoad := true.B
+        launchMemReqReg.kind := LOAD_WORD
+        launchMemReqReg.rd := rd
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := 0.U
+        launchMemReqReg.unsigned := false.B
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      store(base, offset, data, STORE_WORD)
+      HwInline.atomic(s"${name}_store_word") { t =>
+        launchMemReqReg.isLoad := false.B
+        launchMemReqReg.kind := STORE_WORD
+        launchMemReqReg.rd := 0.U
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := data
+        launchMemReqReg.unsigned := false.B
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      load(rd, base, offset, LOAD_BYTE, unsigned)
+      HwInline.atomic(s"${name}_load_byte") { t =>
+        launchMemReqReg.isLoad := true.B
+        launchMemReqReg.kind := LOAD_BYTE
+        launchMemReqReg.rd := rd
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := 0.U
+        launchMemReqReg.unsigned := unsigned
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      load(rd, base, offset, LOAD_HALF, unsigned)
+      HwInline.atomic(s"${name}_load_half") { t =>
+        launchMemReqReg.isLoad := true.B
+        launchMemReqReg.kind := LOAD_HALF
+        launchMemReqReg.rd := rd
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := 0.U
+        launchMemReqReg.unsigned := unsigned
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      store(base, offset, data, STORE_BYTE)
+      HwInline.atomic(s"${name}_store_byte") { t =>
+        launchMemReqReg.isLoad := false.B
+        launchMemReqReg.kind := STORE_BYTE
+        launchMemReqReg.rd := 0.U
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := data
+        launchMemReqReg.unsigned := false.B
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      store(base, offset, data, STORE_HALF)
+      HwInline.atomic(s"${name}_store_half") { t =>
+        launchMemReqReg.isLoad := false.B
+        launchMemReqReg.kind := STORE_HALF
+        launchMemReqReg.rd := 0.U
+        launchMemReqReg.base := base
+        launchMemReqReg.offset := offset
+        launchMemReqReg.data := data
+        launchMemReqReg.unsigned := false.B
+        t.jump(t.stepRef(memAcquireRefName))
+      }
 
     def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_auipc") { _ =>
       val result = SysCall.Inline(aluApi.add(pc, imm))
