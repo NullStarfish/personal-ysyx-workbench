@@ -118,7 +118,7 @@ class PipelineProgramHarness(
     val trace = spawn(new DummyTracerProcess(localName = "Tracer"))
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, links.trace, "Writeback"))
+    val writeback = spawn(new WritebackProcess(fetch.api, regfile.api, trace.api, "Writeback"))
     val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
     val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
     private val observer = createThread("Observer")
@@ -134,19 +134,25 @@ class PipelineProgramHarness(
     override def entry(): Unit = {
       observer.entry {
         val fetchApi = SysCall.Inline(fetch.RequestFetchApi())
-        val regApi = SysCall.Inline(regfile.RequestRegfileApi())
+        val regProbeApi = SysCall.Inline(regfile.RequestRegfileProbeApi())
 
         observer.Step("WaitRetire") {
           observer.waitCondition(trace.commitCount >= targetCommits.U)
         }
         observer.Step("Sample") {
+          val regsFlat = SysCall.Inline(regProbeApi.readAllFlat())
           for (idx <- 0 until 16) {
-            regsReg(idx) := SysCall.Inline(regApi.read(idx.U))
+            regsReg(idx) := regsFlat((idx + 1) * XLEN - 1, idx * XLEN)
           }
+          printf(
+            p"[HARNESS] sample regs x1=${Hexadecimal(regsFlat(2 * XLEN - 1, 1 * XLEN))} x4=${Hexadecimal(regsFlat(5 * XLEN - 1, 4 * XLEN))} x5=${Hexadecimal(regsFlat(6 * XLEN - 1, 5 * XLEN))} x7=${Hexadecimal(regsFlat(8 * XLEN - 1, 7 * XLEN))}\n"
+          )
           pcReg := SysCall.Inline(fetchApi.currentPC())
           commitCountReg := trace.commitCount
           lastCommitPcReg := trace.lastCommittedPc
           lastCommitInstReg := trace.lastCommittedInst
+        }
+        observer.Step("PublishDone") {
           doneReg := true.B
         }
         SysCall.Return()

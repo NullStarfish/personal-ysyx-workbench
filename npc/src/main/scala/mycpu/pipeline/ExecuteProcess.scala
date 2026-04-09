@@ -2,6 +2,7 @@ package mycpu.pipeline
 
 import HwOS.kernel._
 import chisel3._
+import chisel3.util._
 import mycpu.common._
 
 final class ExecuteProcess(
@@ -11,387 +12,490 @@ final class ExecuteProcess(
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
-  final class MemReq extends Bundle {
-    val isLoad = Bool()
-    val kind = UInt(2.W)
+  final class ExecuteReq extends Bundle {
+    val kind = UInt(6.W)
     val rd = UInt(5.W)
-    val base = UInt(XLEN.W)
-    val offset = UInt(XLEN.W)
+    val lhs = UInt(XLEN.W)
+    val rhs = UInt(XLEN.W)
+    val pc = UInt(XLEN.W)
     val data = UInt(XLEN.W)
+    val csrAddr = UInt(12.W)
     val unsigned = Bool()
   }
 
   private val alu = spawn(new AluProcess("Alu"))
   private val csr = spawn(new CsrProcess("Csr"))
-  private val memReqBuffer = spawn(new PipelineBuffer(new MemReq, "MemReqBuffer"))
-  private val memWorker = createThread("MemWorker")
+  private val executeReqBuffer = spawn(new PipelineBuffer(new ExecuteReq, "ExecuteReqBuffer"))
+  private val executeWorker = createThread("ExecuteWorker")
 
-  private val LOAD_WORD = 0.U(2.W)
-  private val LOAD_BYTE = 1.U(2.W)
-  private val LOAD_HALF = 2.U(2.W)
+  private val launchExecReqReg = RegInit(0.U.asTypeOf(new ExecuteReq))
+  private val execReqReg = RegInit(0.U.asTypeOf(new ExecuteReq))
 
-  private val STORE_WORD = 0.U(2.W)
-  private val STORE_BYTE = 1.U(2.W)
-  private val STORE_HALF = 2.U(2.W)
+  private val EXEC_ADD = 0.U(6.W)
+  private val EXEC_SUB = 1.U(6.W)
+  private val EXEC_AND = 2.U(6.W)
+  private val EXEC_OR = 3.U(6.W)
+  private val EXEC_XOR = 4.U(6.W)
+  private val EXEC_SLL = 5.U(6.W)
+  private val EXEC_SRL = 6.U(6.W)
+  private val EXEC_SRA = 7.U(6.W)
+  private val EXEC_SLT = 8.U(6.W)
+  private val EXEC_SLTU = 9.U(6.W)
+  private val EXEC_WRITE_REG = 10.U(6.W)
+  private val EXEC_REDIRECT = 11.U(6.W)
+  private val EXEC_REDIRECT_REL = 12.U(6.W)
+  private val EXEC_BRANCH_EQ = 13.U(6.W)
+  private val EXEC_BRANCH_NE = 14.U(6.W)
+  private val EXEC_BRANCH_LT = 15.U(6.W)
+  private val EXEC_BRANCH_LTU = 16.U(6.W)
+  private val EXEC_BRANCH_GE = 17.U(6.W)
+  private val EXEC_BRANCH_GEU = 18.U(6.W)
+  private val EXEC_MEM_LOAD_WORD = 19.U(6.W)
+  private val EXEC_MEM_STORE_WORD = 20.U(6.W)
+  private val EXEC_MEM_LOAD_BYTE = 21.U(6.W)
+  private val EXEC_MEM_LOAD_HALF = 22.U(6.W)
+  private val EXEC_MEM_STORE_BYTE = 23.U(6.W)
+  private val EXEC_MEM_STORE_HALF = 24.U(6.W)
+  private val EXEC_AUIPC = 25.U(6.W)
+  private val EXEC_JAL = 26.U(6.W)
+  private val EXEC_JALR = 27.U(6.W)
+  private val EXEC_CSR_RW = 28.U(6.W)
+  private val EXEC_CSR_RS = 29.U(6.W)
+  private val EXEC_CSR_RC = 30.U(6.W)
 
-  private val memReqReg = RegInit(0.U.asTypeOf(new MemReq))
-  private val memAddrReg = RegInit(0.U(XLEN.W))
-  private val launchMemReqReg = RegInit(0.U.asTypeOf(new MemReq))
+  private val execAcquireRefName = s"${name}_Exec_Acquire"
 
   override def entry(): Unit = {
-    memWorker.entry {
-      val lsuApi = SysCall.Inline(RequestLsuApi())
+    executeWorker.entry {
       val aluApi = alu.api
+      val csrApi = csr.api
+      val lsuApi = SysCall.Inline(writeBoundLsuApi())
+      val wbApi = SysCall.Inline(writeBoundWritebackApi())
 
-      memWorker.Step("WaitReq") {
-        memWorker.waitCondition(memReqBuffer.valid)
+      executeWorker.Step("WaitReq") {
+        executeWorker.waitCondition(executeReqBuffer.valid)
       }
-      memWorker.Step("TakeReq") {
-        memReqReg := SysCall.Inline(memReqBuffer.pop())
+
+      executeWorker.Step("TakeReq") {
+        execReqReg := SysCall.Inline(executeReqBuffer.pop())
       }
-      memWorker.Step("ComputeAddr") {
-        val computedAddr = SysCall.Inline(aluApi.add(memReqReg.base, memReqReg.offset))
-        memAddrReg := computedAddr
-        when(memReqReg.isLoad) {
-          memWorker.jump(memWorker.stepRef("LsuLoadDispatch"))
-        }.otherwise {
-          memWorker.jump(memWorker.stepRef("LsuStoreDispatch"))
+
+      executeWorker.Step("Dispatch") {
+        switch(execReqReg.kind) {
+          is(EXEC_ADD) { executeWorker.jump(executeWorker.stepRef("ExecAdd")) }
+          is(EXEC_SUB) { executeWorker.jump(executeWorker.stepRef("ExecSub")) }
+          is(EXEC_AND) { executeWorker.jump(executeWorker.stepRef("ExecAnd")) }
+          is(EXEC_OR) { executeWorker.jump(executeWorker.stepRef("ExecOr")) }
+          is(EXEC_XOR) { executeWorker.jump(executeWorker.stepRef("ExecXor")) }
+          is(EXEC_SLL) { executeWorker.jump(executeWorker.stepRef("ExecSll")) }
+          is(EXEC_SRL) { executeWorker.jump(executeWorker.stepRef("ExecSrl")) }
+          is(EXEC_SRA) { executeWorker.jump(executeWorker.stepRef("ExecSra")) }
+          is(EXEC_SLT) { executeWorker.jump(executeWorker.stepRef("ExecSlt")) }
+          is(EXEC_SLTU) { executeWorker.jump(executeWorker.stepRef("ExecSltu")) }
+          is(EXEC_WRITE_REG) { executeWorker.jump(executeWorker.stepRef("ExecWriteReg")) }
+          is(EXEC_REDIRECT) { executeWorker.jump(executeWorker.stepRef("ExecRedirect")) }
+          is(EXEC_REDIRECT_REL) { executeWorker.jump(executeWorker.stepRef("ExecRedirectRelative")) }
+          is(EXEC_BRANCH_EQ) { executeWorker.jump(executeWorker.stepRef("ExecBranchEq")) }
+          is(EXEC_BRANCH_NE) { executeWorker.jump(executeWorker.stepRef("ExecBranchNe")) }
+          is(EXEC_BRANCH_LT) { executeWorker.jump(executeWorker.stepRef("ExecBranchLt")) }
+          is(EXEC_BRANCH_LTU) { executeWorker.jump(executeWorker.stepRef("ExecBranchLtu")) }
+          is(EXEC_BRANCH_GE) { executeWorker.jump(executeWorker.stepRef("ExecBranchGe")) }
+          is(EXEC_BRANCH_GEU) { executeWorker.jump(executeWorker.stepRef("ExecBranchGeu")) }
+          is(EXEC_MEM_LOAD_WORD) { executeWorker.jump(executeWorker.stepRef("ExecLoadWord")) }
+          is(EXEC_MEM_STORE_WORD) { executeWorker.jump(executeWorker.stepRef("ExecStoreWord")) }
+          is(EXEC_MEM_LOAD_BYTE) { executeWorker.jump(executeWorker.stepRef("ExecLoadByte")) }
+          is(EXEC_MEM_LOAD_HALF) { executeWorker.jump(executeWorker.stepRef("ExecLoadHalf")) }
+          is(EXEC_MEM_STORE_BYTE) { executeWorker.jump(executeWorker.stepRef("ExecStoreByte")) }
+          is(EXEC_MEM_STORE_HALF) { executeWorker.jump(executeWorker.stepRef("ExecStoreHalf")) }
+          is(EXEC_AUIPC) { executeWorker.jump(executeWorker.stepRef("ExecAuipc")) }
+          is(EXEC_JAL) { executeWorker.jump(executeWorker.stepRef("ExecJal")) }
+          is(EXEC_JALR) { executeWorker.jump(executeWorker.stepRef("ExecJalr")) }
+          is(EXEC_CSR_RW) { executeWorker.jump(executeWorker.stepRef("ExecCsrRw")) }
+          is(EXEC_CSR_RS) { executeWorker.jump(executeWorker.stepRef("ExecCsrRs")) }
+          is(EXEC_CSR_RC) { executeWorker.jump(executeWorker.stepRef("ExecCsrRc")) }
         }
       }
 
-      memWorker.Step("LsuLoadDispatch") {
-        when(memReqReg.kind === LOAD_WORD) {
-          SysCall.Inline(lsuApi.loadWord(memReqReg.rd, memAddrReg))
-        }.elsewhen(memReqReg.kind === LOAD_BYTE) {
-          SysCall.Inline(lsuApi.loadByte(memReqReg.rd, memAddrReg, memReqReg.unsigned))
+      def issueWriteReg(result: UInt): Unit = {
+        SysCall.Inline(wbApi.writeReg(execReqReg.rd, result))
+      }
+
+      def issueRedirect(nextPc: UInt): Unit = {
+        SysCall.Inline(wbApi.redirect(nextPc))
+      }
+
+      def issueWriteRegAndRedirect(result: UInt, nextPc: UInt): Unit = {
+        SysCall.Inline(wbApi.writeRegAndRedirect(execReqReg.rd, result, nextPc))
+      }
+
+      def branchTarget: UInt = SysCall.Inline(aluApi.add(execReqReg.pc, execReqReg.data))
+
+      executeWorker.Step("ExecAdd") {
+        val result = SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))
+        printf(p"[EXEC] add lhs=${Hexadecimal(execReqReg.lhs)} rhs=${Hexadecimal(execReqReg.rhs)} result=${Hexadecimal(result)}\n")
+        issueWriteReg(result)
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecAdd") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSub") {
+        val result = SysCall.Inline(aluApi.sub(execReqReg.lhs, execReqReg.rhs))
+        issueWriteReg(result)
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSub") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecAnd") {
+        issueWriteReg(SysCall.Inline(aluApi.and(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecAnd") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecOr") {
+        issueWriteReg(SysCall.Inline(aluApi.or(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecOr") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecXor") {
+        issueWriteReg(SysCall.Inline(aluApi.xor(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecXor") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSll") {
+        issueWriteReg(SysCall.Inline(aluApi.sll(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSll") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSrl") {
+        issueWriteReg(SysCall.Inline(aluApi.srl(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSrl") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSra") {
+        issueWriteReg(SysCall.Inline(aluApi.sra(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSra") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSlt") {
+        issueWriteReg(SysCall.Inline(aluApi.slt(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSlt") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecSltu") {
+        issueWriteReg(SysCall.Inline(aluApi.sltu(execReqReg.lhs, execReqReg.rhs)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecSltu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecWriteReg") {
+        issueWriteReg(execReqReg.data)
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecWriteReg") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecRedirect") {
+        issueRedirect(execReqReg.data)
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecRedirect") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecRedirectRelative") {
+        SysCall.Inline(wbApi.redirectRelative(execReqReg.data.asSInt))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecRedirectRelative") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchEq") {
+        when(execReqReg.lhs === execReqReg.rhs) {
+          issueRedirect(branchTarget)
         }.otherwise {
-          SysCall.Inline(lsuApi.loadHalf(memReqReg.rd, memAddrReg, memReqReg.unsigned))
+          SysCall.Inline(wbApi.commit())
         }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchEq") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchNe") {
+        when(execReqReg.lhs =/= execReqReg.rhs) {
+          issueRedirect(branchTarget)
+        }.otherwise {
+          SysCall.Inline(wbApi.commit())
+        }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchNe") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchLt") {
+        when(execReqReg.lhs.asSInt < execReqReg.rhs.asSInt) {
+          issueRedirect(branchTarget)
+        }.otherwise {
+          SysCall.Inline(wbApi.commit())
+        }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchLt") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchLtu") {
+        when(execReqReg.lhs < execReqReg.rhs) {
+          issueRedirect(branchTarget)
+        }.otherwise {
+          SysCall.Inline(wbApi.commit())
+        }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchLtu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchGe") {
+        when(execReqReg.lhs.asSInt >= execReqReg.rhs.asSInt) {
+          issueRedirect(branchTarget)
+        }.otherwise {
+          SysCall.Inline(wbApi.commit())
+        }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchGe") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecBranchGeu") {
+        when(execReqReg.lhs >= execReqReg.rhs) {
+          issueRedirect(branchTarget)
+        }.otherwise {
+          SysCall.Inline(wbApi.commit())
+        }
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecBranchGeu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecLoadWord") {
+        SysCall.Inline(lsuApi.loadWord(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))))
       }
       SysCall.Inline(lsuApi.loadPath())
-      memWorker.Step("AfterLoadPath") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
-      }
+      executeWorker.Step("AfterExecLoadWord") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
-      memWorker.Step("LsuStoreDispatch") {
-        when(memReqReg.kind === STORE_WORD) {
-          SysCall.Inline(lsuApi.storeWord(memAddrReg, memReqReg.data))
-        }.elsewhen(memReqReg.kind === STORE_BYTE) {
-          SysCall.Inline(lsuApi.storeByte(memAddrReg, memReqReg.data))
-        }.otherwise {
-          SysCall.Inline(lsuApi.storeHalf(memAddrReg, memReqReg.data))
-        }
+      executeWorker.Step("ExecStoreWord") {
+        SysCall.Inline(lsuApi.storeWord(SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.data))
       }
       SysCall.Inline(lsuApi.storePath())
-      memWorker.Step("AfterStorePath") {
-        memWorker.jump(memWorker.stepRef("AfterMem"))
-      }
+      executeWorker.Step("AfterExecStoreWord") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
-      memWorker.Step("AfterMem") {
-        memWorker.jump(memWorker.stepRef("WaitReq"))
+      executeWorker.Step("ExecLoadByte") {
+        SysCall.Inline(
+          lsuApi.loadByte(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
+        )
       }
+      SysCall.Inline(lsuApi.loadPath())
+      executeWorker.Step("AfterExecLoadByte") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecLoadHalf") {
+        SysCall.Inline(
+          lsuApi.loadHalf(execReqReg.rd, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.unsigned),
+        )
+      }
+      SysCall.Inline(lsuApi.loadPath())
+      executeWorker.Step("AfterExecLoadHalf") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecStoreByte") {
+        SysCall.Inline(lsuApi.storeByte(SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.data))
+      }
+      SysCall.Inline(lsuApi.storePath())
+      executeWorker.Step("AfterExecStoreByte") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecStoreHalf") {
+        SysCall.Inline(lsuApi.storeHalf(SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs)), execReqReg.data))
+      }
+      SysCall.Inline(lsuApi.storePath())
+      executeWorker.Step("AfterExecStoreHalf") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecAuipc") {
+        issueWriteReg(SysCall.Inline(aluApi.add(execReqReg.pc, execReqReg.data)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecAuipc") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecJal") {
+        val ret = execReqReg.pc + 4.U(XLEN.W)
+        val target = (execReqReg.pc.asSInt + execReqReg.data.asSInt).asUInt
+        issueWriteRegAndRedirect(ret, target)
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecJal") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecJalr") {
+        val ret = execReqReg.pc + 4.U(XLEN.W)
+        val rawTarget = SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))
+        issueWriteRegAndRedirect(ret, rawTarget & (~1.U(XLEN.W)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecJalr") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecCsrRw") {
+        issueWriteReg(SysCall.Inline(csrApi.rw(execReqReg.csrAddr, execReqReg.data)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecCsrRw") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecCsrRs") {
+        issueWriteReg(SysCall.Inline(csrApi.rs(execReqReg.csrAddr, execReqReg.data)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecCsrRs") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+
+      executeWorker.Step("ExecCsrRc") {
+        issueWriteReg(SysCall.Inline(csrApi.rc(execReqReg.csrAddr, execReqReg.data)))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      executeWorker.Step("AfterExecCsrRc") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
     }
 
     val daemon = createLogic("Daemon")
     daemon.run {
-      when(!memWorker.active) {
-        SysCall.Inline(SysCall.start(memWorker))
+      when(!executeWorker.active) {
+        SysCall.Inline(SysCall.start(executeWorker))
       }
     }
   }
 
   val api: ExecuteApiDecl = new ExecuteApiDecl {
-    private def aluApi = alu.api
-    private def csrApi = csr.api
-    private def wbApi = writebackRef.get
-    private val memAcquireRefName = s"${name}_Mem_AcquireSlot"
-    private def writeComputedReg(opName: String, rd: UInt, result: UInt): Unit = {
-      printf(p"[EXEC] ${opName} lhs-result write rd=${Decimal(rd)} data=${Hexadecimal(result)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, result))
+    private val addPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val subPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val andPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val orPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val xorPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val sllPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val srlPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val sraPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val sltPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val sltuPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val writeRegPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val redirectPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val redirectRelativePacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchEqPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchNePacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchLtPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchLtuPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchGePacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val branchGeuPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val loadWordPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val storeWordPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val loadBytePacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val loadHalfPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val storeBytePacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val storeHalfPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val auipcPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val jalPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val jalrPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val csrRwPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val csrRsPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+    private val csrRcPacket = WireDefault(0.U.asTypeOf(new ExecuteReq))
+
+    override def execPath(): HwInline[Unit] = HwInline.thread(s"${name}_exec_path") { t =>
+      t.Step(execAcquireRefName) {}
+      t.Step(s"${name}_Exec_PushReq") {
+        SysCall.Inline(executeReqBuffer.push(launchExecReqReg))
+      }
+      t.Step(s"${name}_Exec_Release") {}
     }
 
-    def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_add") { _ =>
-      val result = SysCall.Inline(aluApi.add(lhs, rhs))
-      writeComputedReg("add", rd, result)
+    override def memPath(): HwInline[Unit] = execPath()
+
+    private def enqueue(tag: String, packet: ExecuteReq): HwInline[Unit] = HwInline.atomic(tag) { t =>
+      launchExecReqReg := packet
+      t.jump(t.stepRef(execAcquireRefName))
     }
 
-    def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sub") { _ =>
-      val result = SysCall.Inline(aluApi.sub(lhs, rhs))
-      writeComputedReg("sub", rd, result)
-    }
+    override def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { addPacket.kind := EXEC_ADD; addPacket.rd := rd; addPacket.lhs := lhs; addPacket.rhs := rhs; enqueue(s"${name}_enqueue_add", addPacket) }
+    override def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { subPacket.kind := EXEC_SUB; subPacket.rd := rd; subPacket.lhs := lhs; subPacket.rhs := rhs; enqueue(s"${name}_enqueue_sub", subPacket) }
+    override def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { andPacket.kind := EXEC_AND; andPacket.rd := rd; andPacket.lhs := lhs; andPacket.rhs := rhs; enqueue(s"${name}_enqueue_and", andPacket) }
+    override def or(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { orPacket.kind := EXEC_OR; orPacket.rd := rd; orPacket.lhs := lhs; orPacket.rhs := rhs; enqueue(s"${name}_enqueue_or", orPacket) }
+    override def xor(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { xorPacket.kind := EXEC_XOR; xorPacket.rd := rd; xorPacket.lhs := lhs; xorPacket.rhs := rhs; enqueue(s"${name}_enqueue_xor", xorPacket) }
+    override def sll(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sllPacket.kind := EXEC_SLL; sllPacket.rd := rd; sllPacket.lhs := lhs; sllPacket.rhs := rhs; enqueue(s"${name}_enqueue_sll", sllPacket) }
+    override def srl(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { srlPacket.kind := EXEC_SRL; srlPacket.rd := rd; srlPacket.lhs := lhs; srlPacket.rhs := rhs; enqueue(s"${name}_enqueue_srl", srlPacket) }
+    override def sra(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sraPacket.kind := EXEC_SRA; sraPacket.rd := rd; sraPacket.lhs := lhs; sraPacket.rhs := rhs; enqueue(s"${name}_enqueue_sra", sraPacket) }
+    override def slt(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sltPacket.kind := EXEC_SLT; sltPacket.rd := rd; sltPacket.lhs := lhs; sltPacket.rhs := rhs; enqueue(s"${name}_enqueue_slt", sltPacket) }
+    override def sltu(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] =
+      { sltuPacket.kind := EXEC_SLTU; sltuPacket.rd := rd; sltuPacket.lhs := lhs; sltuPacket.rhs := rhs; enqueue(s"${name}_enqueue_sltu", sltuPacket) }
+    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] =
+      { writeRegPacket.kind := EXEC_WRITE_REG; writeRegPacket.rd := rd; writeRegPacket.data := data; enqueue(s"${name}_enqueue_write_reg", writeRegPacket) }
+    override def redirect(nextPc: UInt): HwInline[Unit] =
+      { redirectPacket.kind := EXEC_REDIRECT; redirectPacket.data := nextPc; enqueue(s"${name}_enqueue_redirect", redirectPacket) }
+    override def redirectRelative(delta: SInt): HwInline[Unit] =
+      { redirectRelativePacket.kind := EXEC_REDIRECT_REL; redirectRelativePacket.data := delta.asUInt; enqueue(s"${name}_enqueue_redirect_relative", redirectRelativePacket) }
+    override def eq(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchEqPacket.kind := EXEC_BRANCH_EQ; branchEqPacket.lhs := lhs; branchEqPacket.rhs := rhs; branchEqPacket.pc := pc; branchEqPacket.data := offset; enqueue(s"${name}_enqueue_branch_eq", branchEqPacket) }
+    override def ne(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchNePacket.kind := EXEC_BRANCH_NE; branchNePacket.lhs := lhs; branchNePacket.rhs := rhs; branchNePacket.pc := pc; branchNePacket.data := offset; enqueue(s"${name}_enqueue_branch_ne", branchNePacket) }
+    override def lt(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchLtPacket.kind := EXEC_BRANCH_LT; branchLtPacket.lhs := lhs; branchLtPacket.rhs := rhs; branchLtPacket.pc := pc; branchLtPacket.data := offset; enqueue(s"${name}_enqueue_branch_lt", branchLtPacket) }
+    override def ltu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchLtuPacket.kind := EXEC_BRANCH_LTU; branchLtuPacket.lhs := lhs; branchLtuPacket.rhs := rhs; branchLtuPacket.pc := pc; branchLtuPacket.data := offset; enqueue(s"${name}_enqueue_branch_ltu", branchLtuPacket) }
+    override def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchGePacket.kind := EXEC_BRANCH_GE; branchGePacket.lhs := lhs; branchGePacket.rhs := rhs; branchGePacket.pc := pc; branchGePacket.data := offset; enqueue(s"${name}_enqueue_branch_ge", branchGePacket) }
+    override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] =
+      { branchGeuPacket.kind := EXEC_BRANCH_GEU; branchGeuPacket.lhs := lhs; branchGeuPacket.rhs := rhs; branchGeuPacket.pc := pc; branchGeuPacket.data := offset; enqueue(s"${name}_enqueue_branch_geu", branchGeuPacket) }
+    override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      { loadWordPacket.kind := EXEC_MEM_LOAD_WORD; loadWordPacket.rd := rd; loadWordPacket.lhs := base; loadWordPacket.rhs := offset; enqueue(s"${name}_enqueue_load_word", loadWordPacket) }
+    override def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      { storeWordPacket.kind := EXEC_MEM_STORE_WORD; storeWordPacket.lhs := base; storeWordPacket.rhs := offset; storeWordPacket.data := data; enqueue(s"${name}_enqueue_store_word", storeWordPacket) }
+    override def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      { loadBytePacket.kind := EXEC_MEM_LOAD_BYTE; loadBytePacket.rd := rd; loadBytePacket.lhs := base; loadBytePacket.rhs := offset; loadBytePacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_byte", loadBytePacket) }
+    override def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
+      { loadHalfPacket.kind := EXEC_MEM_LOAD_HALF; loadHalfPacket.rd := rd; loadHalfPacket.lhs := base; loadHalfPacket.rhs := offset; loadHalfPacket.unsigned := unsigned; enqueue(s"${name}_enqueue_load_half", loadHalfPacket) }
+    override def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      { storeBytePacket.kind := EXEC_MEM_STORE_BYTE; storeBytePacket.lhs := base; storeBytePacket.rhs := offset; storeBytePacket.data := data; enqueue(s"${name}_enqueue_store_byte", storeBytePacket) }
+    override def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
+      { storeHalfPacket.kind := EXEC_MEM_STORE_HALF; storeHalfPacket.lhs := base; storeHalfPacket.rhs := offset; storeHalfPacket.data := data; enqueue(s"${name}_enqueue_store_half", storeHalfPacket) }
+    override def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
+      if (isLoad.litToBooleanOption.contains(true)) load(rd, base, offset, kind, unsigned)
+      else store(base, offset, data, kind)
 
-    def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_and") { _ =>
-      val result = SysCall.Inline(aluApi.and(lhs, rhs))
-      writeComputedReg("and", rd, result)
-    }
-
-    def or(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_or") { _ =>
-      val result = SysCall.Inline(aluApi.or(lhs, rhs))
-      writeComputedReg("or", rd, result)
-    }
-
-    def xor(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_xor") { _ =>
-      val result = SysCall.Inline(aluApi.xor(lhs, rhs))
-      writeComputedReg("xor", rd, result)
-    }
-
-    def sll(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sll") { _ =>
-      val result = SysCall.Inline(aluApi.sll(lhs, rhs))
-      writeComputedReg("sll", rd, result)
-    }
-
-    def srl(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_srl") { _ =>
-      val result = SysCall.Inline(aluApi.srl(lhs, rhs))
-      writeComputedReg("srl", rd, result)
-    }
-
-    def sra(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sra") { _ =>
-      val result = SysCall.Inline(aluApi.sra(lhs, rhs))
-      writeComputedReg("sra", rd, result)
-    }
-
-    def slt(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_slt") { _ =>
-      val result = SysCall.Inline(aluApi.slt(lhs, rhs))
-      writeComputedReg("slt", rd, result)
-    }
-
-    def sltu(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sltu") { _ =>
-      val result = SysCall.Inline(aluApi.sltu(lhs, rhs))
-      writeComputedReg("sltu", rd, result)
-    }
-
-    def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
-      printf(p"[EXEC] writeReg rd=${Decimal(rd)} data=${Hexadecimal(data)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, data))
-    }
-
-    def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>
-      printf(p"[EXEC] redirect nextPc=${Hexadecimal(nextPc)}\n")
-      SysCall.Inline(wbApi.redirect(nextPc))
-    }
-
-    def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
-      printf(p"[EXEC] redirectRelative delta=${Hexadecimal(delta.asUInt)}\n")
-      SysCall.Inline(wbApi.redirectRelative(delta))
-    }
-
-    private def branchTarget(pc: UInt, offset: UInt): UInt = SysCall.Inline(aluApi.add(pc, offset))
-
-    def eq(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_eq") { _ =>
-      val result = SysCall.Inline(aluApi.eq(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] eq lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
+    override def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(
+      s"${name}_enqueue_load",
+    ) { _ =>
+      when(kind === 0.U) {
+        SysCall.Inline(loadWord(rd, base, offset))
+      }.elsewhen(kind === 1.U) {
+        SysCall.Inline(loadByte(rd, base, offset, unsigned))
+      }.otherwise {
+        SysCall.Inline(loadHalf(rd, base, offset, unsigned))
       }
     }
-
-    def ne(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ne") { _ =>
-      val result = !SysCall.Inline(aluApi.eq(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] ne lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
+    override def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] = HwInline.atomic(
+      s"${name}_enqueue_store",
+    ) { _ =>
+      when(kind === 0.U) {
+        SysCall.Inline(storeWord(base, offset, data))
+      }.elsewhen(kind === 1.U) {
+        SysCall.Inline(storeByte(base, offset, data))
+      }.otherwise {
+        SysCall.Inline(storeHalf(base, offset, data))
       }
     }
-
-    def lt(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_lt") { _ =>
-      val result = SysCall.Inline(aluApi.lt(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] lt lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
-      }
-    }
-
-    def ltu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ =>
-      val result = SysCall.Inline(aluApi.ltu(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] ltu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
-      }
-    }
-
-    def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ =>
-      val result = !SysCall.Inline(aluApi.lt(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] ge lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
-      }
-    }
-
-    def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ =>
-      val result = !SysCall.Inline(aluApi.ltu(lhs, rhs))
-      val target = branchTarget(pc, offset)
-      printf(p"[EXEC] geu lhs=${Hexadecimal(lhs)} rhs=${Hexadecimal(rhs)} pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset)} result=${result} target=${Hexadecimal(target)}\n")
-      when(result) {
-        SysCall.Inline(wbApi.redirect(target))
-      }
-    }
-
-    def memPath(): HwInline[Unit] = HwInline.thread(s"${name}_mem_path") { t =>
-      t.Step(memAcquireRefName) {}
-
-      t.Step(s"${name}_Mem_PushReq") {
-        printf(
-          p"[EXEC] mem isLoad=${launchMemReqReg.isLoad} kind=${Decimal(launchMemReqReg.kind)} base=${Hexadecimal(launchMemReqReg.base)} offset=${Hexadecimal(launchMemReqReg.offset)} data=${Hexadecimal(launchMemReqReg.data)} unsigned=${launchMemReqReg.unsigned} rd=${Decimal(launchMemReqReg.rd)}\n",
-        )
-        SysCall.Inline(memReqBuffer.push(launchMemReqReg))
-      }
-
-      t.Step(s"${name}_Mem_ReleaseSlot") {}
-    }
-
-    def mem(isLoad: Bool, rd: UInt, base: UInt, offset: UInt, data: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
-      HwInline.atomic(s"${name}_mem") { t =>
-        launchMemReqReg.isLoad := isLoad
-        launchMemReqReg.kind := kind
-        launchMemReqReg.rd := rd
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := data
-        launchMemReqReg.unsigned := unsigned
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def load(rd: UInt, base: UInt, offset: UInt, kind: UInt, unsigned: Bool): HwInline[Unit] =
-      HwInline.atomic(s"${name}_load") { t =>
-        launchMemReqReg.isLoad := true.B
-        launchMemReqReg.kind := kind
-        launchMemReqReg.rd := rd
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := 0.U
-        launchMemReqReg.unsigned := unsigned
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def store(base: UInt, offset: UInt, data: UInt, kind: UInt): HwInline[Unit] =
-      HwInline.atomic(s"${name}_store") { t =>
-        launchMemReqReg.isLoad := false.B
-        launchMemReqReg.kind := kind
-        launchMemReqReg.rd := 0.U
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := data
-        launchMemReqReg.unsigned := false.B
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
-      HwInline.atomic(s"${name}_load_word") { t =>
-        launchMemReqReg.isLoad := true.B
-        launchMemReqReg.kind := LOAD_WORD
-        launchMemReqReg.rd := rd
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := 0.U
-        launchMemReqReg.unsigned := false.B
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def storeWord(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      HwInline.atomic(s"${name}_store_word") { t =>
-        launchMemReqReg.isLoad := false.B
-        launchMemReqReg.kind := STORE_WORD
-        launchMemReqReg.rd := 0.U
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := data
-        launchMemReqReg.unsigned := false.B
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def loadByte(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      HwInline.atomic(s"${name}_load_byte") { t =>
-        launchMemReqReg.isLoad := true.B
-        launchMemReqReg.kind := LOAD_BYTE
-        launchMemReqReg.rd := rd
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := 0.U
-        launchMemReqReg.unsigned := unsigned
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def loadHalf(rd: UInt, base: UInt, offset: UInt, unsigned: Bool): HwInline[Unit] =
-      HwInline.atomic(s"${name}_load_half") { t =>
-        launchMemReqReg.isLoad := true.B
-        launchMemReqReg.kind := LOAD_HALF
-        launchMemReqReg.rd := rd
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := 0.U
-        launchMemReqReg.unsigned := unsigned
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def storeByte(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      HwInline.atomic(s"${name}_store_byte") { t =>
-        launchMemReqReg.isLoad := false.B
-        launchMemReqReg.kind := STORE_BYTE
-        launchMemReqReg.rd := 0.U
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := data
-        launchMemReqReg.unsigned := false.B
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def storeHalf(base: UInt, offset: UInt, data: UInt): HwInline[Unit] =
-      HwInline.atomic(s"${name}_store_half") { t =>
-        launchMemReqReg.isLoad := false.B
-        launchMemReqReg.kind := STORE_HALF
-        launchMemReqReg.rd := 0.U
-        launchMemReqReg.base := base
-        launchMemReqReg.offset := offset
-        launchMemReqReg.data := data
-        launchMemReqReg.unsigned := false.B
-        t.jump(t.stepRef(memAcquireRefName))
-      }
-
-    def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_auipc") { _ =>
-      val result = SysCall.Inline(aluApi.add(pc, imm))
-      printf(p"[EXEC] auipc pc=${Hexadecimal(pc)} imm=${Hexadecimal(imm)} rd=${Decimal(rd)} result=${Hexadecimal(result)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, result))
-    }
-
-    def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_jal") { _ =>
-      val ret = pc + 4.U(XLEN.W)
-      val target = (pc.asSInt + offset).asUInt
-      printf(p"[EXEC] jal pc=${Hexadecimal(pc)} offset=${Hexadecimal(offset.asUInt)} rd=${Decimal(rd)} ret=${Hexadecimal(ret)} target=${Hexadecimal(target)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, ret))
-      SysCall.Inline(wbApi.redirect(target))
-    }
-
-    def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_jalr") { _ =>
-      val ret = pc + 4.U(XLEN.W)
-      val rawTarget = SysCall.Inline(aluApi.add(base, offset))
-      val target = rawTarget & (~1.U(XLEN.W))
-      printf(p"[EXEC] jalr pc=${Hexadecimal(pc)} base=${Hexadecimal(base)} offset=${Hexadecimal(offset)} rd=${Decimal(rd)} ret=${Hexadecimal(ret)} target=${Hexadecimal(target)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, ret))
-      SysCall.Inline(wbApi.redirect(target))
-    }
-
-    def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rw") { _ =>
-      val oldValue = SysCall.Inline(csrApi.rw(addr, src))
-      printf(p"[EXEC] csrRw rd=${Decimal(rd)} addr=${Hexadecimal(addr)} src=${Hexadecimal(src)} old=${Hexadecimal(oldValue)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, oldValue))
-    }
-
-    def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rs") { _ =>
-      val oldValue = SysCall.Inline(csrApi.rs(addr, src))
-      printf(p"[EXEC] csrRs rd=${Decimal(rd)} addr=${Hexadecimal(addr)} src=${Hexadecimal(src)} old=${Hexadecimal(oldValue)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, oldValue))
-    }
-
-    def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_csr_rc") { _ =>
-      val oldValue = SysCall.Inline(csrApi.rc(addr, src))
-      printf(p"[EXEC] csrRc rd=${Decimal(rd)} addr=${Hexadecimal(addr)} src=${Hexadecimal(src)} old=${Hexadecimal(oldValue)}\n")
-      SysCall.Inline(wbApi.writeReg(rd, oldValue))
-    }
+    override def auipc(rd: UInt, pc: UInt, imm: UInt): HwInline[Unit] =
+      { auipcPacket.kind := EXEC_AUIPC; auipcPacket.rd := rd; auipcPacket.pc := pc; auipcPacket.data := imm; enqueue(s"${name}_enqueue_auipc", auipcPacket) }
+    override def jal(rd: UInt, pc: UInt, offset: SInt): HwInline[Unit] =
+      { jalPacket.kind := EXEC_JAL; jalPacket.rd := rd; jalPacket.pc := pc; jalPacket.data := offset.asUInt; enqueue(s"${name}_enqueue_jal", jalPacket) }
+    override def jalr(rd: UInt, pc: UInt, base: UInt, offset: UInt): HwInline[Unit] =
+      { jalrPacket.kind := EXEC_JALR; jalrPacket.rd := rd; jalrPacket.pc := pc; jalrPacket.lhs := base; jalrPacket.rhs := offset; enqueue(s"${name}_enqueue_jalr", jalrPacket) }
+    override def csrRw(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRwPacket.kind := EXEC_CSR_RW; csrRwPacket.rd := rd; csrRwPacket.csrAddr := addr; csrRwPacket.data := src; enqueue(s"${name}_enqueue_csr_rw", csrRwPacket) }
+    override def csrRs(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRsPacket.kind := EXEC_CSR_RS; csrRsPacket.rd := rd; csrRsPacket.csrAddr := addr; csrRsPacket.data := src; enqueue(s"${name}_enqueue_csr_rs", csrRsPacket) }
+    override def csrRc(rd: UInt, addr: UInt, src: UInt): HwInline[Unit] =
+      { csrRcPacket.kind := EXEC_CSR_RC; csrRcPacket.rd := rd; csrRcPacket.csrAddr := addr; csrRcPacket.data := src; enqueue(s"${name}_enqueue_csr_rc", csrRcPacket) }
   }
 
   def RequestExecuteApi(): HwInline[ExecuteApiDecl] = HwInline.bindings(s"${name}_execute_api") { _ =>
@@ -400,7 +504,11 @@ final class ExecuteProcess(
 
   val csrProbeApi: CsrProbeApiDecl = csr.probeApi
 
-  private def RequestLsuApi(): HwInline[LsuApiDecl] = HwInline.bindings(s"${name}_lsu_api") { _ =>
+  private def writeBoundLsuApi(): HwInline[LsuApiDecl] = HwInline.bindings(s"${name}_lsu_api") { _ =>
     lsuRef.get
+  }
+
+  private def writeBoundWritebackApi(): HwInline[WritebackApiDecl] = HwInline.bindings(s"${name}_writeback_api") { _ =>
+    writebackRef.get
   }
 }

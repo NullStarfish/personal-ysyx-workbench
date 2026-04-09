@@ -67,10 +67,22 @@ final class DummyWritebackProcess(localName: String)(implicit kernel: Kernel) ex
   private val pc = RegInit(0.U(XLEN.W))
 
   val api: WritebackApiDecl = new WritebackApiDecl {
+    override def wbPath(): HwInline[Unit] = HwInline.thread(s"${name}_wb_path") { t =>
+      t.Step(s"${name}_Wb_Idle") {}
+    }
     override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
       when(rd =/= 0.U) {
         regs(rd) := data
       }
+    }
+
+    override def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit] = HwInline.atomic(
+      s"${name}_write_reg_and_redirect",
+    ) { _ =>
+      when(rd =/= 0.U) {
+        regs(rd) := data
+      }
+      pc := nextPc
     }
 
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>

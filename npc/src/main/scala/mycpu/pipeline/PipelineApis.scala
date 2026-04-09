@@ -34,7 +34,9 @@ trait MemoryApiDecl {
 }
 
 trait WritebackApiDecl {
+  def wbPath(): HwInline[Unit]
   def writeReg(rd: UInt, data: UInt): HwInline[Unit]
+  def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit]
   def redirect(nextPc: UInt): HwInline[Unit]
   def redirectRelative(delta: SInt): HwInline[Unit]
   def commit(): HwInline[Unit]
@@ -82,6 +84,7 @@ trait LsuApiDecl {
 }
 
 trait ExecuteApiDecl {
+  def execPath(): HwInline[Unit]
   def memPath(): HwInline[Unit]
   def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]
   def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit]

@@ -4,44 +4,172 @@ import HwOS.kernel._
 import chisel3._
 
 final class WritebackProcess(
-    fetchRef: ApiRef[FetchApiDecl],
-    regfileRef: ApiRef[RegfileApiDecl],
-    traceRef: ApiRef[TraceApiDecl],
+    fetchApi: FetchApiDecl,
+    regApi: RegfileApiDecl,
+    traceApi: TraceApiDecl,
     localName: String = "Writeback",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
+  final class WbReq extends Bundle {
+    val kind = UInt(3.W)
+    val rd = UInt(5.W)
+    val data = UInt(32.W)
+    val nextPc = UInt(32.W)
+    val delta = SInt(32.W)
+  }
+
+  private val wbReqBuffer = spawn(new PipelineBuffer(new WbReq, "WbReqBuffer"))
+  private val wbWorker = createThread("WbWorker")
+
+  private val WB_WRITE_REG = 0.U(3.W)
+  private val WB_WRITE_REG_REDIRECT = 1.U(3.W)
+  private val WB_REDIRECT = 2.U(3.W)
+  private val WB_REDIRECT_REL = 3.U(3.W)
+  private val WB_COMMIT = 4.U(3.W)
+
+  private val reqReg = RegInit(0.U.asTypeOf(new WbReq))
+  private val launchWbReqReg = RegInit(0.U.asTypeOf(new WbReq))
+  private val writeRegPacket = WireDefault(0.U.asTypeOf(new WbReq))
+  private val writeRegAndRedirectPacket = WireDefault(0.U.asTypeOf(new WbReq))
+  private val redirectPacket = WireDefault(0.U.asTypeOf(new WbReq))
+  private val redirectRelativePacket = WireDefault(0.U.asTypeOf(new WbReq))
+  private val commitPacket = WireDefault(0.U.asTypeOf(new WbReq))
+  override def entry(): Unit = {
+    wbWorker.entry {
+      wbWorker.Step("WaitReq") {
+        wbWorker.waitCondition(wbReqBuffer.valid)
+      }
+      wbWorker.Step("TakeReq") {
+        reqReg := SysCall.Inline(wbReqBuffer.pop())
+      }
+      wbWorker.Step("Dispatch") {
+        when(reqReg.kind === WB_WRITE_REG) {
+          wbWorker.jump(wbWorker.stepRef("WriteRegStart"))
+        }.elsewhen(reqReg.kind === WB_WRITE_REG_REDIRECT) {
+          wbWorker.jump(wbWorker.stepRef("WriteRegRedirectStart"))
+        }.elsewhen(reqReg.kind === WB_REDIRECT) {
+          wbWorker.jump(wbWorker.stepRef("Redirect"))
+        }.elsewhen(reqReg.kind === WB_REDIRECT_REL) {
+          wbWorker.jump(wbWorker.stepRef("RedirectRelative"))
+        }.otherwise {
+          wbWorker.jump(wbWorker.stepRef("Commit"))
+        }
+      }
+
+      wbWorker.Step("WriteRegStart") {}
+      SysCall.Inline(regApi.write(reqReg.rd, reqReg.data))
+      wbWorker.Step("AfterWriteReg") {
+        SysCall.Inline(traceApi.commit())
+        wbWorker.jump(wbWorker.stepRef("WaitReq"))
+      }
+
+      wbWorker.Step("WriteRegRedirectStart") {}
+      SysCall.Inline(regApi.write(reqReg.rd, reqReg.data))
+      wbWorker.Step("AfterWriteRegRedirect") {
+        SysCall.Inline(fetchApi.writePC(reqReg.nextPc))
+        SysCall.Inline(traceApi.commit())
+        wbWorker.jump(wbWorker.stepRef("WaitReq"))
+      }
+
+      wbWorker.Step("Redirect") {
+        SysCall.Inline(fetchApi.writePC(reqReg.nextPc))
+        SysCall.Inline(traceApi.commit())
+        wbWorker.jump(wbWorker.stepRef("WaitReq"))
+      }
+
+      wbWorker.Step("RedirectRelative") {
+        SysCall.Inline(fetchApi.offsetPC(reqReg.delta))
+        SysCall.Inline(traceApi.commit())
+        wbWorker.jump(wbWorker.stepRef("WaitReq"))
+      }
+
+      wbWorker.Step("Commit") {
+        SysCall.Inline(traceApi.commit())
+        wbWorker.jump(wbWorker.stepRef("WaitReq"))
+      }
+    }
+
+    val daemon = createLogic("Daemon")
+    daemon.run {
+      when(!wbWorker.active) {
+        SysCall.Inline(SysCall.start(wbWorker))
+      }
+    }
+  }
+
   val api: WritebackApiDecl = new WritebackApiDecl {
-    private def fetchApi = fetchRef.get
-    private def regApi = regfileRef.get
-    private def traceApi = traceRef.get
+    override def wbPath(): HwInline[Unit] = HwInline.thread(s"${name}_wb_path") { t =>
+      val tag = s"${name}_wb_path_${System.identityHashCode(new Object())}"
+      t.Step(s"${tag}_Acquire") {}
+      t.Step(s"${tag}_PushReq") {
+        SysCall.Inline(wbReqBuffer.push(launchWbReqReg))
+      }
+      t.Step(s"${tag}_Release") {}
+    }
 
-    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { _ =>
+    override def writeReg(rd: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_write_reg") { t =>
       printf(p"[WB] writeReg rd=${Decimal(rd)} data=${Hexadecimal(data)}\n")
-      SysCall.Inline(regApi.write(rd, data))
-      SysCall.Inline(traceApi.commit())
+      writeRegPacket.kind := WB_WRITE_REG
+      writeRegPacket.rd := rd
+      writeRegPacket.data := data
+      writeRegPacket.nextPc := 0.U
+      writeRegPacket.delta := 0.S
+      t.Prev.edge.add {
+        launchWbReqReg := writeRegPacket
+      }
     }
 
-    override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>
+    override def writeRegAndRedirect(rd: UInt, data: UInt, nextPc: UInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_write_reg_and_redirect") { t =>
+        printf(p"[WB] writeReg+redirect rd=${Decimal(rd)} data=${Hexadecimal(data)} nextPc=${Hexadecimal(nextPc)}\n")
+        writeRegAndRedirectPacket.kind := WB_WRITE_REG_REDIRECT
+        writeRegAndRedirectPacket.rd := rd
+        writeRegAndRedirectPacket.data := data
+        writeRegAndRedirectPacket.nextPc := nextPc
+        writeRegAndRedirectPacket.delta := 0.S
+        t.Prev.edge.add {
+          launchWbReqReg := writeRegAndRedirectPacket
+        }
+      }
+
+    override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { t =>
       printf(p"[WB] redirect nextPc=${Hexadecimal(nextPc)}\n")
-      SysCall.Inline(fetchApi.writePC(nextPc))
-      SysCall.Inline(traceApi.commit())
+      redirectPacket.kind := WB_REDIRECT
+      redirectPacket.rd := 0.U
+      redirectPacket.data := 0.U
+      redirectPacket.nextPc := nextPc
+      redirectPacket.delta := 0.S
+      t.Prev.edge.add {
+        launchWbReqReg := redirectPacket
+      }
     }
 
-    override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
+    override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { t =>
       printf(p"[WB] redirectRelative delta=${Hexadecimal(delta.asUInt)}\n")
-      SysCall.Inline(fetchApi.offsetPC(delta))
-      SysCall.Inline(traceApi.commit())
+      redirectRelativePacket.kind := WB_REDIRECT_REL
+      redirectRelativePacket.rd := 0.U
+      redirectRelativePacket.data := 0.U
+      redirectRelativePacket.nextPc := 0.U
+      redirectRelativePacket.delta := delta
+      t.Prev.edge.add {
+        launchWbReqReg := redirectRelativePacket
+      }
     }
 
-    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
-      SysCall.Inline(traceApi.commit())
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { t =>
+      commitPacket.kind := WB_COMMIT
+      commitPacket.rd := 0.U
+      commitPacket.data := 0.U
+      commitPacket.nextPc := 0.U
+      commitPacket.delta := 0.S
+      t.Prev.edge.add {
+        launchWbReqReg := commitPacket
+      }
     }
   }
 
   def RequestWritebackApi(): HwInline[WritebackApiDecl] = HwInline.bindings(s"${name}_writeback_api") { _ =>
     api
   }
-
-  override def entry(): Unit = {}
 }

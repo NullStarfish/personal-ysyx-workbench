@@ -33,7 +33,7 @@ class Core extends Module {
     ))
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
-    val writeback = spawn(new WritebackProcess(links.fetch, links.regfile, links.trace, "Writeback"))
+    val writeback = spawn(new WritebackProcess(fetch.api, regfile.api, tracer.api, "Writeback"))
     val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
     val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
 

@@ -10,18 +10,19 @@ final class RegfileProcess(
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
 
-  private val base = spawn(new BaseRegfileProcess(depth = 32, width = XLEN, zeroReg = true, localName = "Base"))
+  private val regfile =
+    spawn(new AgeOrderedScoreboardRegfileProcess(depth = 32, width = XLEN, maxWriters = 1, maxInFlight = 8, zeroReg = true, localName = "Base"))
 
   val api: RegfileApiDecl = new RegfileApiDecl {
-    override def read(addr: UInt): HwInline[UInt] = base.Read(addr)
+    override def read(addr: UInt): HwInline[UInt] = {printf(p"[REGFILE TOP] reg read $addr\n");regfile.Read(addr)}
 
-    override def write(addr: UInt, data: UInt): HwInline[Unit] = base.Write(addr, data)
+    override def write(addr: UInt, data: UInt): HwInline[Unit] = {printf(p"[REGFILE TOP] reg write $addr, $data\n");regfile.Write(0, addr, data)}
   }
 
   val probeApi: RegfileProbeApiDecl = new RegfileProbeApiDecl {
-    override def read(addr: UInt): HwInline[UInt] = base.Read(addr)
+    override def read(addr: UInt): HwInline[UInt] = regfile.ReadCommitted(addr)
 
-    override def readAllFlat(): HwInline[UInt] = base.ObserveFlat()
+    override def readAllFlat(): HwInline[UInt] = regfile.ObserveFlat()
   }
 
   def RequestRegfileApi(): HwInline[RegfileApiDecl] = HwInline.bindings(s"${name}_regfile_api") { _ =>

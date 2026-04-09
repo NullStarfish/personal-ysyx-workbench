@@ -83,6 +83,9 @@ final class LsuProcess(
           resultData := extractHalf(rawReadData, reqReg.addr(1), reqReg.unsigned)
         }
         SysCall.Inline(wbApi.writeReg(reqReg.rd, resultData))
+      }
+      SysCall.Inline(wbApi.wbPath())
+      loadWorker.Step("AfterWriteback") {
         loadWorker.jump(loadWorker.stepRef("WaitReq"))
       }
     }
@@ -118,8 +121,11 @@ final class LsuProcess(
       }
 
       SysCall.Inline(memory.write_once(reqReg.addr, writeSize, writeData, writeStrb))
-      storeWorker.Prev.edge.add {
+      storeWorker.Step("Commit") {
         SysCall.Inline(wbApi.commit())
+      }
+      SysCall.Inline(wbApi.wbPath())
+      storeWorker.Step("AfterCommit") {
         storeWorker.jump(storeWorker.stepRef("WaitReq"))
       }
     }
@@ -136,27 +142,26 @@ final class LsuProcess(
   }
 
   val api: LsuApiDecl = new LsuApiDecl {
-    private val loadAcquireRefName = s"${name}_Load_AcquireSlot"
-    private val storeAcquireRefName = s"${name}_Store_AcquireSlot"
-
     override def loadPath(): HwInline[Unit] = HwInline.thread(s"${name}_load_path") { t =>
-      t.Step(loadAcquireRefName) {}
+      val tag = s"${name}_load_path_${System.identityHashCode(new Object())}"
+      t.Step(s"${tag}_Acquire") {}
 
-      t.Step(s"${name}_Load_PushReq") {
+      t.Step(s"${tag}_PushReq") {
         SysCall.Inline(loadReqBuffer.push(launchLoadReqReg))
       }
 
-      t.Step(s"${name}_Load_ReleaseSlot") {}
+      t.Step(s"${tag}_Release") {}
     }
 
     override def storePath(): HwInline[Unit] = HwInline.thread(s"${name}_store_path") { t =>
-      t.Step(storeAcquireRefName) {}
+      val tag = s"${name}_store_path_${System.identityHashCode(new Object())}"
+      t.Step(s"${tag}_Acquire") {}
 
-      t.Step(s"${name}_Store_PushReq") {
+      t.Step(s"${tag}_PushReq") {
         SysCall.Inline(storeReqBuffer.push(launchStoreReqReg))
       }
 
-      t.Step(s"${name}_Store_ReleaseSlot") {}
+      t.Step(s"${tag}_Release") {}
     }
 
     override def loadWord(rd: UInt, addr: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_load_word") { t =>
@@ -164,40 +169,34 @@ final class LsuProcess(
       launchLoadReqReg.rd := rd
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := false.B
-      t.jump(t.stepRef(loadAcquireRefName))
     }
     override def loadByte(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_byte") { t =>
       launchLoadReqReg.loadKind := LOAD_BYTE
       launchLoadReqReg.rd := rd
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := unsigned
-      t.jump(t.stepRef(loadAcquireRefName))
     }
     override def loadHalf(rd: UInt, addr: UInt, unsigned: Bool): HwInline[Unit] = HwInline.atomic(s"${name}_load_half") { t =>
       launchLoadReqReg.loadKind := LOAD_HALF
       launchLoadReqReg.rd := rd
       launchLoadReqReg.addr := addr
       launchLoadReqReg.unsigned := unsigned
-      t.jump(t.stepRef(loadAcquireRefName))
     }
 
     override def storeWord(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_word") { t =>
       launchStoreReqReg.storeKind := STORE_WORD
       launchStoreReqReg.addr := addr
       launchStoreReqReg.data := data
-      t.jump(t.stepRef(storeAcquireRefName))
     }
     override def storeByte(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_byte") { t =>
       launchStoreReqReg.storeKind := STORE_BYTE
       launchStoreReqReg.addr := addr
       launchStoreReqReg.data := data
-      t.jump(t.stepRef(storeAcquireRefName))
     }
     override def storeHalf(addr: UInt, data: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_store_half") { t =>
       launchStoreReqReg.storeKind := STORE_HALF
       launchStoreReqReg.addr := addr
       launchStoreReqReg.data := data
-      t.jump(t.stepRef(storeAcquireRefName))
     }
   }
 

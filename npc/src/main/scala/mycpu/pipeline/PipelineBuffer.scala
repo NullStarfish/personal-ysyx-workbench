@@ -33,7 +33,18 @@ final class PipelineBuffer[T <: Data](
     HwInline.atomic(s"${name}_push") { t =>
       t.waitCondition(canPushNode)
       t.Prev.edge.add {
+        printf(p"[PPBF:${name}] push(valid<=1)\n")
         entryReg.bits := data
+        entryReg.valid := true.B
+      }
+    }
+
+  def push(assign: T => Unit): HwInline[Unit] =
+    HwInline.atomic(s"${name}_push_fill") { t =>
+      t.waitCondition(canPushNode)
+      assign(entryReg.bits)
+      t.Prev.edge.add {
+        printf(p"[PPBF:${name}] push_fill(valid<=1)\n")
         entryReg.valid := true.B
       }
     }
@@ -43,6 +54,7 @@ final class PipelineBuffer[T <: Data](
       t.waitCondition(canPopNode)
       val out = entryReg.bits
       t.Prev.edge.add {
+        printf(p"[PPBF:${name}] pop(valid<=0)\n")
         entryReg.valid := false.B
       }
       out

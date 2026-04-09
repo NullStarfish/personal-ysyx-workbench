@@ -60,6 +60,9 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
   }
 
   val api: ExecuteApiDecl = new ExecuteApiDecl {
+    override def execPath(): HwInline[Unit] = HwInline.thread(s"${name}_exec_path") { t =>
+      t.Step(s"${name}_Exec_Idle") {}
+    }
     override def add(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_add") { _ => record(1.U, rd, lhs, rhs) }
     override def sub(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_sub") { _ => record(2.U, rd, lhs, rhs) }
     override def and(rd: UInt, lhs: UInt, rhs: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_and") { _ => record(3.U, rd, lhs, rhs) }
@@ -79,9 +82,7 @@ final class DummyDecodeExecuteProcess(localName: String)(implicit kernel: Kernel
     override def ltu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ltu") { _ => record(17.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def ge(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_ge") { _ => record(30.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
     override def geu(lhs: UInt, rhs: UInt, pc: UInt, offset: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_geu") { _ => record(31.U, lhs = lhs, rhs = rhs, target = offset, pc = pc) }
-    override def memPath(): HwInline[Unit] = HwInline.thread(s"${name}_mem_path") { t =>
-      t.Step(s"${name}_Mem_Idle") {}
-    }
+    override def memPath(): HwInline[Unit] = execPath()
     override def loadWord(rd: UInt, base: UInt, offset: UInt): HwInline[Unit] =
       HwInline.atomic(s"${name}_load_word") { _ =>
         record(18.U, rd, base, offset)

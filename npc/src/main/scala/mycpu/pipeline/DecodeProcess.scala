@@ -193,12 +193,12 @@ final class DecodeProcess(
           }
         }
 
-        when(family =/= InstFamily.LOAD && family =/= InstFamily.STORE) {
+        when(family === InstFamily.SYSTEM || family === InstFamily.Unknown) {
           decodeWorker.jump(decodeWorker.stepRef("Finish"))
         }
       }
 
-      SysCall.Inline(exec.memPath())
+      SysCall.Inline(exec.execPath())
       decodeWorker.Step("Finish") {
         decodeCompleted := true.B
         decodeWorker.jump(decodeWorker.stepRef("Done"))
