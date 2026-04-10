@@ -22,12 +22,9 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      var cycles = 0
-      while (cycles < 40) {
+      stepUntilRetireCount(c, targetRetires = 3, maxCycles = 40, {
         pending = serviceReadBus(c, memory, pending)
-        c.clock.step()
-        cycles += 1
-      }
+      })
 
       c.io.debug_regs(1).expect("h10".U)
       c.io.debug_regs(2).expect("h11".U)
@@ -50,12 +47,9 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      var cycles = 0
-      while (cycles < 40) {
+      stepUntilRetireCount(c, targetRetires = 4, maxCycles = 40, {
         pending = serviceReadBus(c, memory, pending)
-        c.clock.step()
-        cycles += 1
-      }
+      })
 
       c.io.debug_regs(1).expect(1.U)
       c.io.debug_regs(2).expect(0.U)

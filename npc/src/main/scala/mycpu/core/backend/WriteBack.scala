@@ -8,12 +8,18 @@ import mycpu.core.bundles._
 class WriteBack extends Module {
   val io = IO(new Bundle {
     val in       = Flipped(Decoupled(new MemoryPacket))
-    val regWrite = new WriteBackIO() 
+    val regWrite = new WriteBackIO()
+    val retire = Output(new RetireEventBundle)
   })
 
-  io.in.ready := true.B 
+  io.in.ready := true.B
 
   io.regWrite.wen  := io.in.valid && io.in.bits.wb.regWen
   io.regWrite.addr := io.in.bits.wb.rd
   io.regWrite.data := io.in.bits.wbData
+
+  io.retire.valid := io.in.fire
+  io.retire.regWen := io.in.bits.wb.regWen
+  io.retire.rd := io.in.bits.wb.rd
+  io.retire.data := io.in.bits.wbData
 }

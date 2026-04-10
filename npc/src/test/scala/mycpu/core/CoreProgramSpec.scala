@@ -11,7 +11,8 @@ import scala.collection.mutable
 class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
   private def runReadOnlyProgram(
       program: Seq[BigInt],
-      cycles: Int = 80,
+      targetRetires: Int,
+      maxCycles: Int = 80,
       extraWords: Seq[(BigInt, BigInt)] = Seq.empty,
   )(check: Core => Unit): Unit = {
     simulate(new Core) { c =>
@@ -25,12 +26,9 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      var i = 0
-      while (i < cycles) {
+      stepUntilRetireCount(c, targetRetires, maxCycles, {
         pending = serviceReadBus(c, memory, pending)
-        c.clock.step()
-        i += 1
-      }
+      })
 
       check(c)
     }
@@ -39,7 +37,8 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
   private def runMutableProgram(
       program: Seq[BigInt],
       mutableWords: Seq[(BigInt, BigInt)],
-      cycles: Int = 100,
+      targetRetires: Int,
+      maxCycles: Int = 100,
   )(check: (Core, mutable.Map[BigInt, BigInt]) => Unit): Unit = {
     simulate(new Core) { c =>
       val memory = mutable.Map[BigInt, BigInt](
@@ -55,14 +54,11 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
 
       var pendingRead: List[ReadTxn] = Nil
       var pendingWriteResp: Option[WriteResp] = None
-      var i = 0
-      while (i < cycles) {
+      stepUntilRetireCount(c, targetRetires, maxCycles, {
         val next = serviceBus(c, memory, pendingRead, pendingWriteResp)
         pendingRead = next._1
         pendingWriteResp = next._2
-        c.clock.step()
-        i += 1
-      }
+      })
 
       check(c, memory)
     }
@@ -85,12 +81,9 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      var cycles = 0
-      while (cycles < 50) {
+      stepUntilRetireCount(c, targetRetires = 5, maxCycles = 50, {
         pending = serviceReadBus(c, memory, pending)
-        c.clock.step()
-        cycles += 1
-      }
+      })
 
       c.io.debug_regs(1).expect(1.U)
       c.io.debug_regs(2).expect(1.U)
@@ -121,12 +114,9 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      var cycles = 0
-      while (cycles < 80) {
+      stepUntilRetireCount(c, targetRetires = 9, maxCycles = 80, {
         pending = serviceReadBus(c, memory, pending)
-        c.clock.step()
-        cycles += 1
-      }
+      })
 
       c.io.debug_regs(1).expect(5.U)
       c.io.debug_regs(2).expect(10.U)
@@ -148,6 +138,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         BigInt("00100073", 16),      // ebreak
       ),
       mutableWords = Seq(BigInt(0x100) -> BigInt(0)),
+      targetRetires = 5,
     ) { (c, memory) =>
       c.io.debug_regs(1).expect("h55".U)
       c.io.debug_regs(2).expect("h55".U)
@@ -163,6 +154,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         encodeAuipc(rd = 3, imm20 = 0x00001),
         nop,
       ),
+      targetRetires = 3,
     ) { c =>
       c.io.debug_regs(2).expect("h12345000".U)
       c.io.debug_regs(3).expect((START_ADDR + 0x1000L + 4L).U)
@@ -180,6 +172,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         encodeOpImm(funct3 = 0, rd = 7, rs1 = 0, imm = 3),
         nop,
       ),
+      targetRetires = 5,
     ) { c =>
       c.io.debug_regs(1).expect((START_ADDR + 4).U)
       c.io.debug_regs(2).expect(0.U)
@@ -210,7 +203,8 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         encodeOp(7, 0x00, 15, 10, 11),
         nop,
       ),
-      cycles = 100,
+      targetRetires = 16,
+      maxCycles = 100,
     ) { c =>
       c.io.debug_regs(1).expect(7.U)
       c.io.debug_regs(2).expect(1.U)
@@ -254,7 +248,8 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         BigInt(12) -> BigInt(0),
         BigInt(16) -> BigInt(0),
       ),
-      cycles = 140,
+      targetRetires = 13,
+      maxCycles = 140,
     ) { (c, memory) =>
       c.io.debug_regs(1).expect("hffffffff".U)
       c.io.debug_regs(2).expect("h000000ff".U)

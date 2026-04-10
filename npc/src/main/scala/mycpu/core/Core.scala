@@ -4,7 +4,7 @@ import chisel3._
 import mycpu.common._
 import mycpu.core.backend._
 import mycpu.core.bundles._
-import mycpu.core.components.{FlushableStage, HazardUnit}
+import mycpu.core.components.{FlushableStage, HazardUnit, Tracer}
 import mycpu.core.frontend.Fetch
 import mycpu.utils._
 
@@ -12,6 +12,7 @@ class Core extends Module {
   val io = IO(new Bundle {
     val master = new AXI4Bundle(idWidth = AXI_ID_WIDTH, addrWidth = XLEN, dataWidth = XLEN)
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
+    val trace = Output(new CoreTraceBundle)
   })
 
   val fetch = Module(new Fetch)
@@ -20,6 +21,7 @@ class Core extends Module {
   val lsu = Module(new LSU)
   val writeBack = Module(new WriteBack)
   val hazard = Module(new HazardUnit)
+  val tracer = Module(new Tracer)
   val ifId = Module(new FlushableStage(new FetchPacket))
   val idEx = Module(new FlushableStage(new DecodePacket))
   val exMem = Module(new FlushableStage(new ExecutePacket))
@@ -41,6 +43,13 @@ class Core extends Module {
 
   decode.io.regWrite <> writeBack.io.regWrite
   io.debug_regs := decode.io.debug_regs
+
+  tracer.io.ifValid := ifId.io.deq.valid
+  tracer.io.idValid := idEx.io.deq.valid
+  tracer.io.exValid := exMem.io.deq.valid
+  tracer.io.memValid := memWb.io.deq.valid
+  tracer.io.retire := writeBack.io.retire
+  io.trace := tracer.io.trace
 
   val exForward = Wire(new ForwardInfo)
   exForward.valid := exMem.io.deq.valid && exMem.io.deq.bits.wb.regWen && !exMem.io.deq.bits.mem.valid && (exMem.io.deq.bits.wb.rd =/= 0.U)

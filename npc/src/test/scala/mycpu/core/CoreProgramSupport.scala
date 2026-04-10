@@ -24,6 +24,20 @@ trait CoreProgramSupport {
     c.io.master.r.bits.last.poke(false.B)
   }
 
+  protected def stepUntilRetireCount(
+      c: Core,
+      targetRetires: Int,
+      maxCycles: Int,
+      service: => Unit,
+  ): Unit = {
+    var cycles = 0
+    while (c.io.trace.retireCount.peek().litValue < targetRetires && cycles < maxCycles) {
+      service
+      c.clock.step()
+      cycles += 1
+    }
+  }
+
   protected def serviceReadBus(
       c: Core,
       memory: Map[BigInt, BigInt],
