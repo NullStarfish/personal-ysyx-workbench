@@ -7,11 +7,15 @@ import mycpu.core.bundles._
 import mycpu.utils._
 
 class Fetch extends Module {
+  class FetchMeta extends Bundle {
+    val pc = UInt(XLEN.W)
+    val epoch = Bool()
+  }
+
   val io = IO(new Bundle {
     val axi = new AXI4LiteBundle(XLEN, XLEN)
     val out = Decoupled(new FetchPacket)
-    val next_pc = Input(UInt(XLEN.W))
-    val pc_update_en = Input(Bool())
+    val ctrl = Input(new FetchControlBundle)
   })
 
   val readBridge = Module(new AXI4ReadBridge(XLEN, XLEN))
@@ -26,12 +30,10 @@ class Fetch extends Module {
 
   val pcReg = RegInit(START_ADDR.U(XLEN.W))
   val epochReg = RegInit(false.B)
-  val reqPendingReg = RegInit(false.B)
-  val reqPcReg = Reg(UInt(XLEN.W))
-  val reqEpochReg = Reg(Bool())
 
   val outValidReg = RegInit(false.B)
   val outBitsReg = Reg(new FetchPacket)
+  val metaQueue = Module(new Queue(new FetchMeta, entries = 4))
 
   val reqBits = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
   reqBits.id := 0.U
@@ -44,9 +46,17 @@ class Fetch extends Module {
   reqBits.prot := 0.U
   reqBits.qos := 0.U
 
-  readBridge.io.rReq.valid := !reqPendingReg && !outValidReg && !io.pc_update_en
+  val staleOutstanding = metaQueue.io.count === 1.U && metaQueue.io.deq.valid && (metaQueue.io.deq.bits.epoch =/= epochReg)
+  val canIssueReq = !outValidReg && !io.ctrl.stall && !io.ctrl.redirect.valid &&
+    metaQueue.io.enq.ready && (metaQueue.io.count === 0.U || staleOutstanding)
+  readBridge.io.rReq.valid := canIssueReq
   readBridge.io.rReq.bits := reqBits
-  readBridge.io.rStream.ready := true.B
+  metaQueue.io.enq.valid := readBridge.io.rReq.fire
+  metaQueue.io.enq.bits.pc := pcReg
+  metaQueue.io.enq.bits.epoch := epochReg
+
+  metaQueue.io.deq.ready := readBridge.io.rStream.valid && !outValidReg
+  readBridge.io.rStream.ready := metaQueue.io.deq.valid && !outValidReg
 
   io.out.valid := outValidReg
   io.out.bits := outBitsReg
@@ -55,25 +65,21 @@ class Fetch extends Module {
     outValidReg := false.B
   }
 
-  when(io.pc_update_en) {
-    pcReg := io.next_pc
+  when(io.ctrl.redirect.valid) {
+    pcReg := io.ctrl.redirect.bits
     epochReg := ~epochReg
     outValidReg := false.B
   }
 
   when(readBridge.io.rReq.fire) {
-    reqPendingReg := true.B
-    reqPcReg := pcReg
-    reqEpochReg := epochReg
     pcReg := pcReg + 4.U
   }
 
   when(readBridge.io.rStream.fire) {
-    reqPendingReg := false.B
-    when(reqEpochReg === epochReg) {
-      outBitsReg.pc := reqPcReg
+    when(metaQueue.io.deq.bits.epoch === epochReg) {
+      outBitsReg.pc := metaQueue.io.deq.bits.pc
       outBitsReg.inst := readBridge.io.rStream.bits.data
-      outBitsReg.dnpc := reqPcReg + 4.U
+      outBitsReg.dnpc := metaQueue.io.deq.bits.pc + 4.U
       outBitsReg.isException := readBridge.io.rStream.bits.resp =/= AXI4Parameters.RESP_OKAY
       outValidReg := true.B
     }

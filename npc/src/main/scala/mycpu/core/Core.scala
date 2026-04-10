@@ -75,8 +75,8 @@ class Core extends Module {
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
   hazard.io.exLoadValid := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && !exMem.io.deq.bits.mem.write
   hazard.io.exLoadRd := exMem.io.deq.bits.wb.rd
-  hazard.io.memPendingLoad := lsu.io.pendingLoad
-  hazard.io.memPendingRd := lsu.io.pendingRd
+  hazard.io.memPendingLoad := lsu.io.status.pendingLoad
+  hazard.io.memPendingRd := lsu.io.status.pendingRd
   hazard.io.exFire := exFire
   hazard.io.exRedirectValid := execute.io.out.bits.redirect.valid
 
@@ -93,8 +93,9 @@ class Core extends Module {
   ifId.io.enq.valid := fetch.io.out.valid
   ifId.io.enq.bits := fetch.io.out.bits
   ifId.io.deq.ready := decode.io.in.ready
-  fetch.io.next_pc := execute.io.out.bits.redirect.bits
-  fetch.io.pc_update_en := redirectFlush
+  fetch.io.ctrl.stall := !ifId.io.enq.ready
+  fetch.io.ctrl.redirect.valid := redirectFlush
+  fetch.io.ctrl.redirect.bits := execute.io.out.bits.redirect.bits
 
   memWb.io.enq.valid := lsu.io.out.valid
   memWb.io.enq.bits := lsu.io.out.bits

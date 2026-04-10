@@ -27,44 +27,44 @@ trait CoreProgramSupport {
   protected def serviceReadBus(
       c: Core,
       memory: Map[BigInt, BigInt],
-      pending: Option[ReadTxn],
-  ): Option[ReadTxn] = {
+      pending: List[ReadTxn],
+  ): List[ReadTxn] = {
     initBus(c)
 
     val arValid = c.io.master.ar.valid.peek().litValue == 1
     val nextPending =
-      if (pending.isEmpty && arValid) {
+      if (arValid) {
         c.io.master.ar.ready.poke(true.B)
-        Some(ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1))
+        pending :+ ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1)
       } else pending
 
     nextPending match {
-      case Some(ReadTxn(addr, 0)) =>
+      case ReadTxn(addr, 0) :: tail =>
         c.io.master.r.valid.poke(true.B)
         c.io.master.r.bits.id.poke(0.U)
         c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.master.r.bits.resp.poke(0.U)
         c.io.master.r.bits.last.poke(true.B)
-        if (c.io.master.r.ready.peek().litValue == 1) None else nextPending
-      case Some(txn) =>
-        Some(txn.copy(delay = txn.delay - 1))
-      case None =>
-        None
+        if (c.io.master.r.ready.peek().litValue == 1) tail else nextPending
+      case head :: tail =>
+        head.copy(delay = head.delay - 1) :: tail
+      case Nil =>
+        Nil
     }
   }
 
   protected def serviceBus(
       c: Core,
       memory: mutable.Map[BigInt, BigInt],
-      pendingRead: Option[ReadTxn],
+      pendingRead: List[ReadTxn],
       pendingWriteResp: Option[WriteResp],
-  ): (Option[ReadTxn], Option[WriteResp]) = {
+  ): (List[ReadTxn], Option[WriteResp]) = {
     initBus(c)
 
     val nextRead =
-      if (pendingRead.isEmpty && c.io.master.ar.valid.peek().litValue == 1) {
+      if (c.io.master.ar.valid.peek().litValue == 1) {
         c.io.master.ar.ready.poke(true.B)
-        Some(ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1))
+        pendingRead :+ ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1)
       } else pendingRead
 
     val nextWriteResp =
@@ -92,17 +92,17 @@ trait CoreProgramSupport {
       } else pendingWriteResp
 
     val servicedRead = nextRead match {
-      case Some(ReadTxn(addr, 0)) =>
+      case ReadTxn(addr, 0) :: tail =>
         c.io.master.r.valid.poke(true.B)
         c.io.master.r.bits.id.poke(0.U)
         c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.master.r.bits.resp.poke(0.U)
         c.io.master.r.bits.last.poke(true.B)
-        if (c.io.master.r.ready.peek().litValue == 1) None else nextRead
-      case Some(txn) =>
-        Some(txn.copy(delay = txn.delay - 1))
-      case None =>
-        None
+        if (c.io.master.r.ready.peek().litValue == 1) tail else nextRead
+      case head :: tail =>
+        head.copy(delay = head.delay - 1) :: tail
+      case Nil =>
+        Nil
     }
 
     val servicedWriteResp = nextWriteResp match {

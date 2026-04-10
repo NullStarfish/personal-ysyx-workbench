@@ -58,6 +58,7 @@ class LSUSpec extends AnyFlatSpec {
       c.io.out.bits.wb.rd.expect(5.U)
       c.io.out.bits.wb.regWen.expect(true.B)
       c.io.out.bits.wbData.expect("h12345678".U)
+      c.io.status.pendingLoad.expect(false.B)
 
       c.io.out.ready.poke(true.B)
       c.clock.step()
@@ -85,6 +86,8 @@ class LSUSpec extends AnyFlatSpec {
       c.io.in.valid.poke(false.B)
       initAxi(c)
       c.io.out.ready.poke(true.B)
+      c.io.status.pendingLoad.expect(true.B)
+      c.io.status.pendingRd.expect(3.U)
       c.io.axi.r.valid.poke(true.B)
       c.io.axi.r.bits.id.poke(0.U)
       c.io.axi.r.bits.data.poke("h00008011".U)

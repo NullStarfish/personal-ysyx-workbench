@@ -26,31 +26,29 @@ class FetchSpec extends AnyFlatSpec {
   private def serviceReadBus(
       c: Fetch,
       memory: Map[BigInt, BigInt],
-      pending: Option[ReadTxn],
-  ): Option[ReadTxn] = {
+      pending: List[ReadTxn],
+  ): List[ReadTxn] = {
     initAxiInputs(c)
 
     val arValid = c.io.axi.ar.valid.peek().litValue == 1
     val nextPending =
-      if (pending.isEmpty && arValid) {
+      if (arValid) {
         c.io.axi.ar.ready.poke(true.B)
-        Some(ReadTxn(c.io.axi.ar.bits.addr.peek().litValue, delay = 1))
-      } else {
-        pending
-      }
+        pending :+ ReadTxn(c.io.axi.ar.bits.addr.peek().litValue, delay = 1)
+      } else pending
 
     nextPending match {
-      case Some(ReadTxn(addr, 0)) =>
+      case ReadTxn(addr, 0) :: tail =>
         c.io.axi.r.valid.poke(true.B)
         c.io.axi.r.bits.id.poke(0.U)
         c.io.axi.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.axi.r.bits.resp.poke(0.U)
         c.io.axi.r.bits.last.poke(true.B)
-        if (c.io.axi.r.ready.peek().litValue == 1) None else nextPending
-      case Some(txn) =>
-        Some(txn.copy(delay = txn.delay - 1))
-      case None =>
-        None
+        if (c.io.axi.r.ready.peek().litValue == 1) tail else nextPending
+      case head :: tail =>
+        head.copy(delay = head.delay - 1) :: tail
+      case Nil =>
+        Nil
     }
   }
 
@@ -61,15 +59,16 @@ class FetchSpec extends AnyFlatSpec {
       )
 
       c.reset.poke(true.B)
-      c.io.next_pc.poke(0.U)
-      c.io.pc_update_en.poke(false.B)
+      c.io.ctrl.stall.poke(false.B)
+      c.io.ctrl.redirect.valid.poke(false.B)
+      c.io.ctrl.redirect.bits.poke(0.U)
       c.io.out.ready.poke(true.B)
       initAxiInputs(c)
       c.clock.step()
 
       c.reset.poke(false.B)
 
-      var pending: Option[ReadTxn] = None
+      var pending: List[ReadTxn] = Nil
       var cycles = 0
       while (c.io.out.valid.peek().litValue == 0 && cycles < 20) {
         pending = serviceReadBus(c, memory, pending)
@@ -95,14 +94,15 @@ class FetchSpec extends AnyFlatSpec {
       )
 
       c.reset.poke(true.B)
-      c.io.next_pc.poke(0.U)
-      c.io.pc_update_en.poke(false.B)
+      c.io.ctrl.stall.poke(false.B)
+      c.io.ctrl.redirect.valid.poke(false.B)
+      c.io.ctrl.redirect.bits.poke(0.U)
       c.io.out.ready.poke(true.B)
       initAxiInputs(c)
       c.clock.step()
       c.reset.poke(false.B)
 
-      var pending: Option[ReadTxn] = None
+      var pending: List[ReadTxn] = Nil
       var cycles = 0
       while (c.io.out.valid.peek().litValue == 0 && cycles < 20) {
         pending = serviceReadBus(c, memory, pending)
@@ -116,11 +116,11 @@ class FetchSpec extends AnyFlatSpec {
 
       c.clock.step()
 
-      c.io.next_pc.poke(secondPc.U)
-      c.io.pc_update_en.poke(true.B)
+      c.io.ctrl.redirect.bits.poke(secondPc.U)
+      c.io.ctrl.redirect.valid.poke(true.B)
       pending = serviceReadBus(c, memory, pending)
       c.clock.step()
-      c.io.pc_update_en.poke(false.B)
+      c.io.ctrl.redirect.valid.poke(false.B)
 
       cycles = 0
       while (c.io.out.valid.peek().litValue == 0 && cycles < 20) {

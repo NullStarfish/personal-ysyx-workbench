@@ -56,6 +56,11 @@ class FetchPacket extends Bundle {
   val isException = Bool()
 }
 
+class FetchControlBundle extends Bundle {
+  val stall = Bool()
+  val redirect = Valid(UInt(XLEN.W))
+}
+
 class ExecuteDataBundle extends Bundle {
   val pc = XLenU
   val lhs = XLenU
@@ -107,6 +112,11 @@ class ExecutePacket extends Bundle {
 class MemoryPacket extends Bundle {
   val wbData = XLenU
   val wb = new WritebackCtrlBundle
+}
+
+class LsuStatusBundle extends Bundle {
+  val pendingLoad = Bool()
+  val pendingRd = UInt(5.W)
 }
 
 class WriteBackIO extends Bundle {

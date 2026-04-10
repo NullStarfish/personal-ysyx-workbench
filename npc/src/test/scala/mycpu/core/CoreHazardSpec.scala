@@ -21,7 +21,7 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
       c.clock.step()
       c.reset.poke(false.B)
 
-      var pending: Option[ReadTxn] = None
+      var pending: List[ReadTxn] = Nil
       var cycles = 0
       while (cycles < 40) {
         pending = serviceReadBus(c, memory, pending)
@@ -49,7 +49,7 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
       c.clock.step()
       c.reset.poke(false.B)
 
-      var pending: Option[ReadTxn] = None
+      var pending: List[ReadTxn] = Nil
       var cycles = 0
       while (cycles < 40) {
         pending = serviceReadBus(c, memory, pending)
