@@ -11,4 +11,5 @@ final class PipelineLinks {
   val memory = new ApiRef[MemoryApiDecl]
   val lsu = new ApiRef[LsuApiDecl]
   val writeback = new ApiRef[WritebackApiDecl]
+  val hazard = new ApiRef[ControlHazardApiDecl]
 }

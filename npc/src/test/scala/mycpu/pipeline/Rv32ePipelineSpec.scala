@@ -19,7 +19,7 @@ class Rv32ePipelineSpec extends AnyFlatSpec {
       c.reset.poke(false.B)
 
       var cycles = 0
-      while (c.io.done.peek().litValue == 0 && cycles < 200) {
+      while (c.io.done.peek().litValue == 0 && cycles < 500) {
         c.clock.step()
         cycles += 1
       }

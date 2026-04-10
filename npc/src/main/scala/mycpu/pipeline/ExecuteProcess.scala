@@ -8,6 +8,7 @@ import mycpu.common._
 final class ExecuteProcess(
     lsuRef: ApiRef[LsuApiDecl],
     writebackRef: ApiRef[WritebackApiDecl],
+    hazardRef: ApiRef[ControlHazardApiDecl],
     localName: String = "Execute",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
@@ -72,6 +73,7 @@ final class ExecuteProcess(
       val csrApi = csr.api
       val lsuApi = SysCall.Inline(writeBoundLsuApi())
       val wbApi = SysCall.Inline(writeBoundWritebackApi())
+      val hazardApi = SysCall.Inline(writeBoundHazardApi())
 
       executeWorker.Step("WaitReq") {
         executeWorker.waitCondition(executeReqBuffer.valid)
@@ -127,6 +129,22 @@ final class ExecuteProcess(
 
       def issueWriteRegAndRedirect(result: UInt, nextPc: UInt): Unit = {
         SysCall.Inline(wbApi.writeRegAndRedirect(execReqReg.wbToken, result, nextPc))
+      }
+
+      def issueHazardRedirect(nextPc: UInt): Unit = {
+        SysCall.Inline(hazardApi.redirect(nextPc))
+      }
+
+      def issueHazardRedirectRelative(delta: SInt): Unit = {
+        SysCall.Inline(hazardApi.redirectRelative(delta))
+      }
+
+      def issueHazardRedirectNoCommit(nextPc: UInt): Unit = {
+        SysCall.Inline(hazardApi.redirectNoCommit(nextPc))
+      }
+
+      def issueHazardRedirectRelativeNoCommit(delta: SInt): Unit = {
+        SysCall.Inline(hazardApi.redirectRelativeNoCommit(delta))
       }
 
       def branchTarget: UInt = SysCall.Inline(aluApi.add(execReqReg.pc, execReqReg.data))
@@ -201,76 +219,104 @@ final class ExecuteProcess(
       executeWorker.Step("AfterExecWriteReg") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecRedirect") {
-        issueRedirect(execReqReg.data)
+        issueHazardRedirect(execReqReg.data)
       }
-      SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecRedirect") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecRedirectRelative") {
-        SysCall.Inline(wbApi.redirectRelative(execReqReg.data.asSInt))
+        issueHazardRedirectRelative(execReqReg.data.asSInt)
       }
-      SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecRedirectRelative") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchEq") {
         when(execReqReg.lhs === execReqReg.rhs) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchEqTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchEqCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchEqCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchEq") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchEqTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchNe") {
         when(execReqReg.lhs =/= execReqReg.rhs) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchNeTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchNeCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchNeCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchNe") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchNeTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchLt") {
         when(execReqReg.lhs.asSInt < execReqReg.rhs.asSInt) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchLtTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchLtCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchLtCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchLt") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchLtTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchLtu") {
         when(execReqReg.lhs < execReqReg.rhs) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchLtuTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchLtuCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchLtuCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchLtu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchLtuTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchGe") {
         when(execReqReg.lhs.asSInt >= execReqReg.rhs.asSInt) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchGeTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchGeCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchGeCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchGe") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchGeTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecBranchGeu") {
         when(execReqReg.lhs >= execReqReg.rhs) {
-          issueRedirect(branchTarget)
+          issueHazardRedirect(branchTarget)
+          executeWorker.jump(executeWorker.stepRef("AfterExecBranchGeuTaken"))
         }.otherwise {
-          SysCall.Inline(wbApi.commit())
+          executeWorker.jump(executeWorker.stepRef("ExecBranchGeuCommit"))
         }
+      }
+      executeWorker.Step("ExecBranchGeuCommit") {
+        SysCall.Inline(wbApi.commit())
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecBranchGeu") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
+      executeWorker.Step("AfterExecBranchGeuTaken") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
 
       executeWorker.Step("ExecLoadWord") {
         SysCall.Inline(lsuApi.loadWord(execReqReg.wbToken, SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))))
@@ -321,7 +367,8 @@ final class ExecuteProcess(
       executeWorker.Step("ExecJal") {
         val ret = execReqReg.pc + 4.U(XLEN.W)
         val target = (execReqReg.pc.asSInt + execReqReg.data.asSInt).asUInt
-        issueWriteRegAndRedirect(ret, target)
+        issueHazardRedirectNoCommit(target)
+        issueWriteReg(ret)
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecJal") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
@@ -329,7 +376,8 @@ final class ExecuteProcess(
       executeWorker.Step("ExecJalr") {
         val ret = execReqReg.pc + 4.U(XLEN.W)
         val rawTarget = SysCall.Inline(aluApi.add(execReqReg.lhs, execReqReg.rhs))
-        issueWriteRegAndRedirect(ret, rawTarget & (~1.U(XLEN.W)))
+        issueHazardRedirectNoCommit(rawTarget & (~1.U(XLEN.W)))
+        issueWriteReg(ret)
       }
       SysCall.Inline(wbApi.wbPath())
       executeWorker.Step("AfterExecJalr") { executeWorker.jump(executeWorker.stepRef("WaitReq")) }
@@ -511,5 +559,11 @@ final class ExecuteProcess(
 
   private def writeBoundWritebackApi(): HwInline[WritebackApiDecl] = HwInline.bindings(s"${name}_writeback_api") { _ =>
     writebackRef.get
+  }
+
+  def clearExecuteReqBuffer(): HwInline[Unit] = executeReqBuffer.clear()
+
+  private def writeBoundHazardApi(): HwInline[ControlHazardApiDecl] = HwInline.bindings(s"${name}_hazard_api") { _ =>
+    hazardRef.get
   }
 }

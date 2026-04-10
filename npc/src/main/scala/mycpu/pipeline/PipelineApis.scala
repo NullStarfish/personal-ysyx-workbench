@@ -48,6 +48,13 @@ trait WritebackApiDecl {
   def commit(): HwInline[Unit]
 }
 
+trait ControlHazardApiDecl {
+  def redirect(nextPc: UInt): HwInline[Unit]
+  def redirectRelative(delta: SInt): HwInline[Unit]
+  def redirectNoCommit(nextPc: UInt): HwInline[Unit]
+  def redirectRelativeNoCommit(delta: SInt): HwInline[Unit]
+}
+
 trait AluApiDecl {
   def add(lhs: UInt, rhs: UInt): HwInline[UInt]
   def sub(lhs: UInt, rhs: UInt): HwInline[UInt]

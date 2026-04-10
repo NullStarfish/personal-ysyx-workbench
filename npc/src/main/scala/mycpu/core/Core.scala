@@ -34,7 +34,8 @@ class Core extends Module {
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
     val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
     val writeback = spawn(new WritebackProcess(fetch.api, regfile.api, tracer.api, "Writeback"))
-    val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
+    val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, "Execute"))
+    val hazard = spawn(new ControlHazardProcess(fetch.api, tracer.api, Seq(() => execute.clearExecuteReqBuffer()), "ControlHazard"))
     val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
 
     override def entry(): Unit = {}
@@ -50,6 +51,7 @@ class Core extends Module {
   Init.links.memory.bind(Init.memory.api(1))
   Init.links.lsu.bind(Init.lsu.api)
   Init.links.writeback.bind(Init.writeback.api)
+  Init.links.hazard.bind(Init.hazard.api)
 
   Init.tracer.build()
   Init.lsu.build()

@@ -69,7 +69,6 @@ final class DummyExecuteLsuProcess(localName: String)(implicit kernel: Kernel) e
 
 final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
   val x = RegInit(VecInit(Seq.fill(32)(0.U(XLEN.W))))
-  val pc = RegInit(START_ADDR.U(XLEN.W))
 
   val api: WritebackApiDecl = new WritebackApiDecl {
     override def wbPath(): HwInline[Unit] = {
@@ -90,9 +89,23 @@ final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Ker
       when(token =/= 0.U) {
         x(token) := data
       }
-      pc := nextPc
     }
 
+    override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => }
+
+    override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ => }
+
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+    }
+  }
+
+  override def entry(): Unit = {}
+}
+
+final class DummyExecuteHazardProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val pc = RegInit(START_ADDR.U(XLEN.W))
+
+  val api: ControlHazardApiDecl = new ControlHazardApiDecl {
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ =>
       pc := nextPc
     }
@@ -101,8 +114,14 @@ final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Ker
       pc := (pc.asSInt + delta).asUInt
     }
 
-    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+    override def redirectNoCommit(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_no_commit") { _ =>
+      pc := nextPc
     }
+
+    override def redirectRelativeNoCommit(delta: SInt): HwInline[Unit] =
+      HwInline.atomic(s"${name}_redirect_relative_no_commit") { _ =>
+        pc := (pc.asSInt + delta).asUInt
+      }
   }
 
   override def entry(): Unit = {}
@@ -131,7 +150,8 @@ class ExecuteProcessHarness extends Module {
     val links = new PipelineLinks
     val lsu = spawn(new DummyExecuteLsuProcess("Lsu"))
     val writeback = spawn(new DummyExecuteWritebackProcess("Writeback"))
-    val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, "Execute"))
+    val hazard = spawn(new DummyExecuteHazardProcess("Hazard"))
+    val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, "Execute"))
     private val addWorker = createThread("AddWorker")
     private val subWorker = createThread("SubWorker")
     private val csrRwWorker = createThread("CsrRwWorker")
@@ -270,7 +290,7 @@ class ExecuteProcessHarness extends Module {
         io.x4 := writeback.x(4)
         io.x5 := writeback.x(5)
         io.x6 := writeback.x(6)
-        io.pc := writeback.pc
+        io.pc := hazard.pc
         io.lsuOp := lsu.opKind
         io.lsuRd := lsu.rdReg
         io.lsuAddr := lsu.addrReg
@@ -282,6 +302,7 @@ class ExecuteProcessHarness extends Module {
 
   Init.links.lsu.bind(Init.lsu.api)
   Init.links.writeback.bind(Init.writeback.api)
+  Init.links.hazard.bind(Init.hazard.api)
   Init.execute.build()
   Init.build()
 }
