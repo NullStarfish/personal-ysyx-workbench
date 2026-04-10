@@ -5,14 +5,14 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.utils._
-import os.read
-import os.write
 
 class LSU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new ExecutePacket))
     val out = Decoupled(new MemoryPacket)
     val axi = new AXI4LiteBundle(XLEN, XLEN) // 统一接口
+    val pendingLoad = Output(Bool())
+    val pendingRd = Output(UInt(5.W))
   })
 
 //=======================================================
@@ -51,14 +51,14 @@ class LSU extends Module {
   //非对齐地址，wstrb，size，三种寻址方式，没有问题
 
 
-  val inAddrOffset = io.in.bits.aluResult(1, 0)
+  val inAddrOffset = io.in.bits.result(1, 0)
   val inWstrb = WireDefault(0.U(4.W))
   val inWdata = WireDefault(0.U(XLEN.W))
   val size    = WireDefault(0.U(3.W))
-  switch(io.in.bits.ctrl.memFunct3) {
-    is(0.U) { inWstrb := "b0001".U << inAddrOffset; inWdata := io.in.bits.memWData(7,0) << (inAddrOffset << 3);  size := 0.U } 
-    is(1.U) { inWstrb := "b0011".U << inAddrOffset; inWdata := io.in.bits.memWData(15,0) << (inAddrOffset << 3); size := 1.U } 
-    is(2.U) { inWstrb := "b1111".U;                  inWdata := io.in.bits.memWData;                             size := 2.U} 
+  switch(io.in.bits.mem.subop) {
+    is(ExecSubop.Byte) { inWstrb := "b0001".U << inAddrOffset; inWdata := io.in.bits.rhs(7,0) << (inAddrOffset << 3);  size := 0.U }
+    is(ExecSubop.Half) { inWstrb := "b0011".U << inAddrOffset; inWdata := io.in.bits.rhs(15,0) << (inAddrOffset << 3); size := 1.U }
+    is(ExecSubop.Word) { inWstrb := "b1111".U;                  inWdata := io.in.bits.rhs;                              size := 2.U }
   }
 
 
@@ -72,7 +72,7 @@ class LSU extends Module {
     val w = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
     // 这里设置通用的“安全”默认值
     w.id    := 1.U
-    w.addr  := io.in.bits.aluResult
+    w.addr  := io.in.bits.result
     //w.addr  := Cat(io.in.bits.aluResult(XLEN -1, 2), "b00".U(2.W)) // 地址对齐
     w.len   := 0.U
     w.size  := size
@@ -111,34 +111,32 @@ class LSU extends Module {
 
 
   //Bridge接口
-  val isMemRead  = io.in.bits.ctrl.memEn && !io.in.bits.ctrl.memWen
-  val isMemWrite = io.in.bits.ctrl.memEn && io.in.bits.ctrl.memWen
-  val isNonMem   = !io.in.bits.ctrl.memEn
+  val isMemRead  = io.in.bits.mem.valid && !io.in.bits.mem.write
+  val isMemWrite = io.in.bits.mem.valid && io.in.bits.mem.write
+  val isNonMem   = !io.in.bits.mem.valid
 
 
   val rawReadData = loadPack.data
   val finalLoadData = Wire(UInt(32.W))
-  val shiftedData = rawReadData >> (reqReg.aluResult(1, 0) << 3)
+  val shiftedData = rawReadData >> (reqReg.result(1, 0) << 3)
   finalLoadData := 0.U
 
 
 
 
-  switch(reqReg.ctrl.memFunct3) {
-    is(0.U) { finalLoadData := Cat(Fill(24, shiftedData(7)), shiftedData(7,0)) }
-    is(1.U) { finalLoadData := Cat(Fill(16, shiftedData(15)), shiftedData(15,0)) }
-    is(2.U) { finalLoadData := rawReadData }
-    is(4.U) { finalLoadData := shiftedData(7,0) }
-    is(5.U) { finalLoadData := shiftedData(15,0) }
+  switch(reqReg.mem.subop) {
+    is(ExecSubop.Byte) {
+      finalLoadData := Mux(reqReg.mem.unsigned, shiftedData(7, 0), Cat(Fill(24, shiftedData(7)), shiftedData(7, 0)))
+    }
+    is(ExecSubop.Half) {
+      finalLoadData := Mux(reqReg.mem.unsigned, shiftedData(15, 0), Cat(Fill(16, shiftedData(15)), shiftedData(15, 0)))
+    }
+    is(ExecSubop.Word) { finalLoadData := rawReadData }
   }
 
-
-
-  io.out.bits.connectDebug(reqReg)
-  io.out.bits.rdAddr   := reqReg.rdAddr
-  io.out.bits.regWen   := reqReg.ctrl.regWen
-  io.out.bits.pcTarget := reqReg.pcTarget
-  io.out.bits.wbData   := Mux(reqReg.ctrl.memEn && !reqReg.ctrl.memWen, finalLoadData, reqReg.aluResult)
+  io.out.bits.wb.rd := reqReg.wb.rd
+  io.out.bits.wb.regWen := reqReg.wb.regWen
+  io.out.bits.wbData := Mux(reqReg.mem.valid && !reqReg.mem.write, finalLoadData, reqReg.result)
 
 
 
@@ -157,6 +155,9 @@ class LSU extends Module {
 
   object State extends ChiselEnum { val sIdle, sWaitResp = Value }
   val state = RegInit(State.sIdle)
+
+  io.pendingLoad := state === State.sWaitResp && reqReg.mem.valid && !reqReg.mem.write
+  io.pendingRd := reqReg.wb.rd
 
   io.in.ready := (state === State.sIdle) && (
     (isNonMem) || 
@@ -185,10 +186,10 @@ class LSU extends Module {
   }
 
   when (state === State.sWaitResp) {
-    when (reqReg.ctrl.memEn && !reqReg.ctrl.memWen) {
+    when (reqReg.mem.valid && !reqReg.mem.write) {
       io.out.valid := readBridge.io.rStream.valid
       readBridge.io.rStream.ready := io.out.ready
-    } .elsewhen (reqReg.ctrl.memEn && reqReg.ctrl.memWen) {
+    } .elsewhen (reqReg.mem.valid && reqReg.mem.write) {
       io.out.valid := writeBridge.io.bResp.valid
       writeBridge.io.bResp.ready := io.out.ready
     } .otherwise {

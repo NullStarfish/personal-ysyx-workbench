@@ -5,145 +5,225 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.common.Instructions._
 import mycpu.core.bundles._
-import mycpu.core.components.{RegFile, ImmGen}
-import mycpu.utils._
+import mycpu.core.components.{ImmGen, RegFile}
 
 class Decode extends Module {
   val io = IO(new Bundle {
-    val in  = Flipped(Decoupled(new FetchPacket))
+    val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket())
     val regWrite = Flipped(new WriteBackIO())
-
-    val debug_regs = Output(Vec(32, UInt(XLEN.W))) 
+    val exForward = Input(new ForwardInfo)
+    val memForward = Input(new ForwardInfo)
+    val debug_regs = Output(Vec(32, UInt(XLEN.W)))
   })
 
-  // [修改] 一键透传调试信息 (pc, inst)
-  io.out.bits.connectDebug(io.in.bits)
-
   val inst = io.in.bits.inst
+  val opcode = inst(6, 0)
+  val funct3 = inst(14, 12)
+  val funct7 = inst(31, 25)
   val rs1Addr = inst(19, 15)
   val rs2Addr = inst(24, 20)
-  val rdAddr  = inst(11, 7)
-  
-  // 1. 立即数
-  val immType = Wire(ImmType())
-  val immGen = Module(new ImmGen)
-  immGen.io.inst := inst
-  immGen.io.sel  := immType
+  val rdAddr = inst(11, 7)
 
-  // 2. 寄存器堆
   val regFile = Module(new RegFile)
   regFile.io.raddr1 := rs1Addr
   regFile.io.raddr2 := rs2Addr
-  regFile.io.wen    := io.regWrite.wen
-  regFile.io.waddr  := io.regWrite.addr
-  regFile.io.wdata  := io.regWrite.data
-
+  regFile.io.wen := io.regWrite.wen
+  regFile.io.waddr := io.regWrite.addr
+  regFile.io.wdata := io.regWrite.data
   io.debug_regs := regFile.io.debug_regs
-  
-  // 3. 控制信号解码 (代码保持不变)
-  val Y = true.B
-  val N = false.B
-  val defaultCtrl = List(ImmType.Z, ALUOp.NOP, 0.U, 0.U, N, N, N, CSROp.N, N, N)
-  
-  val map = Array(
-    LUI   -> List(ImmType.U, ALUOp.COPY_B, 0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    AUIPC -> List(ImmType.U, ALUOp.ADD,    1.U, 1.U, Y, N, N, CSROp.N, N, N),
 
+  val immType = Wire(ImmType())
+  val immGen = Module(new ImmGen)
+  immGen.io.inst := inst
+  immGen.io.sel := immType
 
-    JAL   -> List(ImmType.J, ALUOp.ADD,    1.U, 1.U, Y, N, N, CSROp.N, N, Y),
-    JALR  -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, N, N, CSROp.N, N, Y),
-
-
-    BEQ   -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-    BNE   -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-    BLT   -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-    BGE   -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-    BLTU  -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-    BGEU  -> List(ImmType.B, ALUOp.NOP,    0.U, 0.U, N, N, N, CSROp.N, Y, N),
-
-
-    LW    -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, Y, N, CSROp.N, N, N),
-    LB    -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, Y, N, CSROp.N, N, N),
-    LBU   -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, Y, N, CSROp.N, N, N),
-    LHU   -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, Y, N, CSROp.N, N, N),
-    LH    -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, Y, N, CSROp.N, N, N),
-
-
-    SB    -> List(ImmType.S, ALUOp.ADD,    0.U, 1.U, N, Y, Y, CSROp.N, N, N),
-    SH    -> List(ImmType.S, ALUOp.ADD,    0.U, 1.U, N, Y, Y, CSROp.N, N, N),
-    SW    -> List(ImmType.S, ALUOp.ADD,    0.U, 1.U, N, Y, Y, CSROp.N, N, N),
-
-
-    ADDI  -> List(ImmType.I, ALUOp.ADD,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    ANDI  -> List(ImmType.I, ALUOp.AND,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    ORI   -> List(ImmType.I, ALUOp.OR,     0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    XORI  -> List(ImmType.I, ALUOp.XOR,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    SLTI  -> List(ImmType.I, ALUOp.SLT,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    SLTIU -> List(ImmType.I, ALUOp.SLTU,   0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    SLLI  -> List(ImmType.I, ALUOp.SLL,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    SRLI  -> List(ImmType.I, ALUOp.SRL,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-    SRAI  -> List(ImmType.I, ALUOp.SRA,    0.U, 1.U, Y, N, N, CSROp.N, N, N),
-
-
-
-    ADD   -> List(ImmType.Z, ALUOp.ADD,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SUB   -> List(ImmType.Z, ALUOp.SUB,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    AND   -> List(ImmType.Z, ALUOp.AND,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    OR    -> List(ImmType.Z, ALUOp.OR,     0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    XOR   -> List(ImmType.Z, ALUOp.XOR,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SLT   -> List(ImmType.Z, ALUOp.SLT,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SLTU  -> List(ImmType.Z, ALUOp.SLTU,   0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SLL   -> List(ImmType.Z, ALUOp.SLL,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SRL   -> List(ImmType.Z, ALUOp.SRL,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-    SRA   -> List(ImmType.Z, ALUOp.SRA,    0.U, 0.U, Y, N, N, CSROp.N, N, N),
-
-
-
-    CSRRW -> List(ImmType.I, ALUOp.COPY_A, 0.U, 0.U, Y, N, N, CSROp.W, N, N),
-    CSRRS -> List(ImmType.I, ALUOp.COPY_A, 0.U, 0.U, Y, N, N, CSROp.S, N, N),
-    CSRRC -> List(ImmType.I, ALUOp.COPY_A, 0.U, 0.U, Y, N, N, CSROp.C, N, N),
-    CSRRWI-> List(ImmType.I, ALUOp.COPY_A, 0.U, 1.U, Y, N, N, CSROp.W, N, N), 
-    CSRRSI-> List(ImmType.I, ALUOp.COPY_A, 0.U, 1.U, Y, N, N, CSROp.S, N, N),
-    CSRRCI-> List(ImmType.I, ALUOp.COPY_A, 0.U, 1.U, Y, N, N, CSROp.C, N, N),
-
-
-
-
-
+  val rs1Raw = regFile.io.rdata1
+  val rs2Raw = regFile.io.rdata2
+  val rs1Data = Mux(
+    io.exForward.valid && rs1Addr =/= 0.U && io.exForward.addr === rs1Addr,
+    io.exForward.data,
+    Mux(io.memForward.valid && rs1Addr =/= 0.U && io.memForward.addr === rs1Addr, io.memForward.data, rs1Raw),
+  )
+  val rs2Data = Mux(
+    io.exForward.valid && rs2Addr =/= 0.U && io.exForward.addr === rs2Addr,
+    io.exForward.data,
+    Mux(io.memForward.valid && rs2Addr =/= 0.U && io.memForward.addr === rs2Addr, io.memForward.data, rs2Raw),
   )
 
-  val ctrlSignals = ListLookup(inst, defaultCtrl, map)
+  val family = WireDefault(ExecFamily.Alu)
+  val op = WireDefault(ExecOp.Nop)
+  val subop = WireDefault(ExecSubop.None)
+  val lhs = WireDefault(0.U(XLEN.W))
+  val rhs = WireDefault(0.U(XLEN.W))
+  val offset = WireDefault(0.U(XLEN.W))
+  val regWen = WireDefault(false.B)
+  val memUnsigned = WireDefault(false.B)
+  val csrAddr = WireDefault(inst(31, 20))
+  val isEcall = WireDefault(false.B)
+  val isMret = WireDefault(false.B)
+  val isEbreak = WireDefault(false.B)
 
-  when (io.out.fire) {
-    Debug.log("decode: pc : %x, inst: %x, ctrl.aluop: %x\n", io.in.bits.pc, io.in.bits.inst, io.out.bits.ctrl.aluOp.asUInt)
+  immType := ImmType.I
+
+  switch(opcode) {
+    is("b0110111".U) { // LUI
+      immType := ImmType.U
+      family := ExecFamily.Upper
+      op := ExecOp.Lui
+      lhs := 0.U
+      rhs := immGen.io.out
+      regWen := rdAddr =/= 0.U
+    }
+    is("b0010111".U) { // AUIPC
+      immType := ImmType.U
+      family := ExecFamily.Upper
+      op := ExecOp.Auipc
+      lhs := io.in.bits.pc
+      rhs := immGen.io.out
+      regWen := rdAddr =/= 0.U
+    }
+    is("b1101111".U) { // JAL
+      immType := ImmType.J
+      family := ExecFamily.Jump
+      op := ExecOp.Jal
+      lhs := io.in.bits.pc
+      rhs := 0.U
+      offset := immGen.io.out
+      regWen := rdAddr =/= 0.U
+    }
+    is("b1100111".U) { // JALR
+      immType := ImmType.I
+      family := ExecFamily.Jump
+      op := ExecOp.Jalr
+      lhs := rs1Data
+      rhs := 0.U
+      offset := immGen.io.out
+      regWen := rdAddr =/= 0.U
+    }
+    is("b1100011".U) { // BRANCH
+      immType := ImmType.B
+      family := ExecFamily.Branch
+      lhs := rs1Data
+      rhs := rs2Data
+      offset := immGen.io.out
+      switch(funct3) {
+        is("b000".U) { op := ExecOp.Beq }
+        is("b001".U) { op := ExecOp.Bne }
+        is("b100".U) { op := ExecOp.Blt }
+        is("b101".U) { op := ExecOp.Bge }
+        is("b110".U) { op := ExecOp.Bltu }
+        is("b111".U) { op := ExecOp.Bgeu }
+      }
+    }
+    is("b0000011".U) { // LOAD
+      immType := ImmType.I
+      family := ExecFamily.Mem
+      op := ExecOp.Load
+      lhs := rs1Data
+      rhs := 0.U
+      offset := immGen.io.out
+      regWen := rdAddr =/= 0.U
+      switch(funct3) {
+        is("b000".U) { subop := ExecSubop.Byte }
+        is("b001".U) { subop := ExecSubop.Half }
+        is("b010".U) { subop := ExecSubop.Word }
+        is("b100".U) { subop := ExecSubop.Byte; memUnsigned := true.B }
+        is("b101".U) { subop := ExecSubop.Half; memUnsigned := true.B }
+      }
+    }
+    is("b0100011".U) { // STORE
+      immType := ImmType.S
+      family := ExecFamily.Mem
+      op := ExecOp.Store
+      lhs := rs1Data
+      rhs := rs2Data
+      offset := immGen.io.out
+      switch(funct3) {
+        is("b000".U) { subop := ExecSubop.Byte }
+        is("b001".U) { subop := ExecSubop.Half }
+        is("b010".U) { subop := ExecSubop.Word }
+      }
+    }
+    is("b0010011".U) { // OP-IMM
+      immType := ImmType.I
+      family := ExecFamily.Alu
+      lhs := rs1Data
+      rhs := immGen.io.out
+      regWen := rdAddr =/= 0.U
+      switch(funct3) {
+        is("b000".U) { op := ExecOp.Add }
+        is("b111".U) { op := ExecOp.And }
+        is("b110".U) { op := ExecOp.Or }
+        is("b100".U) { op := ExecOp.Xor }
+        is("b010".U) { op := ExecOp.Slt }
+        is("b011".U) { op := ExecOp.Sltu }
+        is("b001".U) { op := ExecOp.Sll }
+        is("b101".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
+      }
+    }
+    is("b0110011".U) { // OP
+      immType := ImmType.Z
+      family := ExecFamily.Alu
+      lhs := rs1Data
+      rhs := rs2Data
+      regWen := rdAddr =/= 0.U
+      switch(funct3) {
+        is("b000".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sub, ExecOp.Add) }
+        is("b111".U) { op := ExecOp.And }
+        is("b110".U) { op := ExecOp.Or }
+        is("b100".U) { op := ExecOp.Xor }
+        is("b010".U) { op := ExecOp.Slt }
+        is("b011".U) { op := ExecOp.Sltu }
+        is("b001".U) { op := ExecOp.Sll }
+        is("b101".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
+      }
+    }
+    is("b1110011".U) { // SYSTEM / CSR
+      when(inst === Instructions.ECALL.value.U) {
+        family := ExecFamily.Csr
+        isEcall := true.B
+      }.elsewhen(inst === Instructions.MRET.value.U) {
+        family := ExecFamily.Csr
+        isMret := true.B
+      }.elsewhen(inst === Instructions.EBREAK.value.U) {
+        family := ExecFamily.Csr
+        isEbreak := true.B
+      }.otherwise {
+        immType := ImmType.I
+        family := ExecFamily.Csr
+        regWen := rdAddr =/= 0.U
+        rhs := Mux(funct3(2), Cat(0.U((XLEN - 5).W), rs1Addr), rs1Data)
+        switch(funct3) {
+          is("b001".U) { op := ExecOp.CsrRw }
+          is("b010".U) { op := ExecOp.CsrRs }
+          is("b011".U) { op := ExecOp.CsrRc }
+          is("b101".U) { op := ExecOp.CsrRw }
+          is("b110".U) { op := ExecOp.CsrRs }
+          is("b111".U) { op := ExecOp.CsrRc }
+        }
+      }
+    }
   }
 
-  immType        := ctrlSignals(0)
-  val ctrl = Wire(new ControlSignals)
-  ctrl.aluOp     := ctrlSignals(1)
-  ctrl.op1Sel    := ctrlSignals(2)
-  ctrl.op2Sel    := ctrlSignals(3)
-  ctrl.regWen    := ctrlSignals(4)
-  ctrl.memEn     := ctrlSignals(5)
-  ctrl.memWen    := ctrlSignals(6)
-  ctrl.csrOp     := ctrlSignals(7)
-  ctrl.isBranch  := ctrlSignals(8)
-  ctrl.isJump    := ctrlSignals(9)
-  
-  ctrl.memFunct3 := inst(14, 12)
-  ctrl.isEcall   := (inst === Instructions.ECALL.value.U)
-  ctrl.isMret    := (inst === Instructions.MRET.value.U)
-  ctrl.isEbreak  := (inst === Instructions.EBREAK.value.U)
-
-  io.out.bits.rs1Data := regFile.io.rdata1
-  io.out.bits.rs2Data := regFile.io.rdata2
-  io.out.bits.imm     := immGen.io.out
-  io.out.bits.rdAddr  := rdAddr
-  io.out.bits.rs1Addr := rs1Addr
-  io.out.bits.ctrl    := ctrl
-  io.out.bits.csrAddr := inst(31, 20)
+  io.out.bits.data.pc := io.in.bits.pc
+  io.out.bits.data.lhs := lhs
+  io.out.bits.data.rhs := rhs
+  io.out.bits.data.offset := offset
+  io.out.bits.exec.family := family
+  io.out.bits.exec.op := op
+  io.out.bits.exec.subop := subop
+  io.out.bits.wb.regWen := regWen
+  io.out.bits.wb.rd := rdAddr
+  io.out.bits.mem.valid := family === ExecFamily.Mem
+  io.out.bits.mem.write := family === ExecFamily.Mem && op === ExecOp.Store
+  io.out.bits.mem.unsigned := memUnsigned
+  io.out.bits.mem.subop := subop
+  io.out.bits.sys.csrAddr := csrAddr
+  io.out.bits.sys.isEcall := isEcall
+  io.out.bits.sys.isMret := isMret
+  io.out.bits.sys.isEbreak := isEbreak
 
   io.out.valid := io.in.valid
-  io.in.ready  := io.out.ready
+  io.in.ready := io.out.ready
 }

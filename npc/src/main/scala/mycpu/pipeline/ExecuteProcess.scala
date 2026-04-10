@@ -137,10 +137,6 @@ final class ExecuteProcess(
         SysCall.Inline(hazardApi.redirectNoCommit(nextPc))
       }
 
-      def issueHazardRedirectRelativeNoCommit(delta: SInt): Unit = {
-        SysCall.Inline(hazardApi.redirectRelativeNoCommit(delta))
-      }
-
       def branchTarget: UInt = SysCall.Inline(aluApi.add(execReqReg.pc, execReqReg.imm))
 
       executeWorker.Step("ExecuteWorker_Compute") {
