@@ -45,7 +45,6 @@ trait WritebackApiDecl {
   def writeRegAndRedirect(token: UInt, data: UInt, nextPc: UInt): HwInline[Unit]
   def redirect(nextPc: UInt): HwInline[Unit]
   def redirectRelative(delta: SInt): HwInline[Unit]
-  def commit(): HwInline[Unit]
 }
 
 trait ControlHazardApiDecl {

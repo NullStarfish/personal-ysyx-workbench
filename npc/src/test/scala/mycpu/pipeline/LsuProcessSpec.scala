@@ -92,12 +92,22 @@ final class DummyWritebackProcess(localName: String)(implicit kernel: Kernel) ex
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ =>
       pc := (pc.asSInt + delta).asUInt
     }
-
-    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
-    }
   }
 
   def readReg(idx: Int): UInt = regs(idx)
+  override def entry(): Unit = {}
+}
+
+final class DummyLsuTraceProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val commitCount = RegInit(0.U(8.W))
+
+  val api: TraceApiDecl = new TraceApiDecl {
+    override def issue(pc: UInt, inst: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_issue") { _ => }
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+      commitCount := commitCount + 1.U
+    }
+  }
+
   override def entry(): Unit = {}
 }
 
@@ -116,7 +126,8 @@ class LsuProcessHarness extends Module {
     val links = new PipelineLinks
     val memory = spawn(new DummyMemoryProcess("DummyMemory"))
     val writeback = spawn(new DummyWritebackProcess("DummyWriteback"))
-    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
+    val trace = spawn(new DummyLsuTraceProcess("Trace"))
+    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, links.trace, "Lsu"))
     private val loadSignedByteWorker = createThread("LoadSignedByteWorker")
     private val loadUnsignedHalfWorker = createThread("LoadUnsignedHalfWorker")
     private val storeByteWorker = createThread("StoreByteWorker")
@@ -281,6 +292,7 @@ class LsuProcessHarness extends Module {
 
   Init.links.memory.bind(Init.memory.api)
   Init.links.writeback.bind(Init.writeback.api)
+  Init.links.trace.bind(Init.trace.api)
   Init.links.lsu.bind(Init.lsu.api)
   Init.lsu.build()
   Init.build()

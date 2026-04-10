@@ -8,6 +8,7 @@ import mycpu.common._
 final class LsuProcess(
     memoryRef: ApiRef[MemoryApiDecl],
     writebackRef: ApiRef[WritebackApiDecl],
+    traceRef: ApiRef[TraceApiDecl],
     localName: String = "Lsu",
 )(implicit kernel: Kernel)
     extends HwProcess(localName) {
@@ -84,7 +85,6 @@ final class LsuProcess(
         }
         SysCall.Inline(wbApi.writeReg(reqReg.wbToken, resultData))
       }
-      SysCall.Inline(wbApi.wbPath())
       loadWorker.Step("AfterWriteback") {
         loadWorker.jump(loadWorker.stepRef("WaitReq"))
       }
@@ -92,7 +92,7 @@ final class LsuProcess(
 
     storeWorker.entry {
       val memory = memoryRef.get
-      val wbApi = writebackRef.get
+      val traceApi = traceRef.get
       val reqReg = RegInit(0.U.asTypeOf(new StoreReq))
 
       storeWorker.Step("WaitReq") {
@@ -122,9 +122,8 @@ final class LsuProcess(
 
       SysCall.Inline(memory.write_once(reqReg.addr, writeSize, writeData, writeStrb))
       storeWorker.Step("Commit") {
-        SysCall.Inline(wbApi.commit())
+        SysCall.Inline(traceApi.commit())
       }
-      SysCall.Inline(wbApi.wbPath())
       storeWorker.Step("AfterCommit") {
         storeWorker.jump(storeWorker.stepRef("WaitReq"))
       }

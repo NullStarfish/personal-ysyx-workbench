@@ -82,7 +82,6 @@ class WritebackProcessHarness extends Module {
         writeRegWorker.Step("WriteReg") {
           SysCall.Inline(wbApi.writeReg(tokenReg, "h12345678".U(XLEN.W)))
         }
-        SysCall.Inline(wbApi.wbPath())
         writeRegWorker.Step("Done") {}
         SysCall.Return()
       }
@@ -98,7 +97,6 @@ class WritebackProcessHarness extends Module {
         writeRegRedirectWorker.Step("WriteRegAndRedirect") {
           SysCall.Inline(wbApi.writeRegAndRedirect(tokenReg, "hdeadbeef".U(XLEN.W), "h30000020".U(XLEN.W)))
         }
-        SysCall.Inline(wbApi.wbPath())
         writeRegRedirectWorker.Step("Done") {}
         SysCall.Return()
       }
@@ -108,7 +106,6 @@ class WritebackProcessHarness extends Module {
         redirectRelativeWorker.Step("RedirectRelative") {
           SysCall.Inline(wbApi.redirectRelative(4.S(XLEN.W)))
         }
-        SysCall.Inline(wbApi.wbPath())
         redirectRelativeWorker.Step("Done") {}
         SysCall.Return()
       }

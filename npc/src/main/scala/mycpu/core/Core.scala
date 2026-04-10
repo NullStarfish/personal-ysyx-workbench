@@ -32,9 +32,9 @@ class Core extends Module {
       localName = "Tracer",
     ))
     val fetch: FetchProcess = adopt(new FetchProcess(memory, links.decode, links.trace, "Fetch"))
-    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, "Lsu"))
+    val lsu: LsuProcess = adopt(new LsuProcess(links.memory, links.writeback, links.trace, "Lsu"))
     val writeback = spawn(new WritebackProcess(fetch.api, regfile.api, tracer.api, "Writeback"))
-    val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, "Execute"))
+    val execute: ExecuteProcess = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, links.trace, "Execute"))
     val hazard = spawn(new ControlHazardProcess(fetch.api, tracer.api, Seq(() => execute.clearExecuteReqBuffer()), "ControlHazard"))
     val decode: DecodeProcess = adopt(new DecodeProcess(links.execute, links.regfile, "Decode"))
 

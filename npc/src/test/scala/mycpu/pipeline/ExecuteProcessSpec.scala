@@ -94,9 +94,6 @@ final class DummyExecuteWritebackProcess(localName: String)(implicit kernel: Ker
     override def redirect(nextPc: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect") { _ => }
 
     override def redirectRelative(delta: SInt): HwInline[Unit] = HwInline.atomic(s"${name}_redirect_relative") { _ => }
-
-    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
-    }
   }
 
   override def entry(): Unit = {}
@@ -127,6 +124,19 @@ final class DummyExecuteHazardProcess(localName: String)(implicit kernel: Kernel
   override def entry(): Unit = {}
 }
 
+final class DummyExecuteTraceProcess(localName: String)(implicit kernel: Kernel) extends HwProcess(localName) {
+  val commitCount = RegInit(0.U(8.W))
+
+  val api: TraceApiDecl = new TraceApiDecl {
+    override def issue(pc: UInt, inst: UInt): HwInline[Unit] = HwInline.atomic(s"${name}_issue") { _ => }
+    override def commit(): HwInline[Unit] = HwInline.atomic(s"${name}_commit") { _ =>
+      commitCount := commitCount + 1.U
+    }
+  }
+
+  override def entry(): Unit = {}
+}
+
 class ExecuteProcessHarness extends Module {
   val io = IO(new Bundle {
     val done = Output(Bool())
@@ -151,7 +161,8 @@ class ExecuteProcessHarness extends Module {
     val lsu = spawn(new DummyExecuteLsuProcess("Lsu"))
     val writeback = spawn(new DummyExecuteWritebackProcess("Writeback"))
     val hazard = spawn(new DummyExecuteHazardProcess("Hazard"))
-    val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, "Execute"))
+    val trace = spawn(new DummyExecuteTraceProcess("Trace"))
+    val execute = adopt(new ExecuteProcess(links.lsu, links.writeback, links.hazard, links.trace, "Execute"))
     private val addWorker = createThread("AddWorker")
     private val subWorker = createThread("SubWorker")
     private val csrRwWorker = createThread("CsrRwWorker")
@@ -303,6 +314,7 @@ class ExecuteProcessHarness extends Module {
   Init.links.lsu.bind(Init.lsu.api)
   Init.links.writeback.bind(Init.writeback.api)
   Init.links.hazard.bind(Init.hazard.api)
+  Init.links.trace.bind(Init.trace.api)
   Init.execute.build()
   Init.build()
 }
