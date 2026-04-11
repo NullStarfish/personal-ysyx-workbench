@@ -49,6 +49,19 @@ object ExecSubop {
   val Word = "b011".U(3.W)
 }
 
+object DecodeFormat {
+  val None         = "b0000".U(4.W)
+  val RegReg       = "b0001".U(4.W)
+  val RegImm       = "b0010".U(4.W)
+  val PcImm        = "b0011".U(4.W)
+  val PcOffset     = "b0100".U(4.W)
+  val RegOffset    = "b0101".U(4.W)
+  val RegRegOffset = "b0110".U(4.W)
+  val CsrReg       = "b0111".U(4.W)
+  val CsrImm       = "b1000".U(4.W)
+  val Sys          = "b1001".U(4.W)
+}
+
 class FetchPacket extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)

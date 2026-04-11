@@ -224,4 +224,45 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.out.bits.wb.regWen.expect(false.B)
     }
   }
+
+  it should "distinguish family from format for add and addi" in {
+    simulate(new Decode) { c =>
+      c.reset.poke(true.B)
+      c.io.in.valid.poke(false.B)
+      c.io.out.ready.poke(true.B)
+      c.io.regWrite.wen.poke(false.B)
+      c.io.regWrite.addr.poke(0.U)
+      c.io.regWrite.data.poke(0.U)
+      c.io.exForward.valid.poke(false.B)
+      c.io.exForward.addr.poke(0.U)
+      c.io.exForward.data.poke(0.U)
+      c.io.memForward.valid.poke(false.B)
+      c.io.memForward.addr.poke(0.U)
+      c.io.memForward.data.poke(0.U)
+      c.io.bpUpdate.valid.poke(false.B)
+      c.io.bpUpdate.pc.poke(0.U)
+      c.io.bpUpdate.actualTaken.poke(false.B)
+      c.io.bpUpdate.predictedTaken.poke(false.B)
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.pc.poke(START_ADDR.U)
+      c.io.in.bits.inst.poke("h00500093".U) // addi x1, x0, 5
+      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
+      c.io.in.bits.isException.poke(false.B)
+      c.clock.step()
+      c.io.out.bits.exec.family.expect(ExecFamily.Alu)
+      c.io.out.bits.exec.op.expect(ExecOp.Add)
+      c.io.out.bits.data.lhs.expect(0.U)
+      c.io.out.bits.data.rhs.expect(5.U)
+
+      c.io.in.bits.inst.poke("h002081b3".U) // add x3, x1, x2
+      c.clock.step()
+      c.io.out.bits.exec.family.expect(ExecFamily.Alu)
+      c.io.out.bits.exec.op.expect(ExecOp.Add)
+      c.io.out.bits.data.lhs.expect(0.U)
+      c.io.out.bits.data.rhs.expect(0.U)
+    }
+  }
 }

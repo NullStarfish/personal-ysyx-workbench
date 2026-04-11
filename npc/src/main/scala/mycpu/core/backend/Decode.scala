@@ -59,8 +59,112 @@ class Decode extends Module {
   predictor.io.actualTaken := io.bpUpdate.actualTaken
   predictor.io.predictedTaken := io.bpUpdate.predictedTaken
 
-  val family = WireDefault(ExecFamily.Alu)
-  val op = WireDefault(ExecOp.Nop)
+  private def decodeFamily(opcode: UInt): UInt = MuxLookup(opcode, ExecFamily.Alu)(
+    Seq(
+      "b0110111".U -> ExecFamily.Upper,
+      "b0010111".U -> ExecFamily.Upper,
+      "b1101111".U -> ExecFamily.Jump,
+      "b1100111".U -> ExecFamily.Jump,
+      "b1100011".U -> ExecFamily.Branch,
+      "b0000011".U -> ExecFamily.Mem,
+      "b0100011".U -> ExecFamily.Mem,
+      "b0010011".U -> ExecFamily.Alu,
+      "b0110011".U -> ExecFamily.Alu,
+      "b1110011".U -> ExecFamily.Csr,
+    ),
+  )
+
+  private def decodeFormat(opcode: UInt, family: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
+    Seq(
+      "b0110111".U -> DecodeFormat.PcImm,
+      "b0010111".U -> DecodeFormat.PcImm,
+      "b1101111".U -> DecodeFormat.PcOffset,
+      "b1100111".U -> DecodeFormat.RegOffset,
+      "b1100011".U -> DecodeFormat.RegRegOffset,
+      "b0000011".U -> DecodeFormat.RegOffset,
+      "b0100011".U -> DecodeFormat.RegRegOffset,
+      "b0010011".U -> DecodeFormat.RegImm,
+      "b0110011".U -> DecodeFormat.RegReg,
+      "b1110011".U -> Mux(
+        family === ExecFamily.Csr,
+        Mux(
+          opcode === "b1110011".U && funct3 === 0.U,
+          DecodeFormat.Sys,
+          Mux(funct3(2), DecodeFormat.CsrImm, DecodeFormat.CsrReg),
+        ),
+        DecodeFormat.None,
+      ),
+    ),
+  )
+
+  private def decodeOp(opcode: UInt, family: UInt, funct3: UInt, funct7: UInt, inst: UInt): UInt = {
+    val decodedOp = WireDefault(ExecOp.Nop)
+    switch(family) {
+      is(ExecFamily.Upper) {
+        decodedOp := Mux(opcode === "b0110111".U, ExecOp.Lui, ExecOp.Auipc)
+      }
+      is(ExecFamily.Jump) {
+        decodedOp := Mux(opcode === "b1100111".U, ExecOp.Jalr, ExecOp.Jal)
+      }
+      is(ExecFamily.Branch) {
+        switch(funct3) {
+          is("b000".U) { decodedOp := ExecOp.Beq }
+          is("b001".U) { decodedOp := ExecOp.Bne }
+          is("b100".U) { decodedOp := ExecOp.Blt }
+          is("b101".U) { decodedOp := ExecOp.Bge }
+          is("b110".U) { decodedOp := ExecOp.Bltu }
+          is("b111".U) { decodedOp := ExecOp.Bgeu }
+        }
+      }
+      is(ExecFamily.Mem) {
+        decodedOp := Mux(opcode === "b0100011".U, ExecOp.Store, ExecOp.Load)
+      }
+      is(ExecFamily.Alu) {
+        when(opcode === "b0010011".U) {
+          switch(funct3) {
+            is("b000".U) { decodedOp := ExecOp.Add }
+            is("b111".U) { decodedOp := ExecOp.And }
+            is("b110".U) { decodedOp := ExecOp.Or }
+            is("b100".U) { decodedOp := ExecOp.Xor }
+            is("b010".U) { decodedOp := ExecOp.Slt }
+            is("b011".U) { decodedOp := ExecOp.Sltu }
+            is("b001".U) { decodedOp := ExecOp.Sll }
+            is("b101".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
+          }
+        }.otherwise {
+          switch(funct3) {
+            is("b000".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sub, ExecOp.Add) }
+            is("b111".U) { decodedOp := ExecOp.And }
+            is("b110".U) { decodedOp := ExecOp.Or }
+            is("b100".U) { decodedOp := ExecOp.Xor }
+            is("b010".U) { decodedOp := ExecOp.Slt }
+            is("b011".U) { decodedOp := ExecOp.Sltu }
+            is("b001".U) { decodedOp := ExecOp.Sll }
+            is("b101".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
+          }
+        }
+      }
+      is(ExecFamily.Csr) {
+        when(inst === Instructions.ECALL.value.U || inst === Instructions.MRET.value.U || inst === Instructions.EBREAK.value.U) {
+          decodedOp := ExecOp.Nop
+        }.otherwise {
+          switch(funct3) {
+            is("b001".U) { decodedOp := ExecOp.CsrRw }
+            is("b010".U) { decodedOp := ExecOp.CsrRs }
+            is("b011".U) { decodedOp := ExecOp.CsrRc }
+            is("b101".U) { decodedOp := ExecOp.CsrRw }
+            is("b110".U) { decodedOp := ExecOp.CsrRs }
+            is("b111".U) { decodedOp := ExecOp.CsrRc }
+          }
+        }
+      }
+    }
+    decodedOp
+  }
+
+  val family = decodeFamily(opcode)
+  val format = decodeFormat(opcode, family, funct3)
+  val op = decodeOp(opcode, family, funct3, funct7, inst)
   val subop = WireDefault(ExecSubop.None)
   val lhs = WireDefault(0.U(XLEN.W))
   val rhs = WireDefault(0.U(XLEN.W))
@@ -75,63 +179,51 @@ class Decode extends Module {
   immType := ImmType.I
 
   switch(opcode) {
-    is("b0110111".U) { // LUI
-      immType := ImmType.U
-      family := ExecFamily.Upper
-      op := ExecOp.Lui
-      lhs := 0.U
-      rhs := immGen.io.out
-      regWen := rdAddr =/= 0.U
-    }
-    is("b0010111".U) { // AUIPC
-      immType := ImmType.U
-      family := ExecFamily.Upper
-      op := ExecOp.Auipc
-      lhs := io.in.bits.pc
-      rhs := immGen.io.out
-      regWen := rdAddr =/= 0.U
-    }
-    is("b1101111".U) { // JAL
-      immType := ImmType.J
-      family := ExecFamily.Jump
-      op := ExecOp.Jal
-      lhs := io.in.bits.pc
-      rhs := 0.U
-      offset := immGen.io.out
-      regWen := rdAddr =/= 0.U
-    }
-    is("b1100111".U) { // JALR
-      immType := ImmType.I
-      family := ExecFamily.Jump
-      op := ExecOp.Jalr
+    is("b0110111".U) { immType := ImmType.U }
+    is("b0010111".U) { immType := ImmType.U }
+    is("b1101111".U) { immType := ImmType.J }
+    is("b1100011".U) { immType := ImmType.B }
+    is("b0100011".U) { immType := ImmType.S }
+    is("b0110011".U) { immType := ImmType.Z }
+  }
+
+  switch(format) {
+    is(DecodeFormat.RegReg) {
       lhs := rs1Data
-      rhs := 0.U
-      offset := immGen.io.out
-      regWen := rdAddr =/= 0.U
+      rhs := rs2Data
     }
-    is("b1100011".U) { // BRANCH
-      immType := ImmType.B
-      family := ExecFamily.Branch
+    is(DecodeFormat.RegImm) {
+      lhs := rs1Data
+      rhs := immGen.io.out
+    }
+    is(DecodeFormat.PcImm) {
+      lhs := Mux(op === ExecOp.Lui, 0.U, io.in.bits.pc)
+      rhs := immGen.io.out
+    }
+    is(DecodeFormat.PcOffset) {
+      lhs := io.in.bits.pc
+      offset := immGen.io.out
+    }
+    is(DecodeFormat.RegOffset) {
+      lhs := rs1Data
+      offset := immGen.io.out
+    }
+    is(DecodeFormat.RegRegOffset) {
       lhs := rs1Data
       rhs := rs2Data
       offset := immGen.io.out
-      switch(funct3) {
-        is("b000".U) { op := ExecOp.Beq }
-        is("b001".U) { op := ExecOp.Bne }
-        is("b100".U) { op := ExecOp.Blt }
-        is("b101".U) { op := ExecOp.Bge }
-        is("b110".U) { op := ExecOp.Bltu }
-        is("b111".U) { op := ExecOp.Bgeu }
-      }
     }
-    is("b0000011".U) { // LOAD
-      immType := ImmType.I
-      family := ExecFamily.Mem
-      op := ExecOp.Load
-      lhs := rs1Data
-      rhs := 0.U
-      offset := immGen.io.out
-      regWen := rdAddr =/= 0.U
+    is(DecodeFormat.CsrReg) {
+      rhs := rs1Data
+    }
+    is(DecodeFormat.CsrImm) {
+      rhs := Cat(0.U((XLEN - 5).W), rs1Addr)
+    }
+  }
+
+  switch(family) {
+    is(ExecFamily.Mem) {
+      regWen := op === ExecOp.Load && rdAddr =/= 0.U
       switch(funct3) {
         is("b000".U) { subop := ExecSubop.Byte }
         is("b001".U) { subop := ExecSubop.Half }
@@ -140,77 +232,33 @@ class Decode extends Module {
         is("b101".U) { subop := ExecSubop.Half; memUnsigned := true.B }
       }
     }
-    is("b0100011".U) { // STORE
-      immType := ImmType.S
-      family := ExecFamily.Mem
-      op := ExecOp.Store
-      lhs := rs1Data
-      rhs := rs2Data
-      offset := immGen.io.out
-      switch(funct3) {
-        is("b000".U) { subop := ExecSubop.Byte }
-        is("b001".U) { subop := ExecSubop.Half }
-        is("b010".U) { subop := ExecSubop.Word }
-      }
-    }
-    is("b0010011".U) { // OP-IMM
-      immType := ImmType.I
-      family := ExecFamily.Alu
-      lhs := rs1Data
-      rhs := immGen.io.out
+    is(ExecFamily.Alu) {
       regWen := rdAddr =/= 0.U
-      switch(funct3) {
-        is("b000".U) { op := ExecOp.Add }
-        is("b111".U) { op := ExecOp.And }
-        is("b110".U) { op := ExecOp.Or }
-        is("b100".U) { op := ExecOp.Xor }
-        is("b010".U) { op := ExecOp.Slt }
-        is("b011".U) { op := ExecOp.Sltu }
-        is("b001".U) { op := ExecOp.Sll }
-        is("b101".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
-      }
     }
-    is("b0110011".U) { // OP
-      immType := ImmType.Z
-      family := ExecFamily.Alu
-      lhs := rs1Data
-      rhs := rs2Data
+    is(ExecFamily.Upper) {
       regWen := rdAddr =/= 0.U
-      switch(funct3) {
-        is("b000".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sub, ExecOp.Add) }
-        is("b111".U) { op := ExecOp.And }
-        is("b110".U) { op := ExecOp.Or }
-        is("b100".U) { op := ExecOp.Xor }
-        is("b010".U) { op := ExecOp.Slt }
-        is("b011".U) { op := ExecOp.Sltu }
-        is("b001".U) { op := ExecOp.Sll }
-        is("b101".U) { op := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
-      }
     }
-    is("b1110011".U) { // SYSTEM / CSR
+    is(ExecFamily.Jump) {
+      regWen := rdAddr =/= 0.U
+    }
+    is(ExecFamily.Csr) {
       when(inst === Instructions.ECALL.value.U) {
-        family := ExecFamily.Csr
         isEcall := true.B
       }.elsewhen(inst === Instructions.MRET.value.U) {
-        family := ExecFamily.Csr
         isMret := true.B
       }.elsewhen(inst === Instructions.EBREAK.value.U) {
-        family := ExecFamily.Csr
         isEbreak := true.B
       }.otherwise {
-        immType := ImmType.I
-        family := ExecFamily.Csr
         regWen := rdAddr =/= 0.U
-        rhs := Mux(funct3(2), Cat(0.U((XLEN - 5).W), rs1Addr), rs1Data)
-        switch(funct3) {
-          is("b001".U) { op := ExecOp.CsrRw }
-          is("b010".U) { op := ExecOp.CsrRs }
-          is("b011".U) { op := ExecOp.CsrRc }
-          is("b101".U) { op := ExecOp.CsrRw }
-          is("b110".U) { op := ExecOp.CsrRs }
-          is("b111".U) { op := ExecOp.CsrRc }
-        }
       }
+    }
+  }
+
+  when(op === ExecOp.Store) {
+    switch(funct3) {
+      is("b000".U) { subop := ExecSubop.Byte }
+      is("b001".U) { subop := ExecSubop.Half }
+      is("b010".U) { subop := ExecSubop.Word }
     }
   }
 
