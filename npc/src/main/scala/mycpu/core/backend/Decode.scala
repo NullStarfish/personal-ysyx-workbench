@@ -280,6 +280,9 @@ class Decode extends Module {
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
   io.out.bits.pred.predictedTaken := family === ExecFamily.Branch && predictor.io.predictTaken
+  io.out.bits.retire.pc := io.in.bits.pc
+  io.out.bits.retire.dnpc := io.in.bits.dnpc
+  io.out.bits.retire.inst := io.in.bits.inst
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

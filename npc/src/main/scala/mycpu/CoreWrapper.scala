@@ -99,7 +99,7 @@ class myCore extends Module {
   })
 
   // 实例化你的 Core
-  val core = Module(new Core)
+  val core = Module(new Core(enableDpi = true))
 
   core.clock := clock
   core.reset := reset

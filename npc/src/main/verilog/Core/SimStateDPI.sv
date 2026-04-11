@@ -23,15 +23,8 @@ module SimStateDPI(
         input int inst
     );
 
-    reg start;
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (!reset && valid) begin
-            start <= 1;
-        end else begin
-            start <= 0;
-        end
-
-        if (start == 1) begin
             dpi_update_state(pc, dnpc, regs_flat, mtvec, mepc, mstatus, mcause, inst);
         end
     end

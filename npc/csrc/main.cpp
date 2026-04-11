@@ -62,12 +62,19 @@ long long cycle_count = 0;
 long long instr_count = 0;
 
 // =========================================================================
-// [关键修改] 全局 CPU 状态副本 (由 DPI 自动更新)
+// 全局退休快照（由 DPI 在指令退休当拍更新）
+//
+// 语义约定：
+// - pc/inst/dnpc: 当前 retiring instruction 的元信息
+// - gpr/csr: 与该退休事件对齐的架构态快照
+//
+// Difftest 仍然使用 dnpc 作为“执行后 PC”，而 itrace/ftrace 继续使用
+// retire.pc / retire.inst 作为“当前退休指令”的观测窗口。
 // =========================================================================
 struct CpuState {
     uint32_t pc;
-    uint32_t dnpc; // [新增] 下一个 PC
-    uint32_t inst; // [新增]
+    uint32_t dnpc;
+    uint32_t inst;
     uint32_t gpr[32];
     struct {
         uint32_t mtvec;
@@ -82,8 +89,8 @@ bool g_has_committed = false;
 extern "C" void dpi_update_state(int pc, int dnpc, const svBitVecVal* gprs, 
                                  int mtvec, int mepc, int mstatus, int mcause,
                                  int inst) {
-    g_cpu_state.pc = (uint32_t)pc;     // Current PC
-    g_cpu_state.dnpc = (uint32_t)dnpc; // [新增] Next PC
+    g_cpu_state.pc = (uint32_t)pc;
+    g_cpu_state.dnpc = (uint32_t)dnpc;
     g_cpu_state.inst = (uint32_t)inst;
     
     for(int i = 0; i < 32; i++) {
@@ -95,7 +102,7 @@ extern "C" void dpi_update_state(int pc, int dnpc, const svBitVecVal* gprs,
     g_cpu_state.csrs.mstatus = (uint32_t)mstatus;
     g_cpu_state.csrs.mcause  = (uint32_t)mcause;
 
-    // [新增] 标记本周期有有效指令提交
+    // 标记本周期已经观察到一次退休事件
     g_has_committed = true;
 }
 // =========================================================================
@@ -202,13 +209,12 @@ void init_verilator(int argc, char *argv[]) {
     top_ptr = new VysyxSoCFull;
 }
 
-// [修复] 从全局状态读取 PC
 uint32_t get_pc_cpp() { 
     return g_cpu_state.pc; 
 }
 
 uint32_t get_inst_cpp() { 
-    return g_cpu_state.inst; // [修改]
+    return g_cpu_state.inst;
 }
 
 void set_dpi_scope() {}
@@ -273,7 +279,7 @@ void init_cpu() {
     // 简单起见，reset后直接认为启动，或者检查 PC 是否重置到 START_ADDR
     // while (get_pc_cpp() != 0x80000000) step_one_clk();
     g_cpu_state.pc = 0x30000000;
-    g_cpu_state.dnpc = 0x30000000; // [新增]
+    g_cpu_state.dnpc = 0x30000000;
     g_cpu_state.csrs.mstatus = 0x1800; // Reset value
 }
 
@@ -318,7 +324,8 @@ uint32_t isa_reg_str2val_cpp(const char *s, bool *success) {
 extern "C" void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
     if (!dut) return;
 
-    // [关键修改] Difftest 比较的是执行后的状态，即 Next PC
+    // Difftest 比较的是执行后的架构态，因此这里使用 retiring
+    // instruction 的 dnpc 作为 post-state PC。
     dut->pc = g_cpu_state.dnpc; 
 
     memcpy(dut->gpr, g_cpu_state.gpr, sizeof(dut->gpr));

@@ -39,22 +39,17 @@ static void trace_and_difftest(uint32_t pc, uint32_t inst) {
 }
 
 static void exec_once() {
-  // [修改前]
-  // uint32_t pc = get_pc_cpp();
-  // uint32_t inst = get_inst_cpp();
-  // exec_one_cycle_cpp();
-  
-  // [修改后]
-  // 1. 先让硬件跑，直到有一条指令在 WB 阶段提交
-  //    此时 DPI 函数会被调用，更新 C++ 侧的 g_cpu_state
+  // 1. 让硬件跑到一次退休事件。
+  //    当前 tracer/DPI 的语义是：在退休当拍把 retiring instruction
+  //    的 pc/inst/dnpc 和对应架构态快照送到 C++ 侧。
   exec_one_cycle_cpp();
   if (npc_state.state != NPC_RUNNING) return;
 
-  // 2. 此时读取的才是刚刚执行完的那条指令的 PC 和机器码
+  // 2. 这里读取的是刚刚退休那条指令的 PC 和机器码，用于 itrace/ftrace。
   uint32_t pc = get_pc_cpp();
   uint32_t inst = get_inst_cpp();
   
-  // 3. 拿着最新的状态去写 Log 和做 Difftest
+  // 3. 再基于同一次退休事件的快照做日志和 difftest。
   trace_and_difftest(pc, inst);
 }
 

@@ -19,6 +19,9 @@ class WriteBack extends Module {
   io.regWrite.data := io.in.bits.wbData
 
   io.retire.valid := io.in.fire
+  io.retire.pc := io.in.bits.retire.pc
+  io.retire.dnpc := io.in.bits.retire.dnpc
+  io.retire.inst := io.in.bits.retire.inst
   io.retire.regWen := io.in.bits.wb.regWen
   io.retire.rd := io.in.bits.wb.rd
   io.retire.data := io.in.bits.wbData

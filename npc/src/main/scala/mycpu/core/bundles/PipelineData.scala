@@ -106,8 +106,21 @@ class SysCtrlBundle extends Bundle {
   val isEbreak = Bool()
 }
 
+class CsrDebugBundle extends Bundle {
+  val mtvec = XLenU
+  val mepc = XLenU
+  val mstatus = XLenU
+  val mcause = XLenU
+}
+
 class BranchPredictionBundle extends Bundle {
   val predictedTaken = Bool()
+}
+
+class RetireMetaBundle extends Bundle {
+  val pc = XLenU
+  val dnpc = XLenU
+  val inst = UInt(32.W)
 }
 
 class DecodePacket extends Bundle {
@@ -117,6 +130,7 @@ class DecodePacket extends Bundle {
   val mem = new MemCtrlBundle
   val sys = new SysCtrlBundle
   val pred = new BranchPredictionBundle
+  val retire = new RetireMetaBundle
 }
 
 class ExecutePacket extends Bundle {
@@ -125,11 +139,13 @@ class ExecutePacket extends Bundle {
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val redirect = Valid(UInt(XLEN.W))
+  val retire = new RetireMetaBundle
 }
 
 class MemoryPacket extends Bundle {
   val wbData = XLenU
   val wb = new WritebackCtrlBundle
+  val retire = new RetireMetaBundle
 }
 
 class LsuStatusBundle extends Bundle {
@@ -139,6 +155,9 @@ class LsuStatusBundle extends Bundle {
 
 class RetireEventBundle extends Bundle {
   val valid = Bool()
+  val pc = XLenU
+  val dnpc = XLenU
+  val inst = UInt(32.W)
   val regWen = Bool()
   val rd = UInt(5.W)
   val data = XLenU

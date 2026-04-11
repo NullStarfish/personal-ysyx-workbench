@@ -98,6 +98,7 @@ class Execute extends Module {
     (data.exec.family === ExecFamily.Jump) -> (data.data.pc + 4.U),
     (data.exec.family === ExecFamily.Csr) -> csr.io.rdata
   ))
+  val architecturalNextPc = Mux(redirectValid, redirectTarget, data.data.pc + 4.U)
 
   io.out.bits.result := result
   io.out.bits.rhs := data.data.rhs
@@ -109,6 +110,9 @@ class Execute extends Module {
   io.out.bits.mem.subop := data.mem.subop
   io.out.bits.redirect.valid := redirectValid
   io.out.bits.redirect.bits := redirectTarget
+  io.out.bits.retire.pc := data.retire.pc
+  io.out.bits.retire.inst := data.retire.inst
+  io.out.bits.retire.dnpc := architecturalNextPc
 
   io.bpUpdate.valid := io.in.fire && data.exec.family === ExecFamily.Branch
   io.bpUpdate.pc := data.data.pc

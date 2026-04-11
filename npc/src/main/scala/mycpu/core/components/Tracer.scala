@@ -3,8 +3,10 @@ package mycpu.core.components
 import chisel3._
 import mycpu.common._
 import mycpu.core.bundles._
+import mycpu.dpi.{DpiApi, SimStateBundle}
+import mycpu.common.Instructions
 
-class Tracer extends Module {
+class Tracer(enableDpi: Boolean = false) extends Module {
   val io = IO(new Bundle {
     val ifValid = Input(Bool())
     val idValid = Input(Bool())
@@ -13,6 +15,11 @@ class Tracer extends Module {
     val retire = Input(new RetireEventBundle)
     val branchResolved = Input(Bool())
     val branchCorrect = Input(Bool())
+    val regsFlat = Input(UInt(1024.W))
+    val mtvec = Input(UInt(XLEN.W))
+    val mepc = Input(UInt(XLEN.W))
+    val mstatus = Input(UInt(XLEN.W))
+    val mcause = Input(UInt(XLEN.W))
     val trace = Output(new CoreTraceBundle)
   })
 
@@ -31,6 +38,27 @@ class Tracer extends Module {
     when(io.branchCorrect) {
       branchCorrectCountReg := branchCorrectCountReg + 1.U
     }
+  }
+
+  val simState = Wire(new SimStateBundle)
+  simState.valid := io.retire.valid
+  simState.pc := io.retire.pc
+  simState.dnpc := io.retire.dnpc
+  simState.regsFlat := io.regsFlat
+  simState.mtvec := io.mtvec
+  simState.mepc := io.mepc
+  simState.mstatus := io.mstatus
+  simState.mcause := io.mcause
+  simState.inst := io.retire.inst
+
+  if (enableDpi) {
+    DpiApi.simState(clock, reset.asBool, simState, localName = "core_sim_state")
+    DpiApi.simEbreak(
+      valid = io.retire.valid && io.retire.inst === Instructions.EBREAK.value.U,
+      isEbreak = 1.U(32.W),
+      localName = "core_sim_ebreak",
+    )
+    DpiApi.difftestSkip(clock, false.B, localName = "core_difftest_skip")
   }
 
   io.trace.ifValid := io.ifValid

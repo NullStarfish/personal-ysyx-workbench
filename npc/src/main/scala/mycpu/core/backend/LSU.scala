@@ -97,6 +97,7 @@ class LSU extends Module {
   io.out.valid := false.B
   io.out.bits.wbData := Mux(reqReg.mem.valid && !reqReg.mem.write, loadData, reqReg.result)
   io.out.bits.wb := reqReg.wb
+  io.out.bits.retire := reqReg.retire
 
   readBridge.io.rReq.valid := false.B
   readBridge.io.rReq.bits := memReq
