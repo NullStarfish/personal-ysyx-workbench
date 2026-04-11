@@ -261,4 +261,30 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
       assert(memory(BigInt(16)) == BigInt("11223344", 16))
     }
   }
+
+  it should "report a high prediction rate on a hot bounds-check branch" in {
+    runReadOnlyProgram(
+      program = Seq(
+        encodeOpImm(0, 1, 0, 0),             // addi x1, x0, 0
+        encodeOpImm(0, 2, 0, 31),            // addi x2, x0, 31
+        encodeOpImm(0, 1, 1, 1),             // addi x1, x1, 1
+        encodeBranch(funct3 = 0, rs1 = 1, rs2 = 2, imm = 8), // beq x1, x2, exit
+        encodeJal(rd = 0, imm = -8),         // jal x0, loop
+        BigInt("00100073", 16),              // ebreak
+      ),
+      targetRetires = 95,
+      maxCycles = 700,
+    ) { c =>
+      c.io.debug_regs(1).expect(31.U)
+      c.io.debug_regs(2).expect(31.U)
+      c.io.trace.branchCount.expect(31.U)
+      val correct = c.io.trace.branchCorrectCount.peek().litValue
+      val total = c.io.trace.branchCount.peek().litValue
+      println(s"[CoreProgramSpec] predictor accuracy on hot bounds-check branch: $correct / $total")
+      assert(
+        correct >= 28,
+        s"expected at least 28 correct predictions, got $correct"
+      )
+    }
+  }
 }

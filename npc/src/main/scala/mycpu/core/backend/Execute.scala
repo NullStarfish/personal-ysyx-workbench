@@ -10,6 +10,7 @@ class Execute extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new DecodePacket))
     val out = Decoupled(new ExecutePacket)
+    val bpUpdate = Output(new BranchPredictUpdateBundle)
     val debug_csrs = Output(new Bundle {
       val mtvec   = UInt(XLEN.W)
       val mepc    = UInt(XLEN.W)
@@ -75,15 +76,20 @@ class Execute extends Module {
 
   val jumpTarget = data.data.pc + data.data.offset
   val jalrTarget = (data.data.lhs + data.data.offset) & ~1.U(XLEN.W)
+  val branchActualTaken = data.exec.family === ExecFamily.Branch && takeBranch
+  val branchPredictedTaken = data.pred.predictedTaken
+  val branchMispredict = data.exec.family === ExecFamily.Branch && (branchActualTaken =/= branchPredictedTaken)
+  val branchRecoveryTarget = Mux(branchActualTaken, jumpTarget, data.data.pc + 4.U)
+
   val redirectTarget = MuxCase(0.U(XLEN.W), Seq(
+    branchMispredict -> branchRecoveryTarget,
     data.sys.isMret -> csr.io.epc,
     data.sys.isEcall -> csr.io.evec,
     (data.exec.family === ExecFamily.Jump && data.exec.op === ExecOp.Jalr) -> jalrTarget,
     (data.exec.family === ExecFamily.Jump) -> jumpTarget,
-    (data.exec.family === ExecFamily.Branch) -> jumpTarget
   ))
   val redirectValid =
-    (data.exec.family === ExecFamily.Branch && takeBranch) ||
+    branchMispredict ||
       (data.exec.family === ExecFamily.Jump) ||
       data.sys.isEcall ||
       data.sys.isMret
@@ -103,6 +109,11 @@ class Execute extends Module {
   io.out.bits.mem.subop := data.mem.subop
   io.out.bits.redirect.valid := redirectValid
   io.out.bits.redirect.bits := redirectTarget
+
+  io.bpUpdate.valid := io.in.fire && data.exec.family === ExecFamily.Branch
+  io.bpUpdate.pc := data.data.pc
+  io.bpUpdate.actualTaken := branchActualTaken
+  io.bpUpdate.predictedTaken := branchPredictedTaken
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

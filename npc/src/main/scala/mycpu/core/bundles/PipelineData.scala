@@ -93,12 +93,17 @@ class SysCtrlBundle extends Bundle {
   val isEbreak = Bool()
 }
 
+class BranchPredictionBundle extends Bundle {
+  val predictedTaken = Bool()
+}
+
 class DecodePacket extends Bundle {
   val data = new ExecuteDataBundle
   val exec = new ExecuteOpBundle
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val sys = new SysCtrlBundle
+  val pred = new BranchPredictionBundle
 }
 
 class ExecutePacket extends Bundle {
@@ -133,6 +138,8 @@ class CoreTraceBundle extends Bundle {
   val memValid = Bool()
   val retireCount = UInt(32.W)
   val lastRetire = new RetireEventBundle
+  val branchCount = UInt(32.W)
+  val branchCorrectCount = UInt(32.W)
 }
 
 class WriteBackIO extends Bundle {
@@ -145,4 +152,11 @@ class ForwardInfo extends Bundle {
   val valid = Bool()
   val addr  = UInt(5.W)
   val data  = XLenU
+}
+
+class BranchPredictUpdateBundle extends Bundle {
+  val valid = Bool()
+  val pc = XLenU
+  val actualTaken = Bool()
+  val predictedTaken = Bool()
 }

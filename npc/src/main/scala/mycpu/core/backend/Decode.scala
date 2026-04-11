@@ -5,7 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.common.Instructions._
 import mycpu.core.bundles._
-import mycpu.core.components.{ImmGen, RegFile}
+import mycpu.core.components.{ImmGen, PerceptronBranchPredictor, RegFile}
 
 class Decode extends Module {
   val io = IO(new Bundle {
@@ -14,6 +14,7 @@ class Decode extends Module {
     val regWrite = Flipped(new WriteBackIO())
     val exForward = Input(new ForwardInfo)
     val memForward = Input(new ForwardInfo)
+    val bpUpdate = Input(new BranchPredictUpdateBundle)
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
   })
 
@@ -50,6 +51,13 @@ class Decode extends Module {
     io.exForward.data,
     Mux(io.memForward.valid && rs2Addr =/= 0.U && io.memForward.addr === rs2Addr, io.memForward.data, rs2Raw),
   )
+
+  val predictor = Module(new PerceptronBranchPredictor(entries = 32, historyLength = 8))
+  predictor.io.pc := io.in.bits.pc
+  predictor.io.update := io.bpUpdate.valid
+  predictor.io.updatePc := io.bpUpdate.pc
+  predictor.io.actualTaken := io.bpUpdate.actualTaken
+  predictor.io.predictedTaken := io.bpUpdate.predictedTaken
 
   val family = WireDefault(ExecFamily.Alu)
   val op = WireDefault(ExecOp.Nop)
@@ -223,6 +231,7 @@ class Decode extends Module {
   io.out.bits.sys.isEcall := isEcall
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
+  io.out.bits.pred.predictedTaken := family === ExecFamily.Branch && predictor.io.predictTaken
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

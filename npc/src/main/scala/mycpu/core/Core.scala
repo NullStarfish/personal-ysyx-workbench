@@ -49,6 +49,8 @@ class Core extends Module {
   tracer.io.exValid := exMem.io.deq.valid
   tracer.io.memValid := memWb.io.deq.valid
   tracer.io.retire := writeBack.io.retire
+  tracer.io.branchResolved := execute.io.bpUpdate.valid
+  tracer.io.branchCorrect := execute.io.bpUpdate.actualTaken === execute.io.bpUpdate.predictedTaken
   io.trace := tracer.io.trace
 
   val exForward = Wire(new ForwardInfo)
@@ -63,6 +65,7 @@ class Core extends Module {
 
   decode.io.exForward := exForward
   decode.io.memForward := memForward
+  decode.io.bpUpdate := execute.io.bpUpdate
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
@@ -96,6 +99,12 @@ class Core extends Module {
   idEx.io.enq.valid := decode.io.out.valid
   idEx.io.enq.bits := decode.io.out.bits
   val decodeFire = idEx.io.enq.fire
+  val decodePredictedRedirect = decodeFire &&
+    decode.io.out.bits.exec.family === ExecFamily.Branch &&
+    decode.io.out.bits.pred.predictedTaken
+  val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.offset
+  val fetchRedirectValid = redirectFlush || decodePredictedRedirect
+  val fetchRedirectTarget = Mux(redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
   idEx.io.deq.ready := execute.io.in.ready
 
   fetch.io.out.ready := ifId.io.enq.ready && !redirectFlush
@@ -103,8 +112,8 @@ class Core extends Module {
   ifId.io.enq.bits := fetch.io.out.bits
   ifId.io.deq.ready := decode.io.in.ready
   fetch.io.ctrl.stall := !ifId.io.enq.ready
-  fetch.io.ctrl.redirect.valid := redirectFlush
-  fetch.io.ctrl.redirect.bits := execute.io.out.bits.redirect.bits
+  fetch.io.ctrl.redirect.valid := fetchRedirectValid
+  fetch.io.ctrl.redirect.bits := fetchRedirectTarget
 
   memWb.io.enq.valid := lsu.io.out.valid
   memWb.io.enq.bits := lsu.io.out.bits
