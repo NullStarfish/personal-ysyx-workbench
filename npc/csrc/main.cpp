@@ -84,17 +84,26 @@ struct CpuState {
     } csrs;
 } g_cpu_state;
 
+static uint32_t g_last_retire_pc = 0;
+static uint32_t g_last_retire_inst = 0;
+
 bool g_has_committed = false;
 
-extern "C" void dpi_update_state(int pc, int dnpc, const svBitVecVal* gprs, 
+extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal* gprs, 
                                  int mtvec, int mepc, int mstatus, int mcause,
                                  int inst) {
-    g_cpu_state.pc = (uint32_t)pc;
+    g_last_retire_pc = (uint32_t)pc;
+    g_last_retire_inst = (uint32_t)inst;
+
+    g_cpu_state.pc = (uint32_t)dnpc;
     g_cpu_state.dnpc = (uint32_t)dnpc;
     g_cpu_state.inst = (uint32_t)inst;
     
     for(int i = 0; i < 32; i++) {
         g_cpu_state.gpr[i] = gprs[i];
+    }
+    if (reg_wen && reg_addr != 0) {
+        g_cpu_state.gpr[reg_addr & 0x1f] = (uint32_t)reg_data;
     }
     
     g_cpu_state.csrs.mtvec   = (uint32_t)mtvec;
@@ -213,8 +222,12 @@ uint32_t get_pc_cpp() {
     return g_cpu_state.pc; 
 }
 
+uint32_t get_retire_pc_cpp() {
+    return g_last_retire_pc;
+}
+
 uint32_t get_inst_cpp() { 
-    return g_cpu_state.inst;
+    return g_last_retire_inst;
 }
 
 void set_dpi_scope() {}

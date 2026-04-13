@@ -13,7 +13,10 @@ module WriteBack(	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   output        io_retire_valid,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output [31:0] io_retire_pc,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
                 io_retire_dnpc,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
-                io_retire_inst	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+                io_retire_inst,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+  output        io_retire_regWen,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+  output [4:0]  io_retire_rd,	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+  output [31:0] io_retire_data	// src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
 );
 
   assign io_regWrite_wen = io_in_valid & io_in_bits_wb_regWen;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7, :17:35
@@ -23,5 +26,8 @@ module WriteBack(	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_retire_pc = io_in_bits_retire_pc;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_retire_dnpc = io_in_bits_retire_dnpc;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_retire_inst = io_in_bits_retire_inst;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
+  assign io_retire_regWen = io_in_bits_wb_regWen;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
+  assign io_retire_rd = io_in_bits_wb_rd;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
+  assign io_retire_data = io_in_bits_wbData;	// src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
 endmodule
 

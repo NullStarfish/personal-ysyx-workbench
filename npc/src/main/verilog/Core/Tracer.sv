@@ -6,6 +6,9 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:9:7
   input [31:0]   io_retire_pc,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
                  io_retire_dnpc,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
                  io_retire_inst,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input          io_retire_regWen,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input [4:0]    io_retire_rd,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input [31:0]   io_retire_data,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input [1023:0] io_regsFlat,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input [31:0]   io_mtvec,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
                  io_mepc,	// src/main/scala/mycpu/core/components/Tracer.scala:10:14
@@ -19,6 +22,9 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:9:7
     .valid     (io_retire_valid),
     .pc        (io_retire_pc),
     .dnpc      (io_retire_dnpc),
+    .reg_wen   (io_retire_regWen),
+    .reg_addr  (io_retire_rd),
+    .reg_data  (io_retire_data),
     .regs_flat (io_regsFlat),
     .mtvec     (io_mtvec),
     .mepc      (io_mepc),
@@ -27,7 +33,7 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:9:7
     .inst      (io_retire_inst)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:19:19
   SimEbreakDPI core_sim_ebreak (	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
-    .valid     (io_retire_valid & io_retire_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:57:{31,49}
+    .valid     (io_retire_valid & io_retire_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:60:{31,49}
     .is_ebreak (32'h1)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
   DifftestSkipDPI core_difftest_skip (	// src/main/scala/mycpu/dpi/DpiApi.scala:7:19

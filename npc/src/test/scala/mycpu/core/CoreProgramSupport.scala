@@ -38,6 +38,32 @@ trait CoreProgramSupport {
     }
   }
 
+  protected def stepUntilRetireCountCollect(
+      c: Core,
+      targetRetires: Int,
+      maxCycles: Int,
+      service: => Unit,
+  ): Seq[(BigInt, BigInt, BigInt)] = {
+    var cycles = 0
+    var lastRetireCount = c.io.trace.retireCount.peek().litValue
+    val retired = scala.collection.mutable.ArrayBuffer.empty[(BigInt, BigInt, BigInt)]
+    while (c.io.trace.retireCount.peek().litValue < targetRetires && cycles < maxCycles) {
+      service
+      c.clock.step()
+      cycles += 1
+      val retireCount = c.io.trace.retireCount.peek().litValue
+      if (retireCount != lastRetireCount) {
+        retired += ((
+          c.io.trace.lastRetire.pc.peek().litValue,
+          c.io.trace.lastRetire.inst.peek().litValue,
+          c.io.trace.lastRetire.dnpc.peek().litValue,
+        ))
+        lastRetireCount = retireCount
+      }
+    }
+    retired.toSeq
+  }
+
   protected def serviceReadBus(
       c: Core,
       memory: Map[BigInt, BigInt],

@@ -22,6 +22,9 @@ object DpiApi {
     m.io.valid := state.valid
     m.io.pc := state.pc
     m.io.dnpc := state.dnpc
+    m.io.reg_wen := state.regWen
+    m.io.reg_addr := state.regAddr
+    m.io.reg_data := state.regData
     m.io.regs_flat := state.regsFlat
     m.io.mtvec := state.mtvec
     m.io.mepc := state.mepc

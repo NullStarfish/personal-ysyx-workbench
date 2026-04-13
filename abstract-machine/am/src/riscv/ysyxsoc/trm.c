@@ -86,6 +86,19 @@ void halt(int code) {
 }
 
 void _trm_init() {
+  unsigned int x;
+  asm volatile ("csrr %0, 0xBC0" : "=r"(x));
+  char *asc = (char*)&x;
+  for (int i = 0; i < 4; i ++) {
+    printf("%c\n", asc[i]);
+    printf("%d, addr: %x\n", asc[i], &asc[i]);
+  }
+  printf("\n");
+
+  asm volatile ("csrr %0, 0xBC1" : "=r"(x));
+  printf("archid: %d\n", x);
+
+
   // 1. Data Relocation: 将 .data 从 MROM 复制到 SRAM
   // ---------------------------------------------------------
   char *src = &_data_lma;

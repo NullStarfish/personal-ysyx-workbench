@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
+import mycpu.MemMap
 import mycpu.utils._
 
 class LSU extends Module {
@@ -35,7 +36,6 @@ class LSU extends Module {
 
   val addr = reqView.result
   val addrOffset = addr(1, 0)
-
   val writeStrb = WireDefault(0.U(4.W))
   val writeData = WireDefault(0.U(XLEN.W))
   val accessSize = WireDefault(2.U(3.W))

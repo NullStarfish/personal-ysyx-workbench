@@ -17,6 +17,9 @@ extern "C" void difftest_skip_ref_cpp() {
 extern "C" void dpi_update_state(
     int pc,
     int dnpc,
+    int reg_wen,
+    int reg_addr,
+    int reg_data,
     const svBitVecVal* gprs,
     int mtvec,
     int mepc,

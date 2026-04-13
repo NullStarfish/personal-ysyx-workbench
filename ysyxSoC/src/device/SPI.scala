@@ -123,7 +123,7 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
           apb.penable := (state === sAccess)
           when (done) {
 
-            printf(p"Call Driver FUNC DONE: node: ${args}, ret: ${ret}, done: ${done}\n")
+            //printf(p"Call Driver FUNC DONE: node: ${args}, ret: ${ret}, done: ${done}\n")
           }
 
         } .otherwise {
@@ -213,13 +213,13 @@ class APBSPI(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModul
         */
 
         when (xipThread.isRunning && !pastRunnning) {
-          printf("[DEBUG] [xipThread] xipThread ONLINE!!!\n")
-          printf("targetAddr: %x\n", in.paddr - 0x30000000.U)
+          //printf("[DEBUG] [xipThread] xipThread ONLINE!!!\n")
+          //printf("targetAddr: %x\n", in.paddr - 0x30000000.U)
         }
 
         when (!xipThread.isRunning && pastRunnning) {
-          printf("[DEBUG] [xipThread] xipThread OFFLINE!!!\n")
-          printf("final data: %x\n", finalData)
+          //printf("[DEBUG] [xipThread] xipThread OFFLINE!!!\n")
+          //printf("final data: %x\n", finalData)
         }
       }
     }

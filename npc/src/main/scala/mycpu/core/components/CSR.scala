@@ -33,12 +33,17 @@ class CSR extends Module {
   val MTVEC   = 0x305.U
   val MEPC    = 0x341.U
   val MCAUSE  = 0x342.U
+  val MVENDORID = 0xBC0.U
+  val MARCHID = 0xBC1.U
 
   val mstatus = RegInit(0x1800.U(XLEN.W)) // Reset to M-mode
   val mtvec   = RegInit(0.U(XLEN.W))
   val mepc    = RegInit(0.U(XLEN.W))
   val mcause  = RegInit(0.U(XLEN.W))
 
+
+  val mvendorid = RegInit(0x79737978.U(XLEN.W))
+  val marchid = RegInit(25050151.U(XLEN.W))
   io.debug_mtvec   := mtvec
   io.debug_mepc    := mepc
   io.debug_mstatus := mstatus
@@ -52,7 +57,9 @@ class CSR extends Module {
     MSTATUS -> mstatus,
     MTVEC   -> mtvec,
     MEPC    -> mepc,
-    MCAUSE  -> mcause
+    MCAUSE  -> mcause,
+    MVENDORID -> mvendorid,
+    MARCHID -> marchid
   ))
   
   io.evec := mtvec

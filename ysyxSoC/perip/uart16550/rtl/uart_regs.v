@@ -421,7 +421,6 @@ begin
     endcase // case(wb_addr_i)
 end // always @ (dl or dlab or ier or iir or scratch...
 
-
 // rf_pop signal handling
 always @(posedge clk or posedge wb_rst_i)
 begin

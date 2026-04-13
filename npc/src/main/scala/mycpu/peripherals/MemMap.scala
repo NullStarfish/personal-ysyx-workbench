@@ -37,6 +37,27 @@ object MemMap {
         // 只要有一个命中了且需要 skip，就返回 true
         VecInit(hitSignals).asUInt.orR
     }
+
+    def isPeripheralMmio(addr: UInt): Bool = {
+        val peripheralRanges = Seq(
+            "CLINT",
+            "UART16550",
+            "SPI master",
+            "GPIO",
+            "PS2",
+            "VGA",
+            "ChipLink MMIO"
+        ).flatMap(name => devices.find(_.name == name))
+        val hitSignals = peripheralRanges.map { d =>
+            addr >= d.startAddr.U && addr <= d.endAddr.U
+        }
+        VecInit(hitSignals).asUInt.orR
+    }
+
+    def isUartMmio(addr: UInt): Bool = {
+        val uart = devices.find(_.name == "UART16550").get
+        addr >= uart.startAddr.U && addr <= uart.endAddr.U
+    }
   
   
   // 辅助函数：通过名字获取索引，方便连线

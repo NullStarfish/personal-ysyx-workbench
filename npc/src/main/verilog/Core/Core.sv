@@ -100,6 +100,9 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
   wire [31:0] _writeBack_io_retire_pc;	// src/main/scala/mycpu/core/Core.scala:24:25
   wire [31:0] _writeBack_io_retire_dnpc;	// src/main/scala/mycpu/core/Core.scala:24:25
   wire [31:0] _writeBack_io_retire_inst;	// src/main/scala/mycpu/core/Core.scala:24:25
+  wire        _writeBack_io_retire_regWen;	// src/main/scala/mycpu/core/Core.scala:24:25
+  wire [4:0]  _writeBack_io_retire_rd;	// src/main/scala/mycpu/core/Core.scala:24:25
+  wire [31:0] _writeBack_io_retire_data;	// src/main/scala/mycpu/core/Core.scala:24:25
   wire        _lsu_io_in_ready;	// src/main/scala/mycpu/core/Core.scala:23:19
   wire        _lsu_io_out_valid;	// src/main/scala/mycpu/core/Core.scala:23:19
   wire [31:0] _lsu_io_out_bits_wbData;	// src/main/scala/mycpu/core/Core.scala:23:19
@@ -213,6 +216,8 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
   wire        _fetch_io_out_valid;	// src/main/scala/mycpu/core/Core.scala:20:21
   wire [31:0] _fetch_io_out_bits_pc;	// src/main/scala/mycpu/core/Core.scala:20:21
   wire [31:0] _fetch_io_out_bits_inst;	// src/main/scala/mycpu/core/Core.scala:20:21
+  wire        idEx_io_enq_valid =
+    _decode_io_out_valid & ~_hazard_io_loadUseStall & ~_hazard_io_redirectFlush;	// src/main/scala/mycpu/core/Core.scala:21:22, :25:22, :110:{47,64}, :111:{44,61}
   Fetch fetch (	// src/main/scala/mycpu/core/Core.scala:20:21
     .clock                  (clock),
     .reset                  (reset),
@@ -235,9 +240,9 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
     .io_out_bits_inst       (_fetch_io_out_bits_inst),
     .io_ctrl_stall          (~_ifId_io_enq_ready),	// src/main/scala/mycpu/core/Core.scala:27:20, :126:26
     .io_ctrl_redirect_valid
-      (_hazard_io_redirectFlush | _idEx_io_enq_ready & _decode_io_out_valid
+      (_hazard_io_redirectFlush | _idEx_io_enq_ready & idEx_io_enq_valid
        & _decode_io_out_bits_exec_family == 3'h1
-       & _decode_io_out_bits_pred_predictedTaken),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/Core.scala:21:22, :25:22, :28:20, :114:44, :115:{36,58}, :118:42
+       & _decode_io_out_bits_pred_predictedTaken),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/Core.scala:21:22, :25:22, :28:20, :111:{44,61}, :114:44, :115:{36,58}, :118:42
     .io_ctrl_redirect_bits
       (_hazard_io_redirectFlush
          ? _execute_io_out_bits_redirect_bits
@@ -434,7 +439,10 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
     .io_retire_valid        (_writeBack_io_retire_valid),
     .io_retire_pc           (_writeBack_io_retire_pc),
     .io_retire_dnpc         (_writeBack_io_retire_dnpc),
-    .io_retire_inst         (_writeBack_io_retire_inst)
+    .io_retire_inst         (_writeBack_io_retire_inst),
+    .io_retire_regWen       (_writeBack_io_retire_regWen),
+    .io_retire_rd           (_writeBack_io_retire_rd),
+    .io_retire_data         (_writeBack_io_retire_data)
   );	// src/main/scala/mycpu/core/Core.scala:24:25
   HazardUnit hazard (	// src/main/scala/mycpu/core/Core.scala:25:22
     .io_decodeInst      (_ifId_io_deq_valid ? _ifId_io_deq_bits_inst : 32'h0),	// src/main/scala/mycpu/core/Core.scala:27:20, :97:30
@@ -453,12 +461,15 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
     .io_redirectFlush   (_hazard_io_redirectFlush)
   );	// src/main/scala/mycpu/core/Core.scala:25:22
   Tracer tracer (	// src/main/scala/mycpu/core/Core.scala:26:22
-    .clock           (clock),
-    .reset           (reset),
-    .io_retire_valid (_writeBack_io_retire_valid),	// src/main/scala/mycpu/core/Core.scala:24:25
-    .io_retire_pc    (_writeBack_io_retire_pc),	// src/main/scala/mycpu/core/Core.scala:24:25
-    .io_retire_dnpc  (_writeBack_io_retire_dnpc),	// src/main/scala/mycpu/core/Core.scala:24:25
-    .io_retire_inst  (_writeBack_io_retire_inst),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .clock            (clock),
+    .reset            (reset),
+    .io_retire_valid  (_writeBack_io_retire_valid),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_pc     (_writeBack_io_retire_pc),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_dnpc   (_writeBack_io_retire_dnpc),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_inst   (_writeBack_io_retire_inst),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_regWen (_writeBack_io_retire_regWen),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_rd     (_writeBack_io_retire_rd),	// src/main/scala/mycpu/core/Core.scala:24:25
+    .io_retire_data   (_writeBack_io_retire_data),	// src/main/scala/mycpu/core/Core.scala:24:25
     .io_regsFlat
       ({_decode_io_debug_regs_31,
         _decode_io_debug_regs_30,
@@ -492,16 +503,16 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
         _decode_io_debug_regs_2,
         _decode_io_debug_regs_1,
         _decode_io_debug_regs_0}),	// src/main/scala/mycpu/core/Core.scala:21:22, :52:21
-    .io_mtvec        (_execute_io_debug_csrs_mtvec),	// src/main/scala/mycpu/core/Core.scala:22:23
-    .io_mepc         (_execute_io_debug_csrs_mepc),	// src/main/scala/mycpu/core/Core.scala:22:23
-    .io_mstatus      (_execute_io_debug_csrs_mstatus),	// src/main/scala/mycpu/core/Core.scala:22:23
-    .io_mcause       (_execute_io_debug_csrs_mcause)	// src/main/scala/mycpu/core/Core.scala:22:23
+    .io_mtvec         (_execute_io_debug_csrs_mtvec),	// src/main/scala/mycpu/core/Core.scala:22:23
+    .io_mepc          (_execute_io_debug_csrs_mepc),	// src/main/scala/mycpu/core/Core.scala:22:23
+    .io_mstatus       (_execute_io_debug_csrs_mstatus),	// src/main/scala/mycpu/core/Core.scala:22:23
+    .io_mcause        (_execute_io_debug_csrs_mcause)	// src/main/scala/mycpu/core/Core.scala:22:23
   );	// src/main/scala/mycpu/core/Core.scala:26:22
   FlushableStage ifId (	// src/main/scala/mycpu/core/Core.scala:27:20
     .clock            (clock),
     .reset            (reset),
     .io_enq_ready     (_ifId_io_enq_ready),
-    .io_enq_valid     (_fetch_io_out_valid),	// src/main/scala/mycpu/core/Core.scala:20:21
+    .io_enq_valid     (_fetch_io_out_valid & ~_hazard_io_redirectFlush),	// src/main/scala/mycpu/core/Core.scala:20:21, :25:22, :110:64, :123:43
     .io_enq_bits_pc   (_fetch_io_out_bits_pc),	// src/main/scala/mycpu/core/Core.scala:20:21
     .io_enq_bits_inst (_fetch_io_out_bits_inst),	// src/main/scala/mycpu/core/Core.scala:20:21
     .io_deq_ready     (_decode_io_in_ready),	// src/main/scala/mycpu/core/Core.scala:21:22
@@ -514,7 +525,7 @@ module Core(	// src/main/scala/mycpu/core/Core.scala:12:7
     .clock                           (clock),
     .reset                           (reset),
     .io_enq_ready                    (_idEx_io_enq_ready),
-    .io_enq_valid                    (_decode_io_out_valid),	// src/main/scala/mycpu/core/Core.scala:21:22
+    .io_enq_valid                    (idEx_io_enq_valid),	// src/main/scala/mycpu/core/Core.scala:111:{44,61}
     .io_enq_bits_data_pc             (_decode_io_out_bits_data_pc),	// src/main/scala/mycpu/core/Core.scala:21:22
     .io_enq_bits_data_lhs            (_decode_io_out_bits_data_lhs),	// src/main/scala/mycpu/core/Core.scala:21:22
     .io_enq_bits_data_rhs            (_decode_io_out_bits_data_rhs),	// src/main/scala/mycpu/core/Core.scala:21:22

@@ -76,4 +76,5 @@ class SimpleAXIArbiter extends Module {
   // Debug
   when(leftReq && state === Owner.None) { Debug.log("[Arbiter] Grant Left\n") }
   when(rightReq && !leftReq && state === Owner.None) { Debug.log("[Arbiter] Grant Right\n") }
+
 }

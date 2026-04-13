@@ -116,6 +116,14 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         while (*s && out_cnt + 1 < n) out[out_cnt++] = *s++;
         fmt++;
         continue;
+      } else if (*fmt == 'c') {
+        char ch = (char)va_arg(ap, int);
+        int pad = (width > 1) ? (width - 1) : 0;
+        char padch = zero_pad ? '0' : ' ';
+        for (int i = 0; i < pad && out_cnt + 1 < n; i++) out[out_cnt++] = padch;
+        if (out_cnt + 1 < n) out[out_cnt++] = ch;
+        fmt++;
+        continue;
       } else if (*fmt == 'd') {
         int d = va_arg(ap, int);
         char buf[32];

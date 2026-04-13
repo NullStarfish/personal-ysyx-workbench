@@ -108,7 +108,7 @@ class Core(enableDpi: Boolean = false) extends Module {
   val redirectFlush = hazard.io.redirectFlush
 
   decode.io.out.ready := idEx.io.enq.ready && !loadUseStall && !redirectFlush
-  idEx.io.enq.valid := decode.io.out.valid
+  idEx.io.enq.valid := decode.io.out.valid && !loadUseStall && !redirectFlush
   idEx.io.enq.bits := decode.io.out.bits
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
@@ -120,7 +120,7 @@ class Core(enableDpi: Boolean = false) extends Module {
   idEx.io.deq.ready := execute.io.in.ready
 
   fetch.io.out.ready := ifId.io.enq.ready && !redirectFlush
-  ifId.io.enq.valid := fetch.io.out.valid
+  ifId.io.enq.valid := fetch.io.out.valid && !redirectFlush
   ifId.io.enq.bits := fetch.io.out.bits
   ifId.io.deq.ready := decode.io.in.ready
   fetch.io.ctrl.stall := !ifId.io.enq.ready

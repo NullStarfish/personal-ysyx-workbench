@@ -8,6 +8,7 @@
 
 // --- From C++ bridge ---
 uint32_t get_pc_cpp();
+uint32_t get_retire_pc_cpp();
 uint32_t get_inst_cpp();
 void exec_one_cycle_cpp();
 
@@ -45,8 +46,8 @@ static void exec_once() {
   exec_one_cycle_cpp();
   if (npc_state.state != NPC_RUNNING) return;
 
-  // 2. 这里读取的是刚刚退休那条指令的 PC 和机器码，用于 itrace/ftrace。
-  uint32_t pc = get_pc_cpp();
+  // 2. itrace/ftrace 仍然观察“刚刚退休的那条指令”。
+  uint32_t pc = get_retire_pc_cpp();
   uint32_t inst = get_inst_cpp();
   
   // 3. 再基于同一次退休事件的快照做日志和 difftest。
