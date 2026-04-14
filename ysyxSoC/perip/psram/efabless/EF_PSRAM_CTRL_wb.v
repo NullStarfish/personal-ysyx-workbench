@@ -118,6 +118,13 @@ module EF_PSRAM_CTRL_wb (
 
     wire [31:0] wdata = {byte3, byte2, byte1, byte0};
 
+    always @(posedge clk_i) begin
+        if (mw_wr && adr_i[23:0] < 24'h10) begin
+            $display("[psram-ctrl] wr adr=0x%08x dat_i=0x%08x sel=0x%x size=%0d wdata=0x%08x",
+                adr_i, dat_i, sel_i, size, wdata);
+        end
+    end
+
     /*
     wire [1:0]  waddr = (size==1 && sel_i[0]==1) ? 2'b00 :
                         (size==1 && sel_i[1]==1) ? 2'b01 :

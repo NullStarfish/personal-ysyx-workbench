@@ -20,6 +20,7 @@
 #include <csignal>
 
 #include <unistd.h> // for usleep
+#include <iostream>
 
 
 
@@ -135,8 +136,11 @@ extern "C" void ebreak() {
 
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
+static uint8_t* psram_mem = NULL;
 static const long PMEM_SIZE = 0x70000000; // 128MB
 static const long PMEM_BASE = 0x30000000L;
+static const uint32_t PSRAM_BASE = 0x80000000u;
+static const uint32_t PSRAM_SIZE = 0x01000000u;
 
 static long last_pc = -1;
 
@@ -165,6 +169,20 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
     *data = inst;
 }
 
+extern "C" void psram_read_byte(int32_t addr, uint8_t *data) {
+    uint32_t uaddr = static_cast<uint32_t>(addr);
+    uint8_t value = psram_mem[uaddr];
+    *data = value;
+    printf("[psram] [read] addr: 0x%x, value: 0x%02x, out: 0x%02x\n", addr, value, *data);
+}
+
+extern "C" void psram_write_byte(int32_t addr, uint8_t data) {
+    uint32_t uaddr = static_cast<uint32_t>(addr);
+    printf("[psram] [write] addr: 0x%x, data: 0x%02x\n", addr, data);
+
+    psram_mem[addr] = data;
+}
+
 void print_stats() {
     printf("\nExecution Statistics:\n");
     printf("  Total Cycles:       %lld\n", cycle_count);
@@ -181,6 +199,7 @@ void handle_sigint(int sig) {
     print_stats();
     if (top_ptr) delete top_ptr;
     if (pmem) free(pmem);
+    if (psram_mem) free(psram_mem);
     exit(0);
 }
 
@@ -213,7 +232,10 @@ long long get_cycle_count() { return cycle_count; }
 
 void init_verilator(int argc, char *argv[]) {
     pmem = (uint8_t*)malloc(PMEM_SIZE);
+    psram_mem = (uint8_t*)malloc(PSRAM_SIZE);
     assert(pmem);
+    assert(psram_mem);
+    memset(psram_mem, 0, PSRAM_SIZE);
     Verilated::commandArgs(argc, argv);
     top_ptr = new VysyxSoCFull;
 }

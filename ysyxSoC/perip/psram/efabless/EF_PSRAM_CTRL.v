@@ -119,6 +119,17 @@ module PSRAM_READER (
             if(sck)
                 data[byte_index] <= {data[byte_index][3:0], din}; // Optimize!
 
+    always @ (posedge clk) begin
+        if (sck && counter >= 20 && counter <= FINAL_COUNT && addr[23:0] < 24'h10) begin
+            $display("[psram-reader] cnt=%0d byte_idx=%0d din=0x%x d0=0x%02x d1=0x%02x d2=0x%02x d3=0x%02x line=0x%08x",
+                counter, byte_index, din, data[0], data[1], data[2], data[3], line);
+        end
+        if (done && addr[23:0] < 24'h10) begin
+            $display("[psram-reader] done addr=0x%06x line=0x%08x d0=0x%02x d1=0x%02x d2=0x%02x d3=0x%02x",
+                addr[23:0], line, data[0], data[1], data[2], data[3]);
+        end
+    end
+
     assign dout     =   (counter < 8)   ?   {3'b0, CMD_EBH[7 - counter]}:
                         (counter == 8)  ?   saddr[23:20]        :
                         (counter == 9)  ?   saddr[19:16]        :
