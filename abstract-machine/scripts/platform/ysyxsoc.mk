@@ -10,7 +10,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
-LDFLAGS   += --defsym=_pmem_start=0x20000000 --defsym=_entry_offset=0x0
+LDFLAGS   += --defsym=_pmem_start=0xa0000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 
 MAINARGS_MAX_LEN = 64
@@ -23,7 +23,15 @@ YSYXSOC_BIN = $(NPC_HOME)/npc
 ysyxsoc:
 	$(MAKE) -C $(NPC_HOME)
 
-ARGS =  --ftrace=$(IMAGE).elf --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt
+ARGS =  --ftrace=$(IMAGE).elf --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so 
+
+ifeq ($(BATCH),1)
+ARGS += -b
+endif
+
+ifeq ($(LOG),1)
+ARGS += -l log.txt
+endif
 
 insert-arg: image
 	@python3 $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
@@ -41,6 +49,3 @@ gdb: insert-arg ysyxsoc
 	gdb --args $(YSYXSOC_BIN) $(ARGS) $(IMAGE).bin
 
 .PHONY: insert-arg ysyxsoc
-
-
-

@@ -137,10 +137,14 @@ extern "C" void ebreak() {
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
 static uint8_t* psram_mem = NULL;
+static uint16_t* sdram_mem[2] = {NULL, NULL};
 static const long PMEM_SIZE = 0x70000000; // 128MB
 static const long PMEM_BASE = 0x30000000L;
+static const uint32_t PROGRAM_BASE = 0xa0000000u;
 static const uint32_t PSRAM_BASE = 0x80000000u;
 static const uint32_t PSRAM_SIZE = 0x01000000u;
+static const uint32_t SDRAM_BASE = 0xa0000000u;
+static const uint32_t SDRAM_HALFWORDS = 0x00400000u;
 
 static long last_pc = -1;
 
@@ -180,6 +184,28 @@ extern "C" void psram_write_byte(int32_t addr, uint8_t data) {
     psram_mem[uaddr] = data;
 }
 
+extern "C" void sdram_read_halfword_chip(int chip, int32_t addr, uint16_t *data) {
+    uint32_t uaddr = static_cast<uint32_t>(addr);
+    *data = sdram_mem[chip & 1][uaddr];
+}
+
+extern "C" void sdram_write_halfword_chip(int chip, int32_t addr, uint16_t data, uint8_t mask) {
+    uint32_t uaddr = static_cast<uint32_t>(addr);
+    uint16_t old = sdram_mem[chip & 1][uaddr];
+    uint16_t next = old;
+    if (mask & 0x1) next = (next & 0xff00u) | (data & 0x00ffu);
+    if (mask & 0x2) next = (next & 0x00ffu) | (data & 0xff00u);
+    sdram_mem[chip & 1][uaddr] = next;
+}
+
+static inline uint32_t sdram_linear_halfaddr_from_bus(uint32_t addr) {
+    uint32_t offset = addr - SDRAM_BASE;
+    uint32_t col = (offset >> 2) & 0x1ffu;
+    uint32_t row = (offset >> 13) & 0x7ffu;
+    uint32_t bank = (offset >> 11) & 0x3u;
+    return (bank << 22) | (row << 9) | col;
+}
+
 void print_stats() {
     printf("\nExecution Statistics:\n");
     printf("  Total Cycles:       %lld\n", cycle_count);
@@ -197,6 +223,8 @@ void handle_sigint(int sig) {
     if (top_ptr) delete top_ptr;
     if (pmem) free(pmem);
     if (psram_mem) free(psram_mem);
+    if (sdram_mem[0]) free(sdram_mem[0]);
+    if (sdram_mem[1]) free(sdram_mem[1]);
     exit(0);
 }
 
@@ -230,9 +258,15 @@ long long get_cycle_count() { return cycle_count; }
 void init_verilator(int argc, char *argv[]) {
     pmem = (uint8_t*)malloc(PMEM_SIZE);
     psram_mem = (uint8_t*)malloc(PSRAM_SIZE);
+    sdram_mem[0] = (uint16_t*)malloc(sizeof(uint16_t) * SDRAM_HALFWORDS);
+    sdram_mem[1] = (uint16_t*)malloc(sizeof(uint16_t) * SDRAM_HALFWORDS);
     assert(pmem);
     assert(psram_mem);
+    assert(sdram_mem[0]);
+    assert(sdram_mem[1]);
     memset(psram_mem, 0, PSRAM_SIZE);
+    memset(sdram_mem[0], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
+    memset(sdram_mem[1], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
     Verilated::commandArgs(argc, argv);
     top_ptr = new VysyxSoCFull;
 }
@@ -310,14 +344,28 @@ void reset_cpu(int n) {
 void init_cpu() {
     // 简单起见，reset后直接认为启动，或者检查 PC 是否重置到 START_ADDR
     // while (get_pc_cpp() != 0x80000000) step_one_clk();
-    g_cpu_state.pc = 0x30000000;
-    g_cpu_state.dnpc = 0x30000000;
+    g_cpu_state.pc = PROGRAM_BASE;
+    g_cpu_state.dnpc = PROGRAM_BASE;
     g_cpu_state.csrs.mstatus = 0x1800; // Reset value
 }
 
 void load_data_to_rom(const uint8_t* data, size_t size) {
-    assert(size <= PMEM_SIZE);
-    memcpy(pmem, data, size);
+    const uint32_t end_addr = PROGRAM_BASE + static_cast<uint32_t>(size);
+    const uint32_t start_rank = (PROGRAM_BASE - SDRAM_BASE) >> 24;
+    const uint32_t end_rank = ((end_addr - 1) - SDRAM_BASE) >> 24;
+    assert(start_rank == end_rank);
+    for (size_t off = 0; off < size; off += 4) {
+        uint32_t addr = PROGRAM_BASE + static_cast<uint32_t>(off);
+        uint32_t halfaddr = sdram_linear_halfaddr_from_bus(addr);
+        uint16_t lower = 0;
+        uint16_t upper = 0;
+        if (off + 0 < size) lower |= static_cast<uint16_t>(data[off + 0]);
+        if (off + 1 < size) lower |= static_cast<uint16_t>(data[off + 1]) << 8;
+        if (off + 2 < size) upper |= static_cast<uint16_t>(data[off + 2]);
+        if (off + 3 < size) upper |= static_cast<uint16_t>(data[off + 3]) << 8;
+        sdram_mem[0][halfaddr] = lower;
+        sdram_mem[1][halfaddr] = upper;
+    }
 }
 
 // [修复] 从全局状态读取 GPR
@@ -368,8 +416,28 @@ extern "C" void get_dut_regstate_cpp(riscv32_CPU_state *dut) {
 }
 
 void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
+    if (!buf) return;
+    if (addr >= SDRAM_BASE && (uint64_t)(addr - SDRAM_BASE) + n <= (1ull << 25)) {
+        for (size_t i = 0; i < n; ++i) {
+            uint32_t cur = addr + static_cast<uint32_t>(i);
+            uint32_t halfaddr = sdram_linear_halfaddr_from_bus(cur);
+            uint16_t lower = sdram_mem[0][halfaddr];
+            uint16_t upper = sdram_mem[1][halfaddr];
+            switch (cur & 0x3u) {
+                case 0: buf[i] = lower & 0xffu; break;
+                case 1: buf[i] = (lower >> 8) & 0xffu; break;
+                case 2: buf[i] = upper & 0xffu; break;
+                default: buf[i] = (upper >> 8) & 0xffu; break;
+            }
+        }
+        return;
+    }
+    if (addr >= PSRAM_BASE && (uint64_t)(addr - PSRAM_BASE) + n <= PSRAM_SIZE) {
+        memcpy(buf, psram_mem + (addr - PSRAM_BASE), n);
+        return;
+    }
     long offset = (unsigned int)addr - PMEM_BASE;
-    if (offset < 0 || offset + n > PMEM_SIZE || !buf) return;
+    if (offset < 0 || offset + n > PMEM_SIZE) return;
     memcpy(buf, pmem + offset, n);
 }
 }
@@ -504,6 +572,8 @@ int main(int argc, char** argv) {
     print_stats();
     delete top_ptr;
     free(pmem);
+    free(sdram_mem[0]);
+    free(sdram_mem[1]);
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
     return is_exit_status_bad();
 }

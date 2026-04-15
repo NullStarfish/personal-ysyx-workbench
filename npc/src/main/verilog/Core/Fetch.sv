@@ -45,7 +45,7 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
     _GEN = readBridge_io_rStream_ready & _readBridge_io_rStream_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:16:26, :49:48
     _GEN_0 = _GEN & reqEpochReg == epochReg;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:27:25, :30:23, :33:28, :71:36, :73:{22,36}, :74:21
     if (reset) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
-      pcReg <= 32'h30000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:26:22
+      pcReg <= 32'hA0000000;	// src/main/scala/mycpu/core/frontend/Fetch.scala:26:22
       epochReg <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:27:25
       outValidReg <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:29:28
       reqPendingReg <= 1'h0;	// src/main/scala/mycpu/core/frontend/Fetch.scala:31:30
