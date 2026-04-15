@@ -2,10 +2,10 @@
 #include "klib.h"
 // 假设 SRAM 范围
 #define SRAM_BASE 0x80000000
-#define SRAM_END  0x8000ffff
+#define SRAM_END  0x80000fff
 
 // 栈区保护：假设给栈留出 4KB 空间，其余部分作为堆区进行测试
-#define STACK_SIZE 0x1000 
+#define STACK_SIZE 0x0000 
 #define TEST_START SRAM_BASE
 #define TEST_END   (SRAM_END - STACK_SIZE)
 
@@ -24,7 +24,6 @@ void mem_test_8() {
     for (uint32_t i = 0; i < len; i++) {
         uintptr_t addr = (uintptr_t)&p[i];
         uint8_t target = (uint8_t)(addr & mask);
-        printf("[mem-test]: p[i]: %x, target: %x\n", p[i], target);
         assert(p[i] == target);
     }
 }

@@ -1408,3 +1408,10 @@ WARNING: Unmatched cancel notification for request id 3029
 2026.04.14 18:38:50 WARN  90 deprecations (since rocketchip 2.0.0)[0m
 2026.04.14 18:38:50 WARN  92 deprecations in total; re-run with -deprecation for details[0m
 2026.04.14 18:38:50 INFO  time: compiled ysyxsoc in 7.25s[0m
+Apr 14, 2026 11:52:40 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 224
+2026.04.14 23:55:16 INFO  Shutting down server[0m
+2026.04.14 23:55:16 INFO  Memory monitor stopped[0m
+2026.04.14 23:55:16 INFO  shutting down Metals[0m
+2026.04.14 23:55:16 INFO  Shut down connection with build server.[0m
+2026.04.14 23:55:16 INFO  Exiting server[0m

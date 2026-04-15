@@ -173,14 +173,11 @@ extern "C" void psram_read_byte(int32_t addr, uint8_t *data) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
     uint8_t value = psram_mem[uaddr];
     *data = value;
-    printf("[psram] [read] addr: 0x%x, value: 0x%02x, out: 0x%02x\n", addr, value, *data);
 }
 
 extern "C" void psram_write_byte(int32_t addr, uint8_t data) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
-    printf("[psram] [write] addr: 0x%x, data: 0x%02x\n", addr, data);
-
-    psram_mem[addr] = data;
+    psram_mem[uaddr] = data;
 }
 
 void print_stats() {

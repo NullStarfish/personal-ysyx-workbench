@@ -39,8 +39,17 @@ module EF_PSRAM_CTRL_wb (
     output  wire [3:0]      douten
 );
 
-    localparam  ST_IDLE = 1'b0,
-                ST_WAIT = 1'b1;
+    localparam  ST_INIT = 2'd0,
+                ST_IDLE = 2'd1,
+                ST_WAIT = 2'd2;
+
+    wire        init_sck;
+    wire        init_ce_n;
+    wire [3:0]  init_dout;
+    wire [3:0]  init_douten;
+    wire        init_done;
+    reg         init_start;
+    reg         init_done_r;
 
     wire        mr_sck;
     wire        mr_ce_n;
@@ -69,15 +78,21 @@ module EF_PSRAM_CTRL_wb (
     //wire[3:0]   wb_byte_sel     =   sel_i & {4{wb_we}};
 
     // The FSM
-    reg         state, nstate;
+    reg [1:0]   state, nstate;
     always @ (posedge clk_i or posedge rst_i)
         if(rst_i)
-            state <= ST_IDLE;
+            state <= ST_INIT;
         else
             state <= nstate;
 
     always @* begin
         case(state)
+            ST_INIT :
+                if(init_done_r)
+                    nstate = ST_IDLE;
+                else
+                    nstate = ST_INIT;
+
             ST_IDLE :
                 if(wb_valid)
                     nstate = ST_WAIT;
@@ -89,7 +104,22 @@ module EF_PSRAM_CTRL_wb (
                     nstate = ST_IDLE;
                 else
                     nstate = ST_WAIT;
+
+            default :
+                nstate = ST_IDLE;
         endcase
+    end
+
+    always @(posedge clk_i or posedge rst_i) begin
+        if (rst_i) begin
+            init_start <= 1'b1;
+            init_done_r <= 1'b0;
+        end else begin
+            if (state == ST_INIT && init_done)
+                init_done_r <= 1'b1;
+            if (state != ST_INIT)
+                init_start <= 1'b0;
+        end
     end
 
     wire [2:0]  size =  (sel_i == 4'b0001) ? 1 :
@@ -118,13 +148,6 @@ module EF_PSRAM_CTRL_wb (
 
     wire [31:0] wdata = {byte3, byte2, byte1, byte0};
 
-    always @(posedge clk_i) begin
-        if (mw_wr && adr_i[23:0] < 24'h10) begin
-            $display("[psram-ctrl] wr adr=0x%08x dat_i=0x%08x sel=0x%x size=%0d wdata=0x%08x",
-                adr_i, dat_i, sel_i, size, wdata);
-        end
-    end
-
     /*
     wire [1:0]  waddr = (size==1 && sel_i[0]==1) ? 2'b00 :
                         (size==1 && sel_i[1]==1) ? 2'b01 :
@@ -137,11 +160,23 @@ module EF_PSRAM_CTRL_wb (
     assign mr_rd    = ( (state==ST_IDLE ) & wb_re );
     assign mw_wr    = ( (state==ST_IDLE ) & wb_we );
 
+    PSRAM_QPI_ENTER INIT (
+        .clk(clk_i),
+        .rst_n(~rst_i),
+        .start(init_start & ~init_done_r),
+        .done(init_done),
+        .sck(init_sck),
+        .ce_n(init_ce_n),
+        .dout(init_dout),
+        .douten(init_douten)
+    );
+
     PSRAM_READER MR (
         .clk(clk_i),
         .rst_n(~rst_i),
         .addr({adr_i[23:2],2'b0}),
         .rd(mr_rd),
+        .qpi_mode(init_done_r),
         //.size(size), Always read a word
         .size(3'd4),
         .done(mr_done),
@@ -158,6 +193,7 @@ module EF_PSRAM_CTRL_wb (
         .rst_n(~rst_i),
         .addr({adr_i[23:0]}),
         .wr(mw_wr),
+        .qpi_mode(init_done_r),
         .size(size),
         .done(mw_done),
         .line(wdata),
@@ -168,12 +204,66 @@ module EF_PSRAM_CTRL_wb (
         .douten(mw_doe)
     );
 
-    assign sck  = wb_we ? mw_sck  : mr_sck;
-    assign ce_n = wb_we ? mw_ce_n : mr_ce_n;
-    assign dout = wb_we ? mw_dout : mr_dout;
-    assign douten  = wb_we ? {4{mw_doe}}  : {4{mr_doe}};
+    assign sck  = (state == ST_INIT) ? init_sck  : (wb_we ? mw_sck  : mr_sck);
+    assign ce_n = (state == ST_INIT) ? init_ce_n : (wb_we ? mw_ce_n : mr_ce_n);
+    assign dout = (state == ST_INIT) ? init_dout : (wb_we ? mw_dout : mr_dout);
+    assign douten  = (state == ST_INIT) ? init_douten : (wb_we ? {4{mw_doe}}  : {4{mr_doe}});
 
     assign mw_din = din;
     assign mr_din = din;
-    assign ack_o = wb_we ? mw_done :mr_done ;
+    assign ack_o = (state == ST_WAIT) ? (wb_we ? mw_done : mr_done) : 1'b0;
+endmodule
+
+module PSRAM_QPI_ENTER (
+    input   wire        clk,
+    input   wire        rst_n,
+    input   wire        start,
+    output  wire        done,
+    output  reg         sck,
+    output  reg         ce_n,
+    output  wire [3:0]  dout,
+    output  wire [3:0]  douten
+);
+    localparam IDLE = 1'b0,
+               RUN  = 1'b1;
+    wire [7:0] CMD_QPI_EN = 8'h35;
+
+    reg state;
+    reg [3:0] counter;
+
+    always @(posedge clk or negedge rst_n)
+        if(!rst_n)
+            state <= IDLE;
+        else if(state == IDLE && start)
+            state <= RUN;
+        else if(state == RUN && done)
+            state <= IDLE;
+
+    always @(posedge clk or negedge rst_n)
+        if(!rst_n)
+            ce_n <= 1'b1;
+        else if(state == RUN)
+            ce_n <= 1'b0;
+        else
+            ce_n <= 1'b1;
+
+    always @(posedge clk or negedge rst_n)
+        if(!rst_n)
+            sck <= 1'b0;
+        else if(~ce_n)
+            sck <= ~sck;
+        else
+            sck <= 1'b0;
+
+    always @(posedge clk or negedge rst_n)
+        if(!rst_n)
+            counter <= 4'd0;
+        else if(state == IDLE)
+            counter <= 4'd0;
+        else if(sck && ~done)
+            counter <= counter + 1'b1;
+
+    assign done = (counter == 4'd8);
+    assign dout = {3'b0, CMD_QPI_EN[7 - counter]};
+    assign douten = (state == RUN && counter < 4'd8) ? 4'b0001 : 4'b0000;
 endmodule

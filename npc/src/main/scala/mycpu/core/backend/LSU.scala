@@ -88,12 +88,6 @@ class LSU extends Module {
     }
   }
 
-  when(state === State.WaitReadResp && readBridge.io.rStream.valid && reqReg.result >= "h80000000".U && reqReg.result < "h80000010".U) {
-    printf(
-      p"[lsu-load] addr=0x${Hexadecimal(reqReg.result)} off=${addrOffset} raw=0x${Hexadecimal(readBridge.io.rStream.bits.data)} shifted=0x${Hexadecimal(shiftedReadData)} subop=${reqReg.mem.subop} unsigned=${reqReg.mem.unsigned} wb=0x${Hexadecimal(loadData)}\n"
-    )
-  }
-
   val isInputMem = io.in.bits.mem.valid
   val isInputLoad = isInputMem && !io.in.bits.mem.write
   val isInputStore = isInputMem && io.in.bits.mem.write

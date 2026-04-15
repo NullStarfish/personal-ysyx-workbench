@@ -89,9 +89,8 @@ void _trm_init() {
   unsigned int x;
   asm volatile ("csrr %0, 0xBC0" : "=r"(x));
   char *asc = (char*)&x;
-  for (int i = 0; i < 4; i ++) {
-    printf("%c\n", asc[i]);
-    printf("%d, addr: %x\n", asc[i], &asc[i]);
+  for (int i = 3; i >= 0; i --) {
+    printf("%c", asc[i]);
   }
   printf("\n");
 

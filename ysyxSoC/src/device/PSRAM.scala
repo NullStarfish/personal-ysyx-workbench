@@ -60,6 +60,15 @@ class psramChisel extends RawModule {
 
   val desiredOutEn = WireDefault(false.B)
   val desiredOutData = WireDefault(0.U(4.W))
+  val enterQpi = WireDefault(false.B)
+  val exitQpi = WireDefault(false.B)
+
+  val qpiMode = withClockAndReset(io.sck.asClock, false.B.asAsyncReset) {
+    val reg = RegInit(false.B)
+    when(enterQpi) { reg := true.B }
+    when(exitQpi) { reg := false.B }
+    reg
+  }
 
   withClockAndReset(io.sck.asClock, io.ce_n.asAsyncReset) {
     val state = RegInit(stateCmd)
@@ -77,14 +86,29 @@ class psramChisel extends RawModule {
     }
 
     when(state === stateCmd) {
-      cmdReg := (cmdReg << 1) | di(0)
-      bitCounter := bitCounter + 1.U
-      when(bitCounter === 7.U) {
-        bitCounter := 0.U
-        addrReg := 0.U
-        switch((cmdReg << 1) | di(0)) {
-          is("hEB".U) { state := stateAddr }
-          is("h38".U) { state := stateAddr }
+      when(qpiMode) {
+        cmdReg := Cat(cmdReg(3, 0), di)
+        bitCounter := bitCounter + 1.U
+        when(bitCounter === 1.U) {
+          bitCounter := 0.U
+          addrReg := 0.U
+          switch(Cat(cmdReg(3, 0), di)) {
+            is("hEB".U) { state := stateAddr }
+            is("h38".U) { state := stateAddr }
+            is("hF5".U) { exitQpi := true.B }
+          }
+        }
+      } .otherwise {
+        cmdReg := (cmdReg << 1) | di(0)
+        bitCounter := bitCounter + 1.U
+        when(bitCounter === 7.U) {
+          bitCounter := 0.U
+          addrReg := 0.U
+          switch((cmdReg << 1) | di(0)) {
+            is("hEB".U) { state := stateAddr }
+            is("h38".U) { state := stateAddr }
+            is("h35".U) { enterQpi := true.B }
+          }
         }
       }
     }
@@ -105,41 +129,21 @@ class psramChisel extends RawModule {
 
     when(state === stateDummy) {
       nibbleCounter := nibbleCounter + 1.U
-      when(addrReg < 16.U && nibbleCounter >= 1.U && nibbleCounter <= 4.U) {
-        printf(
-          p"[psram] [read-req] cycleNib=${nibbleCounter - 1.U} base=0x${Hexadecimal(addrReg)} addr=0x${Hexadecimal(addrReg + (nibbleCounter - 1.U))}\n"
-        )
-      }
       switch(nibbleCounter) {
         is(1.U) {
           readLineReg := Cat(readLineReg(31, 8), readPort.io.rdata)
-          when(addrReg < 16.U) {
-            printf(p"[psram] [read-byte] idx=0 data=0x${Hexadecimal(readPort.io.rdata)}\n")
-          }
         }
         is(2.U) {
           readLineReg := Cat(readLineReg(31, 16), readPort.io.rdata, readLineReg(7, 0))
-          when(addrReg < 16.U) {
-            printf(p"[psram] [read-byte] idx=1 data=0x${Hexadecimal(readPort.io.rdata)}\n")
-          }
         }
         is(3.U) {
           readLineReg := Cat(readLineReg(31, 24), readPort.io.rdata, readLineReg(15, 0))
-          when(addrReg < 16.U) {
-            printf(p"[psram] [read-byte] idx=2 data=0x${Hexadecimal(readPort.io.rdata)}\n")
-          }
         }
         is(4.U) {
           readLineReg := Cat(readPort.io.rdata, readLineReg(23, 0))
-          when(addrReg < 16.U) {
-            printf(p"[psram] [read-byte] idx=3 data=0x${Hexadecimal(readPort.io.rdata)}\n")
-          }
         }
       }
       when(nibbleCounter === 5.U) {
-        when(addrReg < 16.U) {
-          printf(p"[psram] [read-line] addr=0x${Hexadecimal(addrReg)} line=0x${Hexadecimal(readLineReg)}\n")
-        }
         nibbleCounter := 0.U
         state := stateRead
       }
@@ -155,22 +159,12 @@ class psramChisel extends RawModule {
     }
 
     when(state === stateWrite) {
-      when(addrReg < 16.U) {
-        printf(
-          p"[psram] [write-nibble] addrBase=0x${Hexadecimal(addrReg)} nib=${nibbleCounter} byteIdx=${byteCounter} di=0x${Hexadecimal(di)} partial=0x${Hexadecimal(writeByteReg)}\n"
-        )
-      }
       writeByteReg := Cat(writeByteReg(3, 0), di)
       nibbleCounter := nibbleCounter + 1.U
       when(nibbleCounter(0)) {
         writeKick := true.B
         writeAddr := addrReg + byteCounter
         writeData := Cat(writeByteReg(3, 0), di)
-        when(addrReg < 16.U) {
-          printf(
-            p"[psram] [write-byte] addr=0x${Hexadecimal(addrReg + byteCounter)} data=0x${Hexadecimal(Cat(writeByteReg(3, 0), di))}\n"
-          )
-        }
         byteCounter := byteCounter + 1.U
       }
     }
@@ -190,11 +184,6 @@ class psramChisel extends RawModule {
       }
     }
 
-    when(addrReg < 16.U && state === stateRead) {
-      printf(
-        p"[psram-drive] state=${state} nib=${nibbleCounter} out_en=${desiredOutEn} out=0x${Hexadecimal(desiredOutData)} line=0x${Hexadecimal(readLineReg)}\n"
-      )
-    }
   }
 
   withClockAndReset(negSck, io.ce_n.asAsyncReset) {
@@ -205,11 +194,6 @@ class psramChisel extends RawModule {
     out_en := outEnReg
     out_data := outDataReg
 
-    when(outEnReg) {
-      printf(
-        p"[psram-pin] out_en=${outEnReg} out=0x${Hexadecimal(outDataReg)} desired=0x${Hexadecimal(desiredOutData)}\n"
-      )
-    }
   }
 }
 
