@@ -1552,3 +1552,4 @@ Apr 15, 2026 10:43:16 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancella
 WARNING: Unmatched cancel notification for request id 650
 Apr 15, 2026 11:01:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
 WARNING: Unmatched cancel notification for request id 692
+2026.04.15 23:37:03 INFO  compiling ysyxsoc (2 scala sources)[0m

@@ -29,6 +29,7 @@ class gpioChisel extends Module {
   val io = IO(new GPIOCtrlIO)
 }
 
+
 class APBGPIO(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
   val node = APBSlaveNode(Seq(APBSlavePortParameters(
     Seq(APBSlaveParameters(
