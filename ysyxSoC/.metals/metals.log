@@ -1553,3 +1553,459 @@ WARNING: Unmatched cancel notification for request id 650
 Apr 15, 2026 11:01:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
 WARNING: Unmatched cancel notification for request id 692
 2026.04.15 23:37:03 INFO  compiling ysyxsoc (2 scala sources)[0m
+2026.04.15 23:37:06 WARN  28 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.15 23:37:06 INFO  time: compiled ysyxsoc in 4.01s[0m
+2026.04.16 00:14:53 INFO  Shutting down server[0m
+2026.04.16 00:14:53 INFO  Memory monitor stopped[0m
+2026.04.16 00:14:53 INFO  shutting down Metals[0m
+2026.04.16 00:14:53 INFO  Shut down connection with build server.[0m
+2026.04.16 00:14:53 INFO  Exiting server[0m
+2026.04.16 11:11:42 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.04.16 11:11:44 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.04.16 11:11:44 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.115.0.[0m
+2026.04.16 11:11:44 INFO  Memory monitor started[0m
+2026.04.16 11:11:44 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.04.16 11:11:44 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:45 INFO  Attempting to connect to the build server...[0m
+2026.04.16 11:11:45 INFO  No running Bloop server found, starting one.[0m
+2026.04.16 11:11:46 INFO  Starting compilation server[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 16, 2026 11:11:46 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:46 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:47 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Exception in thread "pool-14-thread-1" java.lang.InterruptedException
+	at scala.meta.internal.metals.FutureCancelToken.checkCanceled(FutureCancelToken.scala:29)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:208)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:153)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Exception in thread "pool-15-thread-1" 2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0mjava.lang.InterruptedException
+
+	at scala.meta.internal.metals.FutureCancelToken.checkCanceled(FutureCancelToken.scala:29)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:208)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:153)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:48 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:49 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:51 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.16 11:11:52 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 16, 2026 11:11:52 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 31
+2026.04.16 11:11:53 INFO  time: Connected to build server in 7.85s[0m
+2026.04.16 11:11:53 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.04.16 11:11:53 INFO  time: Imported build in 0.26s[0m
+2026.04.16 11:11:53 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.04.16 11:11:55 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.04.16 11:11:55 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-04-16/r_scala-toplevel-mtags_11-11-55-024.md")[0m
+2026.04.16 11:11:56 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.16 11:11:56 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.16 11:11:56 INFO  time: indexed workspace in 3.59s[0m
+2026.04.16 11:11:57 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.04.16 11:11:57 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.04.16 11:11:57 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.04.16 11:12:00 INFO  time: compiled rocketchip.macros in 3.08s[0m
+2026.04.16 11:12:00 INFO  time: compiled rocketchip.cde in 3.08s[0m
+2026.04.16 11:12:00 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.04.16 11:12:09 INFO  time: compiled rocketchip.diplomacy in 8.58s[0m
+2026.04.16 11:12:09 INFO  time: compiled rocketchip.hardfloat in 12s[0m
+2026.04.16 11:12:11 INFO  compiling rocketchip (317 scala sources)[0m
+2026.04.16 11:12:16 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:16 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf.apply(). (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-16-690.md")[0m
+2026.04.16 11:12:16 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf.apply(). (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-16-690.md")[0m
+2026.04.16 11:12:17 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:17 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-17-153.md")[0m
+2026.04.16 11:12:21 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:21 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-21-900.md")[0m
+2026.04.16 11:12:21 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:21 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-21-971.md")[0m
+2026.04.16 11:12:21 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:21 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-21-986.md")[0m
+2026.04.16 11:12:22 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:22 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-22-002.md")[0m
+2026.04.16 11:12:28 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:28 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-28-414.md")[0m
+2026.04.16 11:12:29 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:29 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-29-450.md")[0m
+2026.04.16 11:12:29 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:29 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-29-709.md")[0m
+2026.04.16 11:12:31 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:31 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-31-076.md")[0m
+2026.04.16 11:12:35 WARN  Could not find 'TransferSizes' using presentation compiler nor semanticdb. Trying to guess the definition using available information from local class context. [0m
+2026.04.16 11:12:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:35 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-35-729.md")[0m
+2026.04.16 11:12:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:35 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-35-927.md")[0m
+2026.04.16 11:12:36 WARN  Could not find 'ChipLinkMaster' using presentation compiler nor semanticdb. Trying to guess the definition using available information from local class context. [0m
+2026.04.16 11:12:36 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:36 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-36-022.md")[0m
+2026.04.16 11:12:36 WARN  Could not find 'ExtBus' using presentation compiler nor semanticdb. Trying to guess the definition using available information from local class context. [0m
+2026.04.16 11:12:36 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:36 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-36-044.md")[0m
+2026.04.16 11:12:49 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:49 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-49-066.md")[0m
+2026.04.16 11:12:49 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:49 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-50-050.md")[0m
+2026.04.16 11:12:50 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:50 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-50-486.md")[0m
+2026.04.16 11:12:50 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:50 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-50-751.md")[0m
+2026.04.16 11:12:50 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:50 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-428.md")[0m
+2026.04.16 11:12:50 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:50 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf. (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-483.md")[0m
+2026.04.16 11:12:51 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf. (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-483.md")[0m
+2026.04.16 11:12:51 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:51 INFO  empty definition using pc, found symbol in pc: chisel3/IO.apply(). (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-861.md")[0m
+2026.04.16 11:12:51 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:51 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-52-004.md")[0m
+2026.04.16 11:12:53 INFO  empty definition using pc, found symbol in pc: chisel3/IO.apply(). (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-861.md")[0m
+2026.04.16 11:12:53 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf. (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-483.md")[0m
+2026.04.16 11:12:53 INFO  empty definition using pc, found symbol in pc: chisel3/chiselTypeOf. (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-51-483.md")[0m
+2026.04.16 11:12:53 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:53 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-53-544.md")[0m
+2026.04.16 11:12:53 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:53 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-53-950.md")[0m
+2026.04.16 11:12:54 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:54 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-54-321.md")[0m
+2026.04.16 11:12:54 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:54 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-54-324.md")[0m
+2026.04.16 11:12:54 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:54 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-54-390.md")[0m
+2026.04.16 11:12:56 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/SoC.scala][0m
+2026.04.16 11:12:56 INFO  empty definition using pc, found symbol in pc:  (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_empty-definition_(ysyxsoc)_11-12-56-696.md")[0m
+Apr 16, 2026 11:13:05 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 259
+2026.04.16 11:13:08 WARN  7 deprecations[0m
+2026.04.16 11:13:08 WARN  78 deprecations (since 2.13.0)[0m
+2026.04.16 11:13:08 WARN  1 deprecation (since 2.13.7)[0m
+2026.04.16 11:13:08 WARN  1 deprecation (since 9)[0m
+2026.04.16 11:13:08 WARN  27 deprecations (since CDE 0.1)[0m
+2026.04.16 11:13:08 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.04.16 11:13:08 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.04.16 11:13:08 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.04.16 11:13:08 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.04.16 11:13:08 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.04.16 11:13:10 INFO  compiling ysyxsoc (37 scala sources)[0m
+2026.04.16 11:13:10 INFO  time: compiled rocketchip in 59s[0m
+2026.04.16 11:13:17 WARN  1 deprecation (since 2.13.0)[0m
+2026.04.16 11:13:17 WARN  1 deprecation (since 2.13.3)[0m
+2026.04.16 11:13:17 WARN  90 deprecations (since rocketchip 2.0.0)[0m
+2026.04.16 11:13:17 WARN  92 deprecations in total; re-run with -deprecation for details[0m
+2026.04.16 11:13:17 INFO  time: compiled ysyxsoc in 7.72s[0m
+Apr 16, 2026 11:16:58 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 497
+Apr 16, 2026 11:17:00 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 542
+2026.04.16 11:17:05 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:17:11 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:22:29 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:22:52 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:22:54 WARN  2 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.16 11:22:54 INFO  time: compiled ysyxsoc in 2.59s[0m
+Apr 16, 2026 11:26:23 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1225
+Apr 16, 2026 11:26:34 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1379
+2026.04.16 11:27:09 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:27:11 WARN  2 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.16 11:27:11 INFO  time: compiled ysyxsoc in 2.69s[0m
+Apr 16, 2026 11:27:46 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2017
+Apr 16, 2026 11:29:20 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2194
+2026.04.16 11:29:22 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:29:27 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:30:22 AM scala.meta.internal.pc.CompletionItemResolver fullDocstring
+WARNING: Error getting docstring for value apbState
+java.lang.IndexOutOfBoundsException: -1 is out of bounds (min 0, max 2)
+	at scala.collection.mutable.ArrayBuffer.apply(ArrayBuffer.scala:102)
+	at scala.reflect.internal.Types$Type.findMemberInternal$1(Types.scala:1030)
+	at scala.reflect.internal.Types$Type.findMember(Types.scala:1035)
+	at scala.reflect.internal.Types$Type.memberBasedOnName(Types.scala:661)
+	at scala.reflect.internal.Types$Type.nonLocalMember(Types.scala:652)
+	at scala.tools.nsc.typechecker.Contexts$ImportInfo.importedSelectedSymbol(Contexts.scala:1944)
+	at scala.tools.nsc.typechecker.Contexts$SymbolLookup.apply(Contexts.scala:1530)
+	at scala.tools.nsc.typechecker.Contexts$Context.lookupSymbol(Contexts.scala:1282)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedIdent$2(Typers.scala:5663)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedIdentOrWildcard$1(Typers.scala:5732)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed1(Typers.scala:6203)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed(Typers.scala:6261)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedSelectOrSuperCall$1(Typers.scala:6359)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed1(Typers.scala:6206)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed(Typers.scala:6261)
+	at scala.tools.nsc.typechecker.Typers$Typer.$anonfun$typed1$41(Typers.scala:5233)
+	at scala.tools.nsc.typechecker.Typers$Typer.silent(Typers.scala:713)
+	at scala.tools.nsc.typechecker.Typers$Typer.normalTypedApply$1(Typers.scala:5235)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedApply$1(Typers.scala:5267)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed1(Typers.scala:6205)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed(Typers.scala:6261)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedArg(Typers.scala:3557)
+	at scala.tools.nsc.typechecker.Typers$Typer.handlePolymorphicCall$1(Typers.scala:3961)
+	at scala.tools.nsc.typechecker.Typers$Typer.doTypedApply(Typers.scala:3980)
+	at scala.tools.nsc.typechecker.Typers$Typer.$anonfun$typed1$28(Typers.scala:5166)
+	at scala.tools.nsc.typechecker.Typers$Typer.silent(Typers.scala:713)
+	at scala.tools.nsc.typechecker.Typers$Typer.tryTypedApply$1(Typers.scala:5166)
+	at scala.tools.nsc.typechecker.Typers$Typer.normalTypedApply$1(Typers.scala:5254)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedApply$1(Typers.scala:5267)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed1(Typers.scala:6205)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed(Typers.scala:6261)
+	at scala.tools.nsc.typechecker.Typers$Typer.computeType(Typers.scala:6350)
+	at scala.tools.nsc.typechecker.Namers$Namer.assignTypeToTree(Namers.scala:1105)
+	at scala.tools.nsc.typechecker.Namers$Namer.inferredValTpt$1(Namers.scala:1752)
+	at scala.tools.nsc.typechecker.Namers$Namer.valDefSig(Namers.scala:1765)
+	at scala.tools.nsc.typechecker.Namers$Namer.memberSig(Namers.scala:1953)
+	at scala.tools.nsc.typechecker.Namers$Namer.typeSig(Namers.scala:1903)
+	at scala.tools.nsc.typechecker.Namers$Namer$ValTypeCompleter.completeImpl(Namers.scala:918)
+	at scala.tools.nsc.typechecker.Namers$Namer$AccessorTypeCompleter.completeImpl(Namers.scala:942)
+	at scala.tools.nsc.typechecker.Namers$LockingTypeCompleter.complete(Namers.scala:2100)
+	at scala.tools.nsc.typechecker.Namers$LockingTypeCompleter.complete$(Namers.scala:2098)
+	at scala.tools.nsc.typechecker.Namers$TypeCompleterBase.complete(Namers.scala:2093)
+	at scala.reflect.internal.Symbols$Symbol.completeInfo(Symbols.scala:1566)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1538)
+	at scala.meta.internal.pc.CompletionItemResolver.fullDocstring(CompletionItemResolver.scala:71)
+	at scala.meta.internal.pc.CompletionItemResolver.$anonfun$handleSymbol$2(CompletionItemResolver.scala:43)
+	at scala.meta.internal.pc.ItemResolver.enrichDocs(ItemResolver.scala:75)
+	at scala.meta.internal.pc.ItemResolver.enrichDocs$(ItemResolver.scala:14)
+	at scala.meta.internal.pc.CompletionItemResolver.enrichDocs(CompletionItemResolver.scala:12)
+	at scala.meta.internal.pc.CompletionItemResolver.handleSymbol(CompletionItemResolver.scala:44)
+	at scala.meta.internal.pc.CompletionItemResolver.resolve(CompletionItemResolver.scala:28)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.$anonfun$completionItemResolve$1(ScalaPresentationCompiler.scala:421)
+	at scala.meta.internal.pc.CompilerAccess.withSharedCompiler(CompilerAccess.scala:148)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.completionItemResolve(ScalaPresentationCompiler.scala:422)
+	at scala.meta.internal.metals.Compilers.$anonfun$completionItemResolve$2(Compilers.scala:418)
+	at scala.Option.map(Option.scala:242)
+	at scala.meta.internal.metals.Compilers.$anonfun$completionItemResolve$1(Compilers.scala:417)
+	at scala.Option.flatMap(Option.scala:283)
+	at scala.meta.internal.metals.Compilers.completionItemResolve(Compilers.scala:416)
+	at scala.meta.internal.metals.MetalsLspService.$anonfun$completionItemResolve$1(MetalsLspService.scala:1200)
+	at scala.meta.internal.metals.CancelTokens$.future(CancelTokens.scala:38)
+	at scala.meta.internal.metals.MetalsLspService.completionItemResolve(MetalsLspService.scala:1198)
+	at scala.meta.internal.metals.WorkspaceLspService.$anonfun$completionItemResolve$1(WorkspaceLspService.scala:615)
+	at scala.Option.map(Option.scala:242)
+	at scala.meta.internal.metals.WorkspaceLspService.completionItemResolve(WorkspaceLspService.scala:615)
+	at scala.meta.metals.lsp.DelegatingScalaService.completionItemResolve(DelegatingScalaService.scala:149)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.request(GenericEndpoint.java:128)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleRequest(RemoteEndpoint.java:265)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:195)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+2026.04.16 11:30:22 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala][0m
+2026.04.16 11:30:22 INFO  java.lang.IndexOutOfBoundsException: -1 is out of bounds (min 0, max 2) (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_compiler-error_(ysyxsoc)_11-30-22-498.md")[0m
+Apr 16, 2026 11:30:32 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3002
+2026.04.16 11:30:49 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:30:50 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3218
+Apr 16, 2026 11:30:50 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3225
+Apr 16, 2026 11:30:53 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3267
+Apr 16, 2026 11:30:53 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3281
+Apr 16, 2026 11:33:49 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3376
+Apr 16, 2026 11:34:22 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3799
+2026.04.16 11:34:29 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:34:32 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3982
+Apr 16, 2026 11:34:48 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4204
+Apr 16, 2026 11:34:48 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4205
+2026.04.16 11:35:01 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala][0m
+2026.04.16 11:35:01 INFO  java.lang.IndexOutOfBoundsException: -1 is out of bounds (min 0, max 2) (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_compiler-error_(ysyxsoc)_11-35-01-881.md")[0m
+2026.04.16 11:35:06 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:35:13 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4611
+Apr 16, 2026 11:36:03 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4927
+Apr 16, 2026 11:36:37 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5095
+2026.04.16 11:36:37 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:37:43 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5387
+2026.04.16 11:37:43 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:38:13 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:39:00 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6068
+2026.04.16 11:39:12 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:40:15 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6479
+2026.04.16 11:41:07 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:41:07 INFO  time: compiled ysyxsoc in 0.31s[0m
+2026.04.16 11:41:13 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:41:13 INFO  time: compiled ysyxsoc in 0.6s[0m
+Apr 16, 2026 11:41:26 AM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+Apr 16, 2026 11:41:26 AM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+Apr 16, 2026 11:41:27 AM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.04.16 11:41:27 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala][0m
+2026.04.16 11:41:27 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Predef (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-04-16/r_compiler-error_(ysyxsoc)_11-41-27-590.md")[0m
+Apr 16, 2026 11:41:27 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6985
+Apr 16, 2026 11:41:29 AM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.04.16 11:41:29 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:41:29 INFO  time: compiled ysyxsoc in 0.36s[0m
+2026.04.16 11:41:45 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:41:45 INFO  time: compiled ysyxsoc in 0.3s[0m
+2026.04.16 11:41:51 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:41:51 INFO  time: compiled ysyxsoc in 0.23s[0m
+Apr 16, 2026 11:43:19 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7573
+Apr 16, 2026 11:43:21 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7634
+2026.04.16 11:43:59 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:43:59 INFO  time: compiled ysyxsoc in 0.32s[0m
+2026.04.16 11:45:32 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:45:32 INFO  time: compiled ysyxsoc in 0.2s[0m
+2026.04.16 11:46:00 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:46:00 INFO  time: compiled ysyxsoc in 0.17s[0m
+2026.04.16 11:46:16 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:46:35 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:46:35 INFO  time: compiled ysyxsoc in 0.16s[0m
+Apr 16, 2026 11:46:42 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 8664
+2026.04.16 11:46:56 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:46:58 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:46:58 INFO  time: compiled ysyxsoc in 0.53s[0m
+2026.04.16 11:48:09 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:48:09 INFO  time: compiled ysyxsoc in 0.37s[0m
+2026.04.16 11:48:15 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:48:15 INFO  time: compiled ysyxsoc in 0.27s[0m
+2026.04.16 11:48:24 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:48:24 INFO  time: compiled ysyxsoc in 0.25s[0m
+Apr 16, 2026 11:49:22 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9498
+Apr 16, 2026 11:49:22 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9497
+Apr 16, 2026 11:49:47 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9727
+2026.04.16 11:49:58 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:50:02 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:50:08 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9915
+Apr 16, 2026 11:50:18 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10068
+Apr 16, 2026 11:51:09 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10295
+2026.04.16 11:52:13 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:52:13 INFO  time: compiled ysyxsoc in 0.15s[0m
+Apr 16, 2026 11:54:25 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10478
+2026.04.16 11:56:47 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:56:47 INFO  time: compiled ysyxsoc in 0.16s[0m
+Apr 16, 2026 11:57:01 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11120
+2026.04.16 11:57:14 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+Apr 16, 2026 11:57:30 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11350
+Apr 16, 2026 11:57:35 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11427
+2026.04.16 11:57:39 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:57:42 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala[0m
+2026.04.16 11:58:33 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 11:58:33 INFO  time: compiled ysyxsoc in 0.16s[0m
+2026.04.16 12:00:44 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:00:44 INFO  time: compiled ysyxsoc in 0.35s[0m
+2026.04.16 12:00:50 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:00:50 INFO  time: compiled ysyxsoc in 0.24s[0m
+2026.04.16 12:01:18 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:01:18 INFO  time: compiled ysyxsoc in 0.2s[0m
+2026.04.16 12:01:59 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:01:59 INFO  time: compiled ysyxsoc in 0.33s[0m
+Apr 16, 2026 12:02:18 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12254
+2026.04.16 12:04:55 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:04:57 WARN  2 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.16 12:04:57 INFO  time: compiled ysyxsoc in 2.97s[0m
+2026.04.16 12:15:39 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:15:42 WARN  2 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.16 12:15:42 INFO  time: compiled ysyxsoc in 3.43s[0m
+2026.04.16 12:18:21 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.04.16 12:18:24 WARN  2 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.04.16 12:18:24 INFO  time: compiled ysyxsoc in 3.3s[0m
