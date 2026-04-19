@@ -19,8 +19,8 @@ CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAI
 
 
 npc: 
-    @echo -e "\033m[32m MAKING NPC! \033[32m\n"
-    $(MAKE) -C $(NPC_HOME) all
+	@echo -e "\033m[32m MAKING NPC! \033[32m\n"
+	$(MAKE) -C $(NPC_HOME) all
 
 
 NPC_BIN = $(NPC_HOME)/npc

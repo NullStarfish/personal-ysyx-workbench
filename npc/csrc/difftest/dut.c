@@ -19,7 +19,10 @@ void (*ref_difftest_init)(int port) = NULL;
 // --- Difftest State ---
 bool difftest_is_enabled = false;
 static bool is_skip_ref = false;
-static const uint32_t IMAGE_BASE = 0xa0000000u;
+#ifndef IMAGE_BASE_ADDR
+#define IMAGE_BASE_ADDR 0xa0000000u
+#endif
+static const uint32_t IMAGE_BASE = IMAGE_BASE_ADDR;
 
 
 void difftest_skip_ref() {

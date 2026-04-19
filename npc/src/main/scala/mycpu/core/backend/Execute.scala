@@ -98,7 +98,13 @@ class Execute extends Module {
     (data.exec.family === ExecFamily.Jump) -> (data.data.pc + 4.U),
     (data.exec.family === ExecFamily.Csr) -> csr.io.rdata
   ))
-  val architecturalNextPc = Mux(redirectValid, redirectTarget, data.data.pc + 4.U)
+  val architecturalNextPc = MuxCase(data.data.pc + 4.U, Seq(
+    (data.exec.family === ExecFamily.Branch && branchActualTaken) -> jumpTarget,
+    (data.exec.family === ExecFamily.Jump && data.exec.op === ExecOp.Jalr) -> jalrTarget,
+    (data.exec.family === ExecFamily.Jump) -> jumpTarget,
+    data.sys.isEcall -> csr.io.evec,
+    data.sys.isMret -> csr.io.epc,
+  ))
 
   io.out.bits.result := result
   io.out.bits.rhs := data.data.rhs
