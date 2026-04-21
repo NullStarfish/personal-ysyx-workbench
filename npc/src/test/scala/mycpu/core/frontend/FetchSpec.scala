@@ -79,7 +79,6 @@ class FetchSpec extends AnyFlatSpec {
       c.io.out.valid.expect(true.B)
       c.io.out.bits.pc.expect(START_ADDR.U)
       c.io.out.bits.inst.expect("h00112233".U)
-      c.io.out.bits.dnpc.expect((START_ADDR + 4).U)
       c.io.out.bits.isException.expect(false.B)
     }
   }
@@ -132,7 +131,6 @@ class FetchSpec extends AnyFlatSpec {
       c.io.out.valid.expect(true.B)
       c.io.out.bits.pc.expect(secondPc.U)
       c.io.out.bits.inst.expect("h13572468".U)
-      c.io.out.bits.dnpc.expect((secondPc + 4).U)
     }
   }
 }

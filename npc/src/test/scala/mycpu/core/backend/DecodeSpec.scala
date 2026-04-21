@@ -27,7 +27,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00500093".U) // addi x1, x0, 5
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -48,7 +47,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h0040a103".U) // lw x2, 4(x1)
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.io.out.ready.poke(true.B)
       c.io.regWrite.wen.poke(false.B)
@@ -109,7 +107,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00208023".U) // sb x2, 0(x1)
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -148,7 +145,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00108133".U) // add x2, x1, x1
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -181,7 +177,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00108133".U) // add x2, x1, x1
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -211,7 +206,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00208463".U) // beq x1, x2, 8
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -249,7 +243,6 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00500093".U) // addi x1, x0, 5
-      c.io.in.bits.dnpc.poke((START_ADDR + 4).U)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
       c.io.out.bits.exec.family.expect(ExecFamily.Alu)

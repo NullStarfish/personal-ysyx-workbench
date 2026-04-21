@@ -25,8 +25,8 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                 io_out_bits_sys_isMret,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
                 io_out_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
                 io_out_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
-  output [31:0] io_out_bits_retire_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
-                io_out_bits_retire_inst,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+  output [31:0] io_out_bits_trace_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_out_bits_trace_inst,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input         io_regWrite_wen,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input  [4:0]  io_regWrite_addr,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input  [31:0] io_regWrite_data,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
@@ -308,7 +308,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_sys_isMret = ~_GEN_19 & _op_T_28 & ~_GEN_18 & _GEN_20;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :89:16, :175:28, :176:27, :224:18, :245:{17,49}, :247:{23,54}
   assign io_out_bits_sys_isEbreak = ~_GEN_19 & _op_T_28 & ~(_GEN_18 | _GEN_20) & _GEN_21;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :89:16, :175:28, :177:29, :224:18, :245:{17,49}, :247:{23,54}, :249:{23,56}
   assign io_out_bits_pred_predictedTaken = family == 3'h1 & _predictor_io_predictTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :55:25, :62:83, :110:24, :282:{45,67}
-  assign io_out_bits_retire_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
-  assign io_out_bits_retire_inst = io_in_bits_inst;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
+  assign io_out_bits_trace_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
+  assign io_out_bits_trace_inst = io_in_bits_inst;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
 endmodule
 

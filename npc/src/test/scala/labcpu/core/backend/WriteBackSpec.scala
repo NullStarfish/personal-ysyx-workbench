@@ -18,9 +18,9 @@ class WriteBackSpec extends AnyFlatSpec {
     c.io.in.bits.mem.subop.poke(ExecSubop.None)
     c.io.in.bits.redirect.valid.poke(false.B)
     c.io.in.bits.redirect.bits.poke(0.U)
-    c.io.in.bits.retire.pc.poke(0x100.U)
-    c.io.in.bits.retire.inst.poke(0.U)
-    c.io.in.bits.retire.dnpc.poke(0x104.U)
+    c.io.in.bits.trace.get.pc.poke(0x100.U)
+    c.io.in.bits.trace.get.inst.poke(0.U)
+    c.io.in.bits.trace.get.dnpc.poke(0x104.U)
     c.io.dmemRdata.poke(0.U)
   }
 
@@ -34,7 +34,7 @@ class WriteBackSpec extends AnyFlatSpec {
       c.io.regWrite.wen.expect(true.B)
       c.io.regWrite.addr.expect(1.U)
       c.io.regWrite.data.expect(5.U)
-      c.io.out.retire.dnpc.expect(0x104.U)
+      c.io.retire.dnpc.expect(0x104.U)
     }
   }
 

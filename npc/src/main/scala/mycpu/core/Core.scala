@@ -9,7 +9,11 @@ import mycpu.core.components.{FlushableStage, HazardUnit, Tracer}
 import mycpu.core.frontend.Fetch
 import mycpu.utils._
 
-class Core(enableDpi: Boolean = false) extends Module {
+class Core(
+    enableDpi: Boolean = false,
+    enableTracer: Boolean = ENABLE_TRACER,
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+) extends Module {
   val io = IO(new Bundle {
     val master = new AXI4Bundle(idWidth = AXI_ID_WIDTH, addrWidth = XLEN, dataWidth = XLEN)
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
@@ -17,18 +21,18 @@ class Core(enableDpi: Boolean = false) extends Module {
     val trace = Output(new CoreTraceBundle)
   })
 
-  val fetch = Module(new Fetch)
-  val decode = Module(new Decode)
-  val execute = Module(new Execute)
-  val lsu = Module(new LSU)
-  val writeBack = Module(new WriteBack)
+  val fetch = Module(new Fetch(enableTraceFields = enableTraceFields))
+  val decode = Module(new Decode(enableTraceFields = enableTraceFields))
+  val execute = Module(new Execute(enableTraceFields = enableTraceFields))
+  val lsu = Module(new LSU(enableTraceFields = enableTraceFields))
+  val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
-  val tracer = Module(new Tracer(enableDpi = enableDpi))
   val ifId = Module(new FlushableStage(new FetchPacket))
-  val idEx = Module(new FlushableStage(new DecodePacket))
-  val exMem = Module(new FlushableStage(new ExecutePacket))
-  val memWb = Module(new FlushableStage(new MemoryPacket))
+  val idEx = Module(new FlushableStage(new DecodePacket(enableTraceFields)))
+  val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
+  val memWb = Module(new FlushableStage(new MemoryPacket(enableTraceFields)))
   val arbiter = Module(new SimpleAXIArbiter)
+  val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
 
   arbiter.io.left <> fetch.io.axi
   arbiter.io.right <> lsu.io.axi
@@ -50,20 +54,6 @@ class Core(enableDpi: Boolean = false) extends Module {
   io.debug_csrs.mstatus := execute.io.debug_csrs.mstatus
   io.debug_csrs.mcause := execute.io.debug_csrs.mcause
   val regsFlat = Cat(io.debug_regs.reverse)
-
-  tracer.io.ifValid := ifId.io.deq.valid
-  tracer.io.idValid := idEx.io.deq.valid
-  tracer.io.exValid := exMem.io.deq.valid
-  tracer.io.memValid := memWb.io.deq.valid
-  tracer.io.retire := writeBack.io.retire
-  tracer.io.branchResolved := execute.io.bpUpdate.valid
-  tracer.io.branchCorrect := execute.io.bpUpdate.actualTaken === execute.io.bpUpdate.predictedTaken
-  tracer.io.regsFlat := regsFlat
-  tracer.io.mtvec := io.debug_csrs.mtvec
-  tracer.io.mepc := io.debug_csrs.mepc
-  tracer.io.mstatus := io.debug_csrs.mstatus
-  tracer.io.mcause := io.debug_csrs.mcause
-  io.trace := tracer.io.trace
 
   val exForward = Wire(new ForwardInfo)
   exForward.valid := exMem.io.deq.valid && exMem.io.deq.bits.wb.regWen && !exMem.io.deq.bits.mem.valid && (exMem.io.deq.bits.wb.rd =/= 0.U)
@@ -129,6 +119,20 @@ class Core(enableDpi: Boolean = false) extends Module {
 
   memWb.io.enq.valid := lsu.io.out.valid
   memWb.io.enq.bits := lsu.io.out.bits
+
+  if (enableTracer && enableTraceFields) {
+    val tracerMod = tracer.get
+    tracerMod.io.commitTrace <> writeBack.io.traceCommit.get
+    tracerMod.io.retire := writeBack.io.retire
+    tracerMod.io.regsFlat := regsFlat
+    tracerMod.io.mtvec := io.debug_csrs.mtvec
+    tracerMod.io.mepc := io.debug_csrs.mepc
+    tracerMod.io.mstatus := io.debug_csrs.mstatus
+    tracerMod.io.mcause := io.debug_csrs.mcause
+    io.trace := tracerMod.io.trace
+  } else {
+    io.trace := 0.U.asTypeOf(new CoreTraceBundle)
+  }
 
   ifId.io.flush := redirectFlush
   idEx.io.flush := redirectFlush

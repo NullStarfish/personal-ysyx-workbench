@@ -21,8 +21,8 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
                 io_in_bits_sys_isMret,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
-  input  [31:0] io_in_bits_retire_pc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
-                io_in_bits_retire_inst,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
+  input  [31:0] io_in_bits_trace_pc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
+                io_in_bits_trace_inst,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   input         io_out_ready,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output        io_out_valid,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output [31:0] io_out_bits_result,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
@@ -35,9 +35,9 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   output [2:0]  io_out_bits_mem_subop,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output        io_out_bits_redirect_valid,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output [31:0] io_out_bits_redirect_bits,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
-                io_out_bits_retire_pc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
-                io_out_bits_retire_dnpc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
-                io_out_bits_retire_inst,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
+                io_out_bits_trace_pc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
+                io_out_bits_trace_inst,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
+                io_out_bits_trace_dnpc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output        io_bpUpdate_valid,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output [31:0] io_bpUpdate_pc,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output        io_bpUpdate_actualTaken,	// src/main/scala/mycpu/core/backend/Execute.scala:10:14
@@ -69,6 +69,8 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
       4'h0,
       4'hC};
   wire [31:0]      _jumpTarget_T = io_in_bits_data_pc + io_in_bits_data_offset;	// src/main/scala/mycpu/core/backend/Execute.scala:77:33
+  wire [31:0]      jalrTarget =
+    io_in_bits_data_lhs + io_in_bits_data_offset & 32'hFFFFFFFE;	// src/main/scala/mycpu/core/backend/Execute.scala:78:{35,55}
   wire             _io_bpUpdate_valid_T_1 = io_in_bits_exec_family == 3'h1;	// src/main/scala/mycpu/core/backend/Execute.scala:79:44
   wire             branchActualTaken =
     _io_bpUpdate_valid_T_1
@@ -87,19 +89,8 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   wire             branchMispredict =
     _io_bpUpdate_valid_T_1 & branchActualTaken != io_in_bits_pred_predictedTaken;	// src/main/scala/mycpu/core/backend/Execute.scala:79:{44,66}, :81:{65,87}
   wire [31:0]      _architecturalNextPc_T = io_in_bits_data_pc + 32'h4;	// src/main/scala/mycpu/core/backend/Execute.scala:82:78
-  wire             _result_T = io_in_bits_exec_family == 3'h2;	// src/main/scala/mycpu/core/backend/Execute.scala:88:23
-  wire [31:0]      redirectTarget =
-    branchMispredict
-      ? (branchActualTaken ? _jumpTarget_T : _architecturalNextPc_T)
-      : io_in_bits_sys_isMret
-          ? _csr_io_epc
-          : io_in_bits_sys_isEcall
-              ? _csr_io_evec
-              : _result_T & io_in_bits_exec_op == 4'hE
-                  ? io_in_bits_data_lhs + io_in_bits_data_offset & 32'hFFFFFFFE
-                  : _result_T ? _jumpTarget_T : 32'h0;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:45:19, :77:33, :78:{35,55}, :79:66, :81:65, :82:{33,78}, :88:{23,43,59}
-  wire             redirectValid =
-    branchMispredict | _result_T | io_in_bits_sys_isEcall | io_in_bits_sys_isMret;	// src/main/scala/mycpu/core/backend/Execute.scala:81:65, :88:23, :92:22, :93:46, :94:24
+  wire             _architecturalNextPc_T_7 = io_in_bits_exec_family == 3'h2;	// src/main/scala/mycpu/core/backend/Execute.scala:88:23
+  wire             _architecturalNextPc_T_5 = io_in_bits_exec_op == 4'hE;	// src/main/scala/mycpu/core/backend/Execute.scala:88:59
   ALU alu (	// src/main/scala/mycpu/core/backend/Execute.scala:25:19
     .io_a   (io_in_bits_data_lhs),
     .io_b
@@ -137,7 +128,7 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_in_ready = io_out_ready;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_valid = io_in_valid;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_result =
-    _result_T
+    _architecturalNextPc_T_7
       ? _architecturalNextPc_T
       : io_in_bits_exec_family == 3'h4 ? _csr_io_rdata : _alu_io_out;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :25:19, :45:19, :82:78, :88:23, :99:23
   assign io_out_bits_rhs = io_in_bits_data_rhs;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
@@ -147,13 +138,32 @@ module Execute(	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_mem_write = io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_mem_unsigned = io_in_bits_mem_unsigned;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_mem_subop = io_in_bits_mem_subop;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
-  assign io_out_bits_redirect_valid = redirectValid;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7, :92:22, :93:46, :94:24
-  assign io_out_bits_redirect_bits = redirectTarget;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:9:7
-  assign io_out_bits_retire_pc = io_in_bits_retire_pc;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
-  assign io_out_bits_retire_dnpc =
-    redirectValid ? redirectTarget : _architecturalNextPc_T;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :82:78, :92:22, :93:46, :94:24, :101:32
-  assign io_out_bits_retire_inst = io_in_bits_retire_inst;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
-  assign io_bpUpdate_valid = io_out_ready & io_in_valid & _io_bpUpdate_valid_T_1;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :79:44, :117:35
+  assign io_out_bits_redirect_valid =
+    branchMispredict | _architecturalNextPc_T_7 | io_in_bits_sys_isEcall
+    | io_in_bits_sys_isMret;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7, :81:65, :88:23, :92:22, :93:46, :94:24
+  assign io_out_bits_redirect_bits =
+    branchMispredict
+      ? (branchActualTaken ? _jumpTarget_T : _architecturalNextPc_T)
+      : io_in_bits_sys_isMret
+          ? _csr_io_epc
+          : io_in_bits_sys_isEcall
+              ? _csr_io_evec
+              : _architecturalNextPc_T_7 & _architecturalNextPc_T_5
+                  ? jalrTarget
+                  : _architecturalNextPc_T_7 ? _jumpTarget_T : 32'h0;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :45:19, :77:33, :78:55, :79:66, :81:65, :82:{33,78}, :88:{23,43,59}
+  assign io_out_bits_trace_pc = io_in_bits_trace_pc;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
+  assign io_out_bits_trace_inst = io_in_bits_trace_inst;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
+  assign io_out_bits_trace_dnpc =
+    branchActualTaken
+      ? _jumpTarget_T
+      : _architecturalNextPc_T_7 & _architecturalNextPc_T_5
+          ? jalrTarget
+          : _architecturalNextPc_T_7
+              ? _jumpTarget_T
+              : io_in_bits_sys_isEcall
+                  ? _csr_io_evec
+                  : io_in_bits_sys_isMret ? _csr_io_epc : _architecturalNextPc_T;	// src/main/scala/chisel3/util/Mux.scala:130:16, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :45:19, :77:33, :78:55, :79:66, :82:78, :88:{23,59}, :103:43
+  assign io_bpUpdate_valid = io_out_ready & io_in_valid & _io_bpUpdate_valid_T_1;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/Execute.scala:9:7, :79:44, :135:35
   assign io_bpUpdate_pc = io_in_bits_data_pc;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_bpUpdate_actualTaken = branchActualTaken;	// src/main/scala/mycpu/core/backend/Execute.scala:9:7, :79:66
 endmodule

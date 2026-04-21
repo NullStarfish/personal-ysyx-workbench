@@ -7,10 +7,10 @@ import mycpu.core.bundles._
 import mycpu.MemMap
 import mycpu.utils._
 
-class LSU extends Module {
+class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new ExecutePacket))
-    val out = Decoupled(new MemoryPacket)
+    val in = Flipped(Decoupled(new ExecutePacket(enableTraceFields)))
+    val out = Decoupled(new MemoryPacket(enableTraceFields))
     val axi = new AXI4LiteBundle(XLEN, XLEN)
     val status = Output(new LsuStatusBundle)
   })
@@ -26,9 +26,9 @@ class LSU extends Module {
     val Idle, WaitReadResp, WaitWriteResp, EmitPassThrough = Value
   }
   val state = RegInit(State.Idle)
-  val reqReg = Reg(new ExecutePacket)
+  val reqReg = Reg(new ExecutePacket(enableTraceFields))
 
-  val reqView = Wire(new ExecutePacket)
+  val reqView = Wire(new ExecutePacket(enableTraceFields))
   reqView := reqReg
   when(state === State.Idle) {
     reqView := io.in.bits
@@ -97,7 +97,21 @@ class LSU extends Module {
   io.out.valid := false.B
   io.out.bits.wbData := Mux(reqReg.mem.valid && !reqReg.mem.write, loadData, reqReg.result)
   io.out.bits.wb := reqReg.wb
-  io.out.bits.retire := reqReg.retire
+  if (enableTraceFields) {
+    io.out.bits.trace.get.pc := reqView.trace.get.pc
+    io.out.bits.trace.get.inst := reqView.trace.get.inst
+    io.out.bits.trace.get.dnpc := reqView.trace.get.dnpc
+    io.out.bits.trace.get.ifValid := reqView.trace.get.ifValid
+    io.out.bits.trace.get.idValid := reqView.trace.get.idValid
+    io.out.bits.trace.get.exValid := reqView.trace.get.exValid
+    io.out.bits.trace.get.memValid := true.B
+    io.out.bits.trace.get.branchResolved := reqView.trace.get.branchResolved
+    io.out.bits.trace.get.branchCorrect := reqView.trace.get.branchCorrect
+    io.out.bits.trace.get.redirectValid := reqView.trace.get.redirectValid
+    io.out.bits.trace.get.redirectTarget := reqView.trace.get.redirectTarget
+    io.out.bits.trace.get.actualTaken := reqView.trace.get.actualTaken
+    io.out.bits.trace.get.predictedTaken := reqView.trace.get.predictedTaken
+  }
 
   readBridge.io.rReq.valid := false.B
   readBridge.io.rReq.bits := memReq

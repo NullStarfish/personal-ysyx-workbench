@@ -63,7 +63,7 @@ module Fetch(	// src/main/scala/mycpu/core/frontend/Fetch.scala:9:7
         pcReg <= io_ctrl_redirect_bits;	// src/main/scala/mycpu/core/frontend/Fetch.scala:26:22
       epochReg <= io_ctrl_redirect_valid ^ epochReg;	// src/main/scala/mycpu/core/frontend/Fetch.scala:27:25, :58:32, :60:14
       outValidReg <=
-        _GEN_0 | ~(io_ctrl_redirect_valid | io_out_ready & outValidReg) & outValidReg;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:29:28, :30:23, :54:21, :55:17, :58:32, :61:17, :71:36, :73:36, :74:21, :78:19
+        _GEN_0 | ~(io_ctrl_redirect_valid | io_out_ready & outValidReg) & outValidReg;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:29:28, :30:23, :54:21, :55:17, :58:32, :61:17, :71:36, :73:36, :74:21, :77:19
       reqPendingReg <= ~_GEN & (_GEN_1 | reqPendingReg);	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/frontend/Fetch.scala:31:30, :64:33, :65:19, :71:36, :72:19
     end
     if (_GEN_0) begin	// src/main/scala/mycpu/core/frontend/Fetch.scala:30:23, :71:36, :73:36, :74:21

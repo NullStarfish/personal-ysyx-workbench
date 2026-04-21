@@ -6,25 +6,25 @@ module FlushableStage_3(	// src/main/scala/mycpu/core/components/FlushableStage.
   input  [31:0] io_enq_bits_wbData,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input         io_enq_bits_wb_regWen,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [4:0]  io_enq_bits_wb_rd,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [31:0] io_enq_bits_retire_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_retire_dnpc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_retire_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [31:0] io_enq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_trace_dnpc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_deq_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [31:0] io_deq_bits_wbData,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_deq_bits_wb_regWen,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [4:0]  io_deq_bits_wb_rd,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [31:0] io_deq_bits_retire_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_retire_dnpc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_retire_inst	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [31:0] io_deq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_trace_dnpc	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
 );
 
   reg        validReg;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:25
   reg [31:0] bitsReg_wbData;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_wb_regWen;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [4:0]  bitsReg_wb_rd;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_retire_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_retire_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_retire_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   always @(posedge clock) begin	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7
     if (reset)	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7
       validReg <= 1'h0;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:25
@@ -34,17 +34,17 @@ module FlushableStage_3(	// src/main/scala/mycpu/core/components/FlushableStage.
       bitsReg_wbData <= io_enq_bits_wbData;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_wb_regWen <= io_enq_bits_wb_regWen;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_wb_rd <= io_enq_bits_wb_rd;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_retire_pc <= io_enq_bits_retire_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_retire_dnpc <= io_enq_bits_retire_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_retire_inst <= io_enq_bits_retire_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_trace_pc <= io_enq_bits_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_trace_inst <= io_enq_bits_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_trace_dnpc <= io_enq_bits_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
     end
   end // always @(posedge)
   assign io_deq_valid = validReg;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :13:25
   assign io_deq_bits_wbData = bitsReg_wbData;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_wb_regWen = bitsReg_wb_regWen;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_wb_rd = bitsReg_wb_rd;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_retire_pc = bitsReg_retire_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_retire_dnpc = bitsReg_retire_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_retire_inst = bitsReg_retire_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_trace_pc = bitsReg_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_trace_inst = bitsReg_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_trace_dnpc = bitsReg_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
 endmodule
 

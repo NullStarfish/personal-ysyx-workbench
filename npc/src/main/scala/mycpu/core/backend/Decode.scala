@@ -7,10 +7,10 @@ import mycpu.common.Instructions._
 import mycpu.core.bundles._
 import mycpu.core.components.{ImmGen, PerceptronBranchPredictor, RegFile}
 
-class Decode extends Module {
+class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new FetchPacket))
-    val out = Decoupled(new DecodePacket())
+    val out = Decoupled(new DecodePacket(enableTraceFields))
     val regWrite = Flipped(new WriteBackIO())
     val exForward = Input(new ForwardInfo)
     val memForward = Input(new ForwardInfo)
@@ -280,9 +280,21 @@ class Decode extends Module {
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
   io.out.bits.pred.predictedTaken := family === ExecFamily.Branch && predictor.io.predictTaken
-  io.out.bits.retire.pc := io.in.bits.pc
-  io.out.bits.retire.dnpc := io.in.bits.dnpc
-  io.out.bits.retire.inst := io.in.bits.inst
+  if (enableTraceFields) {
+    io.out.bits.trace.get.pc := io.in.bits.pc
+    io.out.bits.trace.get.inst := io.in.bits.inst
+    io.out.bits.trace.get.dnpc := io.in.bits.pc + 4.U
+    io.out.bits.trace.get.ifValid := io.in.valid
+    io.out.bits.trace.get.idValid := io.in.valid
+    io.out.bits.trace.get.exValid := false.B
+    io.out.bits.trace.get.memValid := false.B
+    io.out.bits.trace.get.branchResolved := false.B
+    io.out.bits.trace.get.branchCorrect := false.B
+    io.out.bits.trace.get.redirectValid := false.B
+    io.out.bits.trace.get.redirectTarget := 0.U
+    io.out.bits.trace.get.actualTaken := false.B
+    io.out.bits.trace.get.predictedTaken := false.B
+  }
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

@@ -26,6 +26,7 @@ class RetireWindowSmokeTop extends Module {
   val stateReg = RegInit(idle)
 
   val retire = WireInit(0.U.asTypeOf(new RetireEventBundle))
+  val commitTrace = WireInit(0.U.asTypeOf(Valid(new TraceCarryBundle)))
 
   switch(stateReg) {
     is(idle) {
@@ -56,13 +57,8 @@ class RetireWindowSmokeTop extends Module {
     }
   }
 
-  tracer.io.ifValid := false.B
-  tracer.io.idValid := false.B
-  tracer.io.exValid := false.B
-  tracer.io.memValid := false.B
+  tracer.io.commitTrace := commitTrace
   tracer.io.retire := retire
-  tracer.io.branchResolved := false.B
-  tracer.io.branchCorrect := false.B
   tracer.io.regsFlat := Cat(regs.reverse)
   tracer.io.mtvec := mtvecReg
   tracer.io.mepc := mepcReg

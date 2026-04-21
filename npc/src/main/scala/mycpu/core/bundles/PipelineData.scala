@@ -65,7 +65,6 @@ object DecodeFormat {
 class FetchPacket extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)
-  val dnpc = XLenU
   val isException = Bool()
 }
 
@@ -117,35 +116,45 @@ class BranchPredictionBundle extends Bundle {
   val predictedTaken = Bool()
 }
 
-class RetireMetaBundle extends Bundle {
+class TraceCarryBundle extends Bundle {
   val pc = XLenU
-  val dnpc = XLenU
   val inst = UInt(32.W)
+  val dnpc = XLenU
+  val ifValid = Bool()
+  val idValid = Bool()
+  val exValid = Bool()
+  val memValid = Bool()
+  val branchResolved = Bool()
+  val branchCorrect = Bool()
+  val redirectValid = Bool()
+  val redirectTarget = XLenU
+  val actualTaken = Bool()
+  val predictedTaken = Bool()
 }
 
-class DecodePacket extends Bundle {
+class DecodePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
   val data = new ExecuteDataBundle
   val exec = new ExecuteOpBundle
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val sys = new SysCtrlBundle
   val pred = new BranchPredictionBundle
-  val retire = new RetireMetaBundle
+  val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 }
 
-class ExecutePacket extends Bundle {
+class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
   val result = XLenU
   val rhs = XLenU
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val redirect = Valid(UInt(XLEN.W))
-  val retire = new RetireMetaBundle
+  val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 }
 
-class MemoryPacket extends Bundle {
+class MemoryPacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
   val wbData = XLenU
   val wb = new WritebackCtrlBundle
-  val retire = new RetireMetaBundle
+  val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 }
 
 class LsuStatusBundle extends Bundle {

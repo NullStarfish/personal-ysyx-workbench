@@ -6,10 +6,10 @@ import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components._
 
-class Execute extends Module {
+class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new DecodePacket))
-    val out = Decoupled(new ExecutePacket)
+    val in = Flipped(Decoupled(new DecodePacket(enableTraceFields)))
+    val out = Decoupled(new ExecutePacket(enableTraceFields))
     val bpUpdate = Output(new BranchPredictUpdateBundle)
     val debug_csrs = Output(new Bundle {
       val mtvec   = UInt(XLEN.W)
@@ -116,9 +116,21 @@ class Execute extends Module {
   io.out.bits.mem.subop := data.mem.subop
   io.out.bits.redirect.valid := redirectValid
   io.out.bits.redirect.bits := redirectTarget
-  io.out.bits.retire.pc := data.retire.pc
-  io.out.bits.retire.inst := data.retire.inst
-  io.out.bits.retire.dnpc := architecturalNextPc
+  if (enableTraceFields) {
+    io.out.bits.trace.get.pc := io.in.bits.trace.get.pc
+    io.out.bits.trace.get.inst := io.in.bits.trace.get.inst
+    io.out.bits.trace.get.dnpc := architecturalNextPc
+    io.out.bits.trace.get.ifValid := io.in.bits.trace.get.ifValid
+    io.out.bits.trace.get.idValid := io.in.bits.trace.get.idValid
+    io.out.bits.trace.get.exValid := io.in.valid
+    io.out.bits.trace.get.memValid := false.B
+    io.out.bits.trace.get.branchResolved := io.in.fire && data.exec.family === ExecFamily.Branch
+    io.out.bits.trace.get.branchCorrect := data.exec.family === ExecFamily.Branch && (branchActualTaken === branchPredictedTaken)
+    io.out.bits.trace.get.redirectValid := redirectValid
+    io.out.bits.trace.get.redirectTarget := redirectTarget
+    io.out.bits.trace.get.actualTaken := branchActualTaken
+    io.out.bits.trace.get.predictedTaken := branchPredictedTaken
+  }
 
   io.bpUpdate.valid := io.in.fire && data.exec.family === ExecFamily.Branch
   io.bpUpdate.pc := data.data.pc

@@ -10,7 +10,12 @@ import mycpu.core.backend.{Decode, Execute}
 import mycpu.core.bundles._
 import mycpu.core.components.{FlushableStage, HazardUnit, Tracer}
 
-class CourseCore(startAddr: BigInt = START_ADDR, enableDpi: Boolean = false) extends Module {
+class CourseCore(
+    startAddr: BigInt = START_ADDR,
+    enableDpi: Boolean = false,
+    enableTracer: Boolean = ENABLE_TRACER,
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+) extends Module {
   val io = IO(new Bundle {
     val imem = new InstMemIO
     val dmem = new DataMemIO
@@ -22,16 +27,16 @@ class CourseCore(startAddr: BigInt = START_ADDR, enableDpi: Boolean = false) ext
     val trace = Output(new CoreTraceBundle)
   })
 
-  val fetch = Module(new Fetch(startAddr))
-  val decode = Module(new Decode)
-  val execute = Module(new Execute)
-  val writeBack = Module(new WriteBack)
+  val fetch = Module(new Fetch(startAddr, enableTraceFields = enableTraceFields))
+  val decode = Module(new Decode(enableTraceFields = enableTraceFields))
+  val execute = Module(new Execute(enableTraceFields = enableTraceFields))
+  val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
-  val tracer = Module(new Tracer(enableDpi = enableDpi))
+  val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
 
   val ifId = Module(new FlushableStage(new FetchPacket))
-  val idEx = Module(new FlushableStage(new DecodePacket))
-  val exMem = Module(new FlushableStage(new ExecutePacket))
+  val idEx = Module(new FlushableStage(new DecodePacket(enableTraceFields)))
+  val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
 
   fetch.io.imem.rdata := io.imem.rdata
   io.imem.addr := fetch.io.imem.addr
@@ -117,17 +122,17 @@ class CourseCore(startAddr: BigInt = START_ADDR, enableDpi: Boolean = false) ext
   io.retire_inst := writeBack.io.retire.inst
 
   val regsFlat = Cat(io.debug_regs.reverse)
-  tracer.io.ifValid := ifId.io.deq.valid
-  tracer.io.idValid := idEx.io.deq.valid
-  tracer.io.exValid := exMem.io.deq.valid
-  tracer.io.memValid := exMem.io.deq.valid
-  tracer.io.retire := writeBack.io.retire
-  tracer.io.branchResolved := execute.io.bpUpdate.valid
-  tracer.io.branchCorrect := execute.io.bpUpdate.actualTaken === execute.io.bpUpdate.predictedTaken
-  tracer.io.regsFlat := regsFlat
-  tracer.io.mtvec := execute.io.debug_csrs.mtvec
-  tracer.io.mepc := execute.io.debug_csrs.mepc
-  tracer.io.mstatus := execute.io.debug_csrs.mstatus
-  tracer.io.mcause := execute.io.debug_csrs.mcause
-  io.trace := tracer.io.trace
+  if (enableTracer && enableTraceFields) {
+    val tracerMod = tracer.get
+    tracerMod.io.commitTrace <> writeBack.io.traceCommit.get
+    tracerMod.io.retire := writeBack.io.retire
+    tracerMod.io.regsFlat := regsFlat
+    tracerMod.io.mtvec := execute.io.debug_csrs.mtvec
+    tracerMod.io.mepc := execute.io.debug_csrs.mepc
+    tracerMod.io.mstatus := execute.io.debug_csrs.mstatus
+    tracerMod.io.mcause := execute.io.debug_csrs.mcause
+    io.trace := tracerMod.io.trace
+  } else {
+    io.trace := 0.U.asTypeOf(new CoreTraceBundle)
+  }
 }

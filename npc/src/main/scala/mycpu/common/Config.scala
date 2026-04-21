@@ -8,6 +8,8 @@ package object common {
   val XLEN = 32
   val START_ADDR = 0xa0000000L
   val AXI_ID_WIDTH = 3
+  val ENABLE_TRACER = true
+  val ENABLE_TRACE_FIELDS = true
 
   def XLenU = UInt(XLEN.W)
 

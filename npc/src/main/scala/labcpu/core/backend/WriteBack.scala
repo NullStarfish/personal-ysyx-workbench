@@ -5,11 +5,12 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 
-class WriteBack extends Module {
+class WriteBack(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
-    val in = Input(Valid(new ExecutePacket))
+    val in = Input(Valid(new ExecutePacket(enableTraceFields)))
+    val traceCommit = if (enableTraceFields) Some(Output(Valid(new TraceCarryBundle))) else None
     val dmemRdata = Input(UInt(XLEN.W))
-    val out = Output(new MemoryPacket)
+    val out = Output(new MemoryPacket(enableTraceFields))
     val regWrite = Output(new WriteBackIO)
     val retire = Output(new RetireEventBundle)
   })
@@ -19,25 +20,29 @@ class WriteBack extends Module {
     io.dmemRdata,
     io.in.bits.result,
   )
-  // Execute has already resolved the architectural next PC. Recomputing it here
-  // from redirect.valid loses correctly predicted taken branches, which retire
-  // with redirect.valid = false but still have a non-sequential dnpc.
-  val dnpc = io.in.bits.retire.dnpc
-
   io.out.wb := io.in.bits.wb
   io.out.wbData := wbData
-  io.out.retire.pc := io.in.bits.retire.pc
-  io.out.retire.inst := io.in.bits.retire.inst
-  io.out.retire.dnpc := dnpc
+  if (enableTraceFields) {
+    io.out.trace.get := io.in.bits.trace.get
+    io.out.trace.get.memValid := io.in.valid
+
+    io.traceCommit.get.valid := io.in.valid
+    io.traceCommit.get.bits := io.out.trace.get
+
+    io.retire.pc := io.in.bits.trace.get.pc
+    io.retire.dnpc := io.in.bits.trace.get.dnpc
+    io.retire.inst := io.in.bits.trace.get.inst
+  } else {
+    io.retire.pc := 0.U
+    io.retire.dnpc := 0.U
+    io.retire.inst := 0.U
+  }
 
   io.regWrite.wen := io.in.valid && io.in.bits.wb.regWen
   io.regWrite.addr := io.in.bits.wb.rd
   io.regWrite.data := wbData
 
   io.retire.valid := io.in.valid
-  io.retire.pc := io.in.bits.retire.pc
-  io.retire.dnpc := dnpc
-  io.retire.inst := io.in.bits.retire.inst
   io.retire.regWen := io.in.bits.wb.regWen
   io.retire.rd := io.in.bits.wb.rd
   io.retire.data := wbData

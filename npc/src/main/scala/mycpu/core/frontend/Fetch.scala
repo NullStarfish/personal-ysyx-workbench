@@ -6,7 +6,7 @@ import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.utils._
 
-class Fetch extends Module {
+class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
     val axi = new AXI4LiteBundle(XLEN, XLEN)
     val out = Decoupled(new FetchPacket)
@@ -73,7 +73,6 @@ class Fetch extends Module {
     when(reqEpochReg === epochReg) {
       outBitsReg.pc := reqPcReg
       outBitsReg.inst := readBridge.io.rStream.bits.data
-      outBitsReg.dnpc := reqPcReg + 4.U
       outBitsReg.isException := readBridge.io.rStream.bits.resp =/= AXI4Parameters.RESP_OKAY
       outValidReg := true.B
     }

@@ -1,6 +1,7 @@
 package mycpu.core.components
 
 import chisel3._
+import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.dpi.{DpiApi, SimStateBundle}
@@ -8,13 +9,8 @@ import mycpu.common.Instructions
 
 class Tracer(enableDpi: Boolean = false) extends Module {
   val io = IO(new Bundle {
-    val ifValid = Input(Bool())
-    val idValid = Input(Bool())
-    val exValid = Input(Bool())
-    val memValid = Input(Bool())
+    val commitTrace = Input(Valid(new TraceCarryBundle))
     val retire = Input(new RetireEventBundle)
-    val branchResolved = Input(Bool())
-    val branchCorrect = Input(Bool())
     val regsFlat = Input(UInt(1024.W))
     val mtvec = Input(UInt(XLEN.W))
     val mepc = Input(UInt(XLEN.W))
@@ -33,9 +29,9 @@ class Tracer(enableDpi: Boolean = false) extends Module {
     lastRetireReg := io.retire
   }
 
-  when(io.branchResolved) {
+  when(io.commitTrace.valid && io.commitTrace.bits.branchResolved) {
     branchCountReg := branchCountReg + 1.U
-    when(io.branchCorrect) {
+    when(io.commitTrace.bits.branchCorrect) {
       branchCorrectCountReg := branchCorrectCountReg + 1.U
     }
   }
@@ -64,10 +60,10 @@ class Tracer(enableDpi: Boolean = false) extends Module {
     DpiApi.difftestSkip(clock, false.B, localName = "core_difftest_skip")
   }
 
-  io.trace.ifValid := io.ifValid
-  io.trace.idValid := io.idValid
-  io.trace.exValid := io.exValid
-  io.trace.memValid := io.memValid
+  io.trace.ifValid := io.commitTrace.valid && io.commitTrace.bits.ifValid
+  io.trace.idValid := io.commitTrace.valid && io.commitTrace.bits.idValid
+  io.trace.exValid := io.commitTrace.valid && io.commitTrace.bits.exValid
+  io.trace.memValid := io.commitTrace.valid && io.commitTrace.bits.memValid
   io.trace.retireCount := retireCountReg
   io.trace.lastRetire := lastRetireReg
   io.trace.branchCount := branchCountReg

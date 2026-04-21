@@ -2397,3 +2397,251 @@ WARNING: Unmatched cancel notification for request id 12254
 2026.04.19 19:47:57 WARN  90 deprecations (since rocketchip 2.0.0)[0m
 2026.04.19 19:47:57 WARN  92 deprecations in total; re-run with -deprecation for details[0m
 2026.04.19 19:47:57 INFO  time: compiled ysyxsoc in 6.74s[0m
+2026.04.20 00:14:25 INFO  Shutting down server[0m
+2026.04.20 00:14:25 INFO  Memory monitor stopped[0m
+2026.04.20 00:14:25 INFO  shutting down Metals[0m
+2026.04.20 00:14:26 INFO  Shut down connection with build server.[0m
+2026.04.20 00:14:25 INFO  Exiting server[0m
+2026.04.21 13:49:31 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.04.21 13:49:32 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.04.21 13:49:32 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.116.0.[0m
+2026.04.21 13:49:32 INFO  Memory monitor started[0m
+2026.04.21 13:49:32 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.04.21 13:49:33 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/HwFunction.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:33 INFO  Attempting to connect to the build server...[0m
+2026.04.21 13:49:33 INFO  No running Bloop server found, starting one.[0m
+2026.04.21 13:49:34 INFO  Starting compilation server[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Bundles.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Bundles.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/HwFunction.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 21, 2026 1:49:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3
+Apr 21, 2026 1:49:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5
+Apr 21, 2026 1:49:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/HwFunction.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Exception in thread "pool-5-thread-1" java.lang.InterruptedException
+	at scala.meta.internal.metals.FutureCancelToken.checkCanceled(FutureCancelToken.scala:29)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:208)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:153)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SinkC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SinkC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 21, 2026 1:49:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 15
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SinkC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 21, 2026 1:49:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 18
+Apr 21, 2026 1:49:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 16
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SinkC.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SourceA.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:36 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SourceA.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+Apr 21, 2026 1:49:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 20
+2026.04.21 13:49:35 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/chiplink/SourceA.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.04.21 13:49:48 INFO  time: Connected to build server in 15s[0m
+2026.04.21 13:49:48 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.04.21 13:49:48 INFO  time: Imported build in 0.29s[0m
+2026.04.21 13:49:49 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.04.21 13:49:53 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.04.21 13:49:53 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-04-21/r_scala-toplevel-mtags_13-49-53-330.md")[0m
+2026.04.21 13:49:54 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.21 13:49:54 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.21 13:49:54 INFO  time: indexed workspace in 5.89s[0m
+2026.04.21 13:49:55 ERROR /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel-plugin_2.13.14/7.0.0-M2/chisel-plugin_2.13.14-7.0.0-M2.jar
+java.nio.file.ClosedFileSystemException
+	at jdk.nio.zipfs.ZipFileSystem.ensureOpen(ZipFileSystem.java:1635)
+	at jdk.nio.zipfs.ZipFileSystem$EntryInputStream.read(ZipFileSystem.java:2327)
+	at jdk.nio.zipfs.ZipFileSystem$2.fill(ZipFileSystem.java:2278)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:175)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityManager$RewindableInputStream.read(XMLEntityManager.java:3065)
+	at com.sun.org.apache.xerces.internal.impl.io.UTF8Reader.read(UTF8Reader.java:303)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.load(XMLEntityScanner.java:1699)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.skipChar(XMLEntityScanner.java:1375)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2764)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:605)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:542)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:889)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:825)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1224)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:637)
+	at scala.xml.parsing.FactoryAdapter.loadDocument(FactoryAdapter.scala:141)
+	at scala.xml.factory.XMLLoader.loadDocument(XMLLoader.scala:65)
+	at scala.xml.factory.XMLLoader.loadDocument$(XMLLoader.scala:65)
+	at scala.xml.XML$.loadDocument(XML.scala:61)
+	at scala.xml.factory.XMLLoader.loadDocument(XMLLoader.scala:71)
+	at scala.xml.factory.XMLLoader.loadDocument$(XMLLoader.scala:71)
+	at scala.xml.XML$.loadDocument(XML.scala:61)
+	at scala.xml.factory.XMLLoader.load(XMLLoader.scala:83)
+	at scala.xml.factory.XMLLoader.load$(XMLLoader.scala:83)
+	at scala.xml.XML$.load(XML.scala:61)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$2(CompilerPlugins.scala:68)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$2$adapted(CompilerPlugins.scala:64)
+	at scala.meta.internal.io.PlatformFileIO$.withJarFileSystem(PlatformFileIO.scala:68)
+	at scala.meta.internal.io.FileIO$.withJarFileSystem(FileIO.scala:33)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$1(CompilerPlugins.scala:64)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$1$adapted(CompilerPlugins.scala:61)
+	at scala.collection.IterableOnceOps.exists(IterableOnce.scala:658)
+	at scala.collection.IterableOnceOps.exists$(IterableOnce.scala:655)
+	at scala.collection.AbstractIterable.exists(Iterable.scala:936)
+	at scala.meta.internal.metals.CompilerPlugins.isSupportedPlugin(CompilerPlugins.scala:61)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$3(CompilerPlugins.scala:46)
+	at scala.runtime.java8.JFunction0$mcZ$sp.apply(JFunction0$mcZ$sp.scala:17)
+	at scala.collection.concurrent.TrieMap.getOrElseUpdate(TrieMap.scala:960)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$1(CompilerPlugins.scala:46)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$1$adapted(CompilerPlugins.scala:43)
+	at scala.collection.immutable.List.filter(List.scala:505)
+	at scala.collection.immutable.List.filter(List.scala:79)
+	at scala.meta.internal.metals.CompilerPlugins.filterSupportedOptions(CompilerPlugins.scala:43)
+	at scala.meta.internal.metals.CompilerConfiguration.scala$meta$internal$metals$CompilerConfiguration$$fromMtags(CompilerConfiguration.scala:329)
+	at scala.meta.internal.metals.CompilerConfiguration$ScalaLazyCompiler.newCompiler(CompilerConfiguration.scala:226)
+	at scala.meta.internal.metals.CompilerConfiguration$LazyCompiler.$anonfun$presentationCompilerFuture$2(CompilerConfiguration.scala:135)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+[0m
+2026.04.21 13:49:55 ERROR /home/nullstarfish/.cache/bloop/semanticdb/org.scalameta.semanticdb-scalac_2.13.14.4.14.1/semanticdb-scalac_2.13.14-4.14.1.jar
+java.nio.file.ClosedFileSystemException
+	at jdk.nio.zipfs.ZipFileSystem.ensureOpen(ZipFileSystem.java:1635)
+	at jdk.nio.zipfs.ZipFileSystem$EntryInputStream.read(ZipFileSystem.java:2327)
+	at jdk.nio.zipfs.ZipFileSystem$2.fill(ZipFileSystem.java:2278)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:175)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:123)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityManager$RewindableInputStream.readAndBuffer(XMLEntityManager.java:3027)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityManager.setupCurrentEntity(XMLEntityManager.java:706)
+	at com.sun.org.apache.xerces.internal.impl.XMLVersionDetector.determineDocVersion(XMLVersionDetector.java:150)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:861)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:825)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1224)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:637)
+	at scala.xml.parsing.FactoryAdapter.loadDocument(FactoryAdapter.scala:141)
+	at scala.xml.factory.XMLLoader.loadDocument(XMLLoader.scala:65)
+	at scala.xml.factory.XMLLoader.loadDocument$(XMLLoader.scala:65)
+	at scala.xml.XML$.loadDocument(XML.scala:61)
+	at scala.xml.factory.XMLLoader.loadDocument(XMLLoader.scala:71)
+	at scala.xml.factory.XMLLoader.loadDocument$(XMLLoader.scala:71)
+	at scala.xml.XML$.loadDocument(XML.scala:61)
+	at scala.xml.factory.XMLLoader.load(XMLLoader.scala:83)
+	at scala.xml.factory.XMLLoader.load$(XMLLoader.scala:83)
+	at scala.xml.XML$.load(XML.scala:61)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$2(CompilerPlugins.scala:68)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$2$adapted(CompilerPlugins.scala:64)
+	at scala.meta.internal.io.PlatformFileIO$.withJarFileSystem(PlatformFileIO.scala:68)
+	at scala.meta.internal.io.FileIO$.withJarFileSystem(FileIO.scala:33)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$1(CompilerPlugins.scala:64)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$isSupportedPlugin$1$adapted(CompilerPlugins.scala:61)
+	at scala.collection.IterableOnceOps.exists(IterableOnce.scala:658)
+	at scala.collection.IterableOnceOps.exists$(IterableOnce.scala:655)
+	at scala.collection.AbstractIterable.exists(Iterable.scala:936)
+	at scala.meta.internal.metals.CompilerPlugins.isSupportedPlugin(CompilerPlugins.scala:61)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$3(CompilerPlugins.scala:46)
+	at scala.runtime.java8.JFunction0$mcZ$sp.apply(JFunction0$mcZ$sp.scala:17)
+	at scala.collection.concurrent.TrieMap.getOrElseUpdate(TrieMap.scala:960)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$1(CompilerPlugins.scala:46)
+	at scala.meta.internal.metals.CompilerPlugins.$anonfun$filterSupportedOptions$1$adapted(CompilerPlugins.scala:43)
+	at scala.collection.immutable.List.filter(List.scala:549)
+	at scala.collection.immutable.List.filter(List.scala:79)
+	at scala.meta.internal.metals.CompilerPlugins.filterSupportedOptions(CompilerPlugins.scala:43)
+	at scala.meta.internal.metals.CompilerConfiguration.scala$meta$internal$metals$CompilerConfiguration$$fromMtags(CompilerConfiguration.scala:329)
+	at scala.meta.internal.metals.CompilerConfiguration$ScalaLazyCompiler.newCompiler(CompilerConfiguration.scala:226)
+	at scala.meta.internal.metals.CompilerConfiguration$LazyCompiler.$anonfun$presentationCompilerFuture$2(CompilerConfiguration.scala:135)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+[0m
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 28
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 31
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 29
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 37
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 36
+Apr 21, 2026 1:49:55 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 34
+2026.04.21 13:49:55 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.04.21 13:49:55 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.04.21 13:49:55 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.04.21 13:50:00 INFO  time: compiled rocketchip.cde in 4.93s[0m
+2026.04.21 13:50:00 INFO  time: compiled rocketchip.macros in 4.93s[0m
+2026.04.21 13:50:00 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.04.21 13:50:09 INFO  time: compiled rocketchip.diplomacy in 8.67s[0m
+2026.04.21 13:50:09 INFO  time: compiled rocketchip.hardfloat in 14s[0m
+2026.04.21 13:50:11 INFO  compiling rocketchip (317 scala sources)[0m
+Apr 21, 2026 1:50:24 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.04.21 13:51:18 WARN  7 deprecations[0m
+2026.04.21 13:51:18 WARN  78 deprecations (since 2.13.0)[0m
+2026.04.21 13:51:18 WARN  1 deprecation (since 2.13.7)[0m
+2026.04.21 13:51:18 WARN  1 deprecation (since 9)[0m
+2026.04.21 13:51:18 WARN  27 deprecations (since CDE 0.1)[0m
+2026.04.21 13:51:18 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.04.21 13:51:18 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.04.21 13:51:18 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.04.21 13:51:18 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.04.21 13:51:18 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.04.21 13:51:19 INFO  compiling ysyxsoc (37 scala sources)[0m
+2026.04.21 13:51:20 INFO  time: compiled rocketchip in 1m8s[0m
+2026.04.21 13:51:27 WARN  1 deprecation (since 2.13.0)[0m
+2026.04.21 13:51:27 WARN  1 deprecation (since 2.13.3)[0m
+2026.04.21 13:51:27 WARN  90 deprecations (since rocketchip 2.0.0)[0m
+2026.04.21 13:51:27 WARN  92 deprecations in total; re-run with -deprecation for details[0m
+2026.04.21 13:51:27 INFO  time: compiled ysyxsoc in 8.22s[0m
