@@ -20,36 +20,19 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   })
 
   val data = io.in.bits
-  val execRhs = Mux(data.exec.family === ExecFamily.Mem, data.data.offset, data.data.rhs)
+  val aluInA = Mux(data.exec.aluSrcA === ALUSrcA.Pc, data.data.pc, data.data.rs1)
+  val aluInB = Mux(data.exec.aluSrcB === ALUSrcB.Imm, data.data.imm, data.data.rs2)
+  val pcPlus4 = data.data.pc + 4.U
 
   val alu = Module(new ALU)
-  alu.io.a := data.data.lhs
-  alu.io.b := execRhs
-  alu.io.op := MuxLookup(data.exec.op, ALUOp.NOP)(Seq(
-    ExecOp.Add  -> ALUOp.ADD,
-    ExecOp.Sub  -> ALUOp.SUB,
-    ExecOp.And  -> ALUOp.AND,
-    ExecOp.Or   -> ALUOp.OR,
-    ExecOp.Xor  -> ALUOp.XOR,
-    ExecOp.Slt  -> ALUOp.SLT,
-    ExecOp.Sltu -> ALUOp.SLTU,
-    ExecOp.Sll  -> ALUOp.SLL,
-    ExecOp.Srl  -> ALUOp.SRL,
-    ExecOp.Sra  -> ALUOp.SRA,
-    ExecOp.Lui  -> ALUOp.COPY_B,
-    ExecOp.Auipc -> ALUOp.ADD,
-    ExecOp.Load -> ALUOp.ADD,
-    ExecOp.Store -> ALUOp.ADD
-  ))
+  alu.io.a := aluInA
+  alu.io.b := aluInB
+  alu.io.op := data.exec.aluOp
 
   val csr = Module(new CSR)
-  csr.io.cmd := MuxLookup(data.exec.op, CSROp.N)(Seq(
-    ExecOp.CsrRw -> CSROp.W,
-    ExecOp.CsrRs -> CSROp.S,
-    ExecOp.CsrRc -> CSROp.C
-  ))
+  csr.io.cmd := data.sys.csrOp
   csr.io.addr := data.sys.csrAddr
-  csr.io.wdata := data.data.rhs
+  csr.io.wdata := data.data.rs1
   csr.io.pc := data.data.pc
   csr.io.isEcall := data.sys.isEcall && io.in.valid
   csr.io.isMret := data.sys.isMret && io.in.valid
@@ -62,52 +45,54 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   simEbreak.io.valid := data.sys.isEbreak && io.in.valid
   simEbreak.io.is_ebreak := 0.U
 
-  val isEq = data.data.lhs === data.data.rhs
-  val isLt = data.data.lhs.asSInt < data.data.rhs.asSInt
-  val isLtu = data.data.lhs < data.data.rhs
-  val takeBranch = MuxLookup(data.exec.op, false.B)(Seq(
-    ExecOp.Beq  -> isEq,
-    ExecOp.Bne  -> !isEq,
-    ExecOp.Blt  -> isLt,
-    ExecOp.Bge  -> !isLt,
-    ExecOp.Bltu -> isLtu,
-    ExecOp.Bgeu -> !isLtu
+  val isEq = data.data.rs1 === data.data.rs2
+  val isLt = data.data.rs1.asSInt < data.data.rs2.asSInt
+  val isLtu = data.data.rs1 < data.data.rs2
+  val takeBranch = MuxLookup(data.exec.branchType, false.B)(Seq(
+    BranchType.Eq  -> isEq,
+    BranchType.Ne  -> !isEq,
+    BranchType.Lt  -> isLt,
+    BranchType.Ge  -> !isLt,
+    BranchType.Ltu -> isLtu,
+    BranchType.Geu -> !isLtu
   ))
 
-  val jumpTarget = data.data.pc + data.data.offset
-  val jalrTarget = (data.data.lhs + data.data.offset) & ~1.U(XLEN.W)
-  val branchActualTaken = data.exec.family === ExecFamily.Branch && takeBranch
+  val directTarget = data.data.pc + data.data.imm
+  val indirectTarget = (data.data.rs1 + data.data.imm) & ~1.U(XLEN.W)
+  val isBranch = data.exec.branchType =/= BranchType.None
+  val branchActualTaken = isBranch && takeBranch
   val branchPredictedTaken = data.pred.predictedTaken
-  val branchMispredict = data.exec.family === ExecFamily.Branch && (branchActualTaken =/= branchPredictedTaken)
-  val branchRecoveryTarget = Mux(branchActualTaken, jumpTarget, data.data.pc + 4.U)
+  val branchMispredict = isBranch && (branchActualTaken =/= branchPredictedTaken)
+  val branchRecoveryTarget = Mux(branchActualTaken, directTarget, pcPlus4)
 
   val redirectTarget = MuxCase(0.U(XLEN.W), Seq(
     branchMispredict -> branchRecoveryTarget,
     data.sys.isMret -> csr.io.epc,
     data.sys.isEcall -> csr.io.evec,
-    (data.exec.family === ExecFamily.Jump && data.exec.op === ExecOp.Jalr) -> jalrTarget,
-    (data.exec.family === ExecFamily.Jump) -> jumpTarget,
+    (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
+    data.exec.isJump -> directTarget,
   ))
   val redirectValid =
     branchMispredict ||
-      (data.exec.family === ExecFamily.Jump) ||
+      data.exec.isJump ||
       data.sys.isEcall ||
       data.sys.isMret
 
-  val result = MuxCase(alu.io.out, Seq(
-    (data.exec.family === ExecFamily.Jump) -> (data.data.pc + 4.U),
-    (data.exec.family === ExecFamily.Csr) -> csr.io.rdata
+  val result = MuxLookup(data.exec.wbSel, alu.io.out)(Seq(
+    WBSel.Alu -> alu.io.out,
+    WBSel.Csr -> csr.io.rdata,
+    WBSel.PcPlus4 -> pcPlus4,
   ))
   val architecturalNextPc = MuxCase(data.data.pc + 4.U, Seq(
-    (data.exec.family === ExecFamily.Branch && branchActualTaken) -> jumpTarget,
-    (data.exec.family === ExecFamily.Jump && data.exec.op === ExecOp.Jalr) -> jalrTarget,
-    (data.exec.family === ExecFamily.Jump) -> jumpTarget,
+    (isBranch && branchActualTaken) -> directTarget,
+    (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
+    data.exec.isJump -> directTarget,
     data.sys.isEcall -> csr.io.evec,
     data.sys.isMret -> csr.io.epc,
   ))
 
   io.out.bits.result := result
-  io.out.bits.rhs := data.data.rhs
+  io.out.bits.rhs := data.data.rs2
   io.out.bits.wb.regWen := data.wb.regWen
   io.out.bits.wb.rd := data.wb.rd
   io.out.bits.mem.valid := data.mem.valid
@@ -127,15 +112,15 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     io.out.bits.trace.get.idValid := io.in.bits.trace.get.idValid
     io.out.bits.trace.get.exValid := io.in.valid
     io.out.bits.trace.get.memValid := false.B
-    io.out.bits.trace.get.branchResolved := io.in.fire && data.exec.family === ExecFamily.Branch
-    io.out.bits.trace.get.branchCorrect := data.exec.family === ExecFamily.Branch && (branchActualTaken === branchPredictedTaken)
+    io.out.bits.trace.get.branchResolved := io.in.fire && isBranch
+    io.out.bits.trace.get.branchCorrect := isBranch && (branchActualTaken === branchPredictedTaken)
     io.out.bits.trace.get.redirectValid := redirectValid
     io.out.bits.trace.get.redirectTarget := redirectTarget
     io.out.bits.trace.get.actualTaken := branchActualTaken
     io.out.bits.trace.get.predictedTaken := branchPredictedTaken
   }
 
-  io.bpUpdate.valid := io.in.fire && data.exec.family === ExecFamily.Branch
+  io.bpUpdate.valid := io.in.fire && isBranch
   io.bpUpdate.pc := data.data.pc
   io.bpUpdate.actualTaken := branchActualTaken
   io.bpUpdate.predictedTaken := branchPredictedTaken

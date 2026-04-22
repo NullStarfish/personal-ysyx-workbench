@@ -59,22 +59,7 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     p.io.predictedTaken := io.bpUpdate.predictedTaken
   }
 
-  private def decodeFamily(opcode: UInt): UInt = MuxLookup(opcode, ExecFamily.Alu)(
-    Seq(
-      "b0110111".U -> ExecFamily.Upper,
-      "b0010111".U -> ExecFamily.Upper,
-      "b1101111".U -> ExecFamily.Jump,
-      "b1100111".U -> ExecFamily.Jump,
-      "b1100011".U -> ExecFamily.Branch,
-      "b0000011".U -> ExecFamily.Mem,
-      "b0100011".U -> ExecFamily.Mem,
-      "b0010011".U -> ExecFamily.Alu,
-      "b0110011".U -> ExecFamily.Alu,
-      "b1110011".U -> ExecFamily.Csr,
-    ),
-  )
-
-  private def decodeFormat(opcode: UInt, family: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
+  private def decodeFormat(opcode: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
     Seq(
       "b0110111".U -> DecodeFormat.PcImm,
       "b0010111".U -> DecodeFormat.PcImm,
@@ -86,94 +71,29 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       "b0010011".U -> DecodeFormat.RegImm,
       "b0110011".U -> DecodeFormat.RegReg,
       "b1110011".U -> Mux(
-        family === ExecFamily.Csr,
-        Mux(
-          opcode === "b1110011".U && funct3 === 0.U,
-          DecodeFormat.Sys,
-          Mux(funct3(2), DecodeFormat.CsrImm, DecodeFormat.CsrReg),
-        ),
-        DecodeFormat.None,
+        opcode === "b1110011".U && funct3 === 0.U,
+        DecodeFormat.Sys,
+        Mux(funct3(2), DecodeFormat.CsrImm, DecodeFormat.CsrReg),
       ),
     ),
   )
 
-  private def decodeOp(opcode: UInt, family: UInt, funct3: UInt, funct7: UInt, inst: UInt): UInt = {
-    val decodedOp = WireDefault(ExecOp.Nop)
-    switch(family) {
-      is(ExecFamily.Upper) {
-        decodedOp := Mux(opcode === "b0110111".U, ExecOp.Lui, ExecOp.Auipc)
-      }
-      is(ExecFamily.Jump) {
-        decodedOp := Mux(opcode === "b1100111".U, ExecOp.Jalr, ExecOp.Jal)
-      }
-      is(ExecFamily.Branch) {
-        switch(funct3) {
-          is("b000".U) { decodedOp := ExecOp.Beq }
-          is("b001".U) { decodedOp := ExecOp.Bne }
-          is("b100".U) { decodedOp := ExecOp.Blt }
-          is("b101".U) { decodedOp := ExecOp.Bge }
-          is("b110".U) { decodedOp := ExecOp.Bltu }
-          is("b111".U) { decodedOp := ExecOp.Bgeu }
-        }
-      }
-      is(ExecFamily.Mem) {
-        decodedOp := Mux(opcode === "b0100011".U, ExecOp.Store, ExecOp.Load)
-      }
-      is(ExecFamily.Alu) {
-        when(opcode === "b0010011".U) {
-          switch(funct3) {
-            is("b000".U) { decodedOp := ExecOp.Add }
-            is("b111".U) { decodedOp := ExecOp.And }
-            is("b110".U) { decodedOp := ExecOp.Or }
-            is("b100".U) { decodedOp := ExecOp.Xor }
-            is("b010".U) { decodedOp := ExecOp.Slt }
-            is("b011".U) { decodedOp := ExecOp.Sltu }
-            is("b001".U) { decodedOp := ExecOp.Sll }
-            is("b101".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
-          }
-        }.otherwise {
-          switch(funct3) {
-            is("b000".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sub, ExecOp.Add) }
-            is("b111".U) { decodedOp := ExecOp.And }
-            is("b110".U) { decodedOp := ExecOp.Or }
-            is("b100".U) { decodedOp := ExecOp.Xor }
-            is("b010".U) { decodedOp := ExecOp.Slt }
-            is("b011".U) { decodedOp := ExecOp.Sltu }
-            is("b001".U) { decodedOp := ExecOp.Sll }
-            is("b101".U) { decodedOp := Mux(funct7 === "b0100000".U, ExecOp.Sra, ExecOp.Srl) }
-          }
-        }
-      }
-      is(ExecFamily.Csr) {
-        when(inst === Instructions.ECALL.value.U || inst === Instructions.MRET.value.U || inst === Instructions.EBREAK.value.U) {
-          decodedOp := ExecOp.Nop
-        }.otherwise {
-          switch(funct3) {
-            is("b001".U) { decodedOp := ExecOp.CsrRw }
-            is("b010".U) { decodedOp := ExecOp.CsrRs }
-            is("b011".U) { decodedOp := ExecOp.CsrRc }
-            is("b101".U) { decodedOp := ExecOp.CsrRw }
-            is("b110".U) { decodedOp := ExecOp.CsrRs }
-            is("b111".U) { decodedOp := ExecOp.CsrRc }
-          }
-        }
-      }
-    }
-    decodedOp
-  }
-
-  val family = decodeFamily(opcode)
-  val format = decodeFormat(opcode, family, funct3)
-  val op = decodeOp(opcode, family, funct3, funct7, inst)
+  val format = decodeFormat(opcode, funct3)
   val subop = WireDefault(ExecSubop.None)
-  val lhs = WireDefault(0.U(XLEN.W))
-  val rhs = WireDefault(0.U(XLEN.W))
-  val offset = WireDefault(0.U(XLEN.W))
-  val lhsSel = WireDefault(OperandSelectSource.None)
-  val rhsSel = WireDefault(OperandSelectSource.None)
+  val rs1Data = WireDefault(rs1Raw)
+  val rs2Data = WireDefault(rs2Raw)
+  val imm = WireDefault(0.U(XLEN.W))
+  val aluOp = WireDefault(ALUOp.NOP)
+  val aluSrcA = WireDefault(ALUSrcA.Rs1)
+  val aluSrcB = WireDefault(ALUSrcB.Rs2)
+  val wbSel = WireDefault(WBSel.Alu)
+  val branchType = WireDefault(BranchType.None)
+  val isJump = WireDefault(false.B)
+  val isJalr = WireDefault(false.B)
   val regWen = WireDefault(false.B)
   val memUnsigned = WireDefault(false.B)
   val csrAddr = WireDefault(inst(31, 20))
+  val csrOp = WireDefault(CSROp.N)
   val isEcall = WireDefault(false.B)
   val isMret = WireDefault(false.B)
   val isEbreak = WireDefault(false.B)
@@ -189,9 +109,56 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     is("b0110011".U) { immType := ImmType.Z }
   }
 
-  switch(family) {
-    is(ExecFamily.Mem) {
-      regWen := op === ExecOp.Load && rdAddr =/= 0.U
+  switch(opcode) {
+    is("b0110111".U) { // lui
+      regWen := rdAddr =/= 0.U
+      aluOp := ALUOp.COPY_B
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+    }
+    is("b0010111".U) { // auipc
+      regWen := rdAddr =/= 0.U
+      aluOp := ALUOp.ADD
+      aluSrcA := ALUSrcA.Pc
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+    }
+    is("b1101111".U) { // jal
+      regWen := rdAddr =/= 0.U
+      aluOp := ALUOp.ADD
+      aluSrcA := ALUSrcA.Pc
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+      wbSel := WBSel.PcPlus4
+      isJump := true.B
+    }
+    is("b1100111".U) { // jalr
+      regWen := rdAddr =/= 0.U
+      aluOp := ALUOp.ADD
+      aluSrcA := ALUSrcA.Rs1
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+      wbSel := WBSel.PcPlus4
+      isJump := true.B
+      isJalr := true.B
+    }
+    is("b1100011".U) { // branch
+      imm := immGen.io.out
+      switch(funct3) {
+        is("b000".U) { branchType := BranchType.Eq }
+        is("b001".U) { branchType := BranchType.Ne }
+        is("b100".U) { branchType := BranchType.Lt; aluOp := ALUOp.SLT }
+        is("b101".U) { branchType := BranchType.Ge; aluOp := ALUOp.SLT }
+        is("b110".U) { branchType := BranchType.Ltu; aluOp := ALUOp.SLTU }
+        is("b111".U) { branchType := BranchType.Geu; aluOp := ALUOp.SLTU }
+      }
+    }
+    is("b0000011".U) { // load
+      regWen := rdAddr =/= 0.U
+      aluOp := ALUOp.ADD
+      aluSrcA := ALUSrcA.Rs1
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
       switch(funct3) {
         is("b000".U) { subop := ExecSubop.Byte }
         is("b001".U) { subop := ExecSubop.Half }
@@ -200,16 +167,47 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
         is("b101".U) { subop := ExecSubop.Half; memUnsigned := true.B }
       }
     }
-    is(ExecFamily.Alu) {
-      regWen := rdAddr =/= 0.U
+    is("b0100011".U) { // store
+      aluOp := ALUOp.ADD
+      aluSrcA := ALUSrcA.Rs1
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+      switch(funct3) {
+        is("b000".U) { subop := ExecSubop.Byte }
+        is("b001".U) { subop := ExecSubop.Half }
+        is("b010".U) { subop := ExecSubop.Word }
+      }
     }
-    is(ExecFamily.Upper) {
+    is("b0010011".U) { // alu imm
       regWen := rdAddr =/= 0.U
+      aluSrcA := ALUSrcA.Rs1
+      aluSrcB := ALUSrcB.Imm
+      imm := immGen.io.out
+      switch(funct3) {
+        is("b000".U) { aluOp := ALUOp.ADD }
+        is("b111".U) { aluOp := ALUOp.AND }
+        is("b110".U) { aluOp := ALUOp.OR }
+        is("b100".U) { aluOp := ALUOp.XOR }
+        is("b010".U) { aluOp := ALUOp.SLT }
+        is("b011".U) { aluOp := ALUOp.SLTU }
+        is("b001".U) { aluOp := ALUOp.SLL }
+        is("b101".U) { aluOp := Mux(funct7 === "b0100000".U, ALUOp.SRA, ALUOp.SRL) }
+      }
     }
-    is(ExecFamily.Jump) {
+    is("b0110011".U) { // alu reg
       regWen := rdAddr =/= 0.U
+      switch(funct3) {
+        is("b000".U) { aluOp := Mux(funct7 === "b0100000".U, ALUOp.SUB, ALUOp.ADD) }
+        is("b111".U) { aluOp := ALUOp.AND }
+        is("b110".U) { aluOp := ALUOp.OR }
+        is("b100".U) { aluOp := ALUOp.XOR }
+        is("b010".U) { aluOp := ALUOp.SLT }
+        is("b011".U) { aluOp := ALUOp.SLTU }
+        is("b001".U) { aluOp := ALUOp.SLL }
+        is("b101".U) { aluOp := Mux(funct7 === "b0100000".U, ALUOp.SRA, ALUOp.SRL) }
+      }
     }
-    is(ExecFamily.Csr) {
+    is("b1110011".U) { // csr/sys
       when(inst === Instructions.ECALL.value.U) {
         isEcall := true.B
       }.elsewhen(inst === Instructions.MRET.value.U) {
@@ -218,56 +216,19 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
         isEbreak := true.B
       }.otherwise {
         regWen := rdAddr =/= 0.U
+        wbSel := WBSel.Csr
+        csrOp := MuxLookup(funct3, CSROp.N)(Seq(
+          "b001".U -> CSROp.W,
+          "b010".U -> CSROp.S,
+          "b011".U -> CSROp.C,
+          "b101".U -> CSROp.W,
+          "b110".U -> CSROp.S,
+          "b111".U -> CSROp.C,
+        ))
+        when(funct3(2)) {
+          rs1Data := Cat(0.U((XLEN - 5).W), rs1Addr)
+        }
       }
-    }
-  }
-
-  when(op === ExecOp.Store) {
-    switch(funct3) {
-      is("b000".U) { subop := ExecSubop.Byte }
-      is("b001".U) { subop := ExecSubop.Half }
-      is("b010".U) { subop := ExecSubop.Word }
-    }
-  }
-
-  switch(format) {
-    is(DecodeFormat.RegReg) {
-      lhs := rs1Raw
-      rhs := rs2Raw
-      lhsSel := OperandSelectSource.Rs1
-      rhsSel := OperandSelectSource.Rs2
-    }
-    is(DecodeFormat.RegImm) {
-      lhs := rs1Raw
-      rhs := immGen.io.out
-      lhsSel := OperandSelectSource.Rs1
-    }
-    is(DecodeFormat.PcImm) {
-      lhs := Mux(op === ExecOp.Lui, 0.U, io.in.bits.pc)
-      rhs := immGen.io.out
-    }
-    is(DecodeFormat.PcOffset) {
-      lhs := io.in.bits.pc
-      offset := immGen.io.out
-    }
-    is(DecodeFormat.RegOffset) {
-      lhs := rs1Raw
-      offset := immGen.io.out
-      lhsSel := OperandSelectSource.Rs1
-    }
-    is(DecodeFormat.RegRegOffset) {
-      lhs := rs1Raw
-      rhs := rs2Raw
-      offset := immGen.io.out
-      lhsSel := OperandSelectSource.Rs1
-      rhsSel := OperandSelectSource.Rs2
-    }
-    is(DecodeFormat.CsrReg) {
-      rhs := rs1Raw
-      rhsSel := OperandSelectSource.Rs1
-    }
-    is(DecodeFormat.CsrImm) {
-      rhs := Cat(0.U((XLEN - 5).W), rs1Addr)
     }
   }
 
@@ -284,27 +245,30 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       format === DecodeFormat.RegRegOffset
 
   io.out.bits.data.pc := io.in.bits.pc
-  io.out.bits.data.lhs := lhs
-  io.out.bits.data.rhs := rhs
-  io.out.bits.data.offset := offset
+  io.out.bits.data.rs1 := rs1Data
+  io.out.bits.data.rs2 := rs2Data
+  io.out.bits.data.imm := imm
   io.out.bits.bypass.rs1Addr := rs1Addr
   io.out.bits.bypass.rs2Addr := rs2Addr
-  io.out.bits.bypass.lhsSel := lhsSel
-  io.out.bits.bypass.rhsSel := rhsSel
-  io.out.bits.exec.family := family
-  io.out.bits.exec.op := op
-  io.out.bits.exec.subop := subop
+  io.out.bits.exec.aluOp := aluOp
+  io.out.bits.exec.aluSrcA := aluSrcA
+  io.out.bits.exec.aluSrcB := aluSrcB
+  io.out.bits.exec.wbSel := wbSel
+  io.out.bits.exec.branchType := branchType
+  io.out.bits.exec.isJump := isJump
+  io.out.bits.exec.isJalr := isJalr
   io.out.bits.wb.regWen := regWen
   io.out.bits.wb.rd := rdAddr
-  io.out.bits.mem.valid := family === ExecFamily.Mem
-  io.out.bits.mem.write := family === ExecFamily.Mem && op === ExecOp.Store
+  io.out.bits.mem.valid := opcode === "b0000011".U || opcode === "b0100011".U
+  io.out.bits.mem.write := opcode === "b0100011".U
   io.out.bits.mem.unsigned := memUnsigned
   io.out.bits.mem.subop := subop
+  io.out.bits.sys.csrOp := csrOp
   io.out.bits.sys.csrAddr := csrAddr
   io.out.bits.sys.isEcall := isEcall
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
-  io.out.bits.pred.predictedTaken := family === ExecFamily.Branch && predictor.map(_.io.predictTaken).getOrElse(false.B)
+  io.out.bits.pred.predictedTaken := (branchType =/= BranchType.None) && predictor.map(_.io.predictTaken).getOrElse(false.B)
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.pc
     io.out.bits.trace.get.inst := io.in.bits.inst

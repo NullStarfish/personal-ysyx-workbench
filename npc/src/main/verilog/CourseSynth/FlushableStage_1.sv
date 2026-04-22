@@ -4,42 +4,50 @@ module FlushableStage_1(	// home/nullstarfish/personal-ysyx-workbench/npc/src/ma
                 reset,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7
                 io_enq_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [31:0] io_enq_bits_data_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_data_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_data_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_data_offset,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_data_rs1,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_data_rs2,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_data_imm,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [4:0]  io_enq_bits_bypass_rs1Addr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_enq_bits_bypass_rs2Addr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [1:0]  io_enq_bits_bypass_lhsSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_enq_bits_bypass_rhsSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [2:0]  io_enq_bits_exec_family,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [3:0]  io_enq_bits_exec_op,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input         io_enq_bits_wb_regWen,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [3:0]  io_enq_bits_exec_aluOp,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input         io_enq_bits_exec_aluSrcA,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_exec_aluSrcB,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [1:0]  io_enq_bits_exec_wbSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [2:0]  io_enq_bits_exec_branchType,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input         io_enq_bits_exec_isJump,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_exec_isJalr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_enq_bits_wb_regWen,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [4:0]  io_enq_bits_wb_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input         io_enq_bits_mem_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_enq_bits_mem_write,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_enq_bits_mem_unsigned,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [2:0]  io_enq_bits_mem_subop,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [1:0]  io_enq_bits_sys_csrOp,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [11:0] io_enq_bits_sys_csrAddr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input         io_enq_bits_sys_isEcall,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_enq_bits_sys_isMret,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_enq_bits_sys_isEbreak,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_deq_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [31:0] io_deq_bits_data_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_data_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_data_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_data_offset,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_data_rs1,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_data_rs2,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_data_imm,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [4:0]  io_deq_bits_bypass_rs1Addr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_deq_bits_bypass_rs2Addr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [1:0]  io_deq_bits_bypass_lhsSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_deq_bits_bypass_rhsSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [2:0]  io_deq_bits_exec_family,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [3:0]  io_deq_bits_exec_op,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output        io_deq_bits_wb_regWen,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [3:0]  io_deq_bits_exec_aluOp,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output        io_deq_bits_exec_aluSrcA,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_exec_aluSrcB,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [1:0]  io_deq_bits_exec_wbSel,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [2:0]  io_deq_bits_exec_branchType,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output        io_deq_bits_exec_isJump,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_exec_isJalr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_deq_bits_wb_regWen,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [4:0]  io_deq_bits_wb_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_deq_bits_mem_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_deq_bits_mem_write,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_deq_bits_mem_unsigned,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [2:0]  io_deq_bits_mem_subop,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [1:0]  io_deq_bits_sys_csrOp,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [11:0] io_deq_bits_sys_csrAddr,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_deq_bits_sys_isEcall,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_deq_bits_sys_isMret,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
@@ -50,21 +58,25 @@ module FlushableStage_1(	// home/nullstarfish/personal-ysyx-workbench/npc/src/ma
 
   reg        validReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:25
   reg [31:0] bitsReg_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_data_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_data_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [31:0] bitsReg_data_offset;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_data_rs1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_data_rs2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [31:0] bitsReg_data_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [4:0]  bitsReg_bypass_rs1Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [4:0]  bitsReg_bypass_rs2Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [1:0]  bitsReg_bypass_lhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [1:0]  bitsReg_bypass_rhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [2:0]  bitsReg_exec_family;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-  reg [3:0]  bitsReg_exec_op;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [3:0]  bitsReg_exec_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg        bitsReg_exec_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg        bitsReg_exec_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [1:0]  bitsReg_exec_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [2:0]  bitsReg_exec_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg        bitsReg_exec_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg        bitsReg_exec_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [4:0]  bitsReg_wb_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_mem_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [2:0]  bitsReg_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+  reg [1:0]  bitsReg_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg [11:0] bitsReg_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_sys_isEcall;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
   reg        bitsReg_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
@@ -80,21 +92,25 @@ module FlushableStage_1(	// home/nullstarfish/personal-ysyx-workbench/npc/src/ma
     end
     else begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20, :20:18, :22:27
       bitsReg_data_pc <= io_enq_bits_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_data_lhs <= io_enq_bits_data_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_data_rhs <= io_enq_bits_data_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_data_offset <= io_enq_bits_data_offset;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_data_rs1 <= io_enq_bits_data_rs1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_data_rs2 <= io_enq_bits_data_rs2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_data_imm <= io_enq_bits_data_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_bypass_rs1Addr <= io_enq_bits_bypass_rs1Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_bypass_rs2Addr <= io_enq_bits_bypass_rs2Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_bypass_lhsSel <= io_enq_bits_bypass_lhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_bypass_rhsSel <= io_enq_bits_bypass_rhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_exec_family <= io_enq_bits_exec_family;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
-      bitsReg_exec_op <= io_enq_bits_exec_op;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_aluOp <= io_enq_bits_exec_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_aluSrcA <= io_enq_bits_exec_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_aluSrcB <= io_enq_bits_exec_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_wbSel <= io_enq_bits_exec_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_branchType <= io_enq_bits_exec_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_isJump <= io_enq_bits_exec_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_exec_isJalr <= io_enq_bits_exec_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_wb_regWen <= io_enq_bits_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_wb_rd <= io_enq_bits_wb_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_mem_valid <= io_enq_bits_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_mem_write <= io_enq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_mem_unsigned <= io_enq_bits_mem_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_mem_subop <= io_enq_bits_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
+      bitsReg_sys_csrOp <= io_enq_bits_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_sys_csrAddr <= io_enq_bits_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_sys_isEcall <= io_enq_bits_sys_isEcall;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
       bitsReg_sys_isMret <= io_enq_bits_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:14:20
@@ -104,21 +120,25 @@ module FlushableStage_1(	// home/nullstarfish/personal-ysyx-workbench/npc/src/ma
   end // always @(posedge)
   assign io_deq_valid = validReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :13:25
   assign io_deq_bits_data_pc = bitsReg_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_data_lhs = bitsReg_data_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_data_rhs = bitsReg_data_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_data_offset = bitsReg_data_offset;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_data_rs1 = bitsReg_data_rs1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_data_rs2 = bitsReg_data_rs2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_data_imm = bitsReg_data_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_bypass_rs1Addr = bitsReg_bypass_rs1Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_bypass_rs2Addr = bitsReg_bypass_rs2Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_bypass_lhsSel = bitsReg_bypass_lhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_bypass_rhsSel = bitsReg_bypass_rhsSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_exec_family = bitsReg_exec_family;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
-  assign io_deq_bits_exec_op = bitsReg_exec_op;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_aluOp = bitsReg_exec_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_aluSrcA = bitsReg_exec_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_aluSrcB = bitsReg_exec_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_wbSel = bitsReg_exec_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_branchType = bitsReg_exec_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_isJump = bitsReg_exec_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_exec_isJalr = bitsReg_exec_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_wb_regWen = bitsReg_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_wb_rd = bitsReg_wb_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_mem_valid = bitsReg_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_mem_write = bitsReg_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_mem_unsigned = bitsReg_mem_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_mem_subop = bitsReg_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
+  assign io_deq_bits_sys_csrOp = bitsReg_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_sys_csrAddr = bitsReg_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_sys_isEcall = bitsReg_sys_isEcall;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20
   assign io_deq_bits_sys_isMret = bitsReg_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:7, :14:20

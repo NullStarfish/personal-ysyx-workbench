@@ -79,9 +79,9 @@ class CourseCore(
 
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
-    decode.io.out.bits.exec.family === ExecFamily.Branch &&
+    decode.io.out.bits.exec.branchType =/= BranchType.None &&
     decode.io.out.bits.pred.predictedTaken
-  val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.offset
+  val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
   val fetchRedirectValid = hazard.io.redirectFlush || decodePredictedRedirect
   val fetchRedirectTarget = Mux(hazard.io.redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
 

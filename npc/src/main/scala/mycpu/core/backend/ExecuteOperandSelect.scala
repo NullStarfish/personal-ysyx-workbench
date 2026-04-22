@@ -30,38 +30,12 @@ class ExecuteOperandSelect(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) ext
   }
 
   val decoded = io.in.bits
-  val forwardedRs1 = resolveRegValue(decoded.bypass.rs1Addr, 0.U)
-  val forwardedRs2 = resolveRegValue(decoded.bypass.rs2Addr, 0.U)
+  val forwardedRs1 = resolveRegValue(decoded.bypass.rs1Addr, decoded.data.rs1)
+  val forwardedRs2 = resolveRegValue(decoded.bypass.rs2Addr, decoded.data.rs2)
 
   io.out.bits := decoded
-  io.out.bits.data.lhs := MuxLookup(decoded.bypass.lhsSel, decoded.data.lhs)(
-    Seq(
-      OperandSelectSource.Rs1 -> Mux(
-        forwardHit(io.exForward, decoded.bypass.rs1Addr) || forwardHit(io.memForward, decoded.bypass.rs1Addr),
-        forwardedRs1,
-        decoded.data.lhs,
-      ),
-      OperandSelectSource.Rs2 -> Mux(
-        forwardHit(io.exForward, decoded.bypass.rs2Addr) || forwardHit(io.memForward, decoded.bypass.rs2Addr),
-        forwardedRs2,
-        decoded.data.lhs,
-      ),
-    ),
-  )
-  io.out.bits.data.rhs := MuxLookup(decoded.bypass.rhsSel, decoded.data.rhs)(
-    Seq(
-      OperandSelectSource.Rs1 -> Mux(
-        forwardHit(io.exForward, decoded.bypass.rs1Addr) || forwardHit(io.memForward, decoded.bypass.rs1Addr),
-        forwardedRs1,
-        decoded.data.rhs,
-      ),
-      OperandSelectSource.Rs2 -> Mux(
-        forwardHit(io.exForward, decoded.bypass.rs2Addr) || forwardHit(io.memForward, decoded.bypass.rs2Addr),
-        forwardedRs2,
-        decoded.data.rhs,
-      ),
-    ),
-  )
+  io.out.bits.data.rs1 := forwardedRs1
+  io.out.bits.data.rs2 := forwardedRs2
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

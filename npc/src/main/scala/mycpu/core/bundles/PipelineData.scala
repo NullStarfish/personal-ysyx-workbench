@@ -4,44 +4,6 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 
-object ExecFamily {
-  val Alu    = "b000".U(3.W)
-  val Branch = "b001".U(3.W)
-  val Jump   = "b010".U(3.W)
-  val Upper  = "b011".U(3.W)
-  val Csr    = "b100".U(3.W)
-  val Mem    = "b101".U(3.W)
-}
-
-object ExecOp {
-  val Nop   = "b0000".U(4.W)
-  val Add   = "b0001".U(4.W)
-  val Sub   = "b0010".U(4.W)
-  val And   = "b0011".U(4.W)
-  val Or    = "b0100".U(4.W)
-  val Xor   = "b0101".U(4.W)
-  val Slt   = "b0110".U(4.W)
-  val Sltu  = "b0111".U(4.W)
-  val Sll   = "b1000".U(4.W)
-  val Srl   = "b1001".U(4.W)
-  val Sra   = "b1010".U(4.W)
-  val Lui   = "b1011".U(4.W)
-  val Auipc = "b1100".U(4.W)
-  val Jal   = "b1101".U(4.W)
-  val Jalr  = "b1110".U(4.W)
-  val Load  = "b1111".U(4.W)
-  val Store = "b0000".U(4.W)
-  val CsrRw = "b0001".U(4.W)
-  val CsrRs = "b0010".U(4.W)
-  val CsrRc = "b0011".U(4.W)
-  val Beq   = "b0100".U(4.W)
-  val Bne   = "b0101".U(4.W)
-  val Blt   = "b0110".U(4.W)
-  val Bge   = "b0111".U(4.W)
-  val Bltu  = "b1000".U(4.W)
-  val Bgeu  = "b1001".U(4.W)
-}
-
 object ExecSubop {
   val None = "b000".U(3.W)
   val Byte = "b001".U(3.W)
@@ -75,28 +37,50 @@ class FetchControlBundle extends Bundle {
 
 class ExecuteDataBundle extends Bundle {
   val pc = XLenU
-  val lhs = XLenU
-  val rhs = XLenU
-  val offset = XLenU
+  val rs1 = XLenU
+  val rs2 = XLenU
+  val imm = XLenU
 }
 
-object OperandSelectSource {
-  val None = "b00".U(2.W)
-  val Rs1  = "b01".U(2.W)
-  val Rs2  = "b10".U(2.W)
+object ALUSrcA {
+  val Rs1 = "b0".U(1.W)
+  val Pc  = "b1".U(1.W)
 }
 
-class OperandSelectCtrlBundle extends Bundle {
+object ALUSrcB {
+  val Rs2 = "b0".U(1.W)
+  val Imm = "b1".U(1.W)
+}
+
+object WBSel {
+  val Alu    = "b00".U(2.W)
+  val Csr    = "b01".U(2.W)
+  val PcPlus4 = "b10".U(2.W)
+}
+
+object BranchType {
+  val None = "b000".U(3.W)
+  val Eq   = "b001".U(3.W)
+  val Ne   = "b010".U(3.W)
+  val Lt   = "b011".U(3.W)
+  val Ge   = "b100".U(3.W)
+  val Ltu  = "b101".U(3.W)
+  val Geu  = "b110".U(3.W)
+}
+
+class BypassCtrlBundle extends Bundle {
   val rs1Addr = UInt(5.W)
   val rs2Addr = UInt(5.W)
-  val lhsSel = UInt(2.W)
-  val rhsSel = UInt(2.W)
 }
 
-class ExecuteOpBundle extends Bundle {
-  val family = UInt(3.W)
-  val op = UInt(4.W)
-  val subop = UInt(3.W)
+class ExecuteCtrlBundle extends Bundle {
+  val aluOp = ALUOp()
+  val aluSrcA = UInt(1.W)
+  val aluSrcB = UInt(1.W)
+  val wbSel = UInt(2.W)
+  val branchType = UInt(3.W)
+  val isJump = Bool()
+  val isJalr = Bool()
 }
 
 class WritebackCtrlBundle extends Bundle {
@@ -112,6 +96,7 @@ class MemCtrlBundle extends Bundle {
 }
 
 class SysCtrlBundle extends Bundle {
+  val csrOp = CSROp()
   val csrAddr = UInt(12.W)
   val isEcall = Bool()
   val isMret = Bool()
@@ -156,8 +141,8 @@ trait ForwardSourceView { this: Bundle =>
 
 class DecodePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
   val data = new ExecuteDataBundle
-  val bypass = new OperandSelectCtrlBundle
-  val exec = new ExecuteOpBundle
+  val bypass = new BypassCtrlBundle
+  val exec = new ExecuteCtrlBundle
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val sys = new SysCtrlBundle

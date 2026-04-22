@@ -105,9 +105,9 @@ class Core(
   idEx.io.enq.bits := decode.io.out.bits
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
-    decode.io.out.bits.exec.family === ExecFamily.Branch &&
+    decode.io.out.bits.exec.branchType =/= BranchType.None &&
     decode.io.out.bits.pred.predictedTaken
-  val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.offset
+  val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
   val fetchRedirectValid = redirectFlush || decodePredictedRedirect
   val fetchRedirectTarget = Mux(redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
   idEx.io.deq.ready := operandSelect.io.in.ready
