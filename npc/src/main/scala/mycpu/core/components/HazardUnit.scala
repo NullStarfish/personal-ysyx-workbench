@@ -6,6 +6,9 @@ class HazardUnit extends Module {
   val io = IO(new Bundle {
     val decodeInst = Input(UInt(32.W))
 
+    val idWriteValid = Input(Bool())
+    val idWriteRd = Input(UInt(5.W))
+
     val idLoadValid = Input(Bool())
     val idLoadRd = Input(UInt(5.W))
 
@@ -37,7 +40,8 @@ class HazardUnit extends Module {
       ((usesRs1 && (decodeRs1 === rd)) || (usesRs2 && (decodeRs2 === rd)))
 
   io.loadUseStall :=
-    (io.idLoadValid && hazardsWith(io.idLoadRd)) ||
+    (io.idWriteValid && hazardsWith(io.idWriteRd)) ||
+      (io.idLoadValid && hazardsWith(io.idLoadRd)) ||
       (io.exLoadValid && hazardsWith(io.exLoadRd)) ||
       (io.memPendingLoad && hazardsWith(io.memPendingRd))
 

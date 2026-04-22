@@ -144,9 +144,14 @@ class CoreHazardStressSpec extends AnyFlatSpec with CoreProgramSupport {
         pending = serviceReadBusWithDelay(c, memory, pending, responseDelay = 3)
       })
 
+      val auipcPc = BigInt(START_ADDR + 4)
+      val auipcImm20 = BigInt("df002", 16)
+      val signedAuipcImm = if (auipcImm20.testBit(19)) auipcImm20 - (BigInt(1) << 20) else auipcImm20
+      val expectedSp = (auipcPc + (signedAuipcImm << 12) - 8) & BigInt("ffffffff", 16)
+
       c.io.trace.retireCount.expect(6.U)
       c.io.debug_regs(1).expect((START_ADDR + 16).U) // jal link
-      c.io.debug_regs(2).expect(BigInt("0f001ffc", 16).U) // sp updated by auipc/addi/target addi
+      c.io.debug_regs(2).expect(expectedSp.U) // sp updated by auipc/addi/target addi
       c.io.debug_regs(5).expect(0.U)                      // wrong path killed
       c.io.debug_regs(6).expect(0.U)                      // wrong path killed
       c.io.debug_regs(8).expect(0.U)                 // mv s0, zero

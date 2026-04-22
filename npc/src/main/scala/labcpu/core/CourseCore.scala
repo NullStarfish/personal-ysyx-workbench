@@ -6,7 +6,7 @@ import labcpu.core.backend.WriteBack
 import labcpu.core.bundles._
 import labcpu.core.frontend.Fetch
 import mycpu.common._
-import mycpu.core.backend.{Decode, Execute}
+import mycpu.core.backend.{Decode, Execute, ExecuteOperandSelect}
 import mycpu.core.bundles._
 import mycpu.core.components.{FlushableStage, HazardUnit, Tracer}
 
@@ -29,6 +29,7 @@ class CourseCore(
 
   val fetch = Module(new Fetch(startAddr, enableTraceFields = enableTraceFields))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
+  val operandSelect = Module(new ExecuteOperandSelect(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
@@ -47,19 +48,6 @@ class CourseCore(
 
   decode.io.regWrite := writeBack.io.regWrite
 
-  val exForward = Wire(new ForwardInfo)
-  exForward.valid := idEx.io.deq.valid && idEx.io.deq.bits.wb.regWen && (idEx.io.deq.bits.wb.rd =/= 0.U) &&
-    !(idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write)
-  exForward.addr := idEx.io.deq.bits.wb.rd
-  exForward.data := execute.io.out.bits.result
-
-  val memForward = Wire(new ForwardInfo)
-  memForward.valid := exMem.io.deq.valid && exMem.io.deq.bits.wb.regWen && (exMem.io.deq.bits.wb.rd =/= 0.U)
-  memForward.addr := exMem.io.deq.bits.wb.rd
-  memForward.data := writeBack.io.out.wbData
-
-  decode.io.exForward := exForward
-  decode.io.memForward := memForward
   decode.io.bpUpdate := execute.io.bpUpdate
 
   decode.io.in.valid := ifId.io.deq.valid
@@ -68,11 +56,19 @@ class CourseCore(
 
   idEx.io.enq.valid := decode.io.out.valid && !hazard.io.loadUseStall && !hazard.io.redirectFlush
   idEx.io.enq.bits := decode.io.out.bits
-  idEx.io.deq.ready := execute.io.in.ready
+  idEx.io.deq.ready := operandSelect.io.in.ready
   idEx.io.flush := hazard.io.redirectFlush
 
-  execute.io.in.valid := idEx.io.deq.valid
-  execute.io.in.bits := idEx.io.deq.bits
+  operandSelect.io.exForward.valid := exMem.io.deq.valid
+  operandSelect.io.exForward.bits := exMem.io.deq.bits
+  operandSelect.io.memForward.valid := false.B
+  operandSelect.io.memForward.bits := 0.U.asTypeOf(new MemoryPacket(enableTraceFields))
+  operandSelect.io.in.valid := idEx.io.deq.valid
+  operandSelect.io.in.bits := idEx.io.deq.bits
+
+  execute.io.in.valid := operandSelect.io.out.valid
+  execute.io.in.bits := operandSelect.io.out.bits
+  operandSelect.io.out.ready := execute.io.in.ready
   execute.io.out.ready := exMem.io.enq.ready
 
   exMem.io.enq.valid := execute.io.out.valid
@@ -95,6 +91,8 @@ class CourseCore(
   fetch.io.out.ready := ifId.io.enq.ready && !hazard.io.redirectFlush && !decodePredictedRedirect
 
   hazard.io.decodeInst := Mux(ifId.io.deq.valid, ifId.io.deq.bits.inst, 0.U)
+  hazard.io.idWriteValid := false.B
+  hazard.io.idWriteRd := 0.U
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
   hazard.io.exLoadValid := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && !exMem.io.deq.bits.mem.write

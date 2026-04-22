@@ -20,7 +20,7 @@ IMG ?= ./dummy-riscv32e-ysyxsoc.bin
 # =============================================================================
 # Directories and Source Files
 # =============================================================================
-VSRC_DIR := $(NPC_HOME)/src/main/verilog
+VSRC_DIR := $(NPC_HOME)/src/main/verilog/Core
 VPERIP_DIR := $(SOC_HOME)/perip
 VSOC_DIR := $(SOC_HOME)/build
 

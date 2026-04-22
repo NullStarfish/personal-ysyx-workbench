@@ -80,6 +80,19 @@ class ExecuteDataBundle extends Bundle {
   val offset = XLenU
 }
 
+object OperandSelectSource {
+  val None = "b00".U(2.W)
+  val Rs1  = "b01".U(2.W)
+  val Rs2  = "b10".U(2.W)
+}
+
+class OperandSelectCtrlBundle extends Bundle {
+  val rs1Addr = UInt(5.W)
+  val rs2Addr = UInt(5.W)
+  val lhsSel = UInt(2.W)
+  val rhsSel = UInt(2.W)
+}
+
 class ExecuteOpBundle extends Bundle {
   val family = UInt(3.W)
   val op = UInt(4.W)
@@ -132,8 +145,15 @@ class TraceCarryBundle extends Bundle {
   val predictedTaken = Bool()
 }
 
+trait ForwardSourceView { this: Bundle =>
+  def valid: Bool
+  def addr: UInt
+  def data: UInt
+}
+
 class DecodePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
   val data = new ExecuteDataBundle
+  val bypass = new OperandSelectCtrlBundle
   val exec = new ExecuteOpBundle
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
@@ -142,19 +162,28 @@ class DecodePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bun
   val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 }
 
-class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
+class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle with ForwardSourceView {
   val result = XLenU
   val rhs = XLenU
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
   val redirect = Valid(UInt(XLEN.W))
   val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
+
+  // EX forwarding only exposes pure execute results. Memory reads must wait for WB data.
+  override def valid: Bool = wb.regWen && !mem.valid && (wb.rd =/= 0.U)
+  override def addr: UInt = wb.rd
+  override def data: UInt = result
 }
 
-class MemoryPacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
+class MemoryPacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle with ForwardSourceView {
   val wbData = XLenU
   val wb = new WritebackCtrlBundle
   val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
+
+  override def valid: Bool = wb.regWen && (wb.rd =/= 0.U)
+  override def addr: UInt = wb.rd
+  override def data: UInt = wbData
 }
 
 class LsuStatusBundle extends Bundle {
@@ -187,12 +216,6 @@ class WriteBackIO extends Bundle {
   val wen  = Bool()
   val addr = UInt(5.W)
   val data = XLenU
-}
-
-class ForwardInfo extends Bundle {
-  val valid = Bool()
-  val addr  = UInt(5.W)
-  val data  = XLenU
 }
 
 class BranchPredictUpdateBundle extends Bundle {

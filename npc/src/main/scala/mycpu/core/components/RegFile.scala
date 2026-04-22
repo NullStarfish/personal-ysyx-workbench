@@ -26,8 +26,16 @@ class RegFile extends Module {
     regs(io.waddr) := io.wdata
   }
 
-  io.rdata1 := Mux(io.raddr1 === 0.U, 0.U, regs(io.raddr1))
-  io.rdata2 := Mux(io.raddr2 === 0.U, 0.U, regs(io.raddr2))
+  io.rdata1 := Mux(
+    io.raddr1 === 0.U,
+    0.U,
+    Mux(io.wen && io.waddr =/= 0.U && io.waddr === io.raddr1, io.wdata, regs(io.raddr1)),
+  )
+  io.rdata2 := Mux(
+    io.raddr2 === 0.U,
+    0.U,
+    Mux(io.wen && io.waddr =/= 0.U && io.waddr === io.raddr2, io.wdata, regs(io.raddr2)),
+  )
   
   // 连接调试输出
   io.debug_regs := regs

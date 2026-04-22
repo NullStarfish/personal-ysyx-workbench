@@ -23,6 +23,7 @@ class Core(
 
   val fetch = Module(new Fetch(enableTraceFields = enableTraceFields))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
+  val operandSelect = Module(new ExecuteOperandSelect(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields))
   val lsu = Module(new LSU(enableTraceFields = enableTraceFields))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
@@ -55,25 +56,22 @@ class Core(
   io.debug_csrs.mcause := execute.io.debug_csrs.mcause
   val regsFlat = Cat(io.debug_regs.reverse)
 
-  val exForward = Wire(new ForwardInfo)
-  exForward.valid := exMem.io.deq.valid && exMem.io.deq.bits.wb.regWen && !exMem.io.deq.bits.mem.valid && (exMem.io.deq.bits.wb.rd =/= 0.U)
-  exForward.addr := exMem.io.deq.bits.wb.rd
-  exForward.data := exMem.io.deq.bits.result
-
-  val memForward = Wire(new ForwardInfo)
-  memForward.valid := memWb.io.deq.valid && memWb.io.deq.bits.wb.regWen && (memWb.io.deq.bits.wb.rd =/= 0.U)
-  memForward.addr := memWb.io.deq.bits.wb.rd
-  memForward.data := memWb.io.deq.bits.wbData
-
-  decode.io.exForward := exForward
-  decode.io.memForward := memForward
   decode.io.bpUpdate := execute.io.bpUpdate
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
 
-  execute.io.in.valid := idEx.io.deq.valid
-  execute.io.in.bits := idEx.io.deq.bits
+  operandSelect.io.exForward.valid := exMem.io.deq.valid
+  operandSelect.io.exForward.bits := exMem.io.deq.bits
+  operandSelect.io.memForward.valid := memWb.io.deq.valid
+  operandSelect.io.memForward.bits := memWb.io.deq.bits
+
+  operandSelect.io.in.valid := idEx.io.deq.valid
+  operandSelect.io.in.bits := idEx.io.deq.bits
+
+  execute.io.in.valid := operandSelect.io.out.valid
+  execute.io.in.bits := operandSelect.io.out.bits
+  operandSelect.io.out.ready := execute.io.in.ready
 
   lsu.io.in.valid := exMem.io.deq.valid
   lsu.io.in.bits := exMem.io.deq.bits
@@ -85,6 +83,8 @@ class Core(
   val exFire = exMem.io.enq.fire
 
   hazard.io.decodeInst := Mux(ifId.io.deq.valid, ifId.io.deq.bits.inst, 0.U)
+  hazard.io.idWriteValid := false.B
+  hazard.io.idWriteRd := 0.U
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
   hazard.io.exLoadValid := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && !exMem.io.deq.bits.mem.write
@@ -107,7 +107,7 @@ class Core(
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.offset
   val fetchRedirectValid = redirectFlush || decodePredictedRedirect
   val fetchRedirectTarget = Mux(redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
-  idEx.io.deq.ready := execute.io.in.ready
+  idEx.io.deq.ready := operandSelect.io.in.ready
 
   fetch.io.out.ready := ifId.io.enq.ready && !redirectFlush
   ifId.io.enq.valid := fetch.io.out.valid && !redirectFlush

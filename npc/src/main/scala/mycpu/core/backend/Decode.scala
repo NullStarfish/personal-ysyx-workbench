@@ -12,8 +12,6 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket(enableTraceFields))
     val regWrite = Flipped(new WriteBackIO())
-    val exForward = Input(new ForwardInfo)
-    val memForward = Input(new ForwardInfo)
     val bpUpdate = Input(new BranchPredictUpdateBundle)
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
   })
@@ -41,16 +39,6 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   val rs1Raw = regFile.io.rdata1
   val rs2Raw = regFile.io.rdata2
-  val rs1Data = Mux(
-    io.exForward.valid && rs1Addr =/= 0.U && io.exForward.addr === rs1Addr,
-    io.exForward.data,
-    Mux(io.memForward.valid && rs1Addr =/= 0.U && io.memForward.addr === rs1Addr, io.memForward.data, rs1Raw),
-  )
-  val rs2Data = Mux(
-    io.exForward.valid && rs2Addr =/= 0.U && io.exForward.addr === rs2Addr,
-    io.exForward.data,
-    Mux(io.memForward.valid && rs2Addr =/= 0.U && io.memForward.addr === rs2Addr, io.memForward.data, rs2Raw),
-  )
 
   val predictor = Module(new PerceptronBranchPredictor(entries = 32, historyLength = 8))
   predictor.io.pc := io.in.bits.pc
@@ -169,6 +157,8 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val lhs = WireDefault(0.U(XLEN.W))
   val rhs = WireDefault(0.U(XLEN.W))
   val offset = WireDefault(0.U(XLEN.W))
+  val lhsSel = WireDefault(OperandSelectSource.None)
+  val rhsSel = WireDefault(OperandSelectSource.None)
   val regWen = WireDefault(false.B)
   val memUnsigned = WireDefault(false.B)
   val csrAddr = WireDefault(inst(31, 20))
@@ -185,40 +175,6 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     is("b1100011".U) { immType := ImmType.B }
     is("b0100011".U) { immType := ImmType.S }
     is("b0110011".U) { immType := ImmType.Z }
-  }
-
-  switch(format) {
-    is(DecodeFormat.RegReg) {
-      lhs := rs1Data
-      rhs := rs2Data
-    }
-    is(DecodeFormat.RegImm) {
-      lhs := rs1Data
-      rhs := immGen.io.out
-    }
-    is(DecodeFormat.PcImm) {
-      lhs := Mux(op === ExecOp.Lui, 0.U, io.in.bits.pc)
-      rhs := immGen.io.out
-    }
-    is(DecodeFormat.PcOffset) {
-      lhs := io.in.bits.pc
-      offset := immGen.io.out
-    }
-    is(DecodeFormat.RegOffset) {
-      lhs := rs1Data
-      offset := immGen.io.out
-    }
-    is(DecodeFormat.RegRegOffset) {
-      lhs := rs1Data
-      rhs := rs2Data
-      offset := immGen.io.out
-    }
-    is(DecodeFormat.CsrReg) {
-      rhs := rs1Data
-    }
-    is(DecodeFormat.CsrImm) {
-      rhs := Cat(0.U((XLEN - 5).W), rs1Addr)
-    }
   }
 
   switch(family) {
@@ -262,10 +218,55 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     }
   }
 
+  switch(format) {
+    is(DecodeFormat.RegReg) {
+      lhs := rs1Raw
+      rhs := rs2Raw
+      lhsSel := OperandSelectSource.Rs1
+      rhsSel := OperandSelectSource.Rs2
+    }
+    is(DecodeFormat.RegImm) {
+      lhs := rs1Raw
+      rhs := immGen.io.out
+      lhsSel := OperandSelectSource.Rs1
+    }
+    is(DecodeFormat.PcImm) {
+      lhs := Mux(op === ExecOp.Lui, 0.U, io.in.bits.pc)
+      rhs := immGen.io.out
+    }
+    is(DecodeFormat.PcOffset) {
+      lhs := io.in.bits.pc
+      offset := immGen.io.out
+    }
+    is(DecodeFormat.RegOffset) {
+      lhs := rs1Raw
+      offset := immGen.io.out
+      lhsSel := OperandSelectSource.Rs1
+    }
+    is(DecodeFormat.RegRegOffset) {
+      lhs := rs1Raw
+      rhs := rs2Raw
+      offset := immGen.io.out
+      lhsSel := OperandSelectSource.Rs1
+      rhsSel := OperandSelectSource.Rs2
+    }
+    is(DecodeFormat.CsrReg) {
+      rhs := rs1Raw
+      rhsSel := OperandSelectSource.Rs1
+    }
+    is(DecodeFormat.CsrImm) {
+      rhs := Cat(0.U((XLEN - 5).W), rs1Addr)
+    }
+  }
+
   io.out.bits.data.pc := io.in.bits.pc
   io.out.bits.data.lhs := lhs
   io.out.bits.data.rhs := rhs
   io.out.bits.data.offset := offset
+  io.out.bits.bypass.rs1Addr := rs1Addr
+  io.out.bits.bypass.rs2Addr := rs2Addr
+  io.out.bits.bypass.lhsSel := lhsSel
+  io.out.bits.bypass.rhsSel := rhsSel
   io.out.bits.exec.family := family
   io.out.bits.exec.op := op
   io.out.bits.exec.subop := subop
