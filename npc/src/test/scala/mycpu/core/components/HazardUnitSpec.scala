@@ -6,7 +6,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class HazardUnitSpec extends AnyFlatSpec {
   private def init(c: HazardUnit): Unit = {
-    c.io.decodeInst.poke(0.U)
+    c.io.decodeRs1Used.poke(false.B)
+    c.io.decodeRs2Used.poke(false.B)
+    c.io.decodeRs1Addr.poke(0.U)
+    c.io.decodeRs2Addr.poke(0.U)
+    c.io.idWriteValid.poke(false.B)
+    c.io.idWriteRd.poke(0.U)
     c.io.idLoadValid.poke(false.B)
     c.io.idLoadRd.poke(0.U)
     c.io.exLoadValid.poke(false.B)
@@ -20,7 +25,10 @@ class HazardUnitSpec extends AnyFlatSpec {
   "HazardUnit" should "stall when ID/EX load blocks a dependent decode instruction" in {
     simulate(new HazardUnit) { c =>
       init(c)
-      c.io.decodeInst.poke("h00108133".U) // add x2, x1, x1
+      c.io.decodeRs1Used.poke(true.B)
+      c.io.decodeRs2Used.poke(true.B)
+      c.io.decodeRs1Addr.poke(1.U)
+      c.io.decodeRs2Addr.poke(1.U)
       c.io.idLoadValid.poke(true.B)
       c.io.idLoadRd.poke(1.U)
       c.clock.step()
@@ -33,7 +41,10 @@ class HazardUnitSpec extends AnyFlatSpec {
   it should "stall when LSU still has a pending load for a source register" in {
     simulate(new HazardUnit) { c =>
       init(c)
-      c.io.decodeInst.poke("h00108133".U) // add x2, x1, x1
+      c.io.decodeRs1Used.poke(true.B)
+      c.io.decodeRs2Used.poke(true.B)
+      c.io.decodeRs1Addr.poke(1.U)
+      c.io.decodeRs2Addr.poke(1.U)
       c.io.memPendingLoad.poke(true.B)
       c.io.memPendingRd.poke(1.U)
       c.clock.step()

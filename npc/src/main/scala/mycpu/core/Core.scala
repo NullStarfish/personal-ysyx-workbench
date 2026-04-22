@@ -82,7 +82,10 @@ class Core(
   exMem.io.enq.bits := execute.io.out.bits
   val exFire = exMem.io.enq.fire
 
-  hazard.io.decodeInst := Mux(ifId.io.deq.valid, ifId.io.deq.bits.inst, 0.U)
+  hazard.io.decodeRs1Used := decode.io.hazard.rs1Used && ifId.io.deq.valid
+  hazard.io.decodeRs2Used := decode.io.hazard.rs2Used && ifId.io.deq.valid
+  hazard.io.decodeRs1Addr := decode.io.hazard.rs1Addr
+  hazard.io.decodeRs2Addr := decode.io.hazard.rs2Addr
   hazard.io.idWriteValid := false.B
   hazard.io.idWriteRd := 0.U
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write

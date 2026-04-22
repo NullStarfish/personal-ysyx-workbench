@@ -4,7 +4,10 @@ import chisel3._
 
 class HazardUnit extends Module {
   val io = IO(new Bundle {
-    val decodeInst = Input(UInt(32.W))
+    val decodeRs1Used = Input(Bool())
+    val decodeRs2Used = Input(Bool())
+    val decodeRs1Addr = Input(UInt(5.W))
+    val decodeRs2Addr = Input(UInt(5.W))
 
     val idWriteValid = Input(Bool())
     val idWriteRd = Input(UInt(5.W))
@@ -25,19 +28,9 @@ class HazardUnit extends Module {
     val redirectFlush = Output(Bool())
   })
 
-  val decodeRs1 = io.decodeInst(19, 15)
-  val decodeRs2 = io.decodeInst(24, 20)
-  val decodeOpcode = io.decodeInst(6, 0)
-
-  val usesRs1 = decodeOpcode =/= "b0110111".U && decodeOpcode =/= "b0010111".U && decodeOpcode =/= "b1101111".U
-  val usesRs2 =
-    decodeOpcode === "b0110011".U ||
-      decodeOpcode === "b0100011".U ||
-      decodeOpcode === "b1100011".U
-
   def hazardsWith(rd: UInt): Bool =
     (rd =/= 0.U) &&
-      ((usesRs1 && (decodeRs1 === rd)) || (usesRs2 && (decodeRs2 === rd)))
+      ((io.decodeRs1Used && (io.decodeRs1Addr === rd)) || (io.decodeRs2Used && (io.decodeRs2Addr === rd)))
 
   io.loadUseStall :=
     (io.idWriteValid && hazardsWith(io.idWriteRd)) ||

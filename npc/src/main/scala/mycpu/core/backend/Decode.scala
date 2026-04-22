@@ -14,6 +14,12 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val regWrite = Flipped(new WriteBackIO())
     val bpUpdate = Input(new BranchPredictUpdateBundle)
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
+    val hazard = Output(new Bundle {
+      val rs1Used = Bool()
+      val rs2Used = Bool()
+      val rs1Addr = UInt(5.W)
+      val rs2Addr = UInt(5.W)
+    })
   })
 
   val inst = io.in.bits.inst
@@ -264,6 +270,18 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       rhs := Cat(0.U((XLEN - 5).W), rs1Addr)
     }
   }
+
+  io.hazard.rs1Addr := rs1Addr
+  io.hazard.rs2Addr := rs2Addr
+  io.hazard.rs1Used :=
+    format === DecodeFormat.RegReg ||
+      format === DecodeFormat.RegImm ||
+      format === DecodeFormat.RegOffset ||
+      format === DecodeFormat.RegRegOffset ||
+      format === DecodeFormat.CsrReg
+  io.hazard.rs2Used :=
+    format === DecodeFormat.RegReg ||
+      format === DecodeFormat.RegRegOffset
 
   io.out.bits.data.pc := io.in.bits.pc
   io.out.bits.data.lhs := lhs

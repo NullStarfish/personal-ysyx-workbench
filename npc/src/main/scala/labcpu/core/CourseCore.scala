@@ -2,13 +2,12 @@ package labcpu.core
 
 import chisel3._
 import chisel3.util._
-import labcpu.core.backend.Decode
 import labcpu.core.backend.WriteBack
 import labcpu.core.bundles._
 import labcpu.core.components.HazardUnit
 import labcpu.core.frontend.Fetch
 import mycpu.common._
-import mycpu.core.backend.{Execute, ExecuteOperandSelect}
+import mycpu.core.backend.{Decode, Execute, ExecuteOperandSelect}
 import mycpu.core.bundles._
 import mycpu.core.components.{FlushableStage, Tracer}
 
