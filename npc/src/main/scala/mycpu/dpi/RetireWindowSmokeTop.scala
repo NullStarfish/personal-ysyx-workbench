@@ -25,7 +25,6 @@ class RetireWindowSmokeTop extends Module {
   val idle :: retire0 :: retire1 :: finished :: Nil = Enum(4)
   val stateReg = RegInit(idle)
 
-  val retire = WireInit(0.U.asTypeOf(new RetireEventBundle))
   val commitTrace = WireInit(0.U.asTypeOf(Valid(new TraceCarryBundle)))
 
   switch(stateReg) {
@@ -35,30 +34,29 @@ class RetireWindowSmokeTop extends Module {
       }
     }
     is(retire0) {
-      retire.valid := true.B
-      retire.pc := "h30000000".U
-      retire.dnpc := "h30000004".U
-      retire.inst := "h00100093".U // addi x1, x0, 1
-      retire.regWen := true.B
-      retire.rd := 1.U
-      retire.data := 1.U
+      commitTrace.valid := true.B
+      commitTrace.bits.pc := "h30000000".U
+      commitTrace.bits.dnpc := "h30000004".U
+      commitTrace.bits.inst := "h00100093".U // addi x1, x0, 1
+      commitTrace.bits.regWen := true.B
+      commitTrace.bits.rd := 1.U
+      commitTrace.bits.data := 1.U
       regs(1) := 1.U
       stateReg := retire1
     }
     is(retire1) {
-      retire.valid := true.B
-      retire.pc := "h30000004".U
-      retire.dnpc := "h30000008".U
-      retire.inst := Instructions.EBREAK.value.U
-      retire.regWen := false.B
-      retire.rd := 0.U
-      retire.data := 0.U
+      commitTrace.valid := true.B
+      commitTrace.bits.pc := "h30000004".U
+      commitTrace.bits.dnpc := "h30000008".U
+      commitTrace.bits.inst := Instructions.EBREAK.value.U
+      commitTrace.bits.regWen := false.B
+      commitTrace.bits.rd := 0.U
+      commitTrace.bits.data := 0.U
       stateReg := finished
     }
   }
 
   tracer.io.commitTrace := commitTrace
-  tracer.io.retire := retire
   tracer.io.regsFlat := Cat(regs.reverse)
   tracer.io.mtvec := mtvecReg
   tracer.io.mepc := mepcReg

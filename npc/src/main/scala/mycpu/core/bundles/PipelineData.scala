@@ -133,6 +133,9 @@ class TraceCarryBundle extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)
   val dnpc = XLenU
+  val regWen = Bool()
+  val rd = UInt(5.W)
+  val data = XLenU
   val ifValid = Bool()
   val idValid = Bool()
   val exValid = Bool()
@@ -191,23 +194,13 @@ class LsuStatusBundle extends Bundle {
   val pendingRd = UInt(5.W)
 }
 
-class RetireEventBundle extends Bundle {
-  val valid = Bool()
-  val pc = XLenU
-  val dnpc = XLenU
-  val inst = UInt(32.W)
-  val regWen = Bool()
-  val rd = UInt(5.W)
-  val data = XLenU
-}
-
 class CoreTraceBundle extends Bundle {
   val ifValid = Bool()
   val idValid = Bool()
   val exValid = Bool()
   val memValid = Bool()
   val retireCount = UInt(32.W)
-  val lastRetire = new RetireEventBundle
+  val lastRetire = Valid(new TraceCarryBundle)
   val branchCount = UInt(32.W)
   val branchCorrectCount = UInt(32.W)
 }

@@ -123,7 +123,6 @@ class Core(
   if (enableTracer && enableTraceFields) {
     val tracerMod = tracer.get
     tracerMod.io.commitTrace <> writeBack.io.traceCommit.get
-    tracerMod.io.retire := writeBack.io.retire
     tracerMod.io.regsFlat := regsFlat
     tracerMod.io.mtvec := io.debug_csrs.mtvec
     tracerMod.io.mepc := io.debug_csrs.mepc

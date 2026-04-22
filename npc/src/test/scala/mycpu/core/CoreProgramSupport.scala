@@ -54,9 +54,9 @@ trait CoreProgramSupport {
       val retireCount = c.io.trace.retireCount.peek().litValue
       if (retireCount != lastRetireCount) {
         retired += ((
-          c.io.trace.lastRetire.pc.peek().litValue,
-          c.io.trace.lastRetire.inst.peek().litValue,
-          c.io.trace.lastRetire.dnpc.peek().litValue,
+          c.io.trace.lastRetire.bits.pc.peek().litValue,
+          c.io.trace.lastRetire.bits.inst.peek().litValue,
+          c.io.trace.lastRetire.bits.dnpc.peek().litValue,
         ))
         lastRetireCount = retireCount
       }

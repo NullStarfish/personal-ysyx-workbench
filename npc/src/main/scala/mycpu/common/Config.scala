@@ -10,6 +10,7 @@ package object common {
   val AXI_ID_WIDTH = 3
   val ENABLE_TRACER = true
   val ENABLE_TRACE_FIELDS = true
+  val ENABLE_BRANCH_PREDICTOR = false
 
   def XLenU = UInt(XLEN.W)
 

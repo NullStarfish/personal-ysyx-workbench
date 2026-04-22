@@ -2,13 +2,15 @@ package labcpu.core
 
 import chisel3._
 import chisel3.util._
+import labcpu.core.backend.Decode
 import labcpu.core.backend.WriteBack
 import labcpu.core.bundles._
+import labcpu.core.components.HazardUnit
 import labcpu.core.frontend.Fetch
 import mycpu.common._
-import mycpu.core.backend.{Decode, Execute, ExecuteOperandSelect}
+import mycpu.core.backend.{Execute, ExecuteOperandSelect}
 import mycpu.core.bundles._
-import mycpu.core.components.{FlushableStage, HazardUnit, Tracer}
+import mycpu.core.components.{FlushableStage, Tracer}
 
 class CourseCore(
     startAddr: BigInt = START_ADDR,
@@ -37,13 +39,13 @@ class CourseCore(
 
   val ifId = Module(new FlushableStage(new FetchPacket))
   val idEx = Module(new FlushableStage(new DecodePacket(enableTraceFields)))
-  val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
+  val exWb = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
 
   fetch.io.imem.rdata := io.imem.rdata
   io.imem.addr := fetch.io.imem.addr
 
-  writeBack.io.in.valid := exMem.io.deq.valid
-  writeBack.io.in.bits := exMem.io.deq.bits
+  writeBack.io.in.valid := exWb.io.deq.valid
+  writeBack.io.in.bits := exWb.io.deq.bits
   writeBack.io.dmemRdata := io.dmem.rdata
 
   decode.io.regWrite := writeBack.io.regWrite
@@ -59,8 +61,8 @@ class CourseCore(
   idEx.io.deq.ready := operandSelect.io.in.ready
   idEx.io.flush := hazard.io.redirectFlush
 
-  operandSelect.io.exForward.valid := exMem.io.deq.valid
-  operandSelect.io.exForward.bits := exMem.io.deq.bits
+  operandSelect.io.exForward.valid := exWb.io.deq.valid
+  operandSelect.io.exForward.bits := exWb.io.deq.bits
   operandSelect.io.memForward.valid := false.B
   operandSelect.io.memForward.bits := 0.U.asTypeOf(new MemoryPacket(enableTraceFields))
   operandSelect.io.in.valid := idEx.io.deq.valid
@@ -69,12 +71,12 @@ class CourseCore(
   execute.io.in.valid := operandSelect.io.out.valid
   execute.io.in.bits := operandSelect.io.out.bits
   operandSelect.io.out.ready := execute.io.in.ready
-  execute.io.out.ready := exMem.io.enq.ready
+  execute.io.out.ready := exWb.io.enq.ready
 
-  exMem.io.enq.valid := execute.io.out.valid
-  exMem.io.enq.bits := execute.io.out.bits
-  exMem.io.deq.ready := true.B
-  exMem.io.flush := false.B
+  exWb.io.enq.valid := execute.io.out.valid
+  exWb.io.enq.bits := execute.io.out.bits
+  exWb.io.deq.ready := true.B
+  exWb.io.flush := false.B
 
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
@@ -90,40 +92,42 @@ class CourseCore(
   ifId.io.flush := hazard.io.redirectFlush || decodePredictedRedirect
   fetch.io.out.ready := ifId.io.enq.ready && !hazard.io.redirectFlush && !decodePredictedRedirect
 
-  hazard.io.decodeInst := Mux(ifId.io.deq.valid, ifId.io.deq.bits.inst, 0.U)
-  hazard.io.idWriteValid := false.B
-  hazard.io.idWriteRd := 0.U
+  hazard.io.decodeRs1Used := decode.io.hazard.rs1Used && ifId.io.deq.valid
+  hazard.io.decodeRs2Used := decode.io.hazard.rs2Used && ifId.io.deq.valid
+  hazard.io.decodeRs1Addr := decode.io.hazard.rs1Addr
+  hazard.io.decodeRs2Addr := decode.io.hazard.rs2Addr
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
-  hazard.io.exLoadValid := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && !exMem.io.deq.bits.mem.write
-  hazard.io.exLoadRd := exMem.io.deq.bits.wb.rd
-  hazard.io.memPendingLoad := false.B
-  hazard.io.memPendingRd := 0.U
-  hazard.io.exFire := exMem.io.enq.fire
+  hazard.io.exFire := exWb.io.enq.fire
   hazard.io.exRedirectValid := execute.io.out.bits.redirect.valid
 
   fetch.io.stall := !ifId.io.enq.ready || hazard.io.loadUseStall
   fetch.io.redirect.valid := fetchRedirectValid
   fetch.io.redirect.bits := fetchRedirectTarget
 
-  io.dmem.addr := exMem.io.deq.bits.result
-  io.dmem.ren := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && !exMem.io.deq.bits.mem.write
-  io.dmem.wen := exMem.io.deq.valid && exMem.io.deq.bits.mem.valid && exMem.io.deq.bits.mem.write
-  io.dmem.subop := exMem.io.deq.bits.mem.subop
-  io.dmem.unsigned := exMem.io.deq.bits.mem.unsigned
-  io.dmem.wdata := exMem.io.deq.bits.rhs
+  io.dmem.addr := exWb.io.deq.bits.result
+  io.dmem.ren := exWb.io.deq.valid && exWb.io.deq.bits.mem.valid && !exWb.io.deq.bits.mem.write
+  io.dmem.wen := exWb.io.deq.valid && exWb.io.deq.bits.mem.valid && exWb.io.deq.bits.mem.write
+  io.dmem.subop := exWb.io.deq.bits.mem.subop
+  io.dmem.unsigned := exWb.io.deq.bits.mem.unsigned
+  io.dmem.wdata := exWb.io.deq.bits.rhs
 
   io.debug_regs := decode.io.debug_regs
   io.debug_pc := fetch.io.debug_pc
-  io.retire_valid := writeBack.io.retire.valid
-  io.retire_pc := writeBack.io.retire.pc
-  io.retire_inst := writeBack.io.retire.inst
+  if (enableTraceFields) {
+    io.retire_valid := writeBack.io.traceCommit.get.valid
+    io.retire_pc := writeBack.io.traceCommit.get.bits.pc
+    io.retire_inst := writeBack.io.traceCommit.get.bits.inst
+  } else {
+    io.retire_valid := false.B
+    io.retire_pc := 0.U
+    io.retire_inst := 0.U
+  }
 
   val regsFlat = Cat(io.debug_regs.reverse)
   if (enableTracer && enableTraceFields) {
     val tracerMod = tracer.get
     tracerMod.io.commitTrace <> writeBack.io.traceCommit.get
-    tracerMod.io.retire := writeBack.io.retire
     tracerMod.io.regsFlat := regsFlat
     tracerMod.io.mtvec := execute.io.debug_csrs.mtvec
     tracerMod.io.mepc := execute.io.debug_csrs.mepc

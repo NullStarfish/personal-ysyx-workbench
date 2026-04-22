@@ -12,7 +12,6 @@ class WriteBack(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module
     val dmemRdata = Input(UInt(XLEN.W))
     val out = Output(new MemoryPacket(enableTraceFields))
     val regWrite = Output(new WriteBackIO)
-    val retire = Output(new RetireEventBundle)
   })
 
   val wbData = Mux(
@@ -28,22 +27,12 @@ class WriteBack(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module
 
     io.traceCommit.get.valid := io.in.valid
     io.traceCommit.get.bits := io.out.trace.get
-
-    io.retire.pc := io.in.bits.trace.get.pc
-    io.retire.dnpc := io.in.bits.trace.get.dnpc
-    io.retire.inst := io.in.bits.trace.get.inst
-  } else {
-    io.retire.pc := 0.U
-    io.retire.dnpc := 0.U
-    io.retire.inst := 0.U
+    io.traceCommit.get.bits.regWen := io.in.bits.wb.regWen
+    io.traceCommit.get.bits.rd := io.in.bits.wb.rd
+    io.traceCommit.get.bits.data := wbData
   }
 
   io.regWrite.wen := io.in.valid && io.in.bits.wb.regWen
   io.regWrite.addr := io.in.bits.wb.rd
   io.regWrite.data := wbData
-
-  io.retire.valid := io.in.valid
-  io.retire.regWen := io.in.bits.wb.regWen
-  io.retire.rd := io.in.bits.wb.rd
-  io.retire.data := wbData
 }

@@ -34,7 +34,11 @@ class WriteBackSpec extends AnyFlatSpec {
       c.io.regWrite.wen.expect(true.B)
       c.io.regWrite.addr.expect(1.U)
       c.io.regWrite.data.expect(5.U)
-      c.io.retire.dnpc.expect(0x104.U)
+      c.io.traceCommit.get.valid.expect(true.B)
+      c.io.traceCommit.get.bits.dnpc.expect(0x104.U)
+      c.io.traceCommit.get.bits.regWen.expect(true.B)
+      c.io.traceCommit.get.bits.rd.expect(1.U)
+      c.io.traceCommit.get.bits.data.expect(5.U)
     }
   }
 

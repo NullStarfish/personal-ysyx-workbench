@@ -10,7 +10,6 @@ class WriteBack(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module
     val in       = Flipped(Decoupled(new MemoryPacket(enableTraceFields)))
     val traceCommit = if (enableTraceFields) Some(Output(Valid(new TraceCarryBundle))) else None
     val regWrite = new WriteBackIO()
-    val retire = Output(new RetireEventBundle)
   })
 
   io.in.ready := true.B
@@ -22,18 +21,8 @@ class WriteBack(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module
   if (enableTraceFields) {
     io.traceCommit.get.valid := io.in.valid
     io.traceCommit.get.bits := io.in.bits.trace.get
-
-    io.retire.pc := io.in.bits.trace.get.pc
-    io.retire.dnpc := io.in.bits.trace.get.dnpc
-    io.retire.inst := io.in.bits.trace.get.inst
-  } else {
-    io.retire.pc := 0.U
-    io.retire.dnpc := 0.U
-    io.retire.inst := 0.U
+    io.traceCommit.get.bits.regWen := io.in.bits.wb.regWen
+    io.traceCommit.get.bits.rd := io.in.bits.wb.rd
+    io.traceCommit.get.bits.data := io.in.bits.wbData
   }
-
-  io.retire.valid := io.in.fire
-  io.retire.regWen := io.in.bits.wb.regWen
-  io.retire.rd := io.in.bits.wb.rd
-  io.retire.data := io.in.bits.wbData
 }
