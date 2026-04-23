@@ -45,38 +45,56 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   simEbreak.io.valid := data.sys.isEbreak && io.in.valid
   simEbreak.io.is_ebreak := 0.U
 
-  val isEq = data.data.rs1 === data.data.rs2
-  val isLt = data.data.rs1.asSInt < data.data.rs2.asSInt
-  val isLtu = data.data.rs1 < data.data.rs2
-  val takeBranch = MuxLookup(data.exec.branchType, false.B)(Seq(
-    BranchType.Eq  -> isEq,
-    BranchType.Ne  -> !isEq,
-    BranchType.Lt  -> isLt,
-    BranchType.Ge  -> !isLt,
-    BranchType.Ltu -> isLtu,
-    BranchType.Geu -> !isLtu
+  val rs1 = data.data.rs1
+  val rs2 = data.data.rs2
+  val isEq = rs1 === rs2
+  val isLtu = rs1 < rs2
+  val rs1Sign = rs1(XLEN - 1)
+  val rs2Sign = rs2(XLEN - 1)
+  val signedSignsDiffer = rs1Sign =/= rs2Sign
+  val isLt = Mux(signedSignsDiffer, rs1Sign && !rs2Sign, isLtu)
+  private def branchTaken(branchType: UInt): Bool = Mux1H(Seq(
+    (branchType === BranchType.Eq)  -> isEq,
+    (branchType === BranchType.Ne)  -> !isEq,
+    (branchType === BranchType.Lt)  -> isLt,
+    (branchType === BranchType.Ge)  -> !isLt,
+    (branchType === BranchType.Ltu) -> isLtu,
+    (branchType === BranchType.Geu) -> !isLtu,
   ))
+  val takeBranchForRedirect = branchTaken(data.exec.branchType)
+  val takeBranchForUpdate = branchTaken(data.exec.branchType)
 
-  val directTarget = data.data.pc + data.data.imm
+  val branchDirectTarget = data.data.pc + data.data.imm
+  val jumpDirectTarget = data.data.pc + data.data.imm
   val indirectTarget = (data.data.rs1 + data.data.imm) & ~1.U(XLEN.W)
   val isBranch = data.exec.branchType =/= BranchType.None
-  val branchActualTaken = isBranch && takeBranch
+  val branchActualTakenForRedirect = isBranch && takeBranchForRedirect
+  val branchActualTakenForUpdate = isBranch && takeBranchForUpdate
   val branchPredictedTaken = data.pred.predictedTaken
-  val branchMispredict = isBranch && (branchActualTaken =/= branchPredictedTaken)
-  val branchRecoveryTarget = Mux(branchActualTaken, directTarget, pcPlus4)
+  val branchMispredictForRedirect = isBranch && (branchActualTakenForRedirect =/= branchPredictedTaken)
+  // On a branch mispredict, the recovery target is fully determined by the original prediction:
+  // predicted taken  -> recover to fallthrough
+  // predicted not-taken -> recover to branch target
+  val branchRecoveryTarget = Mux(branchPredictedTaken, pcPlus4, branchDirectTarget)
+  val jumpRedirectTarget = Mux(data.exec.isJalr, indirectTarget, jumpDirectTarget)
+  val sysRedirectTarget = Mux(data.sys.isMret, csr.io.epc, csr.io.evec)
+  val hasSysRedirect = data.sys.isEcall || data.sys.isMret
+  val hasJumpRedirect = data.exec.isJump
+  val hasBranchRecovery = isBranch
 
-  val redirectTarget = MuxCase(0.U(XLEN.W), Seq(
-    branchMispredict -> branchRecoveryTarget,
-    data.sys.isMret -> csr.io.epc,
-    data.sys.isEcall -> csr.io.evec,
-    (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
-    data.exec.isJump -> directTarget,
-  ))
+  val redirectTarget = Mux(
+    hasBranchRecovery,
+    branchRecoveryTarget,
+    Mux(
+      hasSysRedirect,
+      sysRedirectTarget,
+      Mux(hasJumpRedirect, jumpRedirectTarget, 0.U(XLEN.W))
+    )
+  )
   val redirectValid =
-    branchMispredict ||
-      data.exec.isJump ||
-      data.sys.isEcall ||
-      data.sys.isMret
+    branchMispredictForRedirect ||
+      hasJumpRedirect ||
+      hasSysRedirect
 
   val result = MuxLookup(data.exec.wbSel, alu.io.out)(Seq(
     WBSel.Alu -> alu.io.out,
@@ -84,23 +102,26 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     WBSel.PcPlus4 -> pcPlus4,
   ))
   val architecturalNextPc = MuxCase(data.data.pc + 4.U, Seq(
-    (isBranch && branchActualTaken) -> directTarget,
+    (isBranch && branchActualTakenForRedirect) -> branchDirectTarget,
     (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
-    data.exec.isJump -> directTarget,
+    data.exec.isJump -> jumpDirectTarget,
     data.sys.isEcall -> csr.io.evec,
     data.sys.isMret -> csr.io.epc,
   ))
 
   io.out.bits.result := result
-  io.out.bits.rhs := data.data.rs2
+  io.out.bits.rhs := Mux(data.mem.write, data.data.rs2, redirectTarget)
   io.out.bits.wb.regWen := data.wb.regWen
   io.out.bits.wb.rd := data.wb.rd
   io.out.bits.mem.valid := data.mem.valid
   io.out.bits.mem.write := data.mem.write
   io.out.bits.mem.unsigned := data.mem.unsigned
   io.out.bits.mem.subop := data.mem.subop
-  io.out.bits.redirect.valid := redirectValid
-  io.out.bits.redirect.bits := redirectTarget
+  io.out.bits.redirect := redirectValid
+  io.out.bits.bpUpdate.valid := io.in.valid && isBranch
+  io.out.bits.bpUpdate.index := data.pred.index
+  io.out.bits.bpUpdate.actualTaken := branchActualTakenForUpdate
+  io.out.bits.bpUpdate.predictedTaken := branchPredictedTaken
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.trace.get.pc
     io.out.bits.trace.get.inst := io.in.bits.trace.get.inst
@@ -113,16 +134,16 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     io.out.bits.trace.get.exValid := io.in.valid
     io.out.bits.trace.get.memValid := false.B
     io.out.bits.trace.get.branchResolved := io.in.fire && isBranch
-    io.out.bits.trace.get.branchCorrect := isBranch && (branchActualTaken === branchPredictedTaken)
+    io.out.bits.trace.get.branchCorrect := isBranch && (branchActualTakenForRedirect === branchPredictedTaken)
     io.out.bits.trace.get.redirectValid := redirectValid
     io.out.bits.trace.get.redirectTarget := redirectTarget
-    io.out.bits.trace.get.actualTaken := branchActualTaken
+    io.out.bits.trace.get.actualTaken := branchActualTakenForRedirect
     io.out.bits.trace.get.predictedTaken := branchPredictedTaken
   }
 
   io.bpUpdate.valid := io.in.fire && isBranch
-  io.bpUpdate.pc := data.data.pc
-  io.bpUpdate.actualTaken := branchActualTaken
+  io.bpUpdate.index := data.pred.index
+  io.bpUpdate.actualTaken := branchActualTakenForUpdate
   io.bpUpdate.predictedTaken := branchPredictedTaken
 
   io.out.valid := io.in.valid

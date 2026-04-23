@@ -49,7 +49,10 @@ class CourseCore(
 
   decode.io.regWrite := writeBack.io.regWrite
 
-  decode.io.bpUpdate := execute.io.bpUpdate
+  val bpUpdate = Wire(new BranchPredictUpdateBundle)
+  bpUpdate := exWb.io.deq.bits.bpUpdate
+  bpUpdate.valid := exWb.io.deq.fire && exWb.io.deq.bits.bpUpdate.valid
+  decode.io.bpUpdate := bpUpdate
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
@@ -82,9 +85,9 @@ class CourseCore(
     decode.io.out.bits.exec.branchType =/= BranchType.None &&
     decode.io.out.bits.pred.predictedTaken
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
-  val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect.valid
+  val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect
   val fetchRedirectValid = hazard.io.redirectFlush || decodePredictedRedirect
-  val fetchRedirectTarget = Mux(hazard.io.redirectFlush, exWb.io.deq.bits.redirect.bits, decodePredictedTarget)
+  val fetchRedirectTarget = Mux(hazard.io.redirectFlush, exWb.io.deq.bits.rhs, decodePredictedTarget)
 
   execute.io.out.ready := exWb.io.enq.ready && !exRedirectValid
   exWb.io.enq.valid := execute.io.out.valid && !exRedirectValid
@@ -102,7 +105,7 @@ class CourseCore(
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
   hazard.io.exFire := exWb.io.deq.valid
-  hazard.io.exRedirectValid := exWb.io.deq.bits.redirect.valid
+  hazard.io.exRedirectValid := exWb.io.deq.bits.redirect
 
   fetch.io.stall := !ifId.io.enq.ready || hazard.io.loadUseStall
   fetch.io.redirect.valid := fetchRedirectValid

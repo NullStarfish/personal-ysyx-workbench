@@ -49,7 +49,7 @@ class ExecuteSpec extends AnyFlatSpec {
       c.io.out.valid.expect(true.B)
       c.io.out.bits.result.expect(5.U)
       c.io.out.bits.wb.rd.expect(1.U)
-      c.io.out.bits.redirect.valid.expect(false.B)
+      c.io.out.bits.redirect.expect(false.B)
     }
   }
 
@@ -69,8 +69,8 @@ class ExecuteSpec extends AnyFlatSpec {
 
       c.io.out.valid.expect(true.B)
       c.io.out.bits.result.expect((START_ADDR + 4).U)
-      c.io.out.bits.redirect.valid.expect(true.B)
-      c.io.out.bits.redirect.bits.expect((START_ADDR + 8).U)
+      c.io.out.bits.redirect.expect(true.B)
+      c.io.out.bits.rhs.expect((START_ADDR + 8).U)
     }
   }
 
@@ -85,8 +85,8 @@ class ExecuteSpec extends AnyFlatSpec {
       c.clock.step()
 
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.redirect.valid.expect(true.B)
-      c.io.out.bits.redirect.bits.expect((START_ADDR + 8).U)
+      c.io.out.bits.redirect.expect(true.B)
+      c.io.out.bits.rhs.expect((START_ADDR + 8).U)
       c.io.out.bits.wb.regWen.expect(false.B)
     }
   }

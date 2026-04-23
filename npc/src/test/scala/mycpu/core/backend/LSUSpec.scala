@@ -31,8 +31,7 @@ class LSUSpec extends AnyFlatSpec {
     c.io.in.bits.mem.write.poke(false.B)
     c.io.in.bits.mem.unsigned.poke(false.B)
     c.io.in.bits.mem.subop.poke(ExecSubop.None)
-    c.io.in.bits.redirect.valid.poke(false.B)
-    c.io.in.bits.redirect.bits.poke(0.U)
+    c.io.in.bits.redirect.poke(false.B)
     c.io.out.ready.poke(true.B)
     initAxi(c)
   }

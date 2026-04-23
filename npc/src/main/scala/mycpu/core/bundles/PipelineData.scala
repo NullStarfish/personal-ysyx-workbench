@@ -112,6 +112,7 @@ class CsrDebugBundle extends Bundle {
 
 class BranchPredictionBundle extends Bundle {
   val predictedTaken = Bool()
+  val index = UInt(5.W)
 }
 
 class TraceCarryBundle extends Bundle {
@@ -155,7 +156,8 @@ class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bu
   val rhs = XLenU
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
-  val redirect = Valid(UInt(XLEN.W))
+  val redirect = Bool()
+  val bpUpdate = new BranchPredictUpdateBundle
   val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 
   // EX forwarding only exposes pure execute results. Memory reads must wait for WB data.
@@ -198,7 +200,7 @@ class WriteBackIO extends Bundle {
 
 class BranchPredictUpdateBundle extends Bundle {
   val valid = Bool()
-  val pc = XLenU
+  val index = UInt(5.W)
   val actualTaken = Bool()
   val predictedTaken = Bool()
 }

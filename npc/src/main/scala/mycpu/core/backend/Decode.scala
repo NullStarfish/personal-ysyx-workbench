@@ -5,7 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.common.Instructions._
 import mycpu.core.bundles._
-import mycpu.core.components.{ImmGen, PerceptronBranchPredictor, RegFile}
+import mycpu.core.components.{GShareBranchPredictor, ImmGen, RegFile}
 
 class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
@@ -47,14 +47,14 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val rs2Raw = regFile.io.rdata2
 
   val predictor = if (ENABLE_BRANCH_PREDICTOR) {
-    Some(Module(new PerceptronBranchPredictor(entries = 32, historyLength = 8)))
+    Some(Module(new GShareBranchPredictor(entries = 32, historyLength = 5)))
   } else {
     None
   }
   predictor.foreach { p =>
     p.io.pc := io.in.bits.pc
     p.io.update := io.bpUpdate.valid
-    p.io.updatePc := io.bpUpdate.pc
+    p.io.updateIndex := io.bpUpdate.index
     p.io.actualTaken := io.bpUpdate.actualTaken
     p.io.predictedTaken := io.bpUpdate.predictedTaken
   }
@@ -269,6 +269,7 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
   io.out.bits.pred.predictedTaken := (branchType =/= BranchType.None) && predictor.map(_.io.predictTaken).getOrElse(false.B)
+  io.out.bits.pred.index := predictor.map(_.io.predictIndex).getOrElse(0.U)
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.pc
     io.out.bits.trace.get.inst := io.in.bits.inst

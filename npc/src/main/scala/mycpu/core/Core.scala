@@ -56,7 +56,10 @@ class Core(
   io.debug_csrs.mcause := execute.io.debug_csrs.mcause
   val regsFlat = Cat(io.debug_regs.reverse)
 
-  decode.io.bpUpdate := execute.io.bpUpdate
+  val bpUpdate = Wire(new BranchPredictUpdateBundle)
+  bpUpdate := exMem.io.deq.bits.bpUpdate
+  bpUpdate.valid := exMem.io.deq.fire && exMem.io.deq.bits.bpUpdate.valid
+  decode.io.bpUpdate := bpUpdate
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
@@ -95,7 +98,7 @@ class Core(
   hazard.io.memPendingLoad := lsu.io.status.pendingLoad
   hazard.io.memPendingRd := lsu.io.status.pendingRd
   hazard.io.exFire := exFire
-  hazard.io.exRedirectValid := execute.io.out.bits.redirect.valid
+  hazard.io.exRedirectValid := execute.io.out.bits.redirect
 
   val loadUseStall = hazard.io.loadUseStall
   val redirectFlush = hazard.io.redirectFlush
@@ -109,7 +112,7 @@ class Core(
     decode.io.out.bits.pred.predictedTaken
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
   val fetchRedirectValid = redirectFlush || decodePredictedRedirect
-  val fetchRedirectTarget = Mux(redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
+  val fetchRedirectTarget = Mux(redirectFlush, execute.io.out.bits.rhs, decodePredictedTarget)
   idEx.io.deq.ready := operandSelect.io.in.ready
 
   fetch.io.out.ready := ifId.io.enq.ready && !redirectFlush
