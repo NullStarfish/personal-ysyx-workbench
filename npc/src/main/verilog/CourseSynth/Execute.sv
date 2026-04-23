@@ -2,7 +2,8 @@
 module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   input         clock,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
                 reset,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
-                io_in_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
+  output        io_in_ready,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
+  input         io_in_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
   input  [31:0] io_in_bits_data_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_data_rs1,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_data_rs2,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
@@ -25,7 +26,7 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/
   input         io_in_bits_sys_isEcall,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_sys_isMret,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_in_bits_sys_isEbreak,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
-                io_in_bits_pred_predictedTaken,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
+                io_out_ready,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output        io_out_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
   output [31:0] io_out_bits_result,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
                 io_out_bits_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:10:14
@@ -43,7 +44,6 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/
   wire [31:0] _csr_io_evec;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:32:19
   wire [31:0] _csr_io_epc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:32:19
   wire [31:0] _alu_io_out;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:27:19
-  wire [31:0] _architecturalNextPc_T = io_in_bits_data_pc + 32'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:25:30
   wire        _takeBranch_T_4 =
     io_in_bits_exec_branchType == 3'h1 & io_in_bits_data_rs1 == io_in_bits_data_rs2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:48:28, :51:60
   wire [7:0]  _GEN =
@@ -58,8 +58,6 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/
   wire [31:0] _directTarget_T = io_in_bits_data_pc + io_in_bits_data_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:60:35
   wire        branchActualTaken =
     (|io_in_bits_exec_branchType) & _GEN[io_in_bits_exec_branchType];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:51:60, :62:39, :63:36
-  wire        branchMispredict =
-    (|io_in_bits_exec_branchType) & branchActualTaken != io_in_bits_pred_predictedTaken;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:62:39, :63:36, :65:{35,57}
   ALU alu (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:27:19
     .io_a   (io_in_bits_exec_aluSrcA ? io_in_bits_data_pc : io_in_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:23:19
     .io_b   (io_in_bits_exec_aluSrcB ? io_in_bits_data_imm : io_in_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:24:19
@@ -83,10 +81,11 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/
     .io_valid     (io_in_bits_sys_isEbreak & io_in_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:45:43
     .io_is_ebreak (32'h0)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:44:25
+  assign io_in_ready = io_out_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_valid = io_in_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_result =
     io_in_bits_exec_wbSel == 2'h2
-      ? _architecturalNextPc_T
+      ? io_in_bits_data_pc + 32'h4
       : io_in_bits_exec_wbSel == 2'h1 ? _csr_io_rdata : _alu_io_out;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7, :25:30, :27:19, :32:19, :81:54
   assign io_out_bits_rhs = io_in_bits_data_rs2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_wb_regWen = io_in_bits_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
@@ -96,17 +95,17 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/
   assign io_out_bits_mem_unsigned = io_in_bits_mem_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_mem_subop = io_in_bits_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7
   assign io_out_bits_redirect_valid =
-    branchMispredict | io_in_bits_exec_isJump | io_in_bits_sys_isEcall
-    | io_in_bits_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7, :65:35, :76:22, :77:24, :78:24
+    branchActualTaken | io_in_bits_exec_isJump | io_in_bits_sys_isEcall
+    | io_in_bits_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7, :63:36, :76:22, :77:24, :78:24
   assign io_out_bits_redirect_bits =
-    branchMispredict
-      ? (branchActualTaken ? _directTarget_T : _architecturalNextPc_T)
+    branchActualTaken
+      ? _directTarget_T
       : io_in_bits_sys_isMret
           ? _csr_io_epc
           : io_in_bits_sys_isEcall
               ? _csr_io_evec
               : io_in_bits_exec_isJump & io_in_bits_exec_isJalr
                   ? io_in_bits_data_rs1 + io_in_bits_data_imm & 32'hFFFFFFFE
-                  : io_in_bits_exec_isJump ? _directTarget_T : 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7, :25:30, :32:19, :60:35, :61:{39,56}, :63:36, :65:35, :66:33, :72:23, src/main/scala/chisel3/util/Mux.scala:130:16
+                  : io_in_bits_exec_isJump ? _directTarget_T : 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/backend/Execute.scala:9:7, :32:19, :60:35, :61:{39,56}, :63:36, :72:23, src/main/scala/chisel3/util/Mux.scala:130:16
 endmodule
 

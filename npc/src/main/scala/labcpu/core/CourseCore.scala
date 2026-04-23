@@ -82,8 +82,12 @@ class CourseCore(
     decode.io.out.bits.exec.branchType =/= BranchType.None &&
     decode.io.out.bits.pred.predictedTaken
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
+  val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect.valid
   val fetchRedirectValid = hazard.io.redirectFlush || decodePredictedRedirect
-  val fetchRedirectTarget = Mux(hazard.io.redirectFlush, execute.io.out.bits.redirect.bits, decodePredictedTarget)
+  val fetchRedirectTarget = Mux(hazard.io.redirectFlush, exWb.io.deq.bits.redirect.bits, decodePredictedTarget)
+
+  execute.io.out.ready := exWb.io.enq.ready && !exRedirectValid
+  exWb.io.enq.valid := execute.io.out.valid && !exRedirectValid
 
   ifId.io.enq.valid := fetch.io.out.valid && !hazard.io.redirectFlush && !decodePredictedRedirect
   ifId.io.enq.bits := fetch.io.out.bits
@@ -97,8 +101,8 @@ class CourseCore(
   hazard.io.decodeRs2Addr := decode.io.hazard.rs2Addr
   hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
-  hazard.io.exFire := exWb.io.enq.fire
-  hazard.io.exRedirectValid := execute.io.out.bits.redirect.valid
+  hazard.io.exFire := exWb.io.deq.valid
+  hazard.io.exRedirectValid := exWb.io.deq.bits.redirect.valid
 
   fetch.io.stall := !ifId.io.enq.ready || hazard.io.loadUseStall
   fetch.io.redirect.valid := fetchRedirectValid

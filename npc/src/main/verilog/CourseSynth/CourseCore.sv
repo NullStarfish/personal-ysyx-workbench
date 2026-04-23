@@ -13,12 +13,16 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   input  [31:0] io_dmem_rdata	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:20:14
 );
 
+  wire        exRedirectValid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:85:43
   wire        _exWb_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire [31:0] _exWb_io_deq_bits_result;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire        _exWb_io_deq_bits_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire [4:0]  _exWb_io_deq_bits_wb_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire        _exWb_io_deq_bits_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire        _exWb_io_deq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire        _exWb_io_deq_bits_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire [31:0] _exWb_io_deq_bits_redirect_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire        _idEx_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire        _idEx_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire [31:0] _idEx_io_deq_bits_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire [31:0] _idEx_io_deq_bits_data_rs1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
@@ -44,7 +48,6 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   wire        _idEx_io_deq_bits_sys_isEcall;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire        _idEx_io_deq_bits_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire        _idEx_io_deq_bits_sys_isEbreak;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_pred_predictedTaken;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   wire        _ifId_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
   wire        _ifId_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
   wire [31:0] _ifId_io_deq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
@@ -54,6 +57,7 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   wire        _writeBack_io_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:35:25
   wire [4:0]  _writeBack_io_regWrite_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:35:25
   wire [31:0] _writeBack_io_regWrite_data;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:35:25
+  wire        _execute_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   wire        _execute_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   wire [31:0] _execute_io_out_bits_result;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   wire [31:0] _execute_io_out_bits_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
@@ -65,6 +69,7 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   wire [2:0]  _execute_io_out_bits_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   wire        _execute_io_out_bits_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   wire [31:0] _execute_io_out_bits_redirect_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+  wire        _operandSelect_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire        _operandSelect_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire [31:0] _operandSelect_io_out_bits_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire [31:0] _operandSelect_io_out_bits_data_rs1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
@@ -88,7 +93,6 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   wire        _operandSelect_io_out_bits_sys_isEcall;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire        _operandSelect_io_out_bits_sys_isMret;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire        _operandSelect_io_out_bits_sys_isEbreak;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-  wire        _operandSelect_io_out_bits_pred_predictedTaken;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   wire        _decode_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire        _decode_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [31:0] _decode_io_out_bits_data_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
@@ -121,7 +125,8 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
   wire [4:0]  _decode_io_hazard_rs2Addr;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [31:0] _fetch_io_out_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:31:21
   wire [31:0] _fetch_io_out_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:31:21
-  wire        _io_dmem_wen_T = _exWb_io_deq_valid & _exWb_io_deq_bits_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20, :108:36
+  assign exRedirectValid = _exWb_io_deq_valid & _exWb_io_deq_bits_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20, :85:43
+  wire        _io_dmem_wen_T = _exWb_io_deq_valid & _exWb_io_deq_bits_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20, :112:36
   Fetch fetch (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:31:21
     .clock             (clock),
     .reset             (reset),
@@ -129,12 +134,12 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
     .io_imem_rdata     (io_imem_rdata),
     .io_out_bits_pc    (_fetch_io_out_bits_pc),
     .io_out_bits_inst  (_fetch_io_out_bits_inst),
-    .io_stall          (~_ifId_io_enq_ready | _hazard_io_loadUseStall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22, :39:20, :103:{21,40}
+    .io_stall          (~_ifId_io_enq_ready | _hazard_io_loadUseStall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22, :39:20, :107:{21,40}
     .io_redirect_valid (_hazard_io_redirectFlush),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
     .io_redirect_bits
       (_hazard_io_redirectFlush
-         ? _execute_io_out_bits_redirect_bits
-         : _decode_io_out_bits_data_pc + _decode_io_out_bits_data_imm)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :34:23, :36:22, :84:58, :86:32
+         ? _exWb_io_deq_bits_redirect_bits
+         : _decode_io_out_bits_data_pc + _decode_io_out_bits_data_imm)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :41:20, :84:58, :87:32
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:31:21
   Decode decode (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
     .clock                       (clock),
@@ -143,7 +148,8 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
     .io_in_valid                 (_ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
     .io_in_bits_pc               (_ifId_io_deq_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
     .io_in_bits_inst             (_ifId_io_deq_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
-    .io_out_ready                (~_hazard_io_loadUseStall & ~_hazard_io_redirectFlush),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22, :56:{47,71,74}
+    .io_out_ready
+      (_idEx_io_enq_ready & ~_hazard_io_loadUseStall & ~_hazard_io_redirectFlush),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22, :40:20, :56:{44,47,71,74}
     .io_out_valid                (_decode_io_out_valid),
     .io_out_bits_data_pc         (_decode_io_out_bits_data_pc),
     .io_out_bits_data_rs1        (_decode_io_out_bits_data_rs1),
@@ -178,100 +184,101 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
     .io_hazard_rs2Addr           (_decode_io_hazard_rs2Addr)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
   ExecuteOperandSelect operandSelect (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_valid                     (_idEx_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_pc              (_idEx_io_deq_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_rs1             (_idEx_io_deq_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_rs2             (_idEx_io_deq_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_imm             (_idEx_io_deq_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_bypass_rs1Addr       (_idEx_io_deq_bits_bypass_rs1Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_bypass_rs2Addr       (_idEx_io_deq_bits_bypass_rs2Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluOp           (_idEx_io_deq_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluSrcA         (_idEx_io_deq_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluSrcB         (_idEx_io_deq_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_wbSel           (_idEx_io_deq_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_branchType      (_idEx_io_deq_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_isJump          (_idEx_io_deq_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_isJalr          (_idEx_io_deq_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_wb_regWen            (_idEx_io_deq_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_wb_rd                (_idEx_io_deq_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_valid            (_idEx_io_deq_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_write            (_idEx_io_deq_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_unsigned         (_idEx_io_deq_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_subop            (_idEx_io_deq_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_csrOp            (_idEx_io_deq_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_csrAddr          (_idEx_io_deq_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_isEcall          (_idEx_io_deq_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_isMret           (_idEx_io_deq_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_isEbreak         (_idEx_io_deq_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_pred_predictedTaken  (_idEx_io_deq_bits_pred_predictedTaken),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_out_valid                    (_operandSelect_io_out_valid),
-    .io_out_bits_data_pc             (_operandSelect_io_out_bits_data_pc),
-    .io_out_bits_data_rs1            (_operandSelect_io_out_bits_data_rs1),
-    .io_out_bits_data_rs2            (_operandSelect_io_out_bits_data_rs2),
-    .io_out_bits_data_imm            (_operandSelect_io_out_bits_data_imm),
-    .io_out_bits_exec_aluOp          (_operandSelect_io_out_bits_exec_aluOp),
-    .io_out_bits_exec_aluSrcA        (_operandSelect_io_out_bits_exec_aluSrcA),
-    .io_out_bits_exec_aluSrcB        (_operandSelect_io_out_bits_exec_aluSrcB),
-    .io_out_bits_exec_wbSel          (_operandSelect_io_out_bits_exec_wbSel),
-    .io_out_bits_exec_branchType     (_operandSelect_io_out_bits_exec_branchType),
-    .io_out_bits_exec_isJump         (_operandSelect_io_out_bits_exec_isJump),
-    .io_out_bits_exec_isJalr         (_operandSelect_io_out_bits_exec_isJalr),
-    .io_out_bits_wb_regWen           (_operandSelect_io_out_bits_wb_regWen),
-    .io_out_bits_wb_rd               (_operandSelect_io_out_bits_wb_rd),
-    .io_out_bits_mem_valid           (_operandSelect_io_out_bits_mem_valid),
-    .io_out_bits_mem_write           (_operandSelect_io_out_bits_mem_write),
-    .io_out_bits_mem_unsigned        (_operandSelect_io_out_bits_mem_unsigned),
-    .io_out_bits_mem_subop           (_operandSelect_io_out_bits_mem_subop),
-    .io_out_bits_sys_csrOp           (_operandSelect_io_out_bits_sys_csrOp),
-    .io_out_bits_sys_csrAddr         (_operandSelect_io_out_bits_sys_csrAddr),
-    .io_out_bits_sys_isEcall         (_operandSelect_io_out_bits_sys_isEcall),
-    .io_out_bits_sys_isMret          (_operandSelect_io_out_bits_sys_isMret),
-    .io_out_bits_sys_isEbreak        (_operandSelect_io_out_bits_sys_isEbreak),
-    .io_out_bits_pred_predictedTaken (_operandSelect_io_out_bits_pred_predictedTaken),
-    .io_exForward_valid              (_exWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_exForward_bits_result        (_exWb_io_deq_bits_result),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_exForward_bits_wb_regWen     (_exWb_io_deq_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_exForward_bits_wb_rd         (_exWb_io_deq_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_exForward_bits_mem_valid     (_exWb_io_deq_bits_mem_valid)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_ready                 (_operandSelect_io_in_ready),
+    .io_in_valid                 (_idEx_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_data_pc          (_idEx_io_deq_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_data_rs1         (_idEx_io_deq_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_data_rs2         (_idEx_io_deq_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_data_imm         (_idEx_io_deq_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_bypass_rs1Addr   (_idEx_io_deq_bits_bypass_rs1Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_bypass_rs2Addr   (_idEx_io_deq_bits_bypass_rs2Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_aluOp       (_idEx_io_deq_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_aluSrcA     (_idEx_io_deq_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_aluSrcB     (_idEx_io_deq_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_wbSel       (_idEx_io_deq_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_branchType  (_idEx_io_deq_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_isJump      (_idEx_io_deq_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_exec_isJalr      (_idEx_io_deq_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_wb_regWen        (_idEx_io_deq_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_wb_rd            (_idEx_io_deq_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_mem_valid        (_idEx_io_deq_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_mem_write        (_idEx_io_deq_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_mem_unsigned     (_idEx_io_deq_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_mem_subop        (_idEx_io_deq_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_sys_csrOp        (_idEx_io_deq_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_sys_csrAddr      (_idEx_io_deq_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_sys_isEcall      (_idEx_io_deq_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_sys_isMret       (_idEx_io_deq_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_bits_sys_isEbreak     (_idEx_io_deq_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_out_ready                (_execute_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_out_valid                (_operandSelect_io_out_valid),
+    .io_out_bits_data_pc         (_operandSelect_io_out_bits_data_pc),
+    .io_out_bits_data_rs1        (_operandSelect_io_out_bits_data_rs1),
+    .io_out_bits_data_rs2        (_operandSelect_io_out_bits_data_rs2),
+    .io_out_bits_data_imm        (_operandSelect_io_out_bits_data_imm),
+    .io_out_bits_exec_aluOp      (_operandSelect_io_out_bits_exec_aluOp),
+    .io_out_bits_exec_aluSrcA    (_operandSelect_io_out_bits_exec_aluSrcA),
+    .io_out_bits_exec_aluSrcB    (_operandSelect_io_out_bits_exec_aluSrcB),
+    .io_out_bits_exec_wbSel      (_operandSelect_io_out_bits_exec_wbSel),
+    .io_out_bits_exec_branchType (_operandSelect_io_out_bits_exec_branchType),
+    .io_out_bits_exec_isJump     (_operandSelect_io_out_bits_exec_isJump),
+    .io_out_bits_exec_isJalr     (_operandSelect_io_out_bits_exec_isJalr),
+    .io_out_bits_wb_regWen       (_operandSelect_io_out_bits_wb_regWen),
+    .io_out_bits_wb_rd           (_operandSelect_io_out_bits_wb_rd),
+    .io_out_bits_mem_valid       (_operandSelect_io_out_bits_mem_valid),
+    .io_out_bits_mem_write       (_operandSelect_io_out_bits_mem_write),
+    .io_out_bits_mem_unsigned    (_operandSelect_io_out_bits_mem_unsigned),
+    .io_out_bits_mem_subop       (_operandSelect_io_out_bits_mem_subop),
+    .io_out_bits_sys_csrOp       (_operandSelect_io_out_bits_sys_csrOp),
+    .io_out_bits_sys_csrAddr     (_operandSelect_io_out_bits_sys_csrAddr),
+    .io_out_bits_sys_isEcall     (_operandSelect_io_out_bits_sys_isEcall),
+    .io_out_bits_sys_isMret      (_operandSelect_io_out_bits_sys_isMret),
+    .io_out_bits_sys_isEbreak    (_operandSelect_io_out_bits_sys_isEbreak),
+    .io_exForward_valid          (_exWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exForward_bits_result    (_exWb_io_deq_bits_result),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exForward_bits_wb_regWen (_exWb_io_deq_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exForward_bits_wb_rd     (_exWb_io_deq_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exForward_bits_mem_valid (_exWb_io_deq_bits_mem_valid)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
   Execute execute (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .clock                          (clock),
-    .reset                          (reset),
-    .io_in_valid                    (_operandSelect_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_data_pc             (_operandSelect_io_out_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_data_rs1            (_operandSelect_io_out_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_data_rs2            (_operandSelect_io_out_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_data_imm            (_operandSelect_io_out_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_aluOp          (_operandSelect_io_out_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_aluSrcA        (_operandSelect_io_out_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_aluSrcB        (_operandSelect_io_out_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_wbSel          (_operandSelect_io_out_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_branchType     (_operandSelect_io_out_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_isJump         (_operandSelect_io_out_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_exec_isJalr         (_operandSelect_io_out_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_wb_regWen           (_operandSelect_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_wb_rd               (_operandSelect_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_mem_valid           (_operandSelect_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_mem_write           (_operandSelect_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_mem_unsigned        (_operandSelect_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_mem_subop           (_operandSelect_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_sys_csrOp           (_operandSelect_io_out_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_sys_csrAddr         (_operandSelect_io_out_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_sys_isEcall         (_operandSelect_io_out_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_sys_isMret          (_operandSelect_io_out_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_sys_isEbreak        (_operandSelect_io_out_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_in_bits_pred_predictedTaken (_operandSelect_io_out_bits_pred_predictedTaken),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_out_valid                   (_execute_io_out_valid),
-    .io_out_bits_result             (_execute_io_out_bits_result),
-    .io_out_bits_rhs                (_execute_io_out_bits_rhs),
-    .io_out_bits_wb_regWen          (_execute_io_out_bits_wb_regWen),
-    .io_out_bits_wb_rd              (_execute_io_out_bits_wb_rd),
-    .io_out_bits_mem_valid          (_execute_io_out_bits_mem_valid),
-    .io_out_bits_mem_write          (_execute_io_out_bits_mem_write),
-    .io_out_bits_mem_unsigned       (_execute_io_out_bits_mem_unsigned),
-    .io_out_bits_mem_subop          (_execute_io_out_bits_mem_subop),
-    .io_out_bits_redirect_valid     (_execute_io_out_bits_redirect_valid),
-    .io_out_bits_redirect_bits      (_execute_io_out_bits_redirect_bits)
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_in_ready                (_execute_io_in_ready),
+    .io_in_valid                (_operandSelect_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_data_pc         (_operandSelect_io_out_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_data_rs1        (_operandSelect_io_out_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_data_rs2        (_operandSelect_io_out_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_data_imm        (_operandSelect_io_out_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_aluOp      (_operandSelect_io_out_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_aluSrcA    (_operandSelect_io_out_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_aluSrcB    (_operandSelect_io_out_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_wbSel      (_operandSelect_io_out_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_branchType (_operandSelect_io_out_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_isJump     (_operandSelect_io_out_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_exec_isJalr     (_operandSelect_io_out_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_wb_regWen       (_operandSelect_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_wb_rd           (_operandSelect_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_mem_valid       (_operandSelect_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_mem_write       (_operandSelect_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_mem_unsigned    (_operandSelect_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_mem_subop       (_operandSelect_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_sys_csrOp       (_operandSelect_io_out_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_sys_csrAddr     (_operandSelect_io_out_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_sys_isEcall     (_operandSelect_io_out_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_sys_isMret      (_operandSelect_io_out_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_in_bits_sys_isEbreak    (_operandSelect_io_out_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_out_ready               (~exRedirectValid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:85:43, :89:48
+    .io_out_valid               (_execute_io_out_valid),
+    .io_out_bits_result         (_execute_io_out_bits_result),
+    .io_out_bits_rhs            (_execute_io_out_bits_rhs),
+    .io_out_bits_wb_regWen      (_execute_io_out_bits_wb_regWen),
+    .io_out_bits_wb_rd          (_execute_io_out_bits_wb_rd),
+    .io_out_bits_mem_valid      (_execute_io_out_bits_mem_valid),
+    .io_out_bits_mem_write      (_execute_io_out_bits_mem_write),
+    .io_out_bits_mem_unsigned   (_execute_io_out_bits_mem_unsigned),
+    .io_out_bits_mem_subop      (_execute_io_out_bits_mem_subop),
+    .io_out_bits_redirect_valid (_execute_io_out_bits_redirect_valid),
+    .io_out_bits_redirect_bits  (_execute_io_out_bits_redirect_bits)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
   WriteBack writeBack (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:35:25
     .io_in_valid          (_exWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
@@ -286,15 +293,15 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
     .io_regWrite_data     (_writeBack_io_regWrite_data)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:35:25
   HazardUnit hazard (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
-    .io_decodeRs1Used   (_decode_io_hazard_rs1Used & _ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :39:20, :94:55
-    .io_decodeRs2Used   (_decode_io_hazard_rs2Used & _ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :39:20, :95:55
+    .io_decodeRs1Used   (_decode_io_hazard_rs1Used & _ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :39:20, :98:55
+    .io_decodeRs2Used   (_decode_io_hazard_rs2Used & _ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :39:20, :99:55
     .io_decodeRs1Addr   (_decode_io_hazard_rs1Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
     .io_decodeRs2Addr   (_decode_io_hazard_rs2Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
     .io_idLoadValid
-      (_idEx_io_deq_valid & _idEx_io_deq_bits_mem_valid & ~_idEx_io_deq_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20, :98:{46,76,79}
+      (_idEx_io_deq_valid & _idEx_io_deq_bits_mem_valid & ~_idEx_io_deq_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20, :102:{46,76,79}
     .io_idLoadRd        (_idEx_io_deq_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_exFire          (_execute_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_exRedirectValid (_execute_io_out_bits_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_exFire          (_exWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exRedirectValid (_exWb_io_deq_bits_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
     .io_loadUseStall    (_hazard_io_loadUseStall),
     .io_redirectFlush   (_hazard_io_redirectFlush)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
@@ -312,86 +319,91 @@ module CourseCore(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/sca
     .io_flush         (_hazard_io_redirectFlush)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:39:20
   FlushableStage_1 idEx (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .clock                           (clock),
-    .reset                           (reset),
+    .clock                       (clock),
+    .reset                       (reset),
+    .io_enq_ready                (_idEx_io_enq_ready),
     .io_enq_valid
       (_decode_io_out_valid & ~_hazard_io_loadUseStall & ~_hazard_io_redirectFlush),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :56:{47,74}, :58:{44,71}
-    .io_enq_bits_data_pc             (_decode_io_out_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_data_rs1            (_decode_io_out_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_data_rs2            (_decode_io_out_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_data_imm            (_decode_io_out_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_bypass_rs1Addr      (_decode_io_out_bits_bypass_rs1Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_bypass_rs2Addr      (_decode_io_out_bits_bypass_rs2Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_aluOp          (_decode_io_out_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_aluSrcA        (_decode_io_out_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_aluSrcB        (_decode_io_out_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_wbSel          (_decode_io_out_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_branchType     (_decode_io_out_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_isJump         (_decode_io_out_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_exec_isJalr         (_decode_io_out_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_wb_regWen           (_decode_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_wb_rd               (_decode_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_mem_valid           (_decode_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_mem_write           (_decode_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_mem_unsigned        (_decode_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_mem_subop           (_decode_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_sys_csrOp           (_decode_io_out_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_sys_csrAddr         (_decode_io_out_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_sys_isEcall         (_decode_io_out_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_sys_isMret          (_decode_io_out_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_sys_isEbreak        (_decode_io_out_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_deq_valid                    (_idEx_io_deq_valid),
-    .io_deq_bits_data_pc             (_idEx_io_deq_bits_data_pc),
-    .io_deq_bits_data_rs1            (_idEx_io_deq_bits_data_rs1),
-    .io_deq_bits_data_rs2            (_idEx_io_deq_bits_data_rs2),
-    .io_deq_bits_data_imm            (_idEx_io_deq_bits_data_imm),
-    .io_deq_bits_bypass_rs1Addr      (_idEx_io_deq_bits_bypass_rs1Addr),
-    .io_deq_bits_bypass_rs2Addr      (_idEx_io_deq_bits_bypass_rs2Addr),
-    .io_deq_bits_exec_aluOp          (_idEx_io_deq_bits_exec_aluOp),
-    .io_deq_bits_exec_aluSrcA        (_idEx_io_deq_bits_exec_aluSrcA),
-    .io_deq_bits_exec_aluSrcB        (_idEx_io_deq_bits_exec_aluSrcB),
-    .io_deq_bits_exec_wbSel          (_idEx_io_deq_bits_exec_wbSel),
-    .io_deq_bits_exec_branchType     (_idEx_io_deq_bits_exec_branchType),
-    .io_deq_bits_exec_isJump         (_idEx_io_deq_bits_exec_isJump),
-    .io_deq_bits_exec_isJalr         (_idEx_io_deq_bits_exec_isJalr),
-    .io_deq_bits_wb_regWen           (_idEx_io_deq_bits_wb_regWen),
-    .io_deq_bits_wb_rd               (_idEx_io_deq_bits_wb_rd),
-    .io_deq_bits_mem_valid           (_idEx_io_deq_bits_mem_valid),
-    .io_deq_bits_mem_write           (_idEx_io_deq_bits_mem_write),
-    .io_deq_bits_mem_unsigned        (_idEx_io_deq_bits_mem_unsigned),
-    .io_deq_bits_mem_subop           (_idEx_io_deq_bits_mem_subop),
-    .io_deq_bits_sys_csrOp           (_idEx_io_deq_bits_sys_csrOp),
-    .io_deq_bits_sys_csrAddr         (_idEx_io_deq_bits_sys_csrAddr),
-    .io_deq_bits_sys_isEcall         (_idEx_io_deq_bits_sys_isEcall),
-    .io_deq_bits_sys_isMret          (_idEx_io_deq_bits_sys_isMret),
-    .io_deq_bits_sys_isEbreak        (_idEx_io_deq_bits_sys_isEbreak),
-    .io_deq_bits_pred_predictedTaken (_idEx_io_deq_bits_pred_predictedTaken),
-    .io_flush                        (_hazard_io_redirectFlush)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
+    .io_enq_bits_data_pc         (_decode_io_out_bits_data_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_data_rs1        (_decode_io_out_bits_data_rs1),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_data_rs2        (_decode_io_out_bits_data_rs2),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_data_imm        (_decode_io_out_bits_data_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_bypass_rs1Addr  (_decode_io_out_bits_bypass_rs1Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_bypass_rs2Addr  (_decode_io_out_bits_bypass_rs2Addr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_aluOp      (_decode_io_out_bits_exec_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_aluSrcA    (_decode_io_out_bits_exec_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_aluSrcB    (_decode_io_out_bits_exec_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_wbSel      (_decode_io_out_bits_exec_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_branchType (_decode_io_out_bits_exec_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_isJump     (_decode_io_out_bits_exec_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_exec_isJalr     (_decode_io_out_bits_exec_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_wb_regWen       (_decode_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_wb_rd           (_decode_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_mem_valid       (_decode_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_mem_write       (_decode_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_mem_unsigned    (_decode_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_mem_subop       (_decode_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_sys_csrOp       (_decode_io_out_bits_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_sys_csrAddr     (_decode_io_out_bits_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_sys_isEcall     (_decode_io_out_bits_sys_isEcall),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_sys_isMret      (_decode_io_out_bits_sys_isMret),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_sys_isEbreak    (_decode_io_out_bits_sys_isEbreak),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_deq_ready                (_operandSelect_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:33:29
+    .io_deq_valid                (_idEx_io_deq_valid),
+    .io_deq_bits_data_pc         (_idEx_io_deq_bits_data_pc),
+    .io_deq_bits_data_rs1        (_idEx_io_deq_bits_data_rs1),
+    .io_deq_bits_data_rs2        (_idEx_io_deq_bits_data_rs2),
+    .io_deq_bits_data_imm        (_idEx_io_deq_bits_data_imm),
+    .io_deq_bits_bypass_rs1Addr  (_idEx_io_deq_bits_bypass_rs1Addr),
+    .io_deq_bits_bypass_rs2Addr  (_idEx_io_deq_bits_bypass_rs2Addr),
+    .io_deq_bits_exec_aluOp      (_idEx_io_deq_bits_exec_aluOp),
+    .io_deq_bits_exec_aluSrcA    (_idEx_io_deq_bits_exec_aluSrcA),
+    .io_deq_bits_exec_aluSrcB    (_idEx_io_deq_bits_exec_aluSrcB),
+    .io_deq_bits_exec_wbSel      (_idEx_io_deq_bits_exec_wbSel),
+    .io_deq_bits_exec_branchType (_idEx_io_deq_bits_exec_branchType),
+    .io_deq_bits_exec_isJump     (_idEx_io_deq_bits_exec_isJump),
+    .io_deq_bits_exec_isJalr     (_idEx_io_deq_bits_exec_isJalr),
+    .io_deq_bits_wb_regWen       (_idEx_io_deq_bits_wb_regWen),
+    .io_deq_bits_wb_rd           (_idEx_io_deq_bits_wb_rd),
+    .io_deq_bits_mem_valid       (_idEx_io_deq_bits_mem_valid),
+    .io_deq_bits_mem_write       (_idEx_io_deq_bits_mem_write),
+    .io_deq_bits_mem_unsigned    (_idEx_io_deq_bits_mem_unsigned),
+    .io_deq_bits_mem_subop       (_idEx_io_deq_bits_mem_subop),
+    .io_deq_bits_sys_csrOp       (_idEx_io_deq_bits_sys_csrOp),
+    .io_deq_bits_sys_csrAddr     (_idEx_io_deq_bits_sys_csrAddr),
+    .io_deq_bits_sys_isEcall     (_idEx_io_deq_bits_sys_isEcall),
+    .io_deq_bits_sys_isMret      (_idEx_io_deq_bits_sys_isMret),
+    .io_deq_bits_sys_isEbreak    (_idEx_io_deq_bits_sys_isEbreak),
+    .io_flush                    (_hazard_io_redirectFlush)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:36:22
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:40:20
   FlushableStage_2 exWb (	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .clock                    (clock),
-    .reset                    (reset),
-    .io_enq_valid             (_execute_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_result       (_execute_io_out_bits_result),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_rhs          (_execute_io_out_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_wb_regWen    (_execute_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_wb_rd        (_execute_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_mem_valid    (_execute_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_mem_write    (_execute_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_mem_unsigned (_execute_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_enq_bits_mem_subop    (_execute_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
-    .io_deq_valid             (_exWb_io_deq_valid),
-    .io_deq_bits_result       (_exWb_io_deq_bits_result),
-    .io_deq_bits_rhs          (io_dmem_wdata),
-    .io_deq_bits_wb_regWen    (_exWb_io_deq_bits_wb_regWen),
-    .io_deq_bits_wb_rd        (_exWb_io_deq_bits_wb_rd),
-    .io_deq_bits_mem_valid    (_exWb_io_deq_bits_mem_valid),
-    .io_deq_bits_mem_write    (_exWb_io_deq_bits_mem_write),
-    .io_deq_bits_mem_unsigned (io_dmem_unsigned),
-    .io_deq_bits_mem_subop    (io_dmem_subop)
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_enq_valid               (_execute_io_out_valid & ~exRedirectValid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23, :85:43, :89:48, :90:45
+    .io_enq_bits_result         (_execute_io_out_bits_result),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_rhs            (_execute_io_out_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_wb_regWen      (_execute_io_out_bits_wb_regWen),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_wb_rd          (_execute_io_out_bits_wb_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_mem_valid      (_execute_io_out_bits_mem_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_mem_write      (_execute_io_out_bits_mem_write),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_mem_unsigned   (_execute_io_out_bits_mem_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_mem_subop      (_execute_io_out_bits_mem_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_redirect_valid (_execute_io_out_bits_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_enq_bits_redirect_bits  (_execute_io_out_bits_redirect_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:34:23
+    .io_deq_valid               (_exWb_io_deq_valid),
+    .io_deq_bits_result         (_exWb_io_deq_bits_result),
+    .io_deq_bits_rhs            (io_dmem_wdata),
+    .io_deq_bits_wb_regWen      (_exWb_io_deq_bits_wb_regWen),
+    .io_deq_bits_wb_rd          (_exWb_io_deq_bits_wb_rd),
+    .io_deq_bits_mem_valid      (_exWb_io_deq_bits_mem_valid),
+    .io_deq_bits_mem_write      (_exWb_io_deq_bits_mem_write),
+    .io_deq_bits_mem_unsigned   (io_dmem_unsigned),
+    .io_deq_bits_mem_subop      (io_dmem_subop),
+    .io_deq_bits_redirect_valid (_exWb_io_deq_bits_redirect_valid),
+    .io_deq_bits_redirect_bits  (_exWb_io_deq_bits_redirect_bits)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:41:20
   assign io_dmem_addr = _exWb_io_deq_bits_result;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20
-  assign io_dmem_ren = _io_dmem_wen_T & ~_exWb_io_deq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :108:{36,66,69}
-  assign io_dmem_wen = _io_dmem_wen_T & _exWb_io_deq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :108:36, :109:66
+  assign io_dmem_ren = _io_dmem_wen_T & ~_exWb_io_deq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :112:{36,66,69}
+  assign io_dmem_wen = _io_dmem_wen_T & _exWb_io_deq_bits_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :112:36, :113:66
 endmodule
 
