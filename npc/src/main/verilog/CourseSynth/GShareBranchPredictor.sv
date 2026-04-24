@@ -4,72 +4,24 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
                 reset,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:7:7
   input  [31:0] io_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
   output        io_predictTaken,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-  output [4:0]  io_predictIndex,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
+  output [2:0]  io_predictIndex,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
   input         io_update,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-  input  [4:0]  io_updateIndex,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
+  input  [2:0]  io_updateIndex,	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
   input         io_actualTaken	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
 );
 
-  reg  [4:0]       historyReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27
-  reg  [1:0]       counters_0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_3;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_4;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_6;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_7;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_8;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_9;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_10;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_11;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_12;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_13;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_14;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_15;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_16;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_17;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_18;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_19;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_20;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_21;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_22;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_23;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_24;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_25;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_26;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_27;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_28;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_29;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_30;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  reg  [1:0]       counters_31;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-  wire [4:0]       readIndex = io_pc[6:2] ^ historyReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27, :30:43, :37:17
-  wire [31:0][1:0] _GEN =
-    {{counters_31},
-     {counters_30},
-     {counters_29},
-     {counters_28},
-     {counters_27},
-     {counters_26},
-     {counters_25},
-     {counters_24},
-     {counters_23},
-     {counters_22},
-     {counters_21},
-     {counters_20},
-     {counters_19},
-     {counters_18},
-     {counters_17},
-     {counters_16},
-     {counters_15},
-     {counters_14},
-     {counters_13},
-     {counters_12},
-     {counters_11},
-     {counters_10},
-     {counters_9},
-     {counters_8},
-     {counters_7},
+  reg  [2:0]      historyReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27
+  reg  [1:0]      counters_0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_2;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_3;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_4;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_6;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  reg  [1:0]      counters_7;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
+  wire [2:0]      readIndex = io_pc[4:2] ^ historyReg;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27, :30:43, :37:17
+  wire [7:0][1:0] _GEN =
+    {{counters_7},
      {counters_6},
      {counters_5},
      {counters_4},
@@ -79,7 +31,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
      {counters_0}};	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:7:7
     if (reset) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:7:7
-      historyReg <= 5'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27
+      historyReg <= 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27
       counters_0 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
       counters_1 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
       counters_2 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
@@ -88,30 +40,6 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
       counters_5 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
       counters_6 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
       counters_7 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_8 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_9 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_10 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_11 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_12 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_13 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_14 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_15 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_16 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_17 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_18 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_19 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_20 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_21 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_22 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_23 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_24 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_25 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_26 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_27 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_28 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_29 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_30 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
-      counters_31 <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25
     end
     else begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:7:7
       automatic logic [1:0] _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:54
@@ -121,8 +49,8 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
       _counters_T_4 = _GEN[io_updateIndex] == 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:{22,54}, :49:22
       _counters_T_5 = _GEN[io_updateIndex] - 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22, :49:54
       if (io_update)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-        historyReg <= {historyReg[3:0], io_actualTaken};	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27, :55:{24,35}
-      if (io_update & io_updateIndex == 5'h0) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+        historyReg <= {historyReg[1:0], io_actualTaken};	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:27:27, :55:{24,35}
+      if (io_update & io_updateIndex == 3'h0) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_0 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -134,7 +62,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_0 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h1) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h1) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30, :48:54
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_1 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -146,7 +74,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_1 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h2) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h2) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_2 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -158,7 +86,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_2 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h3) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h3) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_3 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -170,7 +98,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_3 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h4) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h4) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_4 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -182,7 +110,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_4 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h5) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h5) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_5 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -194,7 +122,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_5 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h6) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & io_updateIndex == 3'h6) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_6 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -206,7 +134,7 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_6 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
-      if (io_update & io_updateIndex == 5'h7) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
+      if (io_update & (&io_updateIndex)) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
         if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
           if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
             counters_7 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
@@ -217,294 +145,6 @@ module GShareBranchPredictor(	// home/nullstarfish/personal-ysyx-workbench/npc/s
           counters_7 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
         else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
           counters_7 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h8) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_8 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_8 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_8 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_8 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h9) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_9 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_9 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_9 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_9 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hA) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_10 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_10 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_10 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_10 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hB) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_11 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_11 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_11 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_11 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hC) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_12 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_12 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_12 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_12 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hD) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_13 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_13 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_13 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_13 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hE) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_14 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_14 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_14 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_14 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'hF) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_15 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_15 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_15 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_15 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h10) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_16 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_16 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_16 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_16 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h11) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_17 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_17 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_17 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_17 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h12) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_18 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_18 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_18 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_18 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h13) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_19 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_19 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_19 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_19 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h14) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_20 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_20 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_20 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_20 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h15) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_21 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_21 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_21 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_21 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h16) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_22 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_22 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_22 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_22 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h17) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_23 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_23 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_23 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_23 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h18) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_24 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_24 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_24 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_24 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h19) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_25 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_25 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_25 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_25 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h1A) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_26 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_26 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_26 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_26 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h1B) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_27 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_27 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_27 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_27 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h1C) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_28 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_28 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_28 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_28 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h1D) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_29 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_29 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_29 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_29 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & io_updateIndex == 5'h1E) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_30 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_30 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_30 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_30 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
-      end
-      if (io_update & (&io_updateIndex)) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :44:19, :46:30
-        if (io_actualTaken) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:16:14
-          if (&_GEN[io_updateIndex])	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:42:41, :48:22
-            counters_31 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:48:22
-            counters_31 <= _counters_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :48:54
-        end
-        else if (_counters_T_4)	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_31 <= _GEN[io_updateIndex];	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :42:41, :48:22
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:49:22
-          counters_31 <= _counters_T_5;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/GShareBranchPredictor.scala:28:25, :49:54
       end
     end
   end // always @(posedge)

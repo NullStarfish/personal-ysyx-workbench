@@ -50,6 +50,32 @@ final class SimEbreakDPI extends BlackBox with HasBlackBoxInline {
   )
 }
 
+final class FlushDPI extends BlackBox with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val reset = Input(Bool())
+    val valid = Input(Bool())
+  })
+
+  setInline(
+    "FlushDPI.sv",
+    """module FlushDPI(
+      |    input logic clock,
+      |    input logic reset,
+      |    input logic valid
+      |);
+      |    import "DPI-C" function void dpi_record_flush();
+      |
+      |    always_ff @(posedge clock) begin
+      |        if (!reset && valid) begin
+      |            dpi_record_flush();
+      |        end
+      |    end
+      |endmodule
+      |""".stripMargin,
+  )
+}
+
 final class SimStateDPI extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val clk = Input(Clock())

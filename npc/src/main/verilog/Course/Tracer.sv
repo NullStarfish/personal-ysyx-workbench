@@ -9,10 +9,11 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:10:7
   input          io_commitTrace_bits_regWen,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
   input [4:0]    io_commitTrace_bits_rd,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
   input [31:0]   io_commitTrace_bits_data,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
-  input [1023:0] io_regsFlat	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+  input [1023:0] io_regsFlat,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+  input          io_flush	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
 );
 
-  SimStateDPI core_sim_state (	// src/main/scala/mycpu/dpi/DpiApi.scala:19:19
+  SimStateDPI core_sim_state (	// src/main/scala/mycpu/dpi/DpiApi.scala:26:19
     .clk       (clock),
     .reset     (reset),
     .valid     (io_commitTrace_valid),
@@ -27,14 +28,19 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:10:7
     .mstatus   (32'h0),
     .mcause    (32'h0),
     .inst      (io_commitTrace_bits_inst)
-  );	// src/main/scala/mycpu/dpi/DpiApi.scala:19:19
+  );	// src/main/scala/mycpu/dpi/DpiApi.scala:26:19
   SimEbreakDPI core_sim_ebreak (	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
-    .valid     (io_commitTrace_valid & io_commitTrace_bits_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:55:{36,64}
+    .valid     (io_commitTrace_valid & io_commitTrace_bits_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:56:{36,64}
     .is_ebreak (32'h1)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
   DifftestSkipDPI core_difftest_skip (	// src/main/scala/mycpu/dpi/DpiApi.scala:7:19
     .clock (clock),
     .skip  (1'h0)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:7:19
+  FlushDPI core_flush (	// src/main/scala/mycpu/dpi/DpiApi.scala:19:19
+    .clock (clock),
+    .reset (reset),
+    .valid (io_flush)
+  );	// src/main/scala/mycpu/dpi/DpiApi.scala:19:19
 endmodule
 

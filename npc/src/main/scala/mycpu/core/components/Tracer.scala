@@ -7,7 +7,7 @@ import mycpu.core.bundles._
 import mycpu.dpi.{DpiApi, SimStateBundle}
 import mycpu.common.Instructions
 
-class Tracer(enableDpi: Boolean = false) extends Module {
+class Tracer(enableDpi: Boolean = false, enableFlushDpi: Boolean = false) extends Module {
   val io = IO(new Bundle {
     val commitTrace = Input(Valid(new TraceCarryBundle))
     val regsFlat = Input(UInt(1024.W))
@@ -15,6 +15,7 @@ class Tracer(enableDpi: Boolean = false) extends Module {
     val mepc = Input(UInt(XLEN.W))
     val mstatus = Input(UInt(XLEN.W))
     val mcause = Input(UInt(XLEN.W))
+    val flush = Input(Bool())
     val trace = Output(new CoreTraceBundle)
   })
 
@@ -57,6 +58,9 @@ class Tracer(enableDpi: Boolean = false) extends Module {
       localName = "core_sim_ebreak",
     )
     DpiApi.difftestSkip(clock, false.B, localName = "core_difftest_skip")
+    if (enableFlushDpi) {
+      DpiApi.recordFlush(clock, reset.asBool, io.flush, localName = "core_flush")
+    }
   }
 
   io.trace.ifValid := io.commitTrace.valid && io.commitTrace.bits.ifValid

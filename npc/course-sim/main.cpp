@@ -49,6 +49,7 @@ static uint32_t g_last_retire_inst = 0;
 static bool g_has_committed = false;
 static long long cycle_count = 0;
 static long long instr_count = 0;
+static long long flush_count = 0;
 
 extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal* gprs,
                                  int mtvec, int mepc, int mstatus, int mcause, int inst) {
@@ -78,6 +79,10 @@ extern "C" void difftest_skip_ref_cpp() {
 #ifdef CONFIG_DIFFTEST
   difftest_skip_ref();
 #endif
+}
+
+extern "C" void dpi_record_flush() {
+  flush_count++;
 }
 
 extern "C" void ebreak() {
@@ -159,8 +164,12 @@ static void print_stats() {
   std::printf("\nExecution Statistics:\n");
   std::printf("  Total Cycles:       %lld\n", cycle_count);
   std::printf("  Total Instructions: %lld\n", instr_count);
+  std::printf("  Total Flushes:      %lld\n", flush_count);
   if (cycle_count > 0) {
     std::printf("  Average IPC:        %f\n", static_cast<double>(instr_count) / cycle_count);
+  }
+  if (instr_count > 0) {
+    std::printf("  Flush Probability:  %f\n", static_cast<double>(flush_count) / instr_count);
   }
 }
 

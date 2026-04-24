@@ -62,6 +62,7 @@ class RetireWindowSmokeTop extends Module {
   tracer.io.mepc := mepcReg
   tracer.io.mstatus := mstatusReg
   tracer.io.mcause := mcauseReg
+  tracer.io.flush := false.B
 
   io.done := stateReg === finished
 }

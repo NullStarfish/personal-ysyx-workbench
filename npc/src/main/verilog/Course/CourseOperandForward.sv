@@ -58,19 +58,21 @@ module CourseOperandForward(	// src/main/scala/labcpu/core/backend/CourseOperand
   input  [4:0]  io_forward_bits_wb_rd	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:9:14
 );
 
+  wire forwardValid =
+    io_forward_valid & io_forward_bits_wb_regWen & (|io_forward_bits_wb_rd);	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:16:39, src/main/scala/mycpu/core/bundles/PipelineData.scala:180:{40,50}
   assign io_in_ready = io_out_ready;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_valid = io_in_valid;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_data_pc = io_in_bits_data_pc;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_data_rs1 =
-    io_forward_valid & io_forward_bits_wb_regWen & (|io_forward_bits_wb_rd)
-    & (|io_in_bits_bypass_rs1Addr) & io_forward_bits_wb_rd == io_in_bits_bypass_rs1Addr
+    forwardValid & (|io_in_bits_bypass_rs1Addr)
+    & io_forward_bits_wb_rd == io_in_bits_bypass_rs1Addr
       ? io_forward_bits_wbData
-      : io_in_bits_data_rs1;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7, :16:{22,47,58,66,90}, :20:8, src/main/scala/mycpu/core/bundles/PipelineData.scala:175:{40,50}
+      : io_in_bits_data_rs1;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7, :16:39, :17:{36,62,70,94}, :21:30, src/main/scala/mycpu/core/bundles/PipelineData.scala:180:40
   assign io_out_bits_data_rs2 =
-    io_forward_valid & io_forward_bits_wb_regWen & (|io_forward_bits_wb_rd)
-    & (|io_in_bits_bypass_rs2Addr) & io_forward_bits_wb_rd == io_in_bits_bypass_rs2Addr
+    forwardValid & (|io_in_bits_bypass_rs2Addr)
+    & io_forward_bits_wb_rd == io_in_bits_bypass_rs2Addr
       ? io_forward_bits_wbData
-      : io_in_bits_data_rs2;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7, :16:{22,47,58,66,90}, :20:8, src/main/scala/mycpu/core/bundles/PipelineData.scala:175:{40,50}
+      : io_in_bits_data_rs2;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7, :16:39, :18:{36,62,70,94}, :22:30, src/main/scala/mycpu/core/bundles/PipelineData.scala:180:40
   assign io_out_bits_data_imm = io_in_bits_data_imm;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_exec_aluOp = io_in_bits_exec_aluOp;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_exec_aluSrcA = io_in_bits_exec_aluSrcA;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7

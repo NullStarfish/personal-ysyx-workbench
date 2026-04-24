@@ -34,20 +34,35 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
                 io_out_trace_dnpc	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
 );
 
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_result;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_rhs;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_wb_regWen;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [4:0]  bitsReg_wb_rd;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_valid;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_write;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_unsigned;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [2:0]  bitsReg_mem_subop;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_redirect;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_bpUpdate_valid;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [4:0]  bitsReg_bpUpdate_index;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_bpUpdate_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   always @(posedge clock) begin	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27
     if (io_en) begin	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14

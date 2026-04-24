@@ -5,6 +5,9 @@ module SimStateDPI(
     input logic          valid,
     input logic [31:0]   pc,
     input logic [31:0]   dnpc,
+    input logic          reg_wen,
+    input logic [4:0]    reg_addr,
+    input logic [31:0]   reg_data,
     input logic [1023:0] regs_flat,
     input logic [31:0]   mtvec,
     input logic [31:0]   mepc,
@@ -15,6 +18,9 @@ module SimStateDPI(
     import "DPI-C" function void dpi_update_state(
         input int pc,
         input int dnpc,
+        input int reg_wen,
+        input int reg_addr,
+        input int reg_data,
         input bit [1023:0] gprs,
         input int mtvec,
         input int mepc,
@@ -25,7 +31,7 @@ module SimStateDPI(
 
     always_ff @(posedge clk) begin
         if (!reset && valid) begin
-            dpi_update_state(pc, dnpc, regs_flat, mtvec, mepc, mstatus, mcause, inst);
+            dpi_update_state(pc, dnpc, reg_wen, reg_addr, reg_data, regs_flat, mtvec, mepc, mstatus, mcause, inst);
         end
     end
 endmodule

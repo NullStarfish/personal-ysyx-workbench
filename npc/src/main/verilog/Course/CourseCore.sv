@@ -17,52 +17,55 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
                 io_retire_inst	// src/main/scala/labcpu/core/CourseCore.scala:20:14
 );
 
-  wire        exRedirectValid;	// src/main/scala/labcpu/core/CourseCore.scala:86:43
-  wire        _exWb_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [31:0] _exWb_io_deq_bits_result;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [31:0] _exWb_io_deq_bits_rhs;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_wb_regWen;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [4:0]  _exWb_io_deq_bits_wb_rd;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_redirect;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_bpUpdate_valid;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [4:0]  _exWb_io_deq_bits_bpUpdate_index;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _exWb_io_deq_bits_bpUpdate_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [31:0] _exWb_io_deq_bits_trace_pc;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [31:0] _exWb_io_deq_bits_trace_inst;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire [31:0] _exWb_io_deq_bits_trace_dnpc;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  wire        _idEx_io_enq_ready;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_data_pc;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_data_rs1;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_data_rs2;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_data_imm;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [4:0]  _idEx_io_deq_bits_bypass_rs1Addr;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [4:0]  _idEx_io_deq_bits_bypass_rs2Addr;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [3:0]  _idEx_io_deq_bits_exec_aluOp;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_exec_aluSrcA;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_exec_aluSrcB;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [1:0]  _idEx_io_deq_bits_exec_wbSel;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [2:0]  _idEx_io_deq_bits_exec_branchType;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_exec_isJump;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_exec_isJalr;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_wb_regWen;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [4:0]  _idEx_io_deq_bits_wb_rd;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_mem_unsigned;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [2:0]  _idEx_io_deq_bits_mem_subop;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_sys_isEbreak;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_pred_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _idEx_io_deq_bits_pred_redirectPredicted;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [4:0]  _idEx_io_deq_bits_pred_index;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_trace_pc;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire [31:0] _idEx_io_deq_bits_trace_inst;	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  wire        _ifId_io_enq_ready;	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-  wire        _ifId_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-  wire [31:0] _ifId_io_deq_bits_pc;	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-  wire [31:0] _ifId_io_deq_bits_inst;	// src/main/scala/labcpu/core/CourseCore.scala:39:20
+  wire        exRedirectValid;	// src/main/scala/labcpu/core/CourseCore.scala:64:43
+  wire        _exWb_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [31:0] _exWb_io_deq_bits_result;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [31:0] _exWb_io_deq_bits_rhs;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_wb_regWen;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [4:0]  _exWb_io_deq_bits_wb_rd;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_redirect;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_bpUpdate_valid;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [4:0]  _exWb_io_deq_bits_bpUpdate_index;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _exWb_io_deq_bits_bpUpdate_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [31:0] _exWb_io_deq_bits_trace_pc;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [31:0] _exWb_io_deq_bits_trace_inst;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire [31:0] _exWb_io_deq_bits_trace_dnpc;	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  wire        _idEx_io_enq_ready;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_data_pc;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_data_rs1;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_data_rs2;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_data_imm;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [4:0]  _idEx_io_deq_bits_bypass_rs1Addr;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [4:0]  _idEx_io_deq_bits_bypass_rs2Addr;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [3:0]  _idEx_io_deq_bits_exec_aluOp;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_exec_aluSrcA;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_exec_aluSrcB;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [1:0]  _idEx_io_deq_bits_exec_wbSel;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [2:0]  _idEx_io_deq_bits_exec_branchType;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_exec_isJump;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_exec_isJalr;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_wb_regWen;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [4:0]  _idEx_io_deq_bits_wb_rd;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_mem_unsigned;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [2:0]  _idEx_io_deq_bits_mem_subop;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_sys_isEbreak;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_pred_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _idEx_io_deq_bits_pred_redirectPredicted;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [4:0]  _idEx_io_deq_bits_pred_index;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_trace_pc;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire [31:0] _idEx_io_deq_bits_trace_inst;	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  wire        _ifId_io_enq_ready;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire        _ifId_io_deq_valid;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire [31:0] _ifId_io_deq_bits_pc;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire [31:0] _ifId_io_deq_bits_inst;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire        _ifId_io_deq_bits_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire        _ifId_io_deq_bits_predictedRedirect;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  wire [4:0]  _ifId_io_deq_bits_predictIndex;	// src/main/scala/labcpu/core/CourseCore.scala:41:20
   wire        _hazard_io_redirectFlush;	// src/main/scala/labcpu/core/CourseCore.scala:36:22
   wire        _writeBack_io_traceCommit_valid;	// src/main/scala/labcpu/core/CourseCore.scala:35:25
   wire [31:0] _writeBack_io_traceCommit_bits_pc;	// src/main/scala/labcpu/core/CourseCore.scala:35:25
@@ -143,6 +146,7 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
   wire        _decode_io_out_bits_sys_isEbreak;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire        _decode_io_out_bits_pred_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire        _decode_io_out_bits_pred_redirectPredicted;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
+  wire        _decode_io_out_bits_pred_fetchPredictedRedirect;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [4:0]  _decode_io_out_bits_pred_index;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [31:0] _decode_io_out_bits_trace_pc;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [31:0] _decode_io_out_bits_trace_inst;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
@@ -180,130 +184,143 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
   wire [31:0] _decode_io_debug_regs_31;	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   wire [31:0] _fetch_io_out_bits_pc;	// src/main/scala/labcpu/core/CourseCore.scala:31:21
   wire [31:0] _fetch_io_out_bits_inst;	// src/main/scala/labcpu/core/CourseCore.scala:31:21
-  wire        idEx_io_enq_valid = _decode_io_out_valid & ~_hazard_io_redirectFlush;	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :60:74, :62:71
+  wire        _fetch_io_out_bits_predictedTaken;	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+  wire        _fetch_io_out_bits_predictedRedirect;	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+  wire [4:0]  _fetch_io_out_bits_predictIndex;	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+  assign exRedirectValid = _exWb_io_deq_valid & _exWb_io_deq_bits_redirect;	// src/main/scala/labcpu/core/CourseCore.scala:43:20, :64:43
+  wire        idEx_io_enq_valid = _decode_io_out_valid & ~_hazard_io_redirectFlush;	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :62:74, :91:71
+  wire        _io_dmem_wen_T = _exWb_io_deq_valid & _exWb_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:43:20, :96:55
   wire        decodePredictedRedirect =
-    _idEx_io_enq_ready & idEx_io_enq_valid & _decode_io_out_bits_pred_redirectPredicted;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:32:22, :40:20, :62:71, :83:44
-  assign exRedirectValid = _exWb_io_deq_valid & _exWb_io_deq_bits_redirect;	// src/main/scala/labcpu/core/CourseCore.scala:41:20, :86:43
-  wire        fetchRedirectValid = _hazard_io_redirectFlush | decodePredictedRedirect;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:36:22, :83:44, :87:52
-  wire        _io_dmem_wen_T = _exWb_io_deq_valid & _exWb_io_deq_bits_mem_valid;	// src/main/scala/labcpu/core/CourseCore.scala:41:20, :113:36
+    _idEx_io_enq_ready & idEx_io_enq_valid & _decode_io_out_bits_pred_redirectPredicted
+    & ~_decode_io_out_bits_pred_fetchPredictedRedirect;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:32:22, :42:20, :91:71, :110:44, :111:47, :112:5
+  wire        fetchRedirectValid = _hazard_io_redirectFlush | decodePredictedRedirect;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:36:22, :110:44, :111:47, :114:52
   Fetch fetch (	// src/main/scala/labcpu/core/CourseCore.scala:31:21
-    .clock             (clock),
-    .reset             (reset),
-    .io_imem_addr      (io_imem_addr),
-    .io_imem_rdata     (io_imem_rdata),
-    .io_out_bits_pc    (_fetch_io_out_bits_pc),
-    .io_out_bits_inst  (_fetch_io_out_bits_inst),
-    .io_stall          (~_ifId_io_enq_ready),	// src/main/scala/labcpu/core/CourseCore.scala:39:20, :108:21
-    .io_redirect_valid (fetchRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:87:52
+    .clock                         (clock),
+    .reset                         (reset),
+    .io_imem_addr                  (io_imem_addr),
+    .io_imem_rdata                 (io_imem_rdata),
+    .io_out_bits_pc                (_fetch_io_out_bits_pc),
+    .io_out_bits_inst              (_fetch_io_out_bits_inst),
+    .io_out_bits_predictedTaken    (_fetch_io_out_bits_predictedTaken),
+    .io_out_bits_predictedRedirect (_fetch_io_out_bits_predictedRedirect),
+    .io_out_bits_predictIndex      (_fetch_io_out_bits_predictIndex),
+    .io_stall                      (~_ifId_io_enq_ready),	// src/main/scala/labcpu/core/CourseCore.scala:41:20, :135:21
+    .io_redirect_valid             (fetchRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:114:52
     .io_redirect_bits
       (_hazard_io_redirectFlush
          ? _exWb_io_deq_bits_rhs
-         : _decode_io_out_bits_data_pc + _decode_io_out_bits_data_imm),	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :41:20, :85:58, :88:32
-    .io_debug_pc       (io_debug_pc)
+         : _decode_io_out_bits_data_pc + _decode_io_out_bits_data_imm),	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :36:22, :43:20, :113:58, :115:32
+    .io_bpUpdate_valid
+      (_exWb_io_deq_valid & _exWb_io_deq_bits_bpUpdate_valid),	// src/main/scala/labcpu/core/CourseCore.scala:43:20, :56:38
+    .io_bpUpdate_index             (_exWb_io_deq_bits_bpUpdate_index),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_bpUpdate_predictedTaken    (_exWb_io_deq_bits_bpUpdate_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_bpUpdateRedirect           (_exWb_io_deq_bits_redirect),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_debug_pc                   (io_debug_pc)
   );	// src/main/scala/labcpu/core/CourseCore.scala:31:21
   Decode decode (	// src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .clock                              (clock),
-    .reset                              (reset),
-    .io_in_ready                        (_decode_io_in_ready),
-    .io_in_valid                        (_ifId_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-    .io_in_bits_pc                      (_ifId_io_deq_bits_pc),	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-    .io_in_bits_inst                    (_ifId_io_deq_bits_inst),	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-    .io_out_ready                       (_idEx_io_enq_ready & ~_hazard_io_redirectFlush),	// src/main/scala/labcpu/core/CourseCore.scala:36:22, :40:20, :60:{71,74}
-    .io_out_valid                       (_decode_io_out_valid),
-    .io_out_bits_data_pc                (_decode_io_out_bits_data_pc),
-    .io_out_bits_data_rs1               (_decode_io_out_bits_data_rs1),
-    .io_out_bits_data_rs2               (_decode_io_out_bits_data_rs2),
-    .io_out_bits_data_imm               (_decode_io_out_bits_data_imm),
-    .io_out_bits_bypass_rs1Addr         (_decode_io_out_bits_bypass_rs1Addr),
-    .io_out_bits_bypass_rs2Addr         (_decode_io_out_bits_bypass_rs2Addr),
-    .io_out_bits_exec_aluOp             (_decode_io_out_bits_exec_aluOp),
-    .io_out_bits_exec_aluSrcA           (_decode_io_out_bits_exec_aluSrcA),
-    .io_out_bits_exec_aluSrcB           (_decode_io_out_bits_exec_aluSrcB),
-    .io_out_bits_exec_wbSel             (_decode_io_out_bits_exec_wbSel),
-    .io_out_bits_exec_branchType        (_decode_io_out_bits_exec_branchType),
-    .io_out_bits_exec_isJump            (_decode_io_out_bits_exec_isJump),
-    .io_out_bits_exec_isJalr            (_decode_io_out_bits_exec_isJalr),
-    .io_out_bits_wb_regWen              (_decode_io_out_bits_wb_regWen),
-    .io_out_bits_wb_rd                  (_decode_io_out_bits_wb_rd),
-    .io_out_bits_mem_valid              (_decode_io_out_bits_mem_valid),
-    .io_out_bits_mem_write              (_decode_io_out_bits_mem_write),
-    .io_out_bits_mem_unsigned           (_decode_io_out_bits_mem_unsigned),
-    .io_out_bits_mem_subop              (_decode_io_out_bits_mem_subop),
-    .io_out_bits_sys_isEbreak           (_decode_io_out_bits_sys_isEbreak),
-    .io_out_bits_pred_predictedTaken    (_decode_io_out_bits_pred_predictedTaken),
-    .io_out_bits_pred_redirectPredicted (_decode_io_out_bits_pred_redirectPredicted),
-    .io_out_bits_pred_index             (_decode_io_out_bits_pred_index),
-    .io_out_bits_trace_pc               (_decode_io_out_bits_trace_pc),
-    .io_out_bits_trace_inst             (_decode_io_out_bits_trace_inst),
-    .io_regWrite_wen                    (_writeBack_io_regWrite_wen),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
-    .io_regWrite_addr                   (_writeBack_io_regWrite_addr),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
-    .io_regWrite_data                   (_writeBack_io_regWrite_data),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
-    .io_bpUpdate_valid
-      (_exWb_io_deq_valid & _exWb_io_deq_bits_bpUpdate_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20, :54:38
-    .io_bpUpdate_index                  (_exWb_io_deq_bits_bpUpdate_index),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_bpUpdate_predictedTaken         (_exWb_io_deq_bits_bpUpdate_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_bpUpdateRedirect                (_exWb_io_deq_bits_redirect),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_debug_regs_0                    (_decode_io_debug_regs_0),
-    .io_debug_regs_1                    (_decode_io_debug_regs_1),
-    .io_debug_regs_2                    (_decode_io_debug_regs_2),
-    .io_debug_regs_3                    (_decode_io_debug_regs_3),
-    .io_debug_regs_4                    (_decode_io_debug_regs_4),
-    .io_debug_regs_5                    (_decode_io_debug_regs_5),
-    .io_debug_regs_6                    (_decode_io_debug_regs_6),
-    .io_debug_regs_7                    (_decode_io_debug_regs_7),
-    .io_debug_regs_8                    (_decode_io_debug_regs_8),
-    .io_debug_regs_9                    (_decode_io_debug_regs_9),
-    .io_debug_regs_10                   (_decode_io_debug_regs_10),
-    .io_debug_regs_11                   (_decode_io_debug_regs_11),
-    .io_debug_regs_12                   (_decode_io_debug_regs_12),
-    .io_debug_regs_13                   (_decode_io_debug_regs_13),
-    .io_debug_regs_14                   (_decode_io_debug_regs_14),
-    .io_debug_regs_15                   (_decode_io_debug_regs_15),
-    .io_debug_regs_16                   (_decode_io_debug_regs_16),
-    .io_debug_regs_17                   (_decode_io_debug_regs_17),
-    .io_debug_regs_18                   (_decode_io_debug_regs_18),
-    .io_debug_regs_19                   (_decode_io_debug_regs_19),
-    .io_debug_regs_20                   (_decode_io_debug_regs_20),
-    .io_debug_regs_21                   (_decode_io_debug_regs_21),
-    .io_debug_regs_22                   (_decode_io_debug_regs_22),
-    .io_debug_regs_23                   (_decode_io_debug_regs_23),
-    .io_debug_regs_24                   (_decode_io_debug_regs_24),
-    .io_debug_regs_25                   (_decode_io_debug_regs_25),
-    .io_debug_regs_26                   (_decode_io_debug_regs_26),
-    .io_debug_regs_27                   (_decode_io_debug_regs_27),
-    .io_debug_regs_28                   (_decode_io_debug_regs_28),
-    .io_debug_regs_29                   (_decode_io_debug_regs_29),
-    .io_debug_regs_30                   (_decode_io_debug_regs_30),
-    .io_debug_regs_31                   (_decode_io_debug_regs_31)
+    .clock                                   (clock),
+    .reset                                   (reset),
+    .io_in_ready                             (_decode_io_in_ready),
+    .io_in_valid                             (_ifId_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_bits_pc                           (_ifId_io_deq_bits_pc),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_bits_inst                         (_ifId_io_deq_bits_inst),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_bits_predictedTaken               (_ifId_io_deq_bits_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_bits_predictedRedirect            (_ifId_io_deq_bits_predictedRedirect),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_bits_predictIndex                 (_ifId_io_deq_bits_predictIndex),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_out_ready
+      (_idEx_io_enq_ready & ~_hazard_io_redirectFlush),	// src/main/scala/labcpu/core/CourseCore.scala:36:22, :42:20, :62:{71,74}
+    .io_out_valid                            (_decode_io_out_valid),
+    .io_out_bits_data_pc                     (_decode_io_out_bits_data_pc),
+    .io_out_bits_data_rs1                    (_decode_io_out_bits_data_rs1),
+    .io_out_bits_data_rs2                    (_decode_io_out_bits_data_rs2),
+    .io_out_bits_data_imm                    (_decode_io_out_bits_data_imm),
+    .io_out_bits_bypass_rs1Addr              (_decode_io_out_bits_bypass_rs1Addr),
+    .io_out_bits_bypass_rs2Addr              (_decode_io_out_bits_bypass_rs2Addr),
+    .io_out_bits_exec_aluOp                  (_decode_io_out_bits_exec_aluOp),
+    .io_out_bits_exec_aluSrcA                (_decode_io_out_bits_exec_aluSrcA),
+    .io_out_bits_exec_aluSrcB                (_decode_io_out_bits_exec_aluSrcB),
+    .io_out_bits_exec_wbSel                  (_decode_io_out_bits_exec_wbSel),
+    .io_out_bits_exec_branchType             (_decode_io_out_bits_exec_branchType),
+    .io_out_bits_exec_isJump                 (_decode_io_out_bits_exec_isJump),
+    .io_out_bits_exec_isJalr                 (_decode_io_out_bits_exec_isJalr),
+    .io_out_bits_wb_regWen                   (_decode_io_out_bits_wb_regWen),
+    .io_out_bits_wb_rd                       (_decode_io_out_bits_wb_rd),
+    .io_out_bits_mem_valid                   (_decode_io_out_bits_mem_valid),
+    .io_out_bits_mem_write                   (_decode_io_out_bits_mem_write),
+    .io_out_bits_mem_unsigned                (_decode_io_out_bits_mem_unsigned),
+    .io_out_bits_mem_subop                   (_decode_io_out_bits_mem_subop),
+    .io_out_bits_sys_isEbreak                (_decode_io_out_bits_sys_isEbreak),
+    .io_out_bits_pred_predictedTaken         (_decode_io_out_bits_pred_predictedTaken),
+    .io_out_bits_pred_redirectPredicted      (_decode_io_out_bits_pred_redirectPredicted),
+    .io_out_bits_pred_fetchPredictedRedirect
+      (_decode_io_out_bits_pred_fetchPredictedRedirect),
+    .io_out_bits_pred_index                  (_decode_io_out_bits_pred_index),
+    .io_out_bits_trace_pc                    (_decode_io_out_bits_trace_pc),
+    .io_out_bits_trace_inst                  (_decode_io_out_bits_trace_inst),
+    .io_regWrite_wen                         (_writeBack_io_regWrite_wen),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
+    .io_regWrite_addr                        (_writeBack_io_regWrite_addr),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
+    .io_regWrite_data                        (_writeBack_io_regWrite_data),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
+    .io_debug_regs_0                         (_decode_io_debug_regs_0),
+    .io_debug_regs_1                         (_decode_io_debug_regs_1),
+    .io_debug_regs_2                         (_decode_io_debug_regs_2),
+    .io_debug_regs_3                         (_decode_io_debug_regs_3),
+    .io_debug_regs_4                         (_decode_io_debug_regs_4),
+    .io_debug_regs_5                         (_decode_io_debug_regs_5),
+    .io_debug_regs_6                         (_decode_io_debug_regs_6),
+    .io_debug_regs_7                         (_decode_io_debug_regs_7),
+    .io_debug_regs_8                         (_decode_io_debug_regs_8),
+    .io_debug_regs_9                         (_decode_io_debug_regs_9),
+    .io_debug_regs_10                        (_decode_io_debug_regs_10),
+    .io_debug_regs_11                        (_decode_io_debug_regs_11),
+    .io_debug_regs_12                        (_decode_io_debug_regs_12),
+    .io_debug_regs_13                        (_decode_io_debug_regs_13),
+    .io_debug_regs_14                        (_decode_io_debug_regs_14),
+    .io_debug_regs_15                        (_decode_io_debug_regs_15),
+    .io_debug_regs_16                        (_decode_io_debug_regs_16),
+    .io_debug_regs_17                        (_decode_io_debug_regs_17),
+    .io_debug_regs_18                        (_decode_io_debug_regs_18),
+    .io_debug_regs_19                        (_decode_io_debug_regs_19),
+    .io_debug_regs_20                        (_decode_io_debug_regs_20),
+    .io_debug_regs_21                        (_decode_io_debug_regs_21),
+    .io_debug_regs_22                        (_decode_io_debug_regs_22),
+    .io_debug_regs_23                        (_decode_io_debug_regs_23),
+    .io_debug_regs_24                        (_decode_io_debug_regs_24),
+    .io_debug_regs_25                        (_decode_io_debug_regs_25),
+    .io_debug_regs_26                        (_decode_io_debug_regs_26),
+    .io_debug_regs_27                        (_decode_io_debug_regs_27),
+    .io_debug_regs_28                        (_decode_io_debug_regs_28),
+    .io_debug_regs_29                        (_decode_io_debug_regs_29),
+    .io_debug_regs_30                        (_decode_io_debug_regs_30),
+    .io_debug_regs_31                        (_decode_io_debug_regs_31)
   );	// src/main/scala/labcpu/core/CourseCore.scala:32:22
   CourseOperandForward operandSelect (	// src/main/scala/labcpu/core/CourseCore.scala:33:29
     .io_in_ready                        (_operandSelect_io_in_ready),
-    .io_in_valid                        (_idEx_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_pc                 (_idEx_io_deq_bits_data_pc),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_rs1                (_idEx_io_deq_bits_data_rs1),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_rs2                (_idEx_io_deq_bits_data_rs2),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_data_imm                (_idEx_io_deq_bits_data_imm),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_bypass_rs1Addr          (_idEx_io_deq_bits_bypass_rs1Addr),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_bypass_rs2Addr          (_idEx_io_deq_bits_bypass_rs2Addr),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluOp              (_idEx_io_deq_bits_exec_aluOp),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluSrcA            (_idEx_io_deq_bits_exec_aluSrcA),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_aluSrcB            (_idEx_io_deq_bits_exec_aluSrcB),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_wbSel              (_idEx_io_deq_bits_exec_wbSel),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_branchType         (_idEx_io_deq_bits_exec_branchType),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_isJump             (_idEx_io_deq_bits_exec_isJump),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_exec_isJalr             (_idEx_io_deq_bits_exec_isJalr),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_wb_regWen               (_idEx_io_deq_bits_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_wb_rd                   (_idEx_io_deq_bits_wb_rd),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_valid               (_idEx_io_deq_bits_mem_valid),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_write               (_idEx_io_deq_bits_mem_write),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_unsigned            (_idEx_io_deq_bits_mem_unsigned),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_mem_subop               (_idEx_io_deq_bits_mem_subop),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_sys_isEbreak            (_idEx_io_deq_bits_sys_isEbreak),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_pred_predictedTaken     (_idEx_io_deq_bits_pred_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_pred_redirectPredicted  (_idEx_io_deq_bits_pred_redirectPredicted),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_pred_index              (_idEx_io_deq_bits_pred_index),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_trace_pc                (_idEx_io_deq_bits_trace_pc),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-    .io_in_bits_trace_inst              (_idEx_io_deq_bits_trace_inst),	// src/main/scala/labcpu/core/CourseCore.scala:40:20
+    .io_in_valid                        (_idEx_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_data_pc                 (_idEx_io_deq_bits_data_pc),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_data_rs1                (_idEx_io_deq_bits_data_rs1),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_data_rs2                (_idEx_io_deq_bits_data_rs2),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_data_imm                (_idEx_io_deq_bits_data_imm),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_bypass_rs1Addr          (_idEx_io_deq_bits_bypass_rs1Addr),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_bypass_rs2Addr          (_idEx_io_deq_bits_bypass_rs2Addr),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_aluOp              (_idEx_io_deq_bits_exec_aluOp),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_aluSrcA            (_idEx_io_deq_bits_exec_aluSrcA),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_aluSrcB            (_idEx_io_deq_bits_exec_aluSrcB),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_wbSel              (_idEx_io_deq_bits_exec_wbSel),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_branchType         (_idEx_io_deq_bits_exec_branchType),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_isJump             (_idEx_io_deq_bits_exec_isJump),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_exec_isJalr             (_idEx_io_deq_bits_exec_isJalr),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_wb_regWen               (_idEx_io_deq_bits_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_wb_rd                   (_idEx_io_deq_bits_wb_rd),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_mem_valid               (_idEx_io_deq_bits_mem_valid),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_mem_write               (_idEx_io_deq_bits_mem_write),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_mem_unsigned            (_idEx_io_deq_bits_mem_unsigned),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_mem_subop               (_idEx_io_deq_bits_mem_subop),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_sys_isEbreak            (_idEx_io_deq_bits_sys_isEbreak),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_pred_predictedTaken     (_idEx_io_deq_bits_pred_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_pred_redirectPredicted  (_idEx_io_deq_bits_pred_redirectPredicted),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_pred_index              (_idEx_io_deq_bits_pred_index),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_trace_pc                (_idEx_io_deq_bits_trace_pc),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+    .io_in_bits_trace_inst              (_idEx_io_deq_bits_trace_inst),	// src/main/scala/labcpu/core/CourseCore.scala:42:20
     .io_out_ready                       (_execute_io_in_ready),	// src/main/scala/labcpu/core/CourseCore.scala:34:23
     .io_out_valid                       (_operandSelect_io_out_valid),
     .io_out_bits_data_pc                (_operandSelect_io_out_bits_data_pc),
@@ -330,7 +347,7 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_out_bits_pred_index             (_operandSelect_io_out_bits_pred_index),
     .io_out_bits_trace_pc               (_operandSelect_io_out_bits_trace_pc),
     .io_out_bits_trace_inst             (_operandSelect_io_out_bits_trace_inst),
-    .io_forward_valid                   (_exWb_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_forward_valid                   (_io_dmem_wen_T & ~_exWb_io_deq_bits_mem_write),	// src/main/scala/labcpu/core/CourseCore.scala:43:20, :96:{55,85,88}
     .io_forward_bits_wbData             (_writeBack_io_out_wbData),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
     .io_forward_bits_wb_regWen          (_writeBack_io_out_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
     .io_forward_bits_wb_rd              (_writeBack_io_out_wb_rd)	// src/main/scala/labcpu/core/CourseCore.scala:35:25
@@ -362,7 +379,7 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_in_bits_pred_index               (_operandSelect_io_out_bits_pred_index),	// src/main/scala/labcpu/core/CourseCore.scala:33:29
     .io_in_bits_trace_pc                 (_operandSelect_io_out_bits_trace_pc),	// src/main/scala/labcpu/core/CourseCore.scala:33:29
     .io_in_bits_trace_inst               (_operandSelect_io_out_bits_trace_inst),	// src/main/scala/labcpu/core/CourseCore.scala:33:29
-    .io_out_ready                        (~exRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:86:43, :90:48
+    .io_out_ready                        (~exRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:64:43, :117:48
     .io_out_valid                        (_execute_io_out_valid),
     .io_out_bits_result                  (_execute_io_out_bits_result),
     .io_out_bits_rhs                     (_execute_io_out_bits_rhs),
@@ -381,15 +398,15 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_out_bits_trace_dnpc              (_execute_io_out_bits_trace_dnpc)
   );	// src/main/scala/labcpu/core/CourseCore.scala:34:23
   WriteBack writeBack (	// src/main/scala/labcpu/core/CourseCore.scala:35:25
-    .io_in_valid                (_exWb_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_result          (_exWb_io_deq_bits_result),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_wb_regWen       (_exWb_io_deq_bits_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_wb_rd           (_exWb_io_deq_bits_wb_rd),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_mem_valid       (_exWb_io_deq_bits_mem_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_mem_write       (_exWb_io_deq_bits_mem_write),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_trace_pc        (_exWb_io_deq_bits_trace_pc),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_trace_inst      (_exWb_io_deq_bits_trace_inst),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_in_bits_trace_dnpc      (_exWb_io_deq_bits_trace_dnpc),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_in_valid                (_exWb_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_result          (_exWb_io_deq_bits_result),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_wb_regWen       (_exWb_io_deq_bits_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_wb_rd           (_exWb_io_deq_bits_wb_rd),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_mem_valid       (_exWb_io_deq_bits_mem_valid),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_mem_write       (_exWb_io_deq_bits_mem_write),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_trace_pc        (_exWb_io_deq_bits_trace_pc),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_trace_inst      (_exWb_io_deq_bits_trace_inst),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_in_bits_trace_dnpc      (_exWb_io_deq_bits_trace_dnpc),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
     .io_traceCommit_valid       (_writeBack_io_traceCommit_valid),
     .io_traceCommit_bits_pc     (_writeBack_io_traceCommit_bits_pc),
     .io_traceCommit_bits_inst   (_writeBack_io_traceCommit_bits_inst),
@@ -406,11 +423,11 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_regWrite_data           (_writeBack_io_regWrite_data)
   );	// src/main/scala/labcpu/core/CourseCore.scala:35:25
   HazardUnit hazard (	// src/main/scala/labcpu/core/CourseCore.scala:36:22
-    .io_exFire          (_exWb_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-    .io_exRedirectValid (_exWb_io_deq_bits_redirect),	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .io_exFire          (_exWb_io_deq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+    .io_exRedirectValid (_exWb_io_deq_bits_redirect),	// src/main/scala/labcpu/core/CourseCore.scala:43:20
     .io_redirectFlush   (_hazard_io_redirectFlush)
   );	// src/main/scala/labcpu/core/CourseCore.scala:36:22
-  Tracer tracer (	// src/main/scala/labcpu/core/CourseCore.scala:37:66
+  Tracer tracer (	// src/main/scala/labcpu/core/CourseCore.scala:38:55
     .clock                      (clock),
     .reset                      (reset),
     .io_commitTrace_valid       (_writeBack_io_traceCommit_valid),	// src/main/scala/labcpu/core/CourseCore.scala:35:25
@@ -452,29 +469,46 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
         _decode_io_debug_regs_3,
         _decode_io_debug_regs_2,
         _decode_io_debug_regs_1,
-        _decode_io_debug_regs_0})	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :131:21
-  );	// src/main/scala/labcpu/core/CourseCore.scala:37:66
-  FlushableStage ifId (	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-    .clock            (clock),
-    .reset            (reset),
-    .io_enq_ready     (_ifId_io_enq_ready),
-    .io_enq_valid     (~_hazard_io_redirectFlush & ~decodePredictedRedirect),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:36:22, :60:74, :83:44, :93:{71,74}
-    .io_enq_bits_pc   (_fetch_io_out_bits_pc),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
-    .io_enq_bits_inst (_fetch_io_out_bits_inst),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
-    .io_deq_ready     (_decode_io_in_ready),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_deq_valid     (_ifId_io_deq_valid),
-    .io_deq_bits_pc   (_ifId_io_deq_bits_pc),
-    .io_deq_bits_inst (_ifId_io_deq_bits_inst),
-    .io_flush         (fetchRedirectValid)	// src/main/scala/labcpu/core/CourseCore.scala:87:52
-  );	// src/main/scala/labcpu/core/CourseCore.scala:39:20
-  FlushableStage_1 idEx (	// src/main/scala/labcpu/core/CourseCore.scala:40:20
+        _decode_io_debug_regs_0}),	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :158:21
+    .io_flush                   (fetchRedirectValid)	// src/main/scala/labcpu/core/CourseCore.scala:114:52
+  );	// src/main/scala/labcpu/core/CourseCore.scala:38:55
+  FlushableStage ifId (	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+    .clock                         (clock),
+    .reset                         (reset),
+    .io_enq_ready                  (_ifId_io_enq_ready),
+    .io_enq_valid                  (~_hazard_io_redirectFlush & ~decodePredictedRedirect),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/labcpu/core/CourseCore.scala:36:22, :62:74, :110:44, :111:47, :120:{71,74}
+    .io_enq_bits_pc                (_fetch_io_out_bits_pc),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+    .io_enq_bits_inst              (_fetch_io_out_bits_inst),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+    .io_enq_bits_predictedTaken    (_fetch_io_out_bits_predictedTaken),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+    .io_enq_bits_predictedRedirect (_fetch_io_out_bits_predictedRedirect),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+    .io_enq_bits_predictIndex      (_fetch_io_out_bits_predictIndex),	// src/main/scala/labcpu/core/CourseCore.scala:31:21
+    .io_deq_ready                  (_decode_io_in_ready),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_deq_valid                  (_ifId_io_deq_valid),
+    .io_deq_bits_pc                (_ifId_io_deq_bits_pc),
+    .io_deq_bits_inst              (_ifId_io_deq_bits_inst),
+    .io_deq_bits_predictedTaken    (_ifId_io_deq_bits_predictedTaken),
+    .io_deq_bits_predictedRedirect (_ifId_io_deq_bits_predictedRedirect),
+    .io_deq_bits_predictIndex      (_ifId_io_deq_bits_predictIndex),
+    .io_flush                      (fetchRedirectValid)	// src/main/scala/labcpu/core/CourseCore.scala:114:52
+  );	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  FlushableStage_1 idEx (	// src/main/scala/labcpu/core/CourseCore.scala:42:20
     .clock                              (clock),
     .reset                              (reset),
     .io_enq_ready                       (_idEx_io_enq_ready),
-    .io_enq_valid                       (idEx_io_enq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:62:71
+    .io_enq_valid                       (idEx_io_enq_valid),	// src/main/scala/labcpu/core/CourseCore.scala:91:71
     .io_enq_bits_data_pc                (_decode_io_out_bits_data_pc),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_data_rs1               (_decode_io_out_bits_data_rs1),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
-    .io_enq_bits_data_rs2               (_decode_io_out_bits_data_rs2),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
+    .io_enq_bits_data_rs1
+      (_execute_io_out_valid & ~exRedirectValid & _execute_io_out_bits_wb_regWen
+       & ~_execute_io_out_bits_mem_valid & (|_execute_io_out_bits_wb_rd)
+       & _execute_io_out_bits_wb_rd == _decode_io_out_bits_bypass_rs1Addr
+         ? _execute_io_out_bits_result
+         : _decode_io_out_bits_data_rs1),	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :34:23, :64:43, :69:25, :70:{7,57}, :71:28, :72:{7,29}, :73:{25,34}, :74:25, :83:32, :84:30, :85:26
+    .io_enq_bits_data_rs2
+      (_execute_io_out_valid & ~exRedirectValid & _execute_io_out_bits_wb_regWen
+       & ~_execute_io_out_bits_mem_valid & (|_execute_io_out_bits_wb_rd)
+       & _execute_io_out_bits_wb_rd == _decode_io_out_bits_bypass_rs2Addr
+         ? _execute_io_out_bits_result
+         : _decode_io_out_bits_data_rs2),	// src/main/scala/labcpu/core/CourseCore.scala:32:22, :34:23, :64:43, :72:7, :73:25, :77:25, :78:{7,57}, :79:28, :80:29, :81:34, :82:25, :83:32, :87:30, :88:26
     .io_enq_bits_data_imm               (_decode_io_out_bits_data_imm),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
     .io_enq_bits_bypass_rs1Addr         (_decode_io_out_bits_bypass_rs1Addr),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
     .io_enq_bits_bypass_rs2Addr         (_decode_io_out_bits_bypass_rs2Addr),	// src/main/scala/labcpu/core/CourseCore.scala:32:22
@@ -525,11 +559,11 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_deq_bits_trace_pc               (_idEx_io_deq_bits_trace_pc),
     .io_deq_bits_trace_inst             (_idEx_io_deq_bits_trace_inst),
     .io_flush                           (_hazard_io_redirectFlush)	// src/main/scala/labcpu/core/CourseCore.scala:36:22
-  );	// src/main/scala/labcpu/core/CourseCore.scala:40:20
-  FlushableStage_2 exWb (	// src/main/scala/labcpu/core/CourseCore.scala:41:20
+  );	// src/main/scala/labcpu/core/CourseCore.scala:42:20
+  FlushableStage_2 exWb (	// src/main/scala/labcpu/core/CourseCore.scala:43:20
     .clock                               (clock),
     .reset                               (reset),
-    .io_enq_valid                        (_execute_io_out_valid & ~exRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:34:23, :86:43, :90:48, :91:45
+    .io_enq_valid                        (_execute_io_out_valid & ~exRedirectValid),	// src/main/scala/labcpu/core/CourseCore.scala:34:23, :64:43, :117:48, :118:45
     .io_enq_bits_result                  (_execute_io_out_bits_result),	// src/main/scala/labcpu/core/CourseCore.scala:34:23
     .io_enq_bits_rhs                     (_execute_io_out_bits_rhs),	// src/main/scala/labcpu/core/CourseCore.scala:34:23
     .io_enq_bits_wb_regWen               (_execute_io_out_bits_wb_regWen),	// src/main/scala/labcpu/core/CourseCore.scala:34:23
@@ -561,11 +595,11 @@ module CourseCore(	// src/main/scala/labcpu/core/CourseCore.scala:14:7
     .io_deq_bits_trace_pc                (_exWb_io_deq_bits_trace_pc),
     .io_deq_bits_trace_inst              (_exWb_io_deq_bits_trace_inst),
     .io_deq_bits_trace_dnpc              (_exWb_io_deq_bits_trace_dnpc)
-  );	// src/main/scala/labcpu/core/CourseCore.scala:41:20
-  assign io_dmem_addr = _exWb_io_deq_bits_result;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20
-  assign io_dmem_ren = _io_dmem_wen_T & ~_exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :113:{36,66,69}
-  assign io_dmem_wen = _io_dmem_wen_T & _exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20, :113:36, :114:66
-  assign io_dmem_wdata = _exWb_io_deq_bits_rhs;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :41:20
+  );	// src/main/scala/labcpu/core/CourseCore.scala:43:20
+  assign io_dmem_addr = _exWb_io_deq_bits_result;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :43:20
+  assign io_dmem_ren = _io_dmem_wen_T & ~_exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :43:20, :96:{55,88}, :140:66
+  assign io_dmem_wen = _io_dmem_wen_T & _exWb_io_deq_bits_mem_write;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :43:20, :96:55, :141:66
+  assign io_dmem_wdata = _exWb_io_deq_bits_rhs;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :43:20
   assign io_retire_valid = _writeBack_io_traceCommit_valid;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :35:25
   assign io_retire_pc = _writeBack_io_traceCommit_bits_pc;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :35:25
   assign io_retire_inst = _writeBack_io_traceCommit_bits_inst;	// src/main/scala/labcpu/core/CourseCore.scala:14:7, :35:25

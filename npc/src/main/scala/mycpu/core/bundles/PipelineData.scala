@@ -28,6 +28,9 @@ class FetchPacket extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)
   val isException = Bool()
+  val predictedTaken = Bool()
+  val predictedRedirect = Bool()
+  val predictIndex = UInt(5.W)
 }
 
 class FetchControlBundle extends Bundle {
@@ -112,7 +115,9 @@ class CsrDebugBundle extends Bundle {
 
 class BranchPredictionBundle extends Bundle {
   val predictedTaken = Bool()
+  val directionPredictedTaken = Bool()
   val redirectPredicted = Bool()
+  val fetchPredictedRedirect = Bool()
   val index = UInt(5.W)
 }
 

@@ -28,17 +28,29 @@ module PayloadReg_2(	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/s
   output        io_out_bpUpdate_predictedTaken	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
 );
 
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_result;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [31:0] bitsReg_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_wb_regWen;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [4:0]  bitsReg_wb_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_write;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_mem_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [2:0]  bitsReg_mem_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_redirect;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_bpUpdate_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg [4:0]  bitsReg_bpUpdate_index;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  (* max_fanout = 4 *)
   reg        bitsReg_bpUpdate_predictedTaken;	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:6:27
     if (io_en) begin	// home/nullstarfish/personal-ysyx-workbench/npc/src/main/scala/mycpu/core/components/FlushableStage.scala:7:14

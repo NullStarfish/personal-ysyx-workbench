@@ -15,6 +15,13 @@ object DpiApi {
     m.io.is_ebreak := isEbreak
   }
 
+  def recordFlush(clock: Clock, reset: Bool, valid: Bool, localName: String = "flush_record"): Unit = {
+    val m = Module(new FlushDPI).suggestName(localName)
+    m.io.clock := clock
+    m.io.reset := reset
+    m.io.valid := valid
+  }
+
   def simState(clock: Clock, reset: Bool, state: SimStateBundle, localName: String = "sim_state"): Unit = {
     val m = Module(new SimStateDPI).suggestName(localName)
     m.io.clk := clock

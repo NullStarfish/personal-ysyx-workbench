@@ -34,11 +34,13 @@ class CourseCore(
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableSys = false))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
-  val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
+  val tracer =
+    if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi, enableFlushDpi = enableDpi)))
+    else None
 
   val ifId = Module(new FlushableStage(new FetchPacket))
   val idEx = Module(new FlushableStage(new DecodePacket(enableTraceFields)))
-  val exWb = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
+  val exWb = Module(new FlushableStage(new ExecutePacket(enableTraceFields), maxFanout = Some(4)))
 
   fetch.io.imem.rdata := io.imem.rdata
   io.imem.addr := fetch.io.imem.addr
@@ -52,19 +54,46 @@ class CourseCore(
   val bpUpdate = Wire(new BranchPredictUpdateBundle)
   bpUpdate := exWb.io.deq.bits.bpUpdate
   bpUpdate.valid := exWb.io.deq.fire && exWb.io.deq.bits.bpUpdate.valid
-  decode.io.bpUpdate := bpUpdate
-  decode.io.bpUpdateRedirect := exWb.io.deq.bits.redirect
+  fetch.io.bpUpdate := bpUpdate
+  fetch.io.bpUpdateRedirect := exWb.io.deq.bits.redirect
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
   decode.io.out.ready := idEx.io.enq.ready && !hazard.io.loadUseStall && !hazard.io.redirectFlush
 
+  val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect
+  val decodeOut = decode.io.out.bits
+  val executeOut = execute.io.out.bits
+  val earlyForwardRs1Valid =
+    execute.io.out.valid &&
+      exWb.io.enq.ready &&
+      !(exWb.io.deq.valid && exWb.io.deq.bits.redirect) &&
+      executeOut.wb.regWen &&
+      !executeOut.mem.valid &&
+      (executeOut.wb.rd =/= 0.U) &&
+      (executeOut.wb.rd === decodeOut.bypass.rs1Addr)
+  val earlyForwardRs2Valid =
+    execute.io.out.valid &&
+      exWb.io.enq.ready &&
+      !(exWb.io.deq.valid && exWb.io.deq.bits.redirect) &&
+      executeOut.wb.regWen &&
+      !executeOut.mem.valid &&
+      (executeOut.wb.rd =/= 0.U) &&
+      (executeOut.wb.rd === decodeOut.bypass.rs2Addr)
+  val idExEnqBits = WireDefault(decodeOut)
+  when(earlyForwardRs1Valid) {
+    idExEnqBits.data.rs1 := executeOut.result
+  }
+  when(earlyForwardRs2Valid) {
+    idExEnqBits.data.rs2 := executeOut.result
+  }
+
   idEx.io.enq.valid := decode.io.out.valid && !hazard.io.loadUseStall && !hazard.io.redirectFlush
-  idEx.io.enq.bits := decode.io.out.bits
+  idEx.io.enq.bits := idExEnqBits
   idEx.io.deq.ready := operandSelect.io.in.ready
   idEx.io.flush := hazard.io.redirectFlush
 
-  operandSelect.io.forward.valid := exWb.io.deq.valid
+  operandSelect.io.forward.valid := exWb.io.deq.valid && exWb.io.deq.bits.mem.valid && !exWb.io.deq.bits.mem.write
   operandSelect.io.forward.bits := writeBack.io.out
   operandSelect.io.in.valid := idEx.io.deq.valid
   operandSelect.io.in.bits := idEx.io.deq.bits
@@ -72,18 +101,16 @@ class CourseCore(
   execute.io.in.valid := operandSelect.io.out.valid
   execute.io.in.bits := operandSelect.io.out.bits
   operandSelect.io.out.ready := execute.io.in.ready
-  execute.io.out.ready := exWb.io.enq.ready
 
-  exWb.io.enq.valid := execute.io.out.valid
   exWb.io.enq.bits := execute.io.out.bits
   exWb.io.deq.ready := true.B
   exWb.io.flush := false.B
 
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
-    decode.io.out.bits.pred.redirectPredicted
+    decode.io.out.bits.pred.redirectPredicted &&
+    !decode.io.out.bits.pred.fetchPredictedRedirect
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
-  val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect
   val fetchRedirectValid = hazard.io.redirectFlush || decodePredictedRedirect
   val fetchRedirectTarget = Mux(hazard.io.redirectFlush, exWb.io.deq.bits.rhs, decodePredictedTarget)
 
@@ -137,6 +164,7 @@ class CourseCore(
     tracerMod.io.mepc := execute.io.debug_csrs.mepc
     tracerMod.io.mstatus := execute.io.debug_csrs.mstatus
     tracerMod.io.mcause := execute.io.debug_csrs.mcause
+    tracerMod.io.flush := hazard.io.redirectFlush || decodePredictedRedirect
     io.trace := tracerMod.io.trace
   } else {
     io.trace := 0.U.asTypeOf(new CoreTraceBundle)

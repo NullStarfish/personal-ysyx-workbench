@@ -94,14 +94,17 @@ module RetireWindowSmokeTop(	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.sc
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
   Tracer tracer (	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:17:22
-    .clock           (clock),
-    .reset           (reset),
-    .io_retire_valid (~_GEN_2 & (_GEN_3 | stateReg == 2'h2)),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:24, :30:20, :37:20
-    .io_retire_pc    (_GEN_1[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:24, :30:20
-    .io_retire_dnpc  (_GEN_0[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:24, :30:20
-    .io_retire_inst  (_GEN[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:24, :30:20
-    .io_regsFlat     ({960'h0, regs_1, 32'h0})	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:19:21, :66:28
+    .clock                      (clock),
+    .reset                      (reset),
+    .io_commitTrace_valid       (~_GEN_2 & (_GEN_3 | stateReg == 2'h2)),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:29, :30:20, :37:25
+    .io_commitTrace_bits_pc     (_GEN_1[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:29, :30:20
+    .io_commitTrace_bits_inst   (_GEN[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:29, :30:20
+    .io_commitTrace_bits_dnpc   (_GEN_0[stateReg]),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:26:25, :28:29, :30:20
+    .io_commitTrace_bits_regWen (~_GEN_2 & _GEN_3),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:28:29, :30:20
+    .io_commitTrace_bits_rd     (_GEN_2 ? 5'h0 : {4'h0, _GEN_3}),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:28:29, :30:20, :42:27
+    .io_commitTrace_bits_data   (_GEN_2 ? 32'h0 : {31'h0, _GEN_3}),	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:28:29, :30:20, :43:29
+    .io_regsFlat                ({960'h0, regs_1, 32'h0})	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:19:21, :60:28
   );	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:17:22
-  assign io_done = &stateReg;	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:11:7, :26:25, :72:23
+  assign io_done = &stateReg;	// src/main/scala/mycpu/dpi/RetireWindowSmokeTop.scala:11:7, :26:25, :67:23
 endmodule
 

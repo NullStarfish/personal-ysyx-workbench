@@ -56,12 +56,6 @@ class Core(
   io.debug_csrs.mcause := execute.io.debug_csrs.mcause
   val regsFlat = Cat(io.debug_regs.reverse)
 
-  val bpUpdate = Wire(new BranchPredictUpdateBundle)
-  bpUpdate := exMem.io.deq.bits.bpUpdate
-  bpUpdate.valid := exMem.io.deq.fire && exMem.io.deq.bits.bpUpdate.valid
-  decode.io.bpUpdate := bpUpdate
-  decode.io.bpUpdateRedirect := exMem.io.deq.bits.redirect
-
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
 
@@ -134,6 +128,7 @@ class Core(
     tracerMod.io.mepc := io.debug_csrs.mepc
     tracerMod.io.mstatus := io.debug_csrs.mstatus
     tracerMod.io.mcause := io.debug_csrs.mcause
+    tracerMod.io.flush := redirectFlush
     io.trace := tracerMod.io.trace
   } else {
     io.trace := 0.U.asTypeOf(new CoreTraceBundle)

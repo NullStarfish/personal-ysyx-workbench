@@ -6,6 +6,9 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   input         io_in_valid,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   input  [31:0] io_in_bits_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_in_bits_inst,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
+  input         io_in_bits_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
+                io_in_bits_predictedRedirect,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
+  input  [4:0]  io_in_bits_predictIndex,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   input         io_out_ready,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   output        io_out_valid,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   output [31:0] io_out_bits_data_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
@@ -30,16 +33,13 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   output        io_out_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_out_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_out_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
+                io_out_bits_pred_fetchPredictedRedirect,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   output [4:0]  io_out_bits_pred_index,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   output [31:0] io_out_bits_trace_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_out_bits_trace_inst,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   input         io_regWrite_wen,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   input  [4:0]  io_regWrite_addr,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   input  [31:0] io_regWrite_data,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
-  input         io_bpUpdate_valid,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
-  input  [4:0]  io_bpUpdate_index,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
-  input         io_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
-                io_bpUpdateRedirect,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
   output [31:0] io_debug_regs_0,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_debug_regs_1,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
                 io_debug_regs_2,	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
@@ -74,34 +74,33 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                 io_debug_regs_31	// src/main/scala/mycpu/core/backend/Decode.scala:15:14
 );
 
-  wire            _predictor_io_predictTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:55:16
-  wire [31:0]     _immGen_io_out;	// src/main/scala/mycpu/core/backend/Decode.scala:47:22
+  wire [31:0]     _immGen_io_out;	// src/main/scala/mycpu/core/backend/Decode.scala:45:22
   wire [7:0][2:0] _GEN = '{3'h6, 3'h5, 3'h4, 3'h3, 3'h0, 3'h0, 3'h2, 3'h1};
-  wire            _format_T_1 = io_in_bits_inst[14:12] == 3'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :79:43
-  wire            _format_T_6 = io_in_bits_inst[6:0] == 7'h37;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_8 = io_in_bits_inst[6:0] == 7'h17;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_10 = io_in_bits_inst[6:0] == 7'h6F;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_12 = io_in_bits_inst[6:0] == 7'h67;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_14 = io_in_bits_inst[6:0] == 7'h63;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _io_out_bits_mem_valid_T = io_in_bits_inst[6:0] == 7'h3;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            io_out_bits_mem_write_0 = io_in_bits_inst[6:0] == 7'h23;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_20 = io_in_bits_inst[6:0] == 7'h13;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _format_T_22 = io_in_bits_inst[6:0] == 7'h33;	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :67:100
-  wire            _GEN_0 = _format_T_6 | _format_T_8;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :108:18, :109:32, :110:32
-  wire            isJump = ~_GEN_0 & (_format_T_10 | _format_T_12);	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :96:27, :108:18, :109:32, :110:32, :117:18, :138:14
-  wire            _GEN_1 = _format_T_8 | _format_T_10;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :97:27, :117:18
-  wire            isJalr = ~(_format_T_6 | _GEN_1) & _format_T_12;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :97:27, :117:18
-  wire            _GEN_2 = io_in_bits_inst[14:12] == 3'h1;	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :152:22
-  wire            _GEN_3 = io_in_bits_inst[14:12] == 3'h4;	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :152:22
-  wire            _GEN_4 = io_in_bits_inst[14:12] == 3'h5;	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :152:22
-  wire            _GEN_5 = _format_T_10 | _format_T_12;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :95:31, :117:18
-  wire            _GEN_6 = _format_T_6 | _format_T_8 | _GEN_5;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :95:31, :117:18
+  wire            _format_T_1 = io_in_bits_inst[14:12] == 3'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :64:43
+  wire            _format_T_6 = io_in_bits_inst[6:0] == 7'h37;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_8 = io_in_bits_inst[6:0] == 7'h17;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_10 = io_in_bits_inst[6:0] == 7'h6F;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_12 = io_in_bits_inst[6:0] == 7'h67;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_14 = io_in_bits_inst[6:0] == 7'h63;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _io_out_bits_mem_valid_T = io_in_bits_inst[6:0] == 7'h3;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            io_out_bits_mem_write_0 = io_in_bits_inst[6:0] == 7'h23;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_20 = io_in_bits_inst[6:0] == 7'h13;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _format_T_22 = io_in_bits_inst[6:0] == 7'h33;	// src/main/scala/mycpu/core/backend/Decode.scala:29:20, :52:100
+  wire            _GEN_0 = _format_T_6 | _format_T_8;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :93:18, :94:32, :95:32
+  wire            isJump = ~_GEN_0 & (_format_T_10 | _format_T_12);	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :81:27, :93:18, :94:32, :95:32, :102:18, :123:14
+  wire            _GEN_1 = _format_T_8 | _format_T_10;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :82:27, :102:18
+  wire            isJalr = ~(_format_T_6 | _GEN_1) & _format_T_12;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :82:27, :102:18
+  wire            _GEN_2 = io_in_bits_inst[14:12] == 3'h1;	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :137:22
+  wire            _GEN_3 = io_in_bits_inst[14:12] == 3'h4;	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :137:22
+  wire            _GEN_4 = io_in_bits_inst[14:12] == 3'h5;	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :137:22
+  wire            _GEN_5 = _format_T_10 | _format_T_12;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :80:31, :102:18
+  wire            _GEN_6 = _format_T_6 | _format_T_8 | _GEN_5;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :80:31, :102:18
   wire [2:0]      branchType =
-    _GEN_6 | ~_format_T_14 ? 3'h0 : _GEN[io_in_bits_inst[14:12]];	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :67:100, :95:31, :117:18, :152:22, :153:35
-  wire            _GEN_7 = io_in_bits_inst[14:12] == 3'h2;	// src/main/scala/mycpu/core/backend/Decode.scala:32:20, :167:22
+    _GEN_6 | ~_format_T_14 ? 3'h0 : _GEN[io_in_bits_inst[14:12]];	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :52:100, :80:31, :102:18, :137:22, :138:35
+  wire            _GEN_7 = io_in_bits_inst[14:12] == 3'h2;	// src/main/scala/mycpu/core/backend/Decode.scala:30:20, :152:22
   wire            _GEN_8 =
-    _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :99:32, :117:18
-  wire            _GEN_9 = _io_out_bits_mem_valid_T | io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :117:18, :165:15, :178:15
+    _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :84:32, :102:18
+  wire            _GEN_9 = _io_out_bits_mem_valid_T | io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :102:18, :150:15, :163:15
   wire [7:0][3:0] _GEN_10 =
     {{4'h2},
      {4'h3},
@@ -110,7 +109,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
      {4'h6},
      {4'h5},
      {4'h7},
-     {4'h0}};	// src/main/scala/mycpu/core/backend/Decode.scala:33:20, :79:43, :91:26, :152:22, :167:22, :191:22, :192:30, :193:30, :194:30, :195:30, :196:30, :197:30, :198:30, :199:{30,36,44}
+     {4'h0}};	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :64:43, :76:26, :137:22, :152:22, :176:22, :177:30, :178:30, :179:30, :180:30, :181:30, :182:30, :183:30, :184:{30,36,44}
   wire [7:0][3:0] _GEN_11 =
     {{4'h2},
      {4'h3},
@@ -119,13 +118,15 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
      {4'h6},
      {4'h5},
      {4'h7},
-     {{3'h0, io_in_bits_inst[31:25] == 7'h20}}};	// src/main/scala/mycpu/core/backend/Decode.scala:33:20, :79:43, :91:26, :152:22, :167:22, :191:22, :204:22, :205:{30,44}, :206:30, :207:30, :208:30, :209:30, :210:30, :211:30, :212:{30,36,44}
-  wire            branchPredictedTaken = (|branchType) & _predictor_io_predictTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:55:16, :95:31, :117:18, :276:{42,63}
-  RegFile regFile (	// src/main/scala/mycpu/core/backend/Decode.scala:38:23
+     {{3'h0, io_in_bits_inst[31:25] == 7'h20}}};	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :64:43, :76:26, :137:22, :152:22, :176:22, :189:22, :190:{30,44}, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :197:{30,36,44}
+  wire            effectiveBranchPredictedTaken =
+    (|branchType)
+    & (io_in_bits_predictedRedirect | (|branchType) & io_in_bits_predictedTaken);	// src/main/scala/mycpu/core/backend/Decode.scala:80:31, :102:18, :262:{42,63}, :263:{72,99}
+  RegFile regFile (	// src/main/scala/mycpu/core/backend/Decode.scala:36:23
     .clock            (clock),
     .reset            (reset),
-    .io_raddr1        (io_in_bits_inst[19:15]),	// src/main/scala/mycpu/core/backend/Decode.scala:34:21
-    .io_raddr2        (io_in_bits_inst[24:20]),	// src/main/scala/mycpu/core/backend/Decode.scala:35:21
+    .io_raddr1        (io_in_bits_inst[19:15]),	// src/main/scala/mycpu/core/backend/Decode.scala:32:21
+    .io_raddr2        (io_in_bits_inst[24:20]),	// src/main/scala/mycpu/core/backend/Decode.scala:33:21
     .io_rdata1        (io_out_bits_data_rs1),
     .io_rdata2        (io_out_bits_data_rs2),
     .io_wen           (io_regWrite_wen),
@@ -163,8 +164,8 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
     .io_debug_regs_29 (io_debug_regs_29),
     .io_debug_regs_30 (io_debug_regs_30),
     .io_debug_regs_31 (io_debug_regs_31)
-  );	// src/main/scala/mycpu/core/backend/Decode.scala:38:23
-  ImmGen immGen (	// src/main/scala/mycpu/core/backend/Decode.scala:47:22
+  );	// src/main/scala/mycpu/core/backend/Decode.scala:36:23
+  ImmGen immGen (	// src/main/scala/mycpu/core/backend/Decode.scala:45:22
     .io_inst (io_in_bits_inst),
     .io_sel
       (_GEN_0
@@ -173,19 +174,9 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
              ? 3'h4
              : _format_T_14
                  ? 3'h2
-                 : io_out_bits_mem_write_0 ? 3'h1 : _format_T_22 ? 3'h5 : 3'h0),	// src/main/scala/mycpu/core/backend/Decode.scala:67:100, :106:11, :108:18, :109:32, :110:32, :111:32, :112:32, :113:32, :114:32, :152:22, :167:22, :191:22
+                 : io_out_bits_mem_write_0 ? 3'h1 : _format_T_22 ? 3'h5 : 3'h0),	// src/main/scala/mycpu/core/backend/Decode.scala:52:100, :91:11, :93:18, :94:32, :95:32, :96:32, :97:32, :98:32, :99:32, :137:22, :152:22, :176:22
     .io_out  (_immGen_io_out)
-  );	// src/main/scala/mycpu/core/backend/Decode.scala:47:22
-  GShareBranchPredictor predictor (	// src/main/scala/mycpu/core/backend/Decode.scala:55:16
-    .clock           (clock),
-    .reset           (reset),
-    .io_pc           (io_in_bits_pc),
-    .io_predictTaken (_predictor_io_predictTaken),
-    .io_predictIndex (io_out_bits_pred_index),
-    .io_update       (io_bpUpdate_valid),
-    .io_updateIndex  (io_bpUpdate_index),
-    .io_actualTaken  (io_bpUpdate_predictedTaken ^ io_bpUpdateRedirect)	// src/main/scala/mycpu/core/backend/Decode.scala:63:52
-  );	// src/main/scala/mycpu/core/backend/Decode.scala:55:16
+  );	// src/main/scala/mycpu/core/backend/Decode.scala:45:22
   assign io_in_ready = io_out_ready;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_valid = io_in_valid;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_data_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
@@ -193,9 +184,9 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
     _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14
     | _io_out_bits_mem_valid_T | io_out_bits_mem_write_0 | _format_T_20
       ? _immGen_io_out
-      : 32'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :47:22, :67:100, :90:24, :117:18, :122:11, :129:11, :136:11, :145:11, :151:11, :166:11, :179:11, :190:11
-  assign io_out_bits_bypass_rs1Addr = io_in_bits_inst[19:15];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :34:21
-  assign io_out_bits_bypass_rs2Addr = io_in_bits_inst[24:20];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :35:21
+      : 32'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :45:22, :52:100, :75:24, :102:18, :107:11, :114:11, :121:11, :130:11, :136:11, :151:11, :164:11, :175:11
+  assign io_out_bits_bypass_rs1Addr = io_in_bits_inst[19:15];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :32:21
+  assign io_out_bits_bypass_rs2Addr = io_in_bits_inst[24:20];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :33:21
   assign io_out_bits_exec_aluOp =
     _format_T_6
       ? 4'hB
@@ -213,13 +204,13 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                   ? 4'h0
                   : _format_T_20
                       ? _GEN_10[io_in_bits_inst[14:12]]
-                      : _format_T_22 ? _GEN_11[io_in_bits_inst[14:12]] : 4'hC;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :32:20, :67:100, :79:43, :91:26, :97:27, :117:18, :120:13, :126:13, :133:13, :142:13, :152:22, :155:59, :156:59, :157:60, :158:60, :163:13, :165:15, :167:22, :176:13, :178:15, :191:22, :192:30, :193:30, :194:30, :195:30, :196:30, :197:30, :198:30, :199:30, :204:22, :205:30, :206:30, :207:30, :208:30, :209:30, :210:30, :211:30, :212:30
-  assign io_out_bits_exec_aluSrcA = ~_format_T_6 & (_format_T_8 | _format_T_10);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100, :92:28, :117:18, :127:15
-  assign io_out_bits_exec_aluSrcB = _GEN_6 | ~_format_T_14 & (_GEN_9 | _format_T_20);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100, :93:28, :95:31, :117:18, :121:15, :128:15, :135:15, :144:15, :165:15, :178:15
-  assign io_out_bits_exec_wbSel = _GEN_0 ? 2'h0 : {_GEN_5, 1'h0};	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :94:26, :95:31, :108:18, :109:32, :110:32, :117:18, :137:13, :146:13
-  assign io_out_bits_exec_branchType = branchType;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :95:31, :117:18
-  assign io_out_bits_exec_isJump = isJump;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :96:27, :117:18
-  assign io_out_bits_exec_isJalr = isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :97:27, :117:18
+                      : _format_T_22 ? _GEN_11[io_in_bits_inst[14:12]] : 4'hC;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :30:20, :52:100, :64:43, :76:26, :82:27, :102:18, :105:13, :111:13, :118:13, :127:13, :137:22, :140:59, :141:59, :142:60, :143:60, :148:13, :150:15, :152:22, :161:13, :163:15, :176:22, :177:30, :178:30, :179:30, :180:30, :181:30, :182:30, :183:30, :184:30, :189:22, :190:30, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :197:30
+  assign io_out_bits_exec_aluSrcA = ~_format_T_6 & (_format_T_8 | _format_T_10);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100, :77:28, :102:18, :112:15
+  assign io_out_bits_exec_aluSrcB = _GEN_6 | ~_format_T_14 & (_GEN_9 | _format_T_20);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100, :78:28, :80:31, :102:18, :106:15, :113:15, :120:15, :129:15, :150:15, :163:15
+  assign io_out_bits_exec_wbSel = _GEN_0 ? 2'h0 : {_GEN_5, 1'h0};	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :79:26, :80:31, :93:18, :94:32, :95:32, :102:18, :122:13, :131:13
+  assign io_out_bits_exec_branchType = branchType;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :80:31, :102:18
+  assign io_out_bits_exec_isJump = isJump;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :102:18
+  assign io_out_bits_exec_isJalr = isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :82:27, :102:18
   assign io_out_bits_wb_regWen =
     _format_T_6
       ? (|(io_in_bits_inst[11:7]))
@@ -235,13 +226,13 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                          : ~io_out_bits_mem_write_0
                            & (_format_T_20
                                 ? (|(io_in_bits_inst[11:7]))
-                                : _format_T_22 & (|(io_in_bits_inst[11:7]))));	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :36:20, :67:100, :95:31, :98:27, :117:18, :119:{14,24}, :125:{14,24}, :132:{14,24}, :141:{14,24}, :162:{14,24}, :187:{14,24}, :203:{14,24}
-  assign io_out_bits_wb_rd = io_in_bits_inst[11:7];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :36:20
-  assign io_out_bits_mem_valid = _io_out_bits_mem_valid_T | io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100, :267:52
-  assign io_out_bits_mem_write = io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100
+                                : _format_T_22 & (|(io_in_bits_inst[11:7]))));	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :34:20, :52:100, :80:31, :83:27, :102:18, :104:{14,24}, :110:{14,24}, :117:{14,24}, :126:{14,24}, :147:{14,24}, :172:{14,24}, :188:{14,24}
+  assign io_out_bits_wb_rd = io_in_bits_inst[11:7];	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :34:20
+  assign io_out_bits_mem_valid = _io_out_bits_mem_valid_T | io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100, :252:52
+  assign io_out_bits_mem_write = io_out_bits_mem_write_0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100
   assign io_out_bits_mem_unsigned =
     ~_GEN_8 & _io_out_bits_mem_valid_T & ~(_format_T_1 | _GEN_2 | _GEN_7)
-    & (_GEN_3 | _GEN_4);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100, :79:43, :99:32, :117:18, :152:22, :167:22, :171:61
+    & (_GEN_3 | _GEN_4);	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100, :64:43, :84:32, :102:18, :137:22, :152:22, :156:61
   assign io_out_bits_mem_subop =
     _GEN_8
       ? 3'h0
@@ -251,13 +242,16 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                : _GEN_2 ? 3'h2 : _GEN_7 ? 3'h3 : _GEN_3 ? 3'h1 : {1'h0, _GEN_4, 1'h0})
           : io_out_bits_mem_write_0
               ? (_format_T_1 ? 3'h1 : _GEN_2 ? 3'h2 : _GEN_7 ? 3'h3 : 3'h0)
-              : 3'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :67:100, :79:43, :87:26, :99:32, :117:18, :152:22, :167:22, :168:30, :169:30, :170:30, :171:30, :172:30, :180:22, :181:30, :182:30, :183:30, :191:22
+              : 3'h0;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :52:100, :64:43, :72:26, :84:32, :102:18, :137:22, :152:22, :153:30, :154:30, :155:30, :156:30, :157:30, :165:22, :166:30, :167:30, :168:30, :176:22
   assign io_out_bits_sys_isEbreak =
     ~(_format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14
       | _io_out_bits_mem_valid_T | io_out_bits_mem_write_0 | _format_T_20 | _format_T_22)
-    & io_in_bits_inst[6:0] == 7'h73 & io_in_bits_inst == 32'h100073;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :31:20, :67:100, :79:16, :104:29, :117:18, :216:64, :220:44
-  assign io_out_bits_pred_predictedTaken = branchPredictedTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :276:63
-  assign io_out_bits_pred_redirectPredicted = branchPredictedTaken | isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :96:27, :97:27, :117:18, :276:63, :277:{36,39}, :279:62
+    & io_in_bits_inst[6:0] == 7'h73 & io_in_bits_inst == 32'h100073;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :29:20, :52:100, :64:16, :89:29, :102:18, :201:64, :205:44
+  assign io_out_bits_pred_predictedTaken = effectiveBranchPredictedTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :263:72
+  assign io_out_bits_pred_redirectPredicted =
+    io_in_bits_predictedRedirect | effectiveBranchPredictedTaken | isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :82:27, :102:18, :263:72, :264:{36,39}, :267:{64,97}
+  assign io_out_bits_pred_fetchPredictedRedirect = io_in_bits_predictedRedirect;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
+  assign io_out_bits_pred_index = io_in_bits_predictIndex;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_trace_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_trace_inst = io_in_bits_inst;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
 endmodule

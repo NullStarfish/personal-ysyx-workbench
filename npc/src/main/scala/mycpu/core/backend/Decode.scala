@@ -5,7 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.common.Instructions._
 import mycpu.core.bundles._
-import mycpu.core.components.{GShareBranchPredictor, ImmGen, RegFile}
+import mycpu.core.components.{ImmGen, RegFile}
 
 class Decode(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
@@ -16,8 +16,6 @@ class Decode(
     val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket(enableTraceFields))
     val regWrite = Flipped(new WriteBackIO())
-    val bpUpdate = Input(new BranchPredictUpdateBundle)
-    val bpUpdateRedirect = Input(Bool())
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
     val hazard = Output(new Bundle {
       val rs1Used = Bool()
@@ -50,19 +48,6 @@ class Decode(
 
   val rs1Raw = regFile.io.rdata1
   val rs2Raw = regFile.io.rdata2
-
-  val predictor = if (ENABLE_BRANCH_PREDICTOR) {
-    Some(Module(new GShareBranchPredictor(entries = 32, historyLength = 5)))
-  } else {
-    None
-  }
-  predictor.foreach { p =>
-    p.io.pc := io.in.bits.pc
-    p.io.update := io.bpUpdate.valid
-    p.io.updateIndex := io.bpUpdate.index
-    p.io.actualTaken := io.bpUpdate.predictedTaken ^ io.bpUpdateRedirect
-    p.io.predictedTaken := io.bpUpdate.predictedTaken
-  }
 
   private def decodeFormat(opcode: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
     Seq(
@@ -273,11 +258,15 @@ class Decode(
   io.out.bits.sys.isEcall := isEcall
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
-  val branchPredictedTaken = (branchType =/= BranchType.None) && predictor.map(_.io.predictTaken).getOrElse(false.B)
+  val fetchPredictedRedirect = io.in.bits.predictedRedirect
+  val branchPredictedTaken = (branchType =/= BranchType.None) && io.in.bits.predictedTaken
+  val effectiveBranchPredictedTaken = (branchType =/= BranchType.None) && (fetchPredictedRedirect || branchPredictedTaken)
   val directJumpPredicted = isJump && !isJalr
-  io.out.bits.pred.predictedTaken := branchPredictedTaken
-  io.out.bits.pred.redirectPredicted := branchPredictedTaken || directJumpPredicted
-  io.out.bits.pred.index := predictor.map(_.io.predictIndex).getOrElse(0.U)
+  io.out.bits.pred.predictedTaken := effectiveBranchPredictedTaken
+  io.out.bits.pred.directionPredictedTaken := branchPredictedTaken
+  io.out.bits.pred.redirectPredicted := fetchPredictedRedirect || effectiveBranchPredictedTaken || directJumpPredicted
+  io.out.bits.pred.fetchPredictedRedirect := fetchPredictedRedirect
+  io.out.bits.pred.index := io.in.bits.predictIndex
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.pc
     io.out.bits.trace.get.inst := io.in.bits.inst

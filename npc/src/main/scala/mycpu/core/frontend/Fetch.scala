@@ -74,6 +74,9 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       outBitsReg.pc := reqPcReg
       outBitsReg.inst := readBridge.io.rStream.bits.data
       outBitsReg.isException := readBridge.io.rStream.bits.resp =/= AXI4Parameters.RESP_OKAY
+      outBitsReg.predictedTaken := false.B
+      outBitsReg.predictedRedirect := false.B
+      outBitsReg.predictIndex := 0.U
       outValidReg := true.B
     }
   }
