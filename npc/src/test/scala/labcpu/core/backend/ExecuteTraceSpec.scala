@@ -34,6 +34,7 @@ class ExecuteTraceSpec extends AnyFlatSpec {
       c.io.in.bits.sys.isMret.poke(false.B)
       c.io.in.bits.sys.isEbreak.poke(false.B)
       c.io.in.bits.pred.predictedTaken.poke(true.B)
+      c.io.in.bits.pred.redirectPredicted.poke(true.B)
       c.io.in.bits.trace.get.pc.poke(0x100.U)
       c.io.in.bits.trace.get.inst.poke("h00108463".U)
       c.io.in.bits.trace.get.dnpc.poke(0x104.U)

@@ -2,12 +2,12 @@ package labcpu.core
 
 import chisel3._
 import chisel3.util._
-import labcpu.core.backend.WriteBack
+import labcpu.core.backend.{CourseOperandForward, WriteBack}
 import labcpu.core.bundles._
 import labcpu.core.components.HazardUnit
 import labcpu.core.frontend.Fetch
 import mycpu.common._
-import mycpu.core.backend.{Decode, Execute, ExecuteOperandSelect}
+import mycpu.core.backend.{Decode, Execute}
 import mycpu.core.bundles._
 import mycpu.core.components.{FlushableStage, Tracer}
 
@@ -29,9 +29,9 @@ class CourseCore(
   })
 
   val fetch = Module(new Fetch(startAddr, enableTraceFields = enableTraceFields))
-  val decode = Module(new Decode(enableTraceFields = enableTraceFields))
-  val operandSelect = Module(new ExecuteOperandSelect(enableTraceFields = enableTraceFields))
-  val execute = Module(new Execute(enableTraceFields = enableTraceFields))
+  val decode = Module(new Decode(enableTraceFields = enableTraceFields, enableSys = false))
+  val operandSelect = Module(new CourseOperandForward(enableTraceFields = enableTraceFields))
+  val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableSys = false))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
   val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
@@ -64,10 +64,8 @@ class CourseCore(
   idEx.io.deq.ready := operandSelect.io.in.ready
   idEx.io.flush := hazard.io.redirectFlush
 
-  operandSelect.io.exForward.valid := exWb.io.deq.valid
-  operandSelect.io.exForward.bits := exWb.io.deq.bits
-  operandSelect.io.memForward.valid := exWb.io.deq.valid
-  operandSelect.io.memForward.bits := writeBack.io.out
+  operandSelect.io.forward.valid := exWb.io.deq.valid
+  operandSelect.io.forward.bits := writeBack.io.out
   operandSelect.io.in.valid := idEx.io.deq.valid
   operandSelect.io.in.bits := idEx.io.deq.bits
 
@@ -83,8 +81,7 @@ class CourseCore(
 
   val decodeFire = idEx.io.enq.fire
   val decodePredictedRedirect = decodeFire &&
-    decode.io.out.bits.exec.branchType =/= BranchType.None &&
-    decode.io.out.bits.pred.predictedTaken
+    decode.io.out.bits.pred.redirectPredicted
   val decodePredictedTarget = decode.io.out.bits.data.pc + decode.io.out.bits.data.imm
   val exRedirectValid = exWb.io.deq.valid && exWb.io.deq.bits.redirect
   val fetchRedirectValid = hazard.io.redirectFlush || decodePredictedRedirect

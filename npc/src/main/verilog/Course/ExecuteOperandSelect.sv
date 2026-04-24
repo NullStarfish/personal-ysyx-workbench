@@ -27,6 +27,7 @@ module ExecuteOperandSelect(	// src/main/scala/mycpu/core/backend/ExecuteOperand
                 io_in_bits_sys_isMret,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_in_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_in_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
+                io_in_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   input  [4:0]  io_in_bits_pred_index,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   input  [31:0] io_in_bits_trace_pc,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_in_bits_trace_inst,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
@@ -55,15 +56,11 @@ module ExecuteOperandSelect(	// src/main/scala/mycpu/core/backend/ExecuteOperand
                 io_out_bits_sys_isMret,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_out_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_out_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
+                io_out_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   output [4:0]  io_out_bits_pred_index,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   output [31:0] io_out_bits_trace_pc,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
                 io_out_bits_trace_inst,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-  input         io_exForward_valid,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-  input  [31:0] io_exForward_bits_result,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-  input         io_exForward_bits_wb_regWen,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-  input  [4:0]  io_exForward_bits_wb_rd,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-  input         io_exForward_bits_mem_valid,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
-                io_memForward_valid,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
+  input         io_memForward_valid,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   input  [31:0] io_memForward_bits_wbData,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   input         io_memForward_bits_wb_regWen,	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
   input  [4:0]  io_memForward_bits_wb_rd	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:9:14
@@ -73,25 +70,15 @@ module ExecuteOperandSelect(	// src/main/scala/mycpu/core/backend/ExecuteOperand
   assign io_out_valid = io_in_valid;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_data_pc = io_in_bits_data_pc;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_data_rs1 =
-    io_exForward_valid & io_exForward_bits_wb_regWen & ~io_exForward_bits_mem_valid
-    & (|io_exForward_bits_wb_rd) & (|io_in_bits_bypass_rs1Addr)
-    & io_exForward_bits_wb_rd == io_in_bits_bypass_rs1Addr
-      ? io_exForward_bits_result
-      : io_memForward_valid & io_memForward_bits_wb_regWen & (|io_memForward_bits_wb_rd)
-        & (|io_in_bits_bypass_rs1Addr)
-        & io_memForward_bits_wb_rd == io_in_bits_bypass_rs1Addr
-          ? io_memForward_bits_wbData
-          : io_in_bits_data_rs1;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7, :17:{15,33,44,52,69}, :21:8, :24:10, src/main/scala/mycpu/core/bundles/PipelineData.scala:164:{40,43,54,64}, :174:{40,50}
+    io_memForward_valid & io_memForward_bits_wb_regWen & (|io_memForward_bits_wb_rd)
+    & (|io_in_bits_bypass_rs1Addr) & io_memForward_bits_wb_rd == io_in_bits_bypass_rs1Addr
+      ? io_memForward_bits_wbData
+      : io_in_bits_data_rs1;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7, :17:{15,33,44,52,69}, :24:10, src/main/scala/mycpu/core/bundles/PipelineData.scala:175:{40,50}
   assign io_out_bits_data_rs2 =
-    io_exForward_valid & io_exForward_bits_wb_regWen & ~io_exForward_bits_mem_valid
-    & (|io_exForward_bits_wb_rd) & (|io_in_bits_bypass_rs2Addr)
-    & io_exForward_bits_wb_rd == io_in_bits_bypass_rs2Addr
-      ? io_exForward_bits_result
-      : io_memForward_valid & io_memForward_bits_wb_regWen & (|io_memForward_bits_wb_rd)
-        & (|io_in_bits_bypass_rs2Addr)
-        & io_memForward_bits_wb_rd == io_in_bits_bypass_rs2Addr
-          ? io_memForward_bits_wbData
-          : io_in_bits_data_rs2;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7, :17:{15,33,44,52,69}, :21:8, :24:10, src/main/scala/mycpu/core/bundles/PipelineData.scala:164:{40,43,54,64}, :174:{40,50}
+    io_memForward_valid & io_memForward_bits_wb_regWen & (|io_memForward_bits_wb_rd)
+    & (|io_in_bits_bypass_rs2Addr) & io_memForward_bits_wb_rd == io_in_bits_bypass_rs2Addr
+      ? io_memForward_bits_wbData
+      : io_in_bits_data_rs2;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7, :17:{15,33,44,52,69}, :24:10, src/main/scala/mycpu/core/bundles/PipelineData.scala:175:{40,50}
   assign io_out_bits_data_imm = io_in_bits_data_imm;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_exec_aluOp = io_in_bits_exec_aluOp;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_exec_aluSrcA = io_in_bits_exec_aluSrcA;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
@@ -112,6 +99,7 @@ module ExecuteOperandSelect(	// src/main/scala/mycpu/core/backend/ExecuteOperand
   assign io_out_bits_sys_isMret = io_in_bits_sys_isMret;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_sys_isEbreak = io_in_bits_sys_isEbreak;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_pred_predictedTaken = io_in_bits_pred_predictedTaken;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
+  assign io_out_bits_pred_redirectPredicted = io_in_bits_pred_redirectPredicted;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_pred_index = io_in_bits_pred_index;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_trace_pc = io_in_bits_trace_pc;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7
   assign io_out_bits_trace_inst = io_in_bits_trace_inst;	// src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala:8:7

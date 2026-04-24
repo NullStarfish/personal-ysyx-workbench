@@ -152,4 +152,77 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.out.bits.wb.regWen.expect(false.B)
     }
   }
+
+  it should "decode CSR and sys controls when sys support is enabled by default" in {
+    simulate(new Decode) { c =>
+      c.reset.poke(true.B)
+      c.io.in.valid.poke(false.B)
+      c.io.out.ready.poke(true.B)
+      c.io.regWrite.wen.poke(false.B)
+      c.io.regWrite.addr.poke(0.U)
+      c.io.regWrite.data.poke(0.U)
+      c.io.bpUpdate.valid.poke(false.B)
+      c.io.bpUpdate.index.poke(0.U)
+      c.io.bpUpdate.predictedTaken.poke(false.B)
+      c.io.bpUpdateRedirect.poke(false.B)
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.pc.poke(START_ADDR.U)
+      c.io.in.bits.inst.poke("h305110f3".U) // csrrw x1, mtvec, x2
+      c.io.in.bits.isException.poke(false.B)
+      c.clock.step()
+
+      c.io.out.bits.exec.wbSel.expect(WBSel.Csr)
+      c.io.out.bits.sys.csrAddr.expect("h305".U)
+      c.io.out.bits.sys.csrOp.expect(CSROp.W)
+      c.io.out.bits.wb.regWen.expect(true.B)
+      c.io.hazard.rs1Used.expect(true.B)
+
+      c.io.in.bits.inst.poke("h00000073".U) // ecall
+      c.clock.step()
+      c.io.out.bits.sys.isEcall.expect(true.B)
+
+      c.io.in.bits.inst.poke("h30200073".U) // mret
+      c.clock.step()
+      c.io.out.bits.sys.isMret.expect(true.B)
+    }
+  }
+
+  it should "drop CSR and trap decode while keeping ebreak when sys support is disabled" in {
+    simulate(new Decode(enableSys = false)) { c =>
+      c.reset.poke(true.B)
+      c.io.in.valid.poke(false.B)
+      c.io.out.ready.poke(true.B)
+      c.io.regWrite.wen.poke(false.B)
+      c.io.regWrite.addr.poke(0.U)
+      c.io.regWrite.data.poke(0.U)
+      c.io.bpUpdate.valid.poke(false.B)
+      c.io.bpUpdate.index.poke(0.U)
+      c.io.bpUpdate.predictedTaken.poke(false.B)
+      c.io.bpUpdateRedirect.poke(false.B)
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.pc.poke(START_ADDR.U)
+      c.io.in.bits.inst.poke("h305110f3".U) // csrrw x1, mtvec, x2
+      c.io.in.bits.isException.poke(false.B)
+      c.clock.step()
+
+      c.io.out.bits.exec.wbSel.expect(WBSel.Alu)
+      c.io.out.bits.sys.csrOp.expect(CSROp.N)
+      c.io.out.bits.wb.regWen.expect(false.B)
+      c.io.hazard.rs1Used.expect(false.B)
+
+      c.io.in.bits.inst.poke("h00000073".U) // ecall
+      c.clock.step()
+      c.io.out.bits.sys.isEcall.expect(false.B)
+
+      c.io.in.bits.inst.poke("h00100073".U) // ebreak
+      c.clock.step()
+      c.io.out.bits.sys.isEbreak.expect(true.B)
+    }
+  }
 }

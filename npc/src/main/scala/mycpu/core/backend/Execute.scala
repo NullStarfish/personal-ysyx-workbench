@@ -6,7 +6,11 @@ import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components._
 
-class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
+class Execute(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableSys: Boolean = true,
+    enableSimEbreak: Boolean = true,
+) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new DecodePacket(enableTraceFields)))
     val out = Decoupled(new ExecutePacket(enableTraceFields))
@@ -28,21 +32,33 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   alu.io.b := aluInB
   alu.io.op := data.exec.aluOp
 
-  val csr = Module(new CSR)
-  csr.io.cmd := data.sys.csrOp
-  csr.io.addr := data.sys.csrAddr
-  csr.io.wdata := data.data.rs1
-  csr.io.pc := data.data.pc
-  csr.io.isEcall := data.sys.isEcall && io.in.valid
-  csr.io.isMret := data.sys.isMret && io.in.valid
-  io.debug_csrs.mtvec := csr.io.debug_mtvec
-  io.debug_csrs.mepc := csr.io.debug_mepc
-  io.debug_csrs.mstatus := csr.io.debug_mstatus
-  io.debug_csrs.mcause := csr.io.debug_mcause
+  val csrReadData = WireDefault(0.U(XLEN.W))
+  val csrEvec = WireDefault(0.U(XLEN.W))
+  val csrEpc = WireDefault(0.U(XLEN.W))
+  io.debug_csrs := 0.U.asTypeOf(io.debug_csrs)
 
-  val simEbreak = Module(new SimEbreak)
-  simEbreak.io.valid := data.sys.isEbreak && io.in.valid
-  simEbreak.io.is_ebreak := 0.U
+  if (enableSys) {
+    val csr = Module(new CSR)
+    csr.io.cmd := data.sys.csrOp
+    csr.io.addr := data.sys.csrAddr
+    csr.io.wdata := data.data.rs1
+    csr.io.pc := data.data.pc
+    csr.io.isEcall := data.sys.isEcall && io.in.valid
+    csr.io.isMret := data.sys.isMret && io.in.valid
+    csrReadData := csr.io.rdata
+    csrEvec := csr.io.evec
+    csrEpc := csr.io.epc
+    io.debug_csrs.mtvec := csr.io.debug_mtvec
+    io.debug_csrs.mepc := csr.io.debug_mepc
+    io.debug_csrs.mstatus := csr.io.debug_mstatus
+    io.debug_csrs.mcause := csr.io.debug_mcause
+  }
+
+  if (enableSimEbreak) {
+    val simEbreak = Module(new SimEbreak)
+    simEbreak.io.valid := data.sys.isEbreak && io.in.valid
+    simEbreak.io.is_ebreak := 0.U
+  }
 
   val rs1 = data.data.rs1
   val rs2 = data.data.rs2
@@ -70,15 +86,16 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val branchActualTakenForRedirect = isBranch && takeBranchForRedirect
   val branchActualTakenForUpdate = isBranch && takeBranchForUpdate
   val branchPredictedTaken = data.pred.predictedTaken
+  val redirectPredicted = data.pred.redirectPredicted
   val branchMispredictForRedirect = isBranch && (branchActualTakenForRedirect =/= branchPredictedTaken)
   // On a branch mispredict, the recovery target is fully determined by the original prediction:
   // predicted taken  -> recover to fallthrough
   // predicted not-taken -> recover to branch target
   val branchRecoveryTarget = Mux(branchPredictedTaken, pcPlus4, branchDirectTarget)
   val jumpRedirectTarget = Mux(data.exec.isJalr, indirectTarget, jumpDirectTarget)
-  val sysRedirectTarget = Mux(data.sys.isMret, csr.io.epc, csr.io.evec)
-  val hasSysRedirect = data.sys.isEcall || data.sys.isMret
-  val hasJumpRedirect = data.exec.isJump
+  val sysRedirectTarget = Mux(data.sys.isMret, csrEpc, csrEvec)
+  val hasSysRedirect = enableSys.B && (data.sys.isEcall || data.sys.isMret)
+  val hasJumpRedirect = data.exec.isJump && (data.exec.isJalr || !redirectPredicted)
   val hasBranchRecovery = isBranch
 
   val redirectTarget = Mux(
@@ -95,17 +112,22 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       hasJumpRedirect ||
       hasSysRedirect
 
-  val result = MuxLookup(data.exec.wbSel, alu.io.out)(Seq(
-    WBSel.Alu -> alu.io.out,
-    WBSel.Csr -> csr.io.rdata,
-    WBSel.PcPlus4 -> pcPlus4,
-  ))
+  val result =
+    if (enableSys) {
+      MuxLookup(data.exec.wbSel, alu.io.out)(Seq(
+        WBSel.Alu -> alu.io.out,
+        WBSel.Csr -> csrReadData,
+        WBSel.PcPlus4 -> pcPlus4,
+      ))
+    } else {
+      Mux(data.exec.wbSel === WBSel.PcPlus4, pcPlus4, alu.io.out)
+    }
   val architecturalNextPc = MuxCase(data.data.pc + 4.U, Seq(
     (isBranch && branchActualTakenForRedirect) -> branchDirectTarget,
     (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
     data.exec.isJump -> jumpDirectTarget,
-    data.sys.isEcall -> csr.io.evec,
-    data.sys.isMret -> csr.io.epc,
+    (enableSys.B && data.sys.isEcall) -> csrEvec,
+    (enableSys.B && data.sys.isMret) -> csrEpc,
   ))
 
   io.out.bits.result := result

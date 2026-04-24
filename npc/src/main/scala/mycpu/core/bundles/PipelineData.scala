@@ -112,6 +112,7 @@ class CsrDebugBundle extends Bundle {
 
 class BranchPredictionBundle extends Bundle {
   val predictedTaken = Bool()
+  val redirectPredicted = Bool()
   val index = UInt(5.W)
 }
 

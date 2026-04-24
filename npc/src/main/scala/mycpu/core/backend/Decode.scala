@@ -7,7 +7,11 @@ import mycpu.common.Instructions._
 import mycpu.core.bundles._
 import mycpu.core.components.{GShareBranchPredictor, ImmGen, RegFile}
 
-class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
+class Decode(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableSys: Boolean = true,
+    enableSimEbreak: Boolean = true,
+) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket(enableTraceFields))
@@ -209,13 +213,13 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
       }
     }
     is("b1110011".U) { // csr/sys
-      when(inst === Instructions.ECALL.value.U) {
+      when(enableSys.B && inst === Instructions.ECALL.value.U) {
         isEcall := true.B
-      }.elsewhen(inst === Instructions.MRET.value.U) {
+      }.elsewhen(enableSys.B && inst === Instructions.MRET.value.U) {
         isMret := true.B
-      }.elsewhen(inst === Instructions.EBREAK.value.U) {
+      }.elsewhen(enableSimEbreak.B && inst === Instructions.EBREAK.value.U) {
         isEbreak := true.B
-      }.otherwise {
+      }.elsewhen(enableSys.B) {
         regWen := rdAddr =/= 0.U
         wbSel := WBSel.Csr
         csrOp := MuxLookup(funct3, CSROp.N)(Seq(
@@ -236,11 +240,11 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   io.hazard.rs1Addr := rs1Addr
   io.hazard.rs2Addr := rs2Addr
   io.hazard.rs1Used :=
-    format === DecodeFormat.RegReg ||
+      format === DecodeFormat.RegReg ||
       format === DecodeFormat.RegImm ||
       format === DecodeFormat.RegOffset ||
       format === DecodeFormat.RegRegOffset ||
-      format === DecodeFormat.CsrReg
+      (enableSys.B && format === DecodeFormat.CsrReg)
   io.hazard.rs2Used :=
     format === DecodeFormat.RegReg ||
       format === DecodeFormat.RegRegOffset
@@ -269,7 +273,10 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   io.out.bits.sys.isEcall := isEcall
   io.out.bits.sys.isMret := isMret
   io.out.bits.sys.isEbreak := isEbreak
-  io.out.bits.pred.predictedTaken := (branchType =/= BranchType.None) && predictor.map(_.io.predictTaken).getOrElse(false.B)
+  val branchPredictedTaken = (branchType =/= BranchType.None) && predictor.map(_.io.predictTaken).getOrElse(false.B)
+  val directJumpPredicted = isJump && !isJalr
+  io.out.bits.pred.predictedTaken := branchPredictedTaken
+  io.out.bits.pred.redirectPredicted := branchPredictedTaken || directJumpPredicted
   io.out.bits.pred.index := predictor.map(_.io.predictIndex).getOrElse(0.U)
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.pc

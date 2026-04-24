@@ -23,12 +23,9 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
                 io_enq_bits_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_enq_bits_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   input  [2:0]  io_enq_bits_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  input  [1:0]  io_enq_bits_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  input  [11:0] io_enq_bits_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  input         io_enq_bits_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-                io_enq_bits_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-                io_enq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+  input         io_enq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_enq_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_enq_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   input  [4:0]  io_enq_bits_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   input  [31:0] io_enq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_enq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
@@ -53,12 +50,9 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
                 io_deq_bits_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_deq_bits_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output [2:0]  io_deq_bits_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  output [1:0]  io_deq_bits_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  output [11:0] io_deq_bits_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  output        io_deq_bits_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-                io_deq_bits_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-                io_deq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+  output        io_deq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_deq_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_deq_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output [4:0]  io_deq_bits_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output [31:0] io_deq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_deq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
@@ -69,64 +63,58 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
   wire canAccept = ~_valid_io_out | io_deq_ready;	// src/main/scala/mycpu/core/components/FlushableStage.scala:49:21, :50:{19,33}
   wire payload_io_en = canAccept & io_enq_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/components/FlushableStage.scala:50:33
   PayloadReg_1 payload (	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:23
-    .clock                      (clock),
-    .io_en                      (payload_io_en),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .io_in_data_pc              (io_enq_bits_data_pc),
-    .io_in_data_rs1             (io_enq_bits_data_rs1),
-    .io_in_data_rs2             (io_enq_bits_data_rs2),
-    .io_in_data_imm             (io_enq_bits_data_imm),
-    .io_in_bypass_rs1Addr       (io_enq_bits_bypass_rs1Addr),
-    .io_in_bypass_rs2Addr       (io_enq_bits_bypass_rs2Addr),
-    .io_in_exec_aluOp           (io_enq_bits_exec_aluOp),
-    .io_in_exec_aluSrcA         (io_enq_bits_exec_aluSrcA),
-    .io_in_exec_aluSrcB         (io_enq_bits_exec_aluSrcB),
-    .io_in_exec_wbSel           (io_enq_bits_exec_wbSel),
-    .io_in_exec_branchType      (io_enq_bits_exec_branchType),
-    .io_in_exec_isJump          (io_enq_bits_exec_isJump),
-    .io_in_exec_isJalr          (io_enq_bits_exec_isJalr),
-    .io_in_wb_regWen            (io_enq_bits_wb_regWen),
-    .io_in_wb_rd                (io_enq_bits_wb_rd),
-    .io_in_mem_valid            (io_enq_bits_mem_valid),
-    .io_in_mem_write            (io_enq_bits_mem_write),
-    .io_in_mem_unsigned         (io_enq_bits_mem_unsigned),
-    .io_in_mem_subop            (io_enq_bits_mem_subop),
-    .io_in_sys_csrOp            (io_enq_bits_sys_csrOp),
-    .io_in_sys_csrAddr          (io_enq_bits_sys_csrAddr),
-    .io_in_sys_isEcall          (io_enq_bits_sys_isEcall),
-    .io_in_sys_isMret           (io_enq_bits_sys_isMret),
-    .io_in_sys_isEbreak         (io_enq_bits_sys_isEbreak),
-    .io_in_pred_predictedTaken  (io_enq_bits_pred_predictedTaken),
-    .io_in_pred_index           (io_enq_bits_pred_index),
-    .io_in_trace_pc             (io_enq_bits_trace_pc),
-    .io_in_trace_inst           (io_enq_bits_trace_inst),
-    .io_out_data_pc             (io_deq_bits_data_pc),
-    .io_out_data_rs1            (io_deq_bits_data_rs1),
-    .io_out_data_rs2            (io_deq_bits_data_rs2),
-    .io_out_data_imm            (io_deq_bits_data_imm),
-    .io_out_bypass_rs1Addr      (io_deq_bits_bypass_rs1Addr),
-    .io_out_bypass_rs2Addr      (io_deq_bits_bypass_rs2Addr),
-    .io_out_exec_aluOp          (io_deq_bits_exec_aluOp),
-    .io_out_exec_aluSrcA        (io_deq_bits_exec_aluSrcA),
-    .io_out_exec_aluSrcB        (io_deq_bits_exec_aluSrcB),
-    .io_out_exec_wbSel          (io_deq_bits_exec_wbSel),
-    .io_out_exec_branchType     (io_deq_bits_exec_branchType),
-    .io_out_exec_isJump         (io_deq_bits_exec_isJump),
-    .io_out_exec_isJalr         (io_deq_bits_exec_isJalr),
-    .io_out_wb_regWen           (io_deq_bits_wb_regWen),
-    .io_out_wb_rd               (io_deq_bits_wb_rd),
-    .io_out_mem_valid           (io_deq_bits_mem_valid),
-    .io_out_mem_write           (io_deq_bits_mem_write),
-    .io_out_mem_unsigned        (io_deq_bits_mem_unsigned),
-    .io_out_mem_subop           (io_deq_bits_mem_subop),
-    .io_out_sys_csrOp           (io_deq_bits_sys_csrOp),
-    .io_out_sys_csrAddr         (io_deq_bits_sys_csrAddr),
-    .io_out_sys_isEcall         (io_deq_bits_sys_isEcall),
-    .io_out_sys_isMret          (io_deq_bits_sys_isMret),
-    .io_out_sys_isEbreak        (io_deq_bits_sys_isEbreak),
-    .io_out_pred_predictedTaken (io_deq_bits_pred_predictedTaken),
-    .io_out_pred_index          (io_deq_bits_pred_index),
-    .io_out_trace_pc            (io_deq_bits_trace_pc),
-    .io_out_trace_inst          (io_deq_bits_trace_inst)
+    .clock                         (clock),
+    .io_en                         (payload_io_en),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .io_in_data_pc                 (io_enq_bits_data_pc),
+    .io_in_data_rs1                (io_enq_bits_data_rs1),
+    .io_in_data_rs2                (io_enq_bits_data_rs2),
+    .io_in_data_imm                (io_enq_bits_data_imm),
+    .io_in_bypass_rs1Addr          (io_enq_bits_bypass_rs1Addr),
+    .io_in_bypass_rs2Addr          (io_enq_bits_bypass_rs2Addr),
+    .io_in_exec_aluOp              (io_enq_bits_exec_aluOp),
+    .io_in_exec_aluSrcA            (io_enq_bits_exec_aluSrcA),
+    .io_in_exec_aluSrcB            (io_enq_bits_exec_aluSrcB),
+    .io_in_exec_wbSel              (io_enq_bits_exec_wbSel),
+    .io_in_exec_branchType         (io_enq_bits_exec_branchType),
+    .io_in_exec_isJump             (io_enq_bits_exec_isJump),
+    .io_in_exec_isJalr             (io_enq_bits_exec_isJalr),
+    .io_in_wb_regWen               (io_enq_bits_wb_regWen),
+    .io_in_wb_rd                   (io_enq_bits_wb_rd),
+    .io_in_mem_valid               (io_enq_bits_mem_valid),
+    .io_in_mem_write               (io_enq_bits_mem_write),
+    .io_in_mem_unsigned            (io_enq_bits_mem_unsigned),
+    .io_in_mem_subop               (io_enq_bits_mem_subop),
+    .io_in_sys_isEbreak            (io_enq_bits_sys_isEbreak),
+    .io_in_pred_predictedTaken     (io_enq_bits_pred_predictedTaken),
+    .io_in_pred_redirectPredicted  (io_enq_bits_pred_redirectPredicted),
+    .io_in_pred_index              (io_enq_bits_pred_index),
+    .io_in_trace_pc                (io_enq_bits_trace_pc),
+    .io_in_trace_inst              (io_enq_bits_trace_inst),
+    .io_out_data_pc                (io_deq_bits_data_pc),
+    .io_out_data_rs1               (io_deq_bits_data_rs1),
+    .io_out_data_rs2               (io_deq_bits_data_rs2),
+    .io_out_data_imm               (io_deq_bits_data_imm),
+    .io_out_bypass_rs1Addr         (io_deq_bits_bypass_rs1Addr),
+    .io_out_bypass_rs2Addr         (io_deq_bits_bypass_rs2Addr),
+    .io_out_exec_aluOp             (io_deq_bits_exec_aluOp),
+    .io_out_exec_aluSrcA           (io_deq_bits_exec_aluSrcA),
+    .io_out_exec_aluSrcB           (io_deq_bits_exec_aluSrcB),
+    .io_out_exec_wbSel             (io_deq_bits_exec_wbSel),
+    .io_out_exec_branchType        (io_deq_bits_exec_branchType),
+    .io_out_exec_isJump            (io_deq_bits_exec_isJump),
+    .io_out_exec_isJalr            (io_deq_bits_exec_isJalr),
+    .io_out_wb_regWen              (io_deq_bits_wb_regWen),
+    .io_out_wb_rd                  (io_deq_bits_wb_rd),
+    .io_out_mem_valid              (io_deq_bits_mem_valid),
+    .io_out_mem_write              (io_deq_bits_mem_write),
+    .io_out_mem_unsigned           (io_deq_bits_mem_unsigned),
+    .io_out_mem_subop              (io_deq_bits_mem_subop),
+    .io_out_sys_isEbreak           (io_deq_bits_sys_isEbreak),
+    .io_out_pred_predictedTaken    (io_deq_bits_pred_predictedTaken),
+    .io_out_pred_redirectPredicted (io_deq_bits_pred_redirectPredicted),
+    .io_out_pred_index             (io_deq_bits_pred_index),
+    .io_out_trace_pc               (io_deq_bits_trace_pc),
+    .io_out_trace_inst             (io_deq_bits_trace_inst)
   );	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:23
   ValidReg valid (	// src/main/scala/mycpu/core/components/FlushableStage.scala:49:21
     .clock      (clock),

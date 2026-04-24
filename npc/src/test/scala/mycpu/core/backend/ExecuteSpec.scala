@@ -113,4 +113,44 @@ class ExecuteSpec extends AnyFlatSpec {
       c.io.out.bits.mem.subop.expect(ExecSubop.Byte)
     }
   }
+
+  it should "keep CSR read and write behavior enabled by default" in {
+    simulate(new Execute) { c =>
+      initInput(c)
+      c.io.in.bits.data.rs1.poke("h12345678".U)
+      c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
+      c.io.in.bits.sys.csrAddr.poke("h305".U) // mtvec
+      c.io.in.bits.sys.csrOp.poke(CSROp.W)
+      c.clock.step()
+
+      initInput(c)
+      c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
+      c.io.in.bits.sys.csrAddr.poke("h305".U)
+      c.clock.step()
+
+      c.io.out.bits.result.expect("h12345678".U)
+      c.io.debug_csrs.mtvec.expect("h12345678".U)
+    }
+  }
+
+  it should "redirect ecall to mtvec and record trap CSRs when sys support is enabled" in {
+    simulate(new Execute) { c =>
+      initInput(c)
+      c.io.in.bits.data.rs1.poke("h00000100".U)
+      c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
+      c.io.in.bits.sys.csrAddr.poke("h305".U) // mtvec
+      c.io.in.bits.sys.csrOp.poke(CSROp.W)
+      c.clock.step()
+
+      initInput(c)
+      c.io.in.bits.data.pc.poke("h80000080".U)
+      c.io.in.bits.sys.isEcall.poke(true.B)
+      c.clock.step()
+
+      c.io.out.bits.redirect.expect(true.B)
+      c.io.out.bits.rhs.expect("h00000100".U)
+      c.io.debug_csrs.mepc.expect("h80000080".U)
+      c.io.debug_csrs.mcause.expect(11.U)
+    }
+  }
 }

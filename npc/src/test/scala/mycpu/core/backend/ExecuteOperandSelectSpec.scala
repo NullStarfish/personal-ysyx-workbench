@@ -35,6 +35,7 @@ class ExecuteOperandSelectSpec extends AnyFlatSpec {
     c.io.in.bits.sys.isMret.poke(false.B)
     c.io.in.bits.sys.isEbreak.poke(false.B)
     c.io.in.bits.pred.predictedTaken.poke(false.B)
+    c.io.in.bits.pred.redirectPredicted.poke(false.B)
     c.io.exForward.valid.poke(false.B)
     c.io.exForward.bits.result.poke(0.U)
     c.io.exForward.bits.rhs.poke(0.U)
