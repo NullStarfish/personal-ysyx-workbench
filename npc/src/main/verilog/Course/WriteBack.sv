@@ -6,6 +6,16 @@ module WriteBack(	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
   input  [4:0]  io_in_bits_wb_rd,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
   input         io_in_bits_mem_valid,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
                 io_in_bits_mem_write,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  input  [31:0] io_in_bits_trace_pc,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+                io_in_bits_trace_inst,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+                io_in_bits_trace_dnpc,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  output        io_traceCommit_valid,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  output [31:0] io_traceCommit_bits_pc,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+                io_traceCommit_bits_inst,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+                io_traceCommit_bits_dnpc,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  output        io_traceCommit_bits_regWen,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  output [4:0]  io_traceCommit_bits_rd,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
+  output [31:0] io_traceCommit_bits_data,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
   input  [31:0] io_dmemRdata,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
   output [31:0] io_out_wbData,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
   output        io_out_wb_regWen,	// src/main/scala/labcpu/core/backend/WriteBack.scala:9:14
@@ -17,6 +27,13 @@ module WriteBack(	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
 
   wire [31:0] wbData =
     io_in_bits_mem_valid & ~io_in_bits_mem_write ? io_dmemRdata : io_in_bits_result;	// src/main/scala/labcpu/core/backend/WriteBack.scala:17:19, :18:{26,29}
+  assign io_traceCommit_valid = io_in_valid;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_pc = io_in_bits_trace_pc;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_inst = io_in_bits_trace_inst;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_dnpc = io_in_bits_trace_dnpc;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_regWen = io_in_bits_wb_regWen;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_rd = io_in_bits_wb_rd;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
+  assign io_traceCommit_bits_data = wbData;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7, :17:19
   assign io_out_wbData = wbData;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7, :17:19
   assign io_out_wb_regWen = io_in_bits_wb_regWen;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7
   assign io_out_wb_rd = io_in_bits_wb_rd;	// src/main/scala/labcpu/core/backend/WriteBack.scala:8:7

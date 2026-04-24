@@ -13,6 +13,7 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val out = Decoupled(new DecodePacket(enableTraceFields))
     val regWrite = Flipped(new WriteBackIO())
     val bpUpdate = Input(new BranchPredictUpdateBundle)
+    val bpUpdateRedirect = Input(Bool())
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
     val hazard = Output(new Bundle {
       val rs1Used = Bool()
@@ -55,7 +56,7 @@ class Decode(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     p.io.pc := io.in.bits.pc
     p.io.update := io.bpUpdate.valid
     p.io.updateIndex := io.bpUpdate.index
-    p.io.actualTaken := io.bpUpdate.actualTaken
+    p.io.actualTaken := io.bpUpdate.predictedTaken ^ io.bpUpdateRedirect
     p.io.predictedTaken := io.bpUpdate.predictedTaken
   }
 

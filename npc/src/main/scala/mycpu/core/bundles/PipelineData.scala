@@ -201,6 +201,5 @@ class WriteBackIO extends Bundle {
 class BranchPredictUpdateBundle extends Bundle {
   val valid = Bool()
   val index = UInt(5.W)
-  val actualTaken = Bool()
   val predictedTaken = Bool()
 }

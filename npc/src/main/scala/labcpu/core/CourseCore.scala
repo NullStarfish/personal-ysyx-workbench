@@ -53,6 +53,7 @@ class CourseCore(
   bpUpdate := exWb.io.deq.bits.bpUpdate
   bpUpdate.valid := exWb.io.deq.fire && exWb.io.deq.bits.bpUpdate.valid
   decode.io.bpUpdate := bpUpdate
+  decode.io.bpUpdateRedirect := exWb.io.deq.bits.redirect
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits
@@ -65,8 +66,8 @@ class CourseCore(
 
   operandSelect.io.exForward.valid := exWb.io.deq.valid
   operandSelect.io.exForward.bits := exWb.io.deq.bits
-  operandSelect.io.memForward.valid := false.B
-  operandSelect.io.memForward.bits := 0.U.asTypeOf(new MemoryPacket(enableTraceFields))
+  operandSelect.io.memForward.valid := exWb.io.deq.valid
+  operandSelect.io.memForward.bits := writeBack.io.out
   operandSelect.io.in.valid := idEx.io.deq.valid
   operandSelect.io.in.bits := idEx.io.deq.bits
 
@@ -102,7 +103,7 @@ class CourseCore(
   hazard.io.decodeRs2Used := decode.io.hazard.rs2Used && ifId.io.deq.valid
   hazard.io.decodeRs1Addr := decode.io.hazard.rs1Addr
   hazard.io.decodeRs2Addr := decode.io.hazard.rs2Addr
-  hazard.io.idLoadValid := idEx.io.deq.valid && idEx.io.deq.bits.mem.valid && !idEx.io.deq.bits.mem.write
+  hazard.io.idLoadValid := false.B
   hazard.io.idLoadRd := idEx.io.deq.bits.wb.rd
   hazard.io.exFire := exWb.io.deq.valid
   hazard.io.exRedirectValid := exWb.io.deq.bits.redirect

@@ -14,6 +14,9 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
                 io_in_bpUpdate_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [4:0]  io_in_bpUpdate_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input         io_in_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input  [31:0] io_in_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_in_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_in_trace_dnpc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [31:0] io_out_result,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_out_rhs,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output        io_out_wb_regWen,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
@@ -25,7 +28,10 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
   output        io_out_redirect,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_out_bpUpdate_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [4:0]  io_out_bpUpdate_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output        io_out_bpUpdate_predictedTaken	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output        io_out_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output [31:0] io_out_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_out_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+                io_out_trace_dnpc	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
 );
 
   reg [31:0] bitsReg_result;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
@@ -40,6 +46,9 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
   reg        bitsReg_bpUpdate_valid;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg [4:0]  bitsReg_bpUpdate_index;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg        bitsReg_bpUpdate_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  reg [31:0] bitsReg_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  reg [31:0] bitsReg_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+  reg [31:0] bitsReg_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   always @(posedge clock) begin	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27
     if (io_en) begin	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
       bitsReg_result <= io_in_result;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
@@ -54,6 +63,9 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
       bitsReg_bpUpdate_valid <= io_in_bpUpdate_valid;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_bpUpdate_index <= io_in_bpUpdate_index;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_bpUpdate_predictedTaken <= io_in_bpUpdate_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+      bitsReg_trace_pc <= io_in_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+      bitsReg_trace_inst <= io_in_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
+      bitsReg_trace_dnpc <= io_in_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
     end
   end // always @(posedge)
   assign io_out_result = bitsReg_result;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
@@ -68,5 +80,8 @@ module PayloadReg_2(	// src/main/scala/mycpu/core/components/FlushableStage.scal
   assign io_out_bpUpdate_valid = bitsReg_bpUpdate_valid;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_bpUpdate_index = bitsReg_bpUpdate_index;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_bpUpdate_predictedTaken = bitsReg_bpUpdate_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
+  assign io_out_trace_pc = bitsReg_trace_pc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
+  assign io_out_trace_inst = bitsReg_trace_inst;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
+  assign io_out_trace_dnpc = bitsReg_trace_dnpc;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
 endmodule
 

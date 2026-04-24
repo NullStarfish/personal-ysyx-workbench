@@ -15,6 +15,9 @@ module FlushableStage_2(	// src/main/scala/mycpu/core/components/FlushableStage.
                 io_enq_bits_bpUpdate_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   input  [4:0]  io_enq_bits_bpUpdate_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   input         io_enq_bits_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+  input  [31:0] io_enq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_enq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_enq_bits_trace_dnpc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output        io_deq_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output [31:0] io_deq_bits_result,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_deq_bits_rhs,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
@@ -27,7 +30,10 @@ module FlushableStage_2(	// src/main/scala/mycpu/core/components/FlushableStage.
   output        io_deq_bits_redirect,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
                 io_deq_bits_bpUpdate_valid,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
   output [4:0]  io_deq_bits_bpUpdate_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
-  output        io_deq_bits_bpUpdate_predictedTaken	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+  output        io_deq_bits_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+  output [31:0] io_deq_bits_trace_pc,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_deq_bits_trace_inst,	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
+                io_deq_bits_trace_dnpc	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14
 );
 
   wire _valid_io_out;	// src/main/scala/mycpu/core/components/FlushableStage.scala:49:21
@@ -46,6 +52,9 @@ module FlushableStage_2(	// src/main/scala/mycpu/core/components/FlushableStage.
     .io_in_bpUpdate_valid           (io_enq_bits_bpUpdate_valid),
     .io_in_bpUpdate_index           (io_enq_bits_bpUpdate_index),
     .io_in_bpUpdate_predictedTaken  (io_enq_bits_bpUpdate_predictedTaken),
+    .io_in_trace_pc                 (io_enq_bits_trace_pc),
+    .io_in_trace_inst               (io_enq_bits_trace_inst),
+    .io_in_trace_dnpc               (io_enq_bits_trace_dnpc),
     .io_out_result                  (io_deq_bits_result),
     .io_out_rhs                     (io_deq_bits_rhs),
     .io_out_wb_regWen               (io_deq_bits_wb_regWen),
@@ -57,12 +66,15 @@ module FlushableStage_2(	// src/main/scala/mycpu/core/components/FlushableStage.
     .io_out_redirect                (io_deq_bits_redirect),
     .io_out_bpUpdate_valid          (io_deq_bits_bpUpdate_valid),
     .io_out_bpUpdate_index          (io_deq_bits_bpUpdate_index),
-    .io_out_bpUpdate_predictedTaken (io_deq_bits_bpUpdate_predictedTaken)
+    .io_out_bpUpdate_predictedTaken (io_deq_bits_bpUpdate_predictedTaken),
+    .io_out_trace_pc                (io_deq_bits_trace_pc),
+    .io_out_trace_inst              (io_deq_bits_trace_inst),
+    .io_out_trace_dnpc              (io_deq_bits_trace_dnpc)
   );	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:23
   ValidReg valid (	// src/main/scala/mycpu/core/components/FlushableStage.scala:49:21
     .clock      (clock),
     .reset      (reset),
-    .io_flush   (1'h0),	// src/main/scala/mycpu/core/components/FlushableStage.scala:42:14, :49:21
+    .io_flush   (1'h0),
     .io_enqFire (io_enq_valid),
     .io_deqFire (_valid_io_out),	// src/main/scala/mycpu/core/components/FlushableStage.scala:49:21
     .io_out     (_valid_io_out)

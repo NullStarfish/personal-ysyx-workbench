@@ -34,13 +34,47 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
                 io_out_bits_sys_isEbreak,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
                 io_out_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   output [4:0]  io_out_bits_pred_index,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+  output [31:0] io_out_bits_trace_pc,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_out_bits_trace_inst,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input         io_regWrite_wen,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input  [4:0]  io_regWrite_addr,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input  [31:0] io_regWrite_data,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input         io_bpUpdate_valid,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input  [4:0]  io_bpUpdate_index,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
   input         io_bpUpdate_predictedTaken,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
-                io_bpUpdateRedirect	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_bpUpdateRedirect,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+  output [31:0] io_debug_regs_0,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_1,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_2,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_3,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_4,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_5,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_6,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_7,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_8,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_9,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_10,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_11,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_12,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_13,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_14,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_15,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_16,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_17,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_18,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_19,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_20,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_21,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_22,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_23,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_24,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_25,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_26,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_27,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_28,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_29,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_30,	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
+                io_debug_regs_31	// src/main/scala/mycpu/core/backend/Decode.scala:11:14
 );
 
   wire            _predictor_io_predictTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:51:16
@@ -102,15 +136,47 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   wire [7:0][1:0] _GEN_19 =
     {{2'h3}, {2'h2}, {2'h1}, {_GEN_18}, {2'h3}, {2'h2}, {_GEN_18}, {_GEN_18}};	// src/main/scala/mycpu/core/backend/Decode.scala:221:44
   RegFile regFile (	// src/main/scala/mycpu/core/backend/Decode.scala:34:23
-    .clock     (clock),
-    .reset     (reset),
-    .io_raddr1 (io_in_bits_inst[19:15]),	// src/main/scala/mycpu/core/backend/Decode.scala:30:21
-    .io_raddr2 (io_in_bits_inst[24:20]),	// src/main/scala/mycpu/core/backend/Decode.scala:31:21
-    .io_rdata1 (_regFile_io_rdata1),
-    .io_rdata2 (io_out_bits_data_rs2),
-    .io_wen    (io_regWrite_wen),
-    .io_waddr  (io_regWrite_addr),
-    .io_wdata  (io_regWrite_data)
+    .clock            (clock),
+    .reset            (reset),
+    .io_raddr1        (io_in_bits_inst[19:15]),	// src/main/scala/mycpu/core/backend/Decode.scala:30:21
+    .io_raddr2        (io_in_bits_inst[24:20]),	// src/main/scala/mycpu/core/backend/Decode.scala:31:21
+    .io_rdata1        (_regFile_io_rdata1),
+    .io_rdata2        (io_out_bits_data_rs2),
+    .io_wen           (io_regWrite_wen),
+    .io_waddr         (io_regWrite_addr),
+    .io_wdata         (io_regWrite_data),
+    .io_debug_regs_0  (io_debug_regs_0),
+    .io_debug_regs_1  (io_debug_regs_1),
+    .io_debug_regs_2  (io_debug_regs_2),
+    .io_debug_regs_3  (io_debug_regs_3),
+    .io_debug_regs_4  (io_debug_regs_4),
+    .io_debug_regs_5  (io_debug_regs_5),
+    .io_debug_regs_6  (io_debug_regs_6),
+    .io_debug_regs_7  (io_debug_regs_7),
+    .io_debug_regs_8  (io_debug_regs_8),
+    .io_debug_regs_9  (io_debug_regs_9),
+    .io_debug_regs_10 (io_debug_regs_10),
+    .io_debug_regs_11 (io_debug_regs_11),
+    .io_debug_regs_12 (io_debug_regs_12),
+    .io_debug_regs_13 (io_debug_regs_13),
+    .io_debug_regs_14 (io_debug_regs_14),
+    .io_debug_regs_15 (io_debug_regs_15),
+    .io_debug_regs_16 (io_debug_regs_16),
+    .io_debug_regs_17 (io_debug_regs_17),
+    .io_debug_regs_18 (io_debug_regs_18),
+    .io_debug_regs_19 (io_debug_regs_19),
+    .io_debug_regs_20 (io_debug_regs_20),
+    .io_debug_regs_21 (io_debug_regs_21),
+    .io_debug_regs_22 (io_debug_regs_22),
+    .io_debug_regs_23 (io_debug_regs_23),
+    .io_debug_regs_24 (io_debug_regs_24),
+    .io_debug_regs_25 (io_debug_regs_25),
+    .io_debug_regs_26 (io_debug_regs_26),
+    .io_debug_regs_27 (io_debug_regs_27),
+    .io_debug_regs_28 (io_debug_regs_28),
+    .io_debug_regs_29 (io_debug_regs_29),
+    .io_debug_regs_30 (io_debug_regs_30),
+    .io_debug_regs_31 (io_debug_regs_31)
   );	// src/main/scala/mycpu/core/backend/Decode.scala:34:23
   ImmGen immGen (	// src/main/scala/mycpu/core/backend/Decode.scala:43:22
     .io_inst (io_in_bits_inst),
@@ -216,5 +282,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_sys_isEbreak =
     ~_GEN_14 & _format_T_24 & ~(_GEN_12 | _GEN_15) & _GEN_16;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :75:16, :98:28, :100:29, :113:18, :212:{17,49}, :214:{23,54}, :216:{23,56}
   assign io_out_bits_pred_predictedTaken = (|branchType) & _predictor_io_predictTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :51:16, :91:31, :113:18, :272:{50,71}
+  assign io_out_bits_trace_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
+  assign io_out_bits_trace_inst = io_in_bits_inst;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
 endmodule
 

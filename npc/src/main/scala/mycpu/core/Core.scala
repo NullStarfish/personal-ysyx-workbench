@@ -60,6 +60,7 @@ class Core(
   bpUpdate := exMem.io.deq.bits.bpUpdate
   bpUpdate.valid := exMem.io.deq.fire && exMem.io.deq.bits.bpUpdate.valid
   decode.io.bpUpdate := bpUpdate
+  decode.io.bpUpdateRedirect := exMem.io.deq.bits.redirect
 
   decode.io.in.valid := ifId.io.deq.valid
   decode.io.in.bits := ifId.io.deq.bits

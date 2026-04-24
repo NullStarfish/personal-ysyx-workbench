@@ -10,7 +10,6 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new DecodePacket(enableTraceFields)))
     val out = Decoupled(new ExecutePacket(enableTraceFields))
-    val bpUpdate = Output(new BranchPredictUpdateBundle)
     val debug_csrs = Output(new Bundle {
       val mtvec   = UInt(XLEN.W)
       val mepc    = UInt(XLEN.W)
@@ -120,7 +119,6 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   io.out.bits.redirect := redirectValid
   io.out.bits.bpUpdate.valid := io.in.valid && isBranch
   io.out.bits.bpUpdate.index := data.pred.index
-  io.out.bits.bpUpdate.actualTaken := branchActualTakenForUpdate
   io.out.bits.bpUpdate.predictedTaken := branchPredictedTaken
   if (enableTraceFields) {
     io.out.bits.trace.get.pc := io.in.bits.trace.get.pc
@@ -140,11 +138,6 @@ class Execute(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     io.out.bits.trace.get.actualTaken := branchActualTakenForRedirect
     io.out.bits.trace.get.predictedTaken := branchPredictedTaken
   }
-
-  io.bpUpdate.valid := io.in.fire && isBranch
-  io.bpUpdate.index := data.pred.index
-  io.bpUpdate.actualTaken := branchActualTakenForUpdate
-  io.bpUpdate.predictedTaken := branchPredictedTaken
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready
