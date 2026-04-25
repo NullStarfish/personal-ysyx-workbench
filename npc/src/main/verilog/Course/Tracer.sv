@@ -10,6 +10,10 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:10:7
   input [4:0]    io_commitTrace_bits_rd,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
   input [31:0]   io_commitTrace_bits_data,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
   input [1023:0] io_regsFlat,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+  input [31:0]   io_mtvec,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+                 io_mepc,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+                 io_mstatus,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
+                 io_mcause,	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
   input          io_flush	// src/main/scala/mycpu/core/components/Tracer.scala:11:14
 );
 
@@ -23,10 +27,10 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:10:7
     .reg_addr  (io_commitTrace_bits_rd),
     .reg_data  (io_commitTrace_bits_data),
     .regs_flat (io_regsFlat),
-    .mtvec     (32'h0),
-    .mepc      (32'h0),
-    .mstatus   (32'h0),
-    .mcause    (32'h0),
+    .mtvec     (io_mtvec),
+    .mepc      (io_mepc),
+    .mstatus   (io_mstatus),
+    .mcause    (io_mcause),
     .inst      (io_commitTrace_bits_inst)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:26:19
   SimEbreakDPI core_sim_ebreak (	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19

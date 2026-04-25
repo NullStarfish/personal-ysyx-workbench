@@ -6,6 +6,10 @@
 !*.[cSh]
 !*.v
 !*.sv
+!*.mem
+!*.png
+!*.txt
+!*.tex
 !*.cc
 !*.cpp
 !*.scala

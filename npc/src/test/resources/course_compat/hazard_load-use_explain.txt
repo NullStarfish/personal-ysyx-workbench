@@ -1,0 +1,4 @@
+图中可见
+execute mem valid以及mem_write为true。是load指令。
+由于我们加了forward，下一周期，decode还没有更新，
+数据进入idEx

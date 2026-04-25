@@ -21,11 +21,7 @@ module PayloadReg_1(	// src/main/scala/mycpu/core/components/FlushableStage.scal
                 io_in_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_in_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [2:0]  io_in_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [1:0]  io_in_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input  [11:0] io_in_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  input         io_in_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_in_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_in_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  input         io_in_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_in_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_in_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   input  [4:0]  io_in_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
@@ -50,11 +46,7 @@ module PayloadReg_1(	// src/main/scala/mycpu/core/components/FlushableStage.scal
                 io_out_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_out_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [2:0]  io_out_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [1:0]  io_out_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output [11:0] io_out_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-  output        io_out_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_out_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
-                io_out_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
+  output        io_out_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_out_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
                 io_out_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
   output [4:0]  io_out_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:7:14
@@ -81,10 +73,6 @@ module PayloadReg_1(	// src/main/scala/mycpu/core/components/FlushableStage.scal
   reg        bitsReg_mem_write;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg        bitsReg_mem_unsigned;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg [2:0]  bitsReg_mem_subop;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-  reg [1:0]  bitsReg_sys_csrOp;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-  reg [11:0] bitsReg_sys_csrAddr;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-  reg        bitsReg_sys_isEcall;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-  reg        bitsReg_sys_isMret;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg        bitsReg_sys_isEbreak;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg        bitsReg_pred_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
   reg        bitsReg_pred_redirectPredicted;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
@@ -112,10 +100,6 @@ module PayloadReg_1(	// src/main/scala/mycpu/core/components/FlushableStage.scal
       bitsReg_mem_write <= io_in_mem_write;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_mem_unsigned <= io_in_mem_unsigned;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_mem_subop <= io_in_mem_subop;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-      bitsReg_sys_csrOp <= io_in_sys_csrOp;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-      bitsReg_sys_csrAddr <= io_in_sys_csrAddr;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-      bitsReg_sys_isEcall <= io_in_sys_isEcall;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
-      bitsReg_sys_isMret <= io_in_sys_isMret;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_sys_isEbreak <= io_in_sys_isEbreak;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_pred_predictedTaken <= io_in_pred_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
       bitsReg_pred_redirectPredicted <= io_in_pred_redirectPredicted;	// src/main/scala/mycpu/core/components/FlushableStage.scala:13:20
@@ -143,10 +127,6 @@ module PayloadReg_1(	// src/main/scala/mycpu/core/components/FlushableStage.scal
   assign io_out_mem_write = bitsReg_mem_write;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_mem_unsigned = bitsReg_mem_unsigned;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_mem_subop = bitsReg_mem_subop;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
-  assign io_out_sys_csrOp = bitsReg_sys_csrOp;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
-  assign io_out_sys_csrAddr = bitsReg_sys_csrAddr;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
-  assign io_out_sys_isEcall = bitsReg_sys_isEcall;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
-  assign io_out_sys_isMret = bitsReg_sys_isMret;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_sys_isEbreak = bitsReg_sys_isEbreak;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_pred_predictedTaken = bitsReg_pred_predictedTaken;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20
   assign io_out_pred_redirectPredicted = bitsReg_pred_redirectPredicted;	// src/main/scala/mycpu/core/components/FlushableStage.scala:6:27, :13:20

@@ -23,11 +23,7 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
                 io_enq_bits_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_enq_bits_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
   input  [2:0]  io_enq_bits_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  input  [1:0]  io_enq_bits_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  input  [11:0] io_enq_bits_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  input         io_enq_bits_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-                io_enq_bits_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-                io_enq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
+  input         io_enq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_enq_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_enq_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
   input  [4:0]  io_enq_bits_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
@@ -54,11 +50,7 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
                 io_deq_bits_mem_write,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_deq_bits_mem_unsigned,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
   output [2:0]  io_deq_bits_mem_subop,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  output [1:0]  io_deq_bits_sys_csrOp,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  output [11:0] io_deq_bits_sys_csrAddr,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-  output        io_deq_bits_sys_isEcall,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-                io_deq_bits_sys_isMret,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
-                io_deq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
+  output        io_deq_bits_sys_isEbreak,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_deq_bits_pred_predictedTaken,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
                 io_deq_bits_pred_redirectPredicted,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
   output [4:0]  io_deq_bits_pred_index,	// src/main/scala/mycpu/core/components/FlushableStage.scala:48:14
@@ -92,10 +84,6 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
     .io_in_mem_write               (io_enq_bits_mem_write),
     .io_in_mem_unsigned            (io_enq_bits_mem_unsigned),
     .io_in_mem_subop               (io_enq_bits_mem_subop),
-    .io_in_sys_csrOp               (io_enq_bits_sys_csrOp),
-    .io_in_sys_csrAddr             (io_enq_bits_sys_csrAddr),
-    .io_in_sys_isEcall             (io_enq_bits_sys_isEcall),
-    .io_in_sys_isMret              (io_enq_bits_sys_isMret),
     .io_in_sys_isEbreak            (io_enq_bits_sys_isEbreak),
     .io_in_pred_predictedTaken     (io_enq_bits_pred_predictedTaken),
     .io_in_pred_redirectPredicted  (io_enq_bits_pred_redirectPredicted),
@@ -121,10 +109,6 @@ module FlushableStage_1(	// src/main/scala/mycpu/core/components/FlushableStage.
     .io_out_mem_write              (io_deq_bits_mem_write),
     .io_out_mem_unsigned           (io_deq_bits_mem_unsigned),
     .io_out_mem_subop              (io_deq_bits_mem_subop),
-    .io_out_sys_csrOp              (io_deq_bits_sys_csrOp),
-    .io_out_sys_csrAddr            (io_deq_bits_sys_csrAddr),
-    .io_out_sys_isEcall            (io_deq_bits_sys_isEcall),
-    .io_out_sys_isMret             (io_deq_bits_sys_isMret),
     .io_out_sys_isEbreak           (io_deq_bits_sys_isEbreak),
     .io_out_pred_predictedTaken    (io_deq_bits_pred_predictedTaken),
     .io_out_pred_redirectPredicted (io_deq_bits_pred_redirectPredicted),

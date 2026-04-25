@@ -21,11 +21,7 @@ module CourseOperandForward(	// src/main/scala/labcpu/core/backend/CourseOperand
                 io_in_bits_mem_write,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_in_bits_mem_unsigned,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
   input  [2:0]  io_in_bits_mem_subop,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  input  [1:0]  io_in_bits_sys_csrOp,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  input  [11:0] io_in_bits_sys_csrAddr,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  input         io_in_bits_sys_isEcall,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-                io_in_bits_sys_isMret,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-                io_in_bits_sys_isEbreak,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
+  input         io_in_bits_sys_isEbreak,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_in_bits_pred_predictedTaken,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_in_bits_pred_redirectPredicted,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
   input  [4:0]  io_in_bits_pred_index,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
@@ -50,11 +46,7 @@ module CourseOperandForward(	// src/main/scala/labcpu/core/backend/CourseOperand
                 io_out_bits_mem_write,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_out_bits_mem_unsigned,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
   output [2:0]  io_out_bits_mem_subop,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  output [1:0]  io_out_bits_sys_csrOp,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  output [11:0] io_out_bits_sys_csrAddr,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-  output        io_out_bits_sys_isEcall,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-                io_out_bits_sys_isMret,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
-                io_out_bits_sys_isEbreak,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
+  output        io_out_bits_sys_isEbreak,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_out_bits_pred_predictedTaken,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
                 io_out_bits_pred_redirectPredicted,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
   output [4:0]  io_out_bits_pred_index,	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:13:14
@@ -95,10 +87,6 @@ module CourseOperandForward(	// src/main/scala/labcpu/core/backend/CourseOperand
   assign io_out_bits_mem_write = io_in_bits_mem_write;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_mem_unsigned = io_in_bits_mem_unsigned;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_mem_subop = io_in_bits_mem_subop;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
-  assign io_out_bits_sys_csrOp = io_in_bits_sys_csrOp;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
-  assign io_out_bits_sys_csrAddr = io_in_bits_sys_csrAddr;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
-  assign io_out_bits_sys_isEcall = io_in_bits_sys_isEcall;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
-  assign io_out_bits_sys_isMret = io_in_bits_sys_isMret;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_sys_isEbreak = io_in_bits_sys_isEbreak;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_pred_predictedTaken = io_in_bits_pred_predictedTaken;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7
   assign io_out_bits_pred_redirectPredicted = io_in_bits_pred_redirectPredicted;	// src/main/scala/labcpu/core/backend/CourseOperandForward.scala:8:7

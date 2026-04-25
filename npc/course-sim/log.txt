@@ -1,0 +1,5 @@
+0x80000000: 13 04 00 00     mv	s0, zero
+0x80000004: 17 91 00 00     auipc	sp, 9
+0x80000008: 13 01 c1 ff     addi	sp, sp, -4
+0x8000000c: ef 00 40 3b     jal	0x3b4
+0x800003c0: 13 01 c1 ff     addi	sp, sp, -4

@@ -17,7 +17,7 @@ class CourseCore(
     enableTracer: Boolean = ENABLE_TRACER,
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
 ) extends Module {
-  private val enableCourseSys = false
+  private val enableCourseSys = true
   private val enableCourseSimEbreak = true
 
   val io = IO(new Bundle {
