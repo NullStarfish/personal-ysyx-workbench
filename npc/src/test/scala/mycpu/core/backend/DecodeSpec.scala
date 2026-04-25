@@ -155,18 +155,18 @@ class DecodeSpec extends AnyFlatSpec {
       c.clock.step()
 
       c.io.out.bits.exec.wbSel.expect(WBSel.Csr)
-      c.io.out.bits.sys.csrAddr.expect("h305".U)
-      c.io.out.bits.sys.csrOp.expect(CSROp.W)
+      c.io.out.bits.sys.csrAddr.get.expect("h305".U)
+      c.io.out.bits.sys.csrOp.get.expect(CSROp.W)
       c.io.out.bits.wb.regWen.expect(true.B)
       c.io.hazard.rs1Used.expect(true.B)
 
       c.io.in.bits.inst.poke("h00000073".U) // ecall
       c.clock.step()
-      c.io.out.bits.sys.isEcall.expect(true.B)
+      c.io.out.bits.sys.isEcall.get.expect(true.B)
 
       c.io.in.bits.inst.poke("h30200073".U) // mret
       c.clock.step()
-      c.io.out.bits.sys.isMret.expect(true.B)
+      c.io.out.bits.sys.isMret.get.expect(true.B)
     }
   }
 
@@ -188,17 +188,16 @@ class DecodeSpec extends AnyFlatSpec {
       c.clock.step()
 
       c.io.out.bits.exec.wbSel.expect(WBSel.Alu)
-      c.io.out.bits.sys.csrOp.expect(CSROp.N)
       c.io.out.bits.wb.regWen.expect(false.B)
       c.io.hazard.rs1Used.expect(false.B)
 
       c.io.in.bits.inst.poke("h00000073".U) // ecall
       c.clock.step()
-      c.io.out.bits.sys.isEcall.expect(false.B)
+      c.io.out.bits.wb.regWen.expect(false.B)
 
       c.io.in.bits.inst.poke("h00100073".U) // ebreak
       c.clock.step()
-      c.io.out.bits.sys.isEbreak.expect(true.B)
+      c.io.out.bits.sys.isEbreak.get.expect(true.B)
     }
   }
 }

@@ -29,11 +29,11 @@ class ExecuteSpec extends AnyFlatSpec {
     c.io.in.bits.mem.write.poke(false.B)
     c.io.in.bits.mem.unsigned.poke(false.B)
     c.io.in.bits.mem.subop.poke(ExecSubop.None)
-    c.io.in.bits.sys.csrOp.poke(CSROp.N)
-    c.io.in.bits.sys.csrAddr.poke(0.U)
-    c.io.in.bits.sys.isEcall.poke(false.B)
-    c.io.in.bits.sys.isMret.poke(false.B)
-    c.io.in.bits.sys.isEbreak.poke(false.B)
+    c.io.in.bits.sys.csrOp.get.poke(CSROp.N)
+    c.io.in.bits.sys.csrAddr.get.poke(0.U)
+    c.io.in.bits.sys.isEcall.get.poke(false.B)
+    c.io.in.bits.sys.isMret.get.poke(false.B)
+    c.io.in.bits.sys.isEbreak.get.poke(false.B)
   }
 
   "Execute" should "compute an ALU add in one cycle" in {
@@ -119,13 +119,13 @@ class ExecuteSpec extends AnyFlatSpec {
       initInput(c)
       c.io.in.bits.data.rs1.poke("h12345678".U)
       c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
-      c.io.in.bits.sys.csrAddr.poke("h305".U) // mtvec
-      c.io.in.bits.sys.csrOp.poke(CSROp.W)
+      c.io.in.bits.sys.csrAddr.get.poke("h305".U) // mtvec
+      c.io.in.bits.sys.csrOp.get.poke(CSROp.W)
       c.clock.step()
 
       initInput(c)
       c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
-      c.io.in.bits.sys.csrAddr.poke("h305".U)
+      c.io.in.bits.sys.csrAddr.get.poke("h305".U)
       c.clock.step()
 
       c.io.out.bits.result.expect("h12345678".U)
@@ -138,13 +138,13 @@ class ExecuteSpec extends AnyFlatSpec {
       initInput(c)
       c.io.in.bits.data.rs1.poke("h00000100".U)
       c.io.in.bits.exec.wbSel.poke(WBSel.Csr)
-      c.io.in.bits.sys.csrAddr.poke("h305".U) // mtvec
-      c.io.in.bits.sys.csrOp.poke(CSROp.W)
+      c.io.in.bits.sys.csrAddr.get.poke("h305".U) // mtvec
+      c.io.in.bits.sys.csrOp.get.poke(CSROp.W)
       c.clock.step()
 
       initInput(c)
       c.io.in.bits.data.pc.poke("h80000080".U)
-      c.io.in.bits.sys.isEcall.poke(true.B)
+      c.io.in.bits.sys.isEcall.get.poke(true.B)
       c.clock.step()
 
       c.io.out.bits.redirect.expect(true.B)

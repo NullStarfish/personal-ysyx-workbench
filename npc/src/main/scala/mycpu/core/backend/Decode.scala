@@ -14,7 +14,7 @@ class Decode(
 ) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new FetchPacket))
-    val out = Decoupled(new DecodePacket(enableTraceFields))
+    val out = Decoupled(new DecodePacket(enableTraceFields, enableSys, enableSimEbreak))
     val regWrite = Flipped(new WriteBackIO())
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
     val hazard = Output(new Bundle {
@@ -253,11 +253,15 @@ class Decode(
   io.out.bits.mem.write := opcode === "b0100011".U
   io.out.bits.mem.unsigned := memUnsigned
   io.out.bits.mem.subop := subop
-  io.out.bits.sys.csrOp := csrOp
-  io.out.bits.sys.csrAddr := csrAddr
-  io.out.bits.sys.isEcall := isEcall
-  io.out.bits.sys.isMret := isMret
-  io.out.bits.sys.isEbreak := isEbreak
+  if (enableSys) {
+    io.out.bits.sys.csrOp.get := csrOp
+    io.out.bits.sys.csrAddr.get := csrAddr
+    io.out.bits.sys.isEcall.get := isEcall
+    io.out.bits.sys.isMret.get := isMret
+  }
+  if (enableSimEbreak) {
+    io.out.bits.sys.isEbreak.get := isEbreak
+  }
   val fetchPredictedRedirect = io.in.bits.predictedRedirect
   val branchPredictedTaken = (branchType =/= BranchType.None) && io.in.bits.predictedTaken
   val effectiveBranchPredictedTaken = (branchType =/= BranchType.None) && (fetchPredictedRedirect || branchPredictedTaken)

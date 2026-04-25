@@ -17,6 +17,9 @@ class CourseCore(
     enableTracer: Boolean = ENABLE_TRACER,
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
 ) extends Module {
+  private val enableCourseSys = false
+  private val enableCourseSimEbreak = true
+
   val io = IO(new Bundle {
     val imem = new InstMemIO
     val dmem = new DataMemIO
@@ -29,9 +32,21 @@ class CourseCore(
   })
 
   val fetch = Module(new Fetch(startAddr, enableTraceFields = enableTraceFields))
-  val decode = Module(new Decode(enableTraceFields = enableTraceFields, enableSys = false))
-  val operandSelect = Module(new CourseOperandForward(enableTraceFields = enableTraceFields))
-  val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableSys = false))
+  val decode = Module(new Decode(
+    enableTraceFields = enableTraceFields,
+    enableSys = enableCourseSys,
+    enableSimEbreak = enableCourseSimEbreak,
+  ))
+  val operandSelect = Module(new CourseOperandForward(
+    enableTraceFields = enableTraceFields,
+    enableSys = enableCourseSys,
+    enableSimEbreak = enableCourseSimEbreak,
+  ))
+  val execute = Module(new Execute(
+    enableTraceFields = enableTraceFields,
+    enableSys = enableCourseSys,
+    enableSimEbreak = enableCourseSimEbreak,
+  ))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val hazard = Module(new HazardUnit)
   val tracer =
@@ -39,7 +54,11 @@ class CourseCore(
     else None
 
   val ifId = Module(new FlushableStage(new FetchPacket))
-  val idEx = Module(new FlushableStage(new DecodePacket(enableTraceFields)))
+  val idEx = Module(new FlushableStage(new DecodePacket(
+    enableTraceFields,
+    enableSys = enableCourseSys,
+    enableSimEbreak = enableCourseSimEbreak,
+  )))
   val exWb = Module(new FlushableStage(new ExecutePacket(enableTraceFields), maxFanout = Some(4)))
 
   fetch.io.imem.rdata := io.imem.rdata

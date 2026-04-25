@@ -5,10 +5,14 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 
-class ExecuteOperandSelect(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
+class ExecuteOperandSelect(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableSys: Boolean = true,
+    enableSimEbreak: Boolean = true,
+) extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new DecodePacket(enableTraceFields)))
-    val out = Decoupled(new DecodePacket(enableTraceFields))
+    val in = Flipped(Decoupled(new DecodePacket(enableTraceFields, enableSys, enableSimEbreak)))
+    val out = Decoupled(new DecodePacket(enableTraceFields, enableSys, enableSimEbreak))
     val exForward = Input(Valid(new ExecutePacket(enableTraceFields)))
     val memForward = Input(Valid(new MemoryPacket(enableTraceFields)))
   })

@@ -98,12 +98,12 @@ class MemCtrlBundle extends Bundle {
   val subop = UInt(3.W)
 }
 
-class SysCtrlBundle extends Bundle {
-  val csrOp = CSROp()
-  val csrAddr = UInt(12.W)
-  val isEcall = Bool()
-  val isMret = Bool()
-  val isEbreak = Bool()
+class SysCtrlBundle(enableSys: Boolean = true, enableSimEbreak: Boolean = true) extends Bundle {
+  val csrOp = if (enableSys) Some(CSROp()) else None
+  val csrAddr = if (enableSys) Some(UInt(12.W)) else None
+  val isEcall = if (enableSys) Some(Bool()) else None
+  val isMret = if (enableSys) Some(Bool()) else None
+  val isEbreak = if (enableSimEbreak) Some(Bool()) else None
 }
 
 class CsrDebugBundle extends Bundle {
@@ -146,13 +146,17 @@ trait ForwardSourceView { this: Bundle =>
   def data: UInt
 }
 
-class DecodePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle {
+class DecodePacket(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableSys: Boolean = true,
+    enableSimEbreak: Boolean = true,
+) extends Bundle {
   val data = new ExecuteDataBundle
   val bypass = new BypassCtrlBundle
   val exec = new ExecuteCtrlBundle
   val wb = new WritebackCtrlBundle
   val mem = new MemCtrlBundle
-  val sys = new SysCtrlBundle
+  val sys = new SysCtrlBundle(enableSys, enableSimEbreak)
   val pred = new BranchPredictionBundle
   val trace = if (enableTraceFields) Some(new TraceCarryBundle) else None
 }

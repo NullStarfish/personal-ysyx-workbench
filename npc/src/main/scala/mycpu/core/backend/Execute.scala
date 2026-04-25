@@ -12,7 +12,7 @@ class Execute(
     enableSimEbreak: Boolean = true,
 ) extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new DecodePacket(enableTraceFields)))
+    val in = Flipped(Decoupled(new DecodePacket(enableTraceFields, enableSys, enableSimEbreak)))
     val out = Decoupled(new ExecutePacket(enableTraceFields))
     val debug_csrs = Output(new Bundle {
       val mtvec   = UInt(XLEN.W)
@@ -23,6 +23,11 @@ class Execute(
   })
 
   val data = io.in.bits
+  val csrOp = if (enableSys) data.sys.csrOp.get else CSROp.N
+  val csrAddr = if (enableSys) data.sys.csrAddr.get else 0.U(12.W)
+  val isEcall = if (enableSys) data.sys.isEcall.get else false.B
+  val isMret = if (enableSys) data.sys.isMret.get else false.B
+  val isEbreak = if (enableSimEbreak) data.sys.isEbreak.get else false.B
   val aluInA = Mux(data.exec.aluSrcA === ALUSrcA.Pc, data.data.pc, data.data.rs1)
   val aluInB = Mux(data.exec.aluSrcB === ALUSrcB.Imm, data.data.imm, data.data.rs2)
   val pcPlus4 = data.data.pc + 4.U
@@ -39,12 +44,12 @@ class Execute(
 
   if (enableSys) {
     val csr = Module(new CSR)
-    csr.io.cmd := data.sys.csrOp
-    csr.io.addr := data.sys.csrAddr
+    csr.io.cmd := csrOp
+    csr.io.addr := csrAddr
     csr.io.wdata := data.data.rs1
     csr.io.pc := data.data.pc
-    csr.io.isEcall := data.sys.isEcall && io.in.valid
-    csr.io.isMret := data.sys.isMret && io.in.valid
+    csr.io.isEcall := isEcall && io.in.valid
+    csr.io.isMret := isMret && io.in.valid
     csrReadData := csr.io.rdata
     csrEvec := csr.io.evec
     csrEpc := csr.io.epc
@@ -56,7 +61,7 @@ class Execute(
 
   if (enableSimEbreak) {
     val simEbreak = Module(new SimEbreak)
-    simEbreak.io.valid := data.sys.isEbreak && io.in.valid
+    simEbreak.io.valid := isEbreak && io.in.valid
     simEbreak.io.is_ebreak := 0.U
   }
 
@@ -93,8 +98,8 @@ class Execute(
   // predicted not-taken -> recover to branch target
   val branchRecoveryTarget = Mux(branchPredictedTaken, pcPlus4, branchDirectTarget)
   val jumpRedirectTarget = Mux(data.exec.isJalr, indirectTarget, jumpDirectTarget)
-  val sysRedirectTarget = Mux(data.sys.isMret, csrEpc, csrEvec)
-  val hasSysRedirect = enableSys.B && (data.sys.isEcall || data.sys.isMret)
+  val sysRedirectTarget = Mux(isMret, csrEpc, csrEvec)
+  val hasSysRedirect = enableSys.B && (isEcall || isMret)
   val hasJumpRedirect = data.exec.isJump && (data.exec.isJalr || !redirectPredicted)
   val hasBranchRecovery = isBranch
 
@@ -126,8 +131,8 @@ class Execute(
     (isBranch && branchActualTakenForRedirect) -> branchDirectTarget,
     (data.exec.isJump && data.exec.isJalr) -> indirectTarget,
     data.exec.isJump -> jumpDirectTarget,
-    (enableSys.B && data.sys.isEcall) -> csrEvec,
-    (enableSys.B && data.sys.isMret) -> csrEpc,
+    (enableSys.B && isEcall) -> csrEvec,
+    (enableSys.B && isMret) -> csrEpc,
   ))
 
   io.out.bits.result := result

@@ -121,7 +121,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
      {{3'h0, io_in_bits_inst[31:25] == 7'h20}}};	// src/main/scala/mycpu/core/backend/Decode.scala:31:20, :64:43, :76:26, :137:22, :152:22, :176:22, :189:22, :190:{30,44}, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :197:{30,36,44}
   wire            effectiveBranchPredictedTaken =
     (|branchType)
-    & (io_in_bits_predictedRedirect | (|branchType) & io_in_bits_predictedTaken);	// src/main/scala/mycpu/core/backend/Decode.scala:80:31, :102:18, :262:{42,63}, :263:{72,99}
+    & (io_in_bits_predictedRedirect | (|branchType) & io_in_bits_predictedTaken);	// src/main/scala/mycpu/core/backend/Decode.scala:80:31, :102:18, :266:{42,63}, :267:{72,99}
   RegFile regFile (	// src/main/scala/mycpu/core/backend/Decode.scala:36:23
     .clock            (clock),
     .reset            (reset),
@@ -247,9 +247,9 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
     ~(_format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14
       | _io_out_bits_mem_valid_T | io_out_bits_mem_write_0 | _format_T_20 | _format_T_22)
     & io_in_bits_inst[6:0] == 7'h73 & io_in_bits_inst == 32'h100073;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :29:20, :52:100, :64:16, :89:29, :102:18, :201:64, :205:44
-  assign io_out_bits_pred_predictedTaken = effectiveBranchPredictedTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :263:72
+  assign io_out_bits_pred_predictedTaken = effectiveBranchPredictedTaken;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :267:72
   assign io_out_bits_pred_redirectPredicted =
-    io_in_bits_predictedRedirect | effectiveBranchPredictedTaken | isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :82:27, :102:18, :263:72, :264:{36,39}, :267:{64,97}
+    io_in_bits_predictedRedirect | effectiveBranchPredictedTaken | isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :82:27, :102:18, :267:72, :268:{36,39}, :271:{64,97}
   assign io_out_bits_pred_fetchPredictedRedirect = io_in_bits_predictedRedirect;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_pred_index = io_in_bits_predictIndex;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_trace_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7

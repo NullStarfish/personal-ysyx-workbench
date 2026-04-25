@@ -107,7 +107,7 @@ module RegFile(	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
      {regs_3},
      {regs_2},
      {regs_1},
-     {regs_0}};	// src/main/scala/mycpu/core/components/RegFile.scala:23:21, :29:19
+     {regs_0}};	// src/main/scala/mycpu/core/components/RegFile.scala:23:21, :32:8
   always @(posedge clock) begin	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
     if (reset) begin	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
       regs_0 <= 32'h0;	// src/main/scala/mycpu/core/components/RegFile.scala:23:21
@@ -145,7 +145,7 @@ module RegFile(	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
     end
     else begin	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
       automatic logic _GEN_0 = io_wen & (|io_waddr);	// src/main/scala/mycpu/core/components/RegFile.scala:25:{15,27}
-      if (_GEN_0 & ~(|io_waddr))	// src/main/scala/mycpu/core/components/RegFile.scala:23:21, :25:{15,27,36}, :26:20
+      if (_GEN_0 & io_waddr == 5'h0)	// src/main/scala/mycpu/core/components/RegFile.scala:23:21, :25:{15,27,36}, :26:20
         regs_0 <= io_wdata;	// src/main/scala/mycpu/core/components/RegFile.scala:23:21
       if (_GEN_0 & io_waddr == 5'h1)	// src/main/scala/mycpu/core/components/RegFile.scala:23:21, :25:{15,36}, :26:20
         regs_1 <= io_wdata;	// src/main/scala/mycpu/core/components/RegFile.scala:23:21
@@ -211,8 +211,14 @@ module RegFile(	// src/main/scala/mycpu/core/components/RegFile.scala:6:7
         regs_31 <= io_wdata;	// src/main/scala/mycpu/core/components/RegFile.scala:23:21
     end
   end // always @(posedge)
-  assign io_rdata1 = io_raddr1 == 5'h0 ? 32'h0 : _GEN[io_raddr1];	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :25:27, :29:{19,30}
-  assign io_rdata2 = io_raddr2 == 5'h0 ? 32'h0 : _GEN[io_raddr2];	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :25:27, :29:19, :30:{19,30}
+  assign io_rdata1 =
+    io_raddr1 == 5'h0
+      ? 32'h0
+      : io_wen & (|io_waddr) & io_waddr == io_raddr1 ? io_wdata : _GEN[io_raddr1];	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :25:27, :29:19, :30:15, :32:{8,16,36,48}
+  assign io_rdata2 =
+    io_raddr2 == 5'h0
+      ? 32'h0
+      : io_wen & (|io_waddr) & io_waddr == io_raddr2 ? io_wdata : _GEN[io_raddr2];	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :25:27, :32:8, :34:19, :35:15, :37:{8,16,36,48}
   assign io_debug_regs_0 = regs_0;	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :23:21
   assign io_debug_regs_1 = regs_1;	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :23:21
   assign io_debug_regs_2 = regs_2;	// src/main/scala/mycpu/core/components/RegFile.scala:6:7, :23:21
