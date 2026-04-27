@@ -1,0 +1,40 @@
+CourseCPU release manifest
+==========================
+
+Prebuilt simulator:
+- bin/npc-course
+
+Difftest reference:
+- ref/riscv32-nemu-interpreter-so
+- tools/capstone/repo/libcapstone.so.5
+
+AM SDK:
+- am-sdk/lib/am-riscv32e-npc.a
+- am-sdk/include/am
+- am-sdk/include/klib
+- am-sdk/scripts/linker.ld
+- am-sdk/scripts/riscv32e-npc.mk
+- am-sdk/scripts/riscv.mk
+- am-sdk/scripts/npc.mk
+
+Benchmarks:
+- benchmarks/add-longlong/add-longlong-riscv32e-npc.bin
+- benchmarks/bubble-sort/bubble-sort-riscv32e-npc.bin
+- benchmarks/quick-sort/quick-sort-riscv32e-npc.bin
+- benchmarks/recursion/recursion-riscv32e-npc.bin
+- benchmarks/select-sort/select-sort-riscv32e-npc.bin
+
+Helper scripts:
+- run.sh
+- run-diff.sh
+- build-sdk-smoke.sh
+
+SDK smoke test:
+- sdk-smoke/smoke.c
+- sdk-smoke/smoke.elf
+- sdk-smoke/smoke-riscv32e-npc.bin
+- sdk-smoke/smoke-riscv32e-npc.txt
+
+Docs:
+- README.md
+- docs/performance_summary.txt

@@ -1,0 +1,52 @@
+CourseCPU Performance Summary
+=============================
+
+This summary integrates the benchmark execution statistics recorded under
+reports/performance/*/performance.txt. All programs are compiled into RV32E NPC
+binaries and executed by the CourseCPU simulation flow.
+
+Benchmark Results
+-----------------
+
+| Benchmark    | Workload Description                           | Cycles | Instructions | Flushes | IPC      | Flush Probability |
+|--------------|------------------------------------------------|-------:|-------------:|--------:|---------:|------------------:|
+| add-longlong | 64-bit integer addition regression              |   1889 |         1640 |      82 | 0.868184 |          0.050000 |
+| bubble-sort  | 20-element bubble sort, executed twice          |   3792 |         3156 |     211 | 0.832278 |          0.066857 |
+| quick-sort   | 20-element recursive quick sort, executed twice |   3904 |         3304 |     199 | 0.846311 |          0.060230 |
+| recursion    | Indirect recursive call-chain stress test       |   9172 |         6550 |     873 | 0.714130 |          0.133282 |
+| select-sort  | 20-element selection sort, executed twice       |   4126 |         3655 |     156 | 0.885846 |          0.042681 |
+
+Aggregate Statistics
+--------------------
+
+Valid benchmark count: 5
+
+Total cycles: 22883
+Total instructions: 18305
+Total flushes: 1521
+
+Weighted IPC: 0.799939
+Arithmetic-mean IPC: 0.829350
+Weighted flush probability: 0.083092
+Arithmetic-mean flush probability: 0.070610
+
+Observations
+------------
+
+1. The measured workloads cover arithmetic, memory access, branch-heavy loops,
+   recursive control flow, and real C programs compiled by the RISC-V GCC flow.
+
+2. The best IPC among recorded runs is select-sort at 0.885846. Its branch flush
+   probability is also the lowest among the recorded workloads at 4.2681%.
+
+3. Recursion has the highest recorded flush probability at 13.3282%. This is
+   expected because the workload stresses indirect calls, recursive returns, and
+   control-flow-heavy helper routines such as signed division.
+
+4. Quick-sort reaches 0.846311 IPC on a recursive, branch-heavy workload, showing
+   that the current fetch-side branch predictor provides useful performance even
+   on less regular control flow.
+
+5. The overall weighted IPC across all valid recorded benchmarks is 0.799939,
+   with a weighted flush probability of 8.3092%. This provides a compact PPA
+   reporting point for the current CourseCPU implementation.

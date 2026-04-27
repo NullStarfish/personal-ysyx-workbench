@@ -1,0 +1,56 @@
+
+/home/nullstarfish/personal-ysyx-workbench/npc/release/sdk-smoke/smoke.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+80000000 <_start>:
+80000000:	00000413          	li	s0,0
+80000004:	00009117          	auipc	sp,0x9
+80000008:	ffc10113          	addi	sp,sp,-4 # 80009000 <_end>
+8000000c:	06c000ef          	jal	80000078 <_trm_init>
+
+80000010 <main>:
+80000010:	ffc10113          	addi	sp,sp,-4
+80000014:	04f00513          	li	a0,79
+80000018:	00112023          	sw	ra,0(sp)
+8000001c:	048000ef          	jal	80000064 <putch>
+80000020:	04b00513          	li	a0,75
+80000024:	040000ef          	jal	80000064 <putch>
+80000028:	00a00513          	li	a0,10
+8000002c:	038000ef          	jal	80000064 <putch>
+80000030:	00a00713          	li	a4,10
+80000034:	00100793          	li	a5,1
+80000038:	00000513          	li	a0,0
+8000003c:	00078693          	mv	a3,a5
+80000040:	fff70713          	addi	a4,a4,-1
+80000044:	00a787b3          	add	a5,a5,a0
+80000048:	00068513          	mv	a0,a3
+8000004c:	fe0718e3          	bnez	a4,8000003c <main+0x2c>
+80000050:	00012083          	lw	ra,0(sp)
+80000054:	fc968513          	addi	a0,a3,-55
+80000058:	00a03533          	snez	a0,a0
+8000005c:	00410113          	addi	sp,sp,4
+80000060:	00008067          	ret
+
+80000064 <putch>:
+80000064:	a00007b7          	lui	a5,0xa0000
+80000068:	3ea78c23          	sb	a0,1016(a5) # a00003f8 <_end+0x1fff73f8>
+8000006c:	00008067          	ret
+
+80000070 <halt>:
+80000070:	00100073          	ebreak
+80000074:	0000006f          	j	80000074 <halt+0x4>
+
+80000078 <_trm_init>:
+80000078:	ffc10113          	addi	sp,sp,-4
+8000007c:	00000517          	auipc	a0,0x0
+80000080:	02050513          	addi	a0,a0,32 # 8000009c <_etext>
+80000084:	00112023          	sw	ra,0(sp)
+80000088:	f89ff0ef          	jal	80000010 <main>
+8000008c:	00100073          	ebreak
+80000090:	0000006f          	j	80000090 <_trm_init+0x18>
+
+80000094 <ebreak>:
+80000094:	00100073          	ebreak
+80000098:	00008067          	ret

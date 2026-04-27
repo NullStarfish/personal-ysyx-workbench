@@ -19,6 +19,8 @@ class TraceConfigEquivalenceSpec extends AnyFlatSpec {
       startAddr = 0x0L,
       enableTracer = enableTrace,
       enableTraceFields = enableTrace,
+      enableSys = true,
+      enableSimEbreak = true,
     )) { c =>
       val imem = Map[Long, Long](
         0x00L -> 0x00500093L, // addi x1, x0, 5

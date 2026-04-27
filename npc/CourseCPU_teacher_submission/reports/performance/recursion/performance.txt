@@ -1,0 +1,8 @@
+Execution Statistics:
+  Total Cycles:       9172
+  Total Instructions: 6550
+  Total Flushes:      873
+  Average IPC:        0.714130
+  Flush Probability:  0.133282
+Simulation finished after 9172 execution cycles.
+nullstarfish@DESKTOP-7E7LGSH:~/personal-ysyx-workbench/npc/cou

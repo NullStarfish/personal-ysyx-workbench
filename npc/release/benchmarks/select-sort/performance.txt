@@ -1,0 +1,7 @@
+Execution Statistics:
+  Total Cycles:       4126
+  Total Instructions: 3655
+  Total Flushes:      156
+  Average IPC:        0.885846
+  Flush Probability:  0.042681
+Simulation finished after 4126 execution cycles.
