@@ -23,6 +23,12 @@
 #include <iostream>
 
 
+#ifdef CONFIG_BOARD
+#include <nvboard.h>
+void nvboard_bind_all_pins(VysyxSoCFull* top);
+#endif
+
+
 
 const long long TARGET_SIM_FREQ = 1000000; 
 
@@ -61,6 +67,24 @@ uint8_t *ram = (uint8_t *)malloc(MEM_SIZE);
 VysyxSoCFull* top_ptr = NULL;
 long long cycle_count = 0;
 long long instr_count = 0;
+
+#ifdef CONFIG_BOARD
+static void nvboard_probe_gpio_out() {
+    static uint16_t last_gpio_out = 0xffffu;
+    uint16_t gpio_out = top_ptr ? top_ptr->externalPins_gpio_out : 0;
+    if (gpio_out != last_gpio_out) {
+        printf("[nvboard] top externalPins_gpio_out = 0x%04x\n", gpio_out);
+        fflush(stdout);
+        last_gpio_out = gpio_out;
+    }
+}
+
+static int nvboard_readline_event_hook() {
+    nvboard_update();
+    usleep(1000);
+    return 0;
+}
+#endif
 
 // =========================================================================
 // 全局退休快照（由 DPI 在指令退休当拍更新）
@@ -269,6 +293,11 @@ void init_verilator(int argc, char *argv[]) {
     memset(sdram_mem[1], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
     Verilated::commandArgs(argc, argv);
     top_ptr = new VysyxSoCFull;
+
+#ifdef CONFIG_BOARD
+    nvboard_bind_all_pins(top_ptr);
+    nvboard_init();
+#endif
 }
 
 uint32_t get_pc_cpp() { 
@@ -289,6 +318,10 @@ void step_one_clk() {
     // 1. 执行硬件逻辑
     top_ptr->clock = 0; top_ptr->eval();
     top_ptr->clock = 1; top_ptr->eval();
+#ifdef CONFIG_BOARD
+    nvboard_probe_gpio_out();
+    nvboard_update();
+#endif
 
     // 2. 速度控制逻辑 (复用你的 get_time)
     // 使用 static 变量记录该函数被调用的总次数
@@ -328,6 +361,19 @@ void exec_one_cycle_cpp() {
     if (npc_state.state == NPC_RUNNING) {
         instr_count++;
     }
+    #ifdef CONFIG_BOARD
+        nvboard_update();
+    #endif
+}
+
+void nvboard_flush_cpp() {
+#ifdef CONFIG_BOARD
+    uint64_t deadline = get_time() + 25000;
+    while (get_time() < deadline) {
+        nvboard_update();
+        usleep(1000);
+    }
+#endif
 }
 
 

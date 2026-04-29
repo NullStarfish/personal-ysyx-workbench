@@ -5,8 +5,9 @@ SHELL := /bin/bash
 export NPC_HOME ?= $(shell pwd)
 export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 export SOC_HOME ?= $(shell realpath $(NPC_HOME)/../ysyxSoC)
+export NVBOARD_HOME ?= $(shell realpath $(NPC_HOME)/../../nvboard)
 
-
+BOARD ?= 1
 
 
 TARGET := npc
@@ -25,11 +26,18 @@ VPERIP_DIR := $(SOC_HOME)/perip
 VSOC_DIR := $(SOC_HOME)/build
 
 # [新增] 定义生成目录路径
-GEN_DIR  := $(VSRC_DIR)/Core
+GEN_DIR  := $(VSRC_DIR)
 CSRC_DIR := $(NPC_HOME)/csrc
 BUILD_DIR := $(NPC_HOME)/build
 OBJ_DIR := $(BUILD_DIR)/obj_dir
 TOOLS_DIR := $(NPC_HOME)/csrc/tools
+
+
+
+NXDC_FILES = csrc/constr/cons.nxdc
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $(NXDC_FILES) $(SRC_AUTO_BIND)
 
 # --- Verilog/SystemVerilog Sources ---
 DEBUG=1
@@ -71,7 +79,7 @@ VERILOG_INC_DIRS := $(VSRC_DIR)/include \
 					$(SOC_HOME)/perip/spi/rtl
 
 # Format them for Verilator (+incdir+path)
-VERILATOR_INC_FLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
+VERILATOR_INCFLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
 
 # --- C/C++ Sources ---
 CXX_SRCS_BASE := $(shell find $(CSRC_DIR) -name "*.cpp")
@@ -93,19 +101,30 @@ VERILATOR_INC_DIRS := /usr/share/verilator/include \
                       /usr/share/verilator/include/vltstd
 VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
 
+ifeq ($(BOARD),1)
+  INC_DIRS_BASE += $(NVBOARD_HOME)/usr/include
+  CXX_SRCS += $(SRC_AUTO_BIND)
+endif
+
 INC_DIRS  := $(VERILATOR_OBJ_DIR) $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS)
-INC_FLAGS := $(addprefix -I, $(INC_DIRS))
+INCFLAGS := $(addprefix -I, $(INC_DIRS))
 
 # --- Compiler Flags ---
 COMMON_FLAGS := -g -Wall -pthread
 CC := gcc
 CXX := g++
 
-CFLAGS   := $(INC_FLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
-CXXFLAGS := $(INC_FLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
+CFLAGS   := $(INCFLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
+CXXFLAGS := $(INCFLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
 
 # --- Linker Flags ---
 LDFLAGS := -lreadline -pthread -ldl
+
+NVBOARD_ARCHIVE :=
+ifeq ($(BOARD),1)
+  CXXFLAGS += -DCONFIG_BOARD
+  include $(NVBOARD_HOME)/scripts/nvboard.mk
+endif
 
 # --- Kconfig Conditional Flags ---
 ifeq ($(strip $(CONFIG_TRACE)),y)
@@ -143,9 +162,10 @@ endif
 # =============================================================================
 # Object File Mapping
 # =============================================================================
-CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CXX_SRCS))
+CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(filter $(CSRC_DIR)/%.cpp,$(CXX_SRCS)))
 C_OBJS := $(patsubst $(CSRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(C_SRCS))
-ALL_OBJS := $(CXX_OBJS) $(C_OBJS)
+AUTO_BIND_OBJ := $(if $(filter $(SRC_AUTO_BIND),$(CXX_SRCS)),$(BUILD_DIR)/auto_bind.o)
+ALL_OBJS := $(CXX_OBJS) $(C_OBJS) $(AUTO_BIND_OBJ)
 VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 
 # =============================================================================
@@ -177,9 +197,9 @@ check_config:
 		exit 1; \
 	fi
 
-$(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
+$(TARGET): $(ALL_OBJS) $(VERILATED_LIB) $(NVBOARD_ARCHIVE) | check_config
 	@echo "### Linking executable: $(TARGET) ###"
-	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJS) $(VERILATED_LIB) \
+	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJS) $(VERILATED_LIB) $(NVBOARD_ARCHIVE) \
 		$(firstword $(VERILATOR_INC_DIRS))/verilated.cpp \
 		$(firstword $(VERILATOR_INC_DIRS))/verilated_dpi.cpp \
 		$(firstword $(VERILATOR_INC_DIRS))/verilated_threads.cpp \
@@ -190,11 +210,11 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) | check_config
 
 
 # [关键修改] Verilator 编译规则
-# 添加了 $(VERILATOR_INC_FLAGS) 以包含 gen 和 verification 目录
-$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC)  | $(BUILD_DIR) 
+# 添加了 $(VERILATOR_INCFLAGS) 以包含 gen 和 verification 目录
+$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC) | $(BUILD_DIR) 
 	@echo "### Running Verilator... ###"
 	verilator --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
-		$(VERILATOR_INC_FLAGS) \
+		$(VERILATOR_INCFLAGS) \
 		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
 	@echo "### Compiling Verilated library... ###"
 	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
@@ -205,6 +225,11 @@ $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp | $(BUILD_DIR)
+	@mkdir -p $(@D)
+	@echo "### Compiling C++: $< ###"
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/auto_bind.o: $(SRC_AUTO_BIND) | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C++: $< ###"
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -244,4 +269,4 @@ gdb-diff: npc
 	gdb --args ./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) $(GEN_DIR)
+	rm -rf $(BUILD_DIR) $(TARGET)

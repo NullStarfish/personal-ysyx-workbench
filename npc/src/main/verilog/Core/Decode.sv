@@ -288,7 +288,7 @@ module Decode(	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_sys_isMret = ~_GEN_14 & _format_T_24 & ~_GEN_12 & _GEN_15;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :64:16, :87:28, :88:27, :102:18, :201:{32,64}, :203:{38,69}
   assign io_out_bits_sys_isEbreak =
     ~_GEN_14 & _format_T_24 & ~(_GEN_12 | _GEN_15) & _GEN_16;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :64:16, :87:28, :89:29, :102:18, :201:{32,64}, :203:{38,69}, :205:{44,77}
-  assign io_out_bits_pred_redirectPredicted = isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :82:27, :102:18, :264:{36,39}
+  assign io_out_bits_pred_redirectPredicted = isJump & ~isJalr;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7, :81:27, :82:27, :102:18, :268:{36,39}
   assign io_out_bits_trace_pc = io_in_bits_pc;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_out_bits_trace_inst = io_in_bits_inst;	// src/main/scala/mycpu/core/backend/Decode.scala:10:7
   assign io_hazard_rs1Used =

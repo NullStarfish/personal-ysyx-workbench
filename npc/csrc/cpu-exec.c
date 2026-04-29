@@ -11,6 +11,7 @@ uint32_t get_pc_cpp();
 uint32_t get_retire_pc_cpp();
 uint32_t get_inst_cpp();
 void exec_one_cycle_cpp();
+void nvboard_flush_cpp();
 
 // This function is now defined in NEMU's difftest framework
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;

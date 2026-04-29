@@ -4,7 +4,6 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
-import mycpu.MemMap
 import mycpu.utils._
 
 class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {

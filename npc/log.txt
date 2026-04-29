@@ -1,0 +1,3243 @@
+0xa0000000: 13 04 00 00     mv	s0, zero
+0xa0000004: 17 21 00 6f     auipc	sp, 0x6f002
+0xa0000008: 13 01 c1 ff     addi	sp, sp, -4
+0xa000000c: ef 00 40 08     jal	0x84
+0xa0000090: 13 01 01 ff     addi	sp, sp, -0x10
+0xa0000094: 23 26 11 00     sw	ra, 0xc(sp)
+0xa0000098: 23 24 81 00     sw	s0, 8(sp)
+0xa000009c: 23 22 91 00     sw	s1, 4(sp)
+0xa00000a0: f3 27 00 bc     csrr	a5, 3008
+0xa00000a4: 23 20 f1 00     sw	a5, 0(sp)
+0xa00000a8: 13 04 01 00     mv	s0, sp
+0xa00000ac: 93 04 c1 ff     addi	s1, sp, -4
+0xa00000b0: 83 45 34 00     lbu	a1, 3(s0)
+0xa00000b4: 17 15 00 00     auipc	a0, 1
+0xa00000b8: 13 05 85 c6     addi	a0, a0, -0x398
+0xa00000bc: 13 04 f4 ff     addi	s0, s0, -1
+0xa00000c0: ef 00 10 30     jal	0xb00
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000258: 03 c5 15 00     lbu	a0, 1(a1)
+0xa000025c: 13 07 00 03     addi	a4, zero, 0x30
+0xa0000260: 23 26 01 00     sw	zero, 0xc(sp)
+0xa0000264: 63 1c e5 00     bne	a0, a4, 0x18
+0xa000027c: 93 05 05 fd     addi	a1, a0, -0x30
+0xa0000280: 13 f7 f5 0f     andi	a4, a1, 0xff
+0xa0000284: 93 04 90 00     addi	s1, zero, 9
+0xa0000288: 93 07 00 00     mv	a5, zero
+0xa000028c: 63 ec e4 02     bltu	s1, a4, 0x38
+0xa00002c4: 63 0c 05 52     beqz	a0, 0x538
+0xa00002c8: 13 07 d5 f9     addi	a4, a0, -0x63
+0xa00002cc: 13 77 f7 0f     andi	a4, a4, 0xff
+0xa00002d0: 93 05 50 01     addi	a1, zero, 0x15
+0xa00002d4: 63 e0 e5 04     bltu	a1, a4, 0x40
+0xa00002d8: 97 15 00 00     auipc	a1, 1
+0xa00002dc: 93 85 05 ab     addi	a1, a1, -0x550
+0xa00002e0: 13 17 27 00     slli	a4, a4, 2
+0xa00002e4: 33 07 b7 00     add	a4, a4, a1
+0xa00002e8: 03 27 07 00     lw	a4, 0(a4)
+0xa00002ec: 33 07 b7 00     add	a4, a4, a1
+0xa00002f0: 67 00 07 00     jr	a4
+0xa0000334: 03 27 81 00     lw	a4, 8(sp)
+0xa0000338: 93 02 47 00     addi	t0, a4, 4
+0xa000033c: 03 27 07 00     lw	a4, 0(a4)
+0xa0000340: 13 04 07 00     mv	s0, a4
+0xa0000344: 13 87 07 00     mv	a4, a5
+0xa0000348: 63 44 f0 00     bgtz	a5, 8
+0xa000034c: 13 07 10 00     addi	a4, zero, 1
+0xa0000350: 83 25 c1 00     lw	a1, 0xc(sp)
+0xa0000354: 13 85 f3 ff     addi	a0, t2, -1
+0xa0000358: 33 05 e5 00     add	a0, a0, a4
+0xa000035c: 93 85 f5 ff     addi	a1, a1, -1
+0xa0000360: 13 87 03 00     mv	a4, t2
+0xa0000364: 93 f5 05 ff     andi	a1, a1, -0x10
+0xa0000368: 93 04 10 00     addi	s1, zero, 1
+0xa000036c: 93 83 06 00     mv	t2, a3
+0xa0000370: 93 85 05 03     addi	a1, a1, 0x30
+0xa0000374: b3 06 e6 00     add	a3, a2, a4
+0xa0000378: 63 ca f4 00     blt	s1, a5, 0x14
+0xa000037c: 6f 00 00 4a     j	0x4a0
+0xa000081c: 23 80 86 00     sb	s0, 0(a3)
+0xa0000820: 6f f0 9f b7     j	-0x488
+0xa0000398: 83 27 01 00     lw	a5, 0(sp)
+0xa000039c: 23 24 51 00     sw	t0, 8(sp)
+0xa00003a0: b3 02 76 00     add	t0, a2, t2
+0xa00003a4: 03 c7 17 00     lbu	a4, 1(a5)
+0xa00003a8: 93 85 17 00     addi	a1, a5, 1
+0xa00003ac: e3 1c 07 e4     bnez	a4, -0x1a8
+0xa00003b0: 6f f0 9f e8     j	-0x178
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa000003c: 37 07 00 10     lui	a4, 0x10000
+0xa0000040: a3 00 07 00     sb	zero, 1(a4)
+0xa0000044: 13 06 30 f8     addi	a2, zero, -0x7d
+0xa0000048: a3 01 c7 00     sb	a2, 3(a4)
+0xa000004c: a3 00 07 00     sb	zero, 1(a4)
+0xa0000050: 13 06 10 00     addi	a2, zero, 1
+0xa0000054: 23 00 c7 00     sb	a2, 0(a4)
+0xa0000058: 93 05 30 00     addi	a1, zero, 3
+0xa000005c: a3 01 b7 00     sb	a1, 3(a4)
+0xa0000060: 93 07 07 00     mv	a5, a4
+0xa0000064: 13 07 70 fc     addi	a4, zero, -0x39
+0xa0000068: 23 81 e7 00     sb	a4, 2(a5)
+0xa000006c: 23 80 c6 00     sb	a2, 0(a3)
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000c4: e3 16 94 fe     bne	s0, s1, -0x14
+0xa00000b0: 83 45 34 00     lbu	a1, 3(s0)
+0xa00000b4: 17 15 00 00     auipc	a0, 1
+0xa00000b8: 13 05 85 c6     addi	a0, a0, -0x398
+0xa00000bc: 13 04 f4 ff     addi	s0, s0, -1
+0xa00000c0: ef 00 10 30     jal	0xb00
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000258: 03 c5 15 00     lbu	a0, 1(a1)
+0xa000025c: 13 07 00 03     addi	a4, zero, 0x30
+0xa0000260: 23 26 01 00     sw	zero, 0xc(sp)
+0xa0000264: 63 1c e5 00     bne	a0, a4, 0x18
+0xa000027c: 93 05 05 fd     addi	a1, a0, -0x30
+0xa0000280: 13 f7 f5 0f     andi	a4, a1, 0xff
+0xa0000284: 93 04 90 00     addi	s1, zero, 9
+0xa0000288: 93 07 00 00     mv	a5, zero
+0xa000028c: 63 ec e4 02     bltu	s1, a4, 0x38
+0xa00002c4: 63 0c 05 52     beqz	a0, 0x538
+0xa00002c8: 13 07 d5 f9     addi	a4, a0, -0x63
+0xa00002cc: 13 77 f7 0f     andi	a4, a4, 0xff
+0xa00002d0: 93 05 50 01     addi	a1, zero, 0x15
+0xa00002d4: 63 e0 e5 04     bltu	a1, a4, 0x40
+0xa00002d8: 97 15 00 00     auipc	a1, 1
+0xa00002dc: 93 85 05 ab     addi	a1, a1, -0x550
+0xa00002e0: 13 17 27 00     slli	a4, a4, 2
+0xa00002e4: 33 07 b7 00     add	a4, a4, a1
+0xa00002e8: 03 27 07 00     lw	a4, 0(a4)
+0xa00002ec: 33 07 b7 00     add	a4, a4, a1
+0xa00002f0: 67 00 07 00     jr	a4
+0xa0000334: 03 27 81 00     lw	a4, 8(sp)
+0xa0000338: 93 02 47 00     addi	t0, a4, 4
+0xa000033c: 03 27 07 00     lw	a4, 0(a4)
+0xa0000340: 13 04 07 00     mv	s0, a4
+0xa0000344: 13 87 07 00     mv	a4, a5
+0xa0000348: 63 44 f0 00     bgtz	a5, 8
+0xa000034c: 13 07 10 00     addi	a4, zero, 1
+0xa0000350: 83 25 c1 00     lw	a1, 0xc(sp)
+0xa0000354: 13 85 f3 ff     addi	a0, t2, -1
+0xa0000358: 33 05 e5 00     add	a0, a0, a4
+0xa000035c: 93 85 f5 ff     addi	a1, a1, -1
+0xa0000360: 13 87 03 00     mv	a4, t2
+0xa0000364: 93 f5 05 ff     andi	a1, a1, -0x10
+0xa0000368: 93 04 10 00     addi	s1, zero, 1
+0xa000036c: 93 83 06 00     mv	t2, a3
+0xa0000370: 93 85 05 03     addi	a1, a1, 0x30
+0xa0000374: b3 06 e6 00     add	a3, a2, a4
+0xa0000378: 63 ca f4 00     blt	s1, a5, 0x14
+0xa000037c: 6f 00 00 4a     j	0x4a0
+0xa000081c: 23 80 86 00     sb	s0, 0(a3)
+0xa0000820: 6f f0 9f b7     j	-0x488
+0xa0000398: 83 27 01 00     lw	a5, 0(sp)
+0xa000039c: 23 24 51 00     sw	t0, 8(sp)
+0xa00003a0: b3 02 76 00     add	t0, a2, t2
+0xa00003a4: 03 c7 17 00     lbu	a4, 1(a5)
+0xa00003a8: 93 85 17 00     addi	a1, a5, 1
+0xa00003ac: e3 1c 07 e4     bnez	a4, -0x1a8
+0xa00003b0: 6f f0 9f e8     j	-0x178
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000c4: e3 16 94 fe     bne	s0, s1, -0x14
+0xa00000b0: 83 45 34 00     lbu	a1, 3(s0)
+0xa00000b4: 17 15 00 00     auipc	a0, 1
+0xa00000b8: 13 05 85 c6     addi	a0, a0, -0x398
+0xa00000bc: 13 04 f4 ff     addi	s0, s0, -1
+0xa00000c0: ef 00 10 30     jal	0xb00
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000258: 03 c5 15 00     lbu	a0, 1(a1)
+0xa000025c: 13 07 00 03     addi	a4, zero, 0x30
+0xa0000260: 23 26 01 00     sw	zero, 0xc(sp)
+0xa0000264: 63 1c e5 00     bne	a0, a4, 0x18
+0xa000027c: 93 05 05 fd     addi	a1, a0, -0x30
+0xa0000280: 13 f7 f5 0f     andi	a4, a1, 0xff
+0xa0000284: 93 04 90 00     addi	s1, zero, 9
+0xa0000288: 93 07 00 00     mv	a5, zero
+0xa000028c: 63 ec e4 02     bltu	s1, a4, 0x38
+0xa00002c4: 63 0c 05 52     beqz	a0, 0x538
+0xa00002c8: 13 07 d5 f9     addi	a4, a0, -0x63
+0xa00002cc: 13 77 f7 0f     andi	a4, a4, 0xff
+0xa00002d0: 93 05 50 01     addi	a1, zero, 0x15
+0xa00002d4: 63 e0 e5 04     bltu	a1, a4, 0x40
+0xa00002d8: 97 15 00 00     auipc	a1, 1
+0xa00002dc: 93 85 05 ab     addi	a1, a1, -0x550
+0xa00002e0: 13 17 27 00     slli	a4, a4, 2
+0xa00002e4: 33 07 b7 00     add	a4, a4, a1
+0xa00002e8: 03 27 07 00     lw	a4, 0(a4)
+0xa00002ec: 33 07 b7 00     add	a4, a4, a1
+0xa00002f0: 67 00 07 00     jr	a4
+0xa0000334: 03 27 81 00     lw	a4, 8(sp)
+0xa0000338: 93 02 47 00     addi	t0, a4, 4
+0xa000033c: 03 27 07 00     lw	a4, 0(a4)
+0xa0000340: 13 04 07 00     mv	s0, a4
+0xa0000344: 13 87 07 00     mv	a4, a5
+0xa0000348: 63 44 f0 00     bgtz	a5, 8
+0xa000034c: 13 07 10 00     addi	a4, zero, 1
+0xa0000350: 83 25 c1 00     lw	a1, 0xc(sp)
+0xa0000354: 13 85 f3 ff     addi	a0, t2, -1
+0xa0000358: 33 05 e5 00     add	a0, a0, a4
+0xa000035c: 93 85 f5 ff     addi	a1, a1, -1
+0xa0000360: 13 87 03 00     mv	a4, t2
+0xa0000364: 93 f5 05 ff     andi	a1, a1, -0x10
+0xa0000368: 93 04 10 00     addi	s1, zero, 1
+0xa000036c: 93 83 06 00     mv	t2, a3
+0xa0000370: 93 85 05 03     addi	a1, a1, 0x30
+0xa0000374: b3 06 e6 00     add	a3, a2, a4
+0xa0000378: 63 ca f4 00     blt	s1, a5, 0x14
+0xa000037c: 6f 00 00 4a     j	0x4a0
+0xa000081c: 23 80 86 00     sb	s0, 0(a3)
+0xa0000820: 6f f0 9f b7     j	-0x488
+0xa0000398: 83 27 01 00     lw	a5, 0(sp)
+0xa000039c: 23 24 51 00     sw	t0, 8(sp)
+0xa00003a0: b3 02 76 00     add	t0, a2, t2
+0xa00003a4: 03 c7 17 00     lbu	a4, 1(a5)
+0xa00003a8: 93 85 17 00     addi	a1, a5, 1
+0xa00003ac: e3 1c 07 e4     bnez	a4, -0x1a8
+0xa00003b0: 6f f0 9f e8     j	-0x178
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000c4: e3 16 94 fe     bne	s0, s1, -0x14
+0xa00000b0: 83 45 34 00     lbu	a1, 3(s0)
+0xa00000b4: 17 15 00 00     auipc	a0, 1
+0xa00000b8: 13 05 85 c6     addi	a0, a0, -0x398
+0xa00000bc: 13 04 f4 ff     addi	s0, s0, -1
+0xa00000c0: ef 00 10 30     jal	0xb00
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000258: 03 c5 15 00     lbu	a0, 1(a1)
+0xa000025c: 13 07 00 03     addi	a4, zero, 0x30
+0xa0000260: 23 26 01 00     sw	zero, 0xc(sp)
+0xa0000264: 63 1c e5 00     bne	a0, a4, 0x18
+0xa000027c: 93 05 05 fd     addi	a1, a0, -0x30
+0xa0000280: 13 f7 f5 0f     andi	a4, a1, 0xff
+0xa0000284: 93 04 90 00     addi	s1, zero, 9
+0xa0000288: 93 07 00 00     mv	a5, zero
+0xa000028c: 63 ec e4 02     bltu	s1, a4, 0x38
+0xa00002c4: 63 0c 05 52     beqz	a0, 0x538
+0xa00002c8: 13 07 d5 f9     addi	a4, a0, -0x63
+0xa00002cc: 13 77 f7 0f     andi	a4, a4, 0xff
+0xa00002d0: 93 05 50 01     addi	a1, zero, 0x15
+0xa00002d4: 63 e0 e5 04     bltu	a1, a4, 0x40
+0xa00002d8: 97 15 00 00     auipc	a1, 1
+0xa00002dc: 93 85 05 ab     addi	a1, a1, -0x550
+0xa00002e0: 13 17 27 00     slli	a4, a4, 2
+0xa00002e4: 33 07 b7 00     add	a4, a4, a1
+0xa00002e8: 03 27 07 00     lw	a4, 0(a4)
+0xa00002ec: 33 07 b7 00     add	a4, a4, a1
+0xa00002f0: 67 00 07 00     jr	a4
+0xa0000334: 03 27 81 00     lw	a4, 8(sp)
+0xa0000338: 93 02 47 00     addi	t0, a4, 4
+0xa000033c: 03 27 07 00     lw	a4, 0(a4)
+0xa0000340: 13 04 07 00     mv	s0, a4
+0xa0000344: 13 87 07 00     mv	a4, a5
+0xa0000348: 63 44 f0 00     bgtz	a5, 8
+0xa000034c: 13 07 10 00     addi	a4, zero, 1
+0xa0000350: 83 25 c1 00     lw	a1, 0xc(sp)
+0xa0000354: 13 85 f3 ff     addi	a0, t2, -1
+0xa0000358: 33 05 e5 00     add	a0, a0, a4
+0xa000035c: 93 85 f5 ff     addi	a1, a1, -1
+0xa0000360: 13 87 03 00     mv	a4, t2
+0xa0000364: 93 f5 05 ff     andi	a1, a1, -0x10
+0xa0000368: 93 04 10 00     addi	s1, zero, 1
+0xa000036c: 93 83 06 00     mv	t2, a3
+0xa0000370: 93 85 05 03     addi	a1, a1, 0x30
+0xa0000374: b3 06 e6 00     add	a3, a2, a4
+0xa0000378: 63 ca f4 00     blt	s1, a5, 0x14
+0xa000037c: 6f 00 00 4a     j	0x4a0
+0xa000081c: 23 80 86 00     sb	s0, 0(a3)
+0xa0000820: 6f f0 9f b7     j	-0x488
+0xa0000398: 83 27 01 00     lw	a5, 0(sp)
+0xa000039c: 23 24 51 00     sw	t0, 8(sp)
+0xa00003a0: b3 02 76 00     add	t0, a2, t2
+0xa00003a4: 03 c7 17 00     lbu	a4, 1(a5)
+0xa00003a8: 93 85 17 00     addi	a1, a5, 1
+0xa00003ac: e3 1c 07 e4     bnez	a4, -0x1a8
+0xa00003b0: 6f f0 9f e8     j	-0x178
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000c4: e3 16 94 fe     bne	s0, s1, -0x14
+0xa00000c8: 17 15 00 00     auipc	a0, 1
+0xa00000cc: 13 05 c5 c5     addi	a0, a0, -0x3a4
+0xa00000d0: ef 00 10 2f     jal	0xaf0
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000d4: f3 25 10 bc     csrr	a1, 3009
+0xa00000d8: 17 15 00 00     auipc	a0, 1
+0xa00000dc: 13 05 05 c5     addi	a0, a0, -0x3b0
+0xa00000e0: 23 20 b1 00     sw	a1, 0(sp)
+0xa00000e4: ef 00 d0 2d     jal	0xadc
+0xa0000bc0: 13 01 81 bd     addi	sp, sp, -0x428
+0xa0000bc4: 13 03 41 41     addi	t1, sp, 0x414
+0xa0000bc8: 23 2a b1 40     sw	a1, 0x414(sp)
+0xa0000bcc: 23 2c c1 40     sw	a2, 0x418(sp)
+0xa0000bd0: 23 2e d1 40     sw	a3, 0x41c(sp)
+0xa0000bd4: 13 06 05 00     mv	a2, a0
+0xa0000bd8: 93 06 03 00     mv	a3, t1
+0xa0000bdc: 13 05 81 00     addi	a0, sp, 8
+0xa0000be0: 93 05 00 40     addi	a1, zero, 0x400
+0xa0000be4: 23 28 11 40     sw	ra, 0x410(sp)
+0xa0000be8: 23 20 e1 42     sw	a4, 0x420(sp)
+0xa0000bec: 23 22 f1 42     sw	a5, 0x424(sp)
+0xa0000bf0: 23 22 61 00     sw	t1, 4(sp)
+0xa0000bf4: ef f0 4f dd     jal	-0xa2c
+0xa00001c8: 13 01 81 f7     addi	sp, sp, -0x88
+0xa00001cc: 23 22 11 08     sw	ra, 0x84(sp)
+0xa00001d0: 03 47 06 00     lbu	a4, 0(a2)
+0xa00001d4: 23 28 a1 00     sw	a0, 0x10(sp)
+0xa00001d8: 23 24 d1 00     sw	a3, 8(sp)
+0xa00001dc: 93 02 05 00     mv	t0, a0
+0xa00001e0: 93 06 05 00     mv	a3, a0
+0xa00001e4: 13 05 00 00     mv	a0, zero
+0xa00001e8: 63 00 07 06     beqz	a4, 0x60
+0xa00001ec: 13 83 05 00     mv	t1, a1
+0xa00001f0: 93 05 06 00     mv	a1, a2
+0xa00001f4: 03 26 01 01     lw	a2, 0x10(sp)
+0xa00001f8: 23 20 81 08     sw	s0, 0x80(sp)
+0xa00001fc: 23 2e 91 06     sw	s1, 0x7c(sp)
+0xa0000200: 93 03 00 00     mv	t2, zero
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000258: 03 c5 15 00     lbu	a0, 1(a1)
+0xa000025c: 13 07 00 03     addi	a4, zero, 0x30
+0xa0000260: 23 26 01 00     sw	zero, 0xc(sp)
+0xa0000264: 63 1c e5 00     bne	a0, a4, 0x18
+0xa000027c: 93 05 05 fd     addi	a1, a0, -0x30
+0xa0000280: 13 f7 f5 0f     andi	a4, a1, 0xff
+0xa0000284: 93 04 90 00     addi	s1, zero, 9
+0xa0000288: 93 07 00 00     mv	a5, zero
+0xa000028c: 63 ec e4 02     bltu	s1, a4, 0x38
+0xa00002c4: 63 0c 05 52     beqz	a0, 0x538
+0xa00002c8: 13 07 d5 f9     addi	a4, a0, -0x63
+0xa00002cc: 13 77 f7 0f     andi	a4, a4, 0xff
+0xa00002d0: 93 05 50 01     addi	a1, zero, 0x15
+0xa00002d4: 63 e0 e5 04     bltu	a1, a4, 0x40
+0xa00002d8: 97 15 00 00     auipc	a1, 1
+0xa00002dc: 93 85 05 ab     addi	a1, a1, -0x550
+0xa00002e0: 13 17 27 00     slli	a4, a4, 2
+0xa00002e4: 33 07 b7 00     add	a4, a4, a1
+0xa00002e8: 03 27 07 00     lw	a4, 0(a4)
+0xa00002ec: 33 07 b7 00     add	a4, a4, a1
+0xa00002f0: 67 00 07 00     jr	a4
+0xa00003b4: 03 27 81 00     lw	a4, 8(sp)
+0xa00003b8: 93 05 00 00     mv	a1, zero
+0xa00003bc: 83 24 07 00     lw	s1, 0(a4)
+0xa00003c0: 13 07 47 00     addi	a4, a4, 4
+0xa00003c4: 23 2e e1 00     sw	a4, 0x1c(sp)
+0xa00003c8: 63 d6 04 00     bgez	s1, 0xc
+0xa00003d4: 13 07 00 00     mv	a4, zero
+0xa00003d8: 13 05 c1 03     addi	a0, sp, 0x3c
+0xa00003dc: 23 2c a1 00     sw	a0, 0x18(sp)
+0xa00003e0: 23 20 71 02     sw	t2, 0x20(sp)
+0xa00003e4: 23 22 f1 02     sw	a5, 0x24(sp)
+0xa00003e8: 13 04 07 00     mv	s0, a4
+0xa00003ec: 23 24 b1 02     sw	a1, 0x28(sp)
+0xa00003f0: 23 26 c1 02     sw	a2, 0x2c(sp)
+0xa00003f4: 23 28 61 02     sw	t1, 0x30(sp)
+0xa00003f8: 23 2a d1 02     sw	a3, 0x34(sp)
+0xa00003fc: 23 2c 51 02     sw	t0, 0x38(sp)
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c88: 63 58 c0 00     blez	a2, 0x10
+0xa0000c8c: 13 16 16 00     slli	a2, a2, 1
+0xa0000c90: 93 96 16 00     slli	a3, a3, 1
+0xa0000c94: e3 6a b6 fe     bltu	a2, a1, -0xc
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca0: b3 85 c5 40     sub	a1, a1, a2
+0xa0000ca4: 33 65 d5 00     or	a0, a0, a3
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000400: 83 27 81 01     lw	a5, 0x18(sp)
+0xa0000404: 23 2a 81 00     sw	s0, 0x14(sp)
+0xa0000408: 13 04 14 00     addi	s0, s0, 1
+0xa000040c: 33 86 87 00     add	a2, a5, s0
+0xa0000410: 93 05 a0 00     addi	a1, zero, 0xa
+0xa0000414: 13 85 04 00     mv	a0, s1
+0xa0000418: 23 24 c1 00     sw	a2, 8(sp)
+0xa000041c: ef 00 10 0d     jal	0x8d0
+0xa0000cec: 93 82 00 00     mv	t0, ra
+0xa0000cf0: 63 ca 05 00     bltz	a1, 0x14
+0xa0000cf4: 63 4c 05 00     bltz	a0, 0x18
+0xa0000cf8: ef f0 9f f7     jal	-0x88
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000cfc: 13 85 05 00     mv	a0, a1
+0xa0000d00: 67 80 02 00     jr	t0
+0xa0000420: 03 26 81 00     lw	a2, 8(sp)
+0xa0000424: 93 06 05 03     addi	a3, a0, 0x30
+0xa0000428: 93 05 a0 00     addi	a1, zero, 0xa
+0xa000042c: 13 85 04 00     mv	a0, s1
+0xa0000430: a3 0f d6 fe     sb	a3, -1(a2)
+0xa0000434: ef 00 50 03     jal	0x834
+0xa0000c68: 63 40 05 06     bltz	a0, 0x60
+0xa0000c6c: 63 c6 05 06     bltz	a1, 0x6c
+0xa0000c70: 13 86 05 00     mv	a2, a1
+0xa0000c74: 93 05 05 00     mv	a1, a0
+0xa0000c78: 13 05 f0 ff     addi	a0, zero, -1
+0xa0000c7c: 63 0c 06 02     beqz	a2, 0x38
+0xa0000c80: 93 06 10 00     addi	a3, zero, 1
+0xa0000c84: 63 7a b6 00     bgeu	a2, a1, 0x14
+0xa0000c98: 13 05 00 00     mv	a0, zero
+0xa0000c9c: 63 e6 c5 00     bltu	a1, a2, 0xc
+0xa0000ca8: 93 d6 16 00     srli	a3, a3, 1
+0xa0000cac: 13 56 16 00     srli	a2, a2, 1
+0xa0000cb0: e3 96 06 fe     bnez	a3, -0x14
+0xa0000cb4: 67 80 00 00     ret
+0xa0000438: 93 04 05 00     mv	s1, a0
+0xa000043c: e3 12 05 fc     bnez	a0, -0x3c
+0xa0000440: 83 25 81 02     lw	a1, 0x28(sp)
+0xa0000444: 83 23 01 02     lw	t2, 0x20(sp)
+0xa0000448: 83 27 41 02     lw	a5, 0x24(sp)
+0xa000044c: 03 26 c1 02     lw	a2, 0x2c(sp)
+0xa0000450: 03 23 01 03     lw	t1, 0x30(sp)
+0xa0000454: 83 26 41 03     lw	a3, 0x34(sp)
+0xa0000458: 83 22 81 03     lw	t0, 0x38(sp)
+0xa000045c: 63 8a 05 00     beqz	a1, 0x14
+0xa0000470: 03 24 81 01     lw	s0, 0x18(sp)
+0xa0000474: 03 27 41 01     lw	a4, 0x14(sp)
+0xa0000478: 93 04 c1 05     addi	s1, sp, 0x5c
+0xa000047c: 93 85 04 00     mv	a1, s1
+0xa0000480: 33 07 e4 00     add	a4, s0, a4
+0xa0000484: 23 24 71 00     sw	t2, 8(sp)
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa0000488: 83 43 07 00     lbu	t2, 0(a4)
+0xa000048c: 13 05 07 00     mv	a0, a4
+0xa0000490: 93 85 15 00     addi	a1, a1, 1
+0xa0000494: a3 8f 75 fe     sb	t2, -1(a1)
+0xa0000498: 13 07 f7 ff     addi	a4, a4, -1
+0xa000049c: e3 16 a4 fe     bne	s0, a0, -0x14
+0xa00004a0: 23 20 f1 02     sw	a5, 0x20(sp)
+0xa00004a4: 83 27 41 01     lw	a5, 0x14(sp)
+0xa00004a8: 83 23 81 00     lw	t2, 8(sp)
+0xa00004ac: 13 85 04 00     mv	a0, s1
+0xa00004b0: 33 87 27 00     add	a4, a5, sp
+0xa00004b4: a3 0e 07 04     sb	zero, 0x5d(a4)
+0xa00004b8: 23 22 71 02     sw	t2, 0x24(sp)
+0xa00004bc: 23 2c c1 00     sw	a2, 0x18(sp)
+0xa00004c0: 23 24 61 00     sw	t1, 8(sp)
+0xa00004c4: 23 26 d1 02     sw	a3, 0x2c(sp)
+0xa00004c8: 23 24 51 02     sw	t0, 0x28(sp)
+0xa00004cc: ef 00 c0 76     jal	0x76c
+0xa0000c38: 03 47 05 00     lbu	a4, 0(a0)
+0xa0000c3c: 93 06 05 00     mv	a3, a0
+0xa0000c40: 93 07 00 00     mv	a5, zero
+0xa0000c44: 63 0e 07 00     beqz	a4, 0x1c
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c48: 93 87 17 00     addi	a5, a5, 1
+0xa0000c4c: 33 87 f6 00     add	a4, a3, a5
+0xa0000c50: 03 47 07 00     lbu	a4, 0(a4)
+0xa0000c54: 13 85 07 00     mv	a0, a5
+0xa0000c58: e3 18 07 fe     bnez	a4, -0x10
+0xa0000c5c: 67 80 00 00     ret
+0xa00004d0: 83 45 c1 05     lbu	a1, 0x5c(sp)
+0xa00004d4: 13 07 d0 02     addi	a4, zero, 0x2d
+0xa00004d8: 03 23 81 00     lw	t1, 8(sp)
+0xa00004dc: 03 26 81 01     lw	a2, 0x18(sp)
+0xa00004e0: 83 27 01 02     lw	a5, 0x20(sp)
+0xa00004e4: 83 23 41 02     lw	t2, 0x24(sp)
+0xa00004e8: 63 9a e5 34     bne	a1, a4, 0x354
+0xa000083c: e3 54 f5 ce     bge	a0, a5, -0x318
+0xa0000524: 63 5c a0 02     blez	a0, 0x38
+0xa0000528: 33 05 75 00     add	a0, a0, t2
+0xa000052c: 13 87 03 00     mv	a4, t2
+0xa0000530: 6f 00 c0 01     j	0x1c
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa000054c: 93 06 07 00     mv	a3, a4
+0xa0000550: 13 07 17 00     addi	a4, a4, 1
+0xa0000554: e3 60 67 fe     bltu	a4, t1, -0x20
+0xa0000534: b3 07 77 40     sub	a5, a4, t2
+0xa0000538: b3 87 f4 00     add	a5, s1, a5
+0xa000053c: 83 c6 f7 ff     lbu	a3, -1(a5)
+0xa0000540: b3 07 e6 00     add	a5, a2, a4
+0xa0000544: a3 8f d7 fe     sb	a3, -1(a5)
+0xa0000548: 63 00 a7 32     beq	a4, a0, 0x320
+0xa0000868: 93 03 07 00     mv	t2, a4
+0xa000086c: 6f f0 1f cf     j	-0x310
+0xa000055c: 83 27 c1 01     lw	a5, 0x1c(sp)
+0xa0000560: b3 02 76 00     add	t0, a2, t2
+0xa0000564: 23 24 f1 00     sw	a5, 8(sp)
+0xa0000568: 83 27 01 00     lw	a5, 0(sp)
+0xa000056c: 03 c7 17 00     lbu	a4, 1(a5)
+0xa0000570: 93 85 17 00     addi	a1, a5, 1
+0xa0000574: e3 18 07 c8     bnez	a4, -0x370
+0xa0000204: 93 86 13 00     addi	a3, t2, 1
+0xa0000208: 23 22 d1 00     sw	a3, 4(sp)
+0xa000020c: 63 f4 66 0e     bgeu	a3, t1, 0xe8
+0xa0000210: 93 87 15 00     addi	a5, a1, 1
+0xa0000214: 13 05 50 02     addi	a0, zero, 0x25
+0xa0000218: 23 20 f1 00     sw	a5, 0(sp)
+0xa000021c: 63 0e a7 02     beq	a4, a0, 0x3c
+0xa0000220: 23 80 e2 00     sb	a4, 0(t0)
+0xa0000224: 03 c7 15 00     lbu	a4, 1(a1)
+0xa0000228: 93 83 06 00     mv	t2, a3
+0xa000022c: 83 25 01 00     lw	a1, 0(sp)
+0xa0000230: b3 02 d6 00     add	t0, a2, a3
+0xa0000234: e3 18 07 fc     bnez	a4, -0x30
+0xa0000238: 03 24 01 08     lw	s0, 0x80(sp)
+0xa000023c: 83 24 c1 07     lw	s1, 0x7c(sp)
+0xa0000240: 93 86 02 00     mv	a3, t0
+0xa0000244: 13 85 03 00     mv	a0, t2
+0xa0000248: 23 80 06 00     sb	zero, 0(a3)
+0xa000024c: 83 20 41 08     lw	ra, 0x84(sp)
+0xa0000250: 13 01 81 08     addi	sp, sp, 0x88
+0xa0000254: 67 80 00 00     ret
+0xa0000bf8: 23 20 a1 00     sw	a0, 0(sp)
+0xa0000bfc: 63 56 a0 02     blez	a0, 0x2c
+0xa0000c00: 23 24 91 40     sw	s1, 0x408(sp)
+0xa0000c04: 93 04 81 00     addi	s1, sp, 8
+0xa0000c08: 23 26 81 40     sw	s0, 0x40c(sp)
+0xa0000c0c: 33 84 a4 00     add	s0, s1, a0
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c10: 03 c5 04 00     lbu	a0, 0(s1)
+0xa0000c14: 93 84 14 00     addi	s1, s1, 1
+0xa0000c18: ef f0 0f c1     jal	-0xbf0
+0xa0000028: 97 17 00 00     auipc	a5, 1
+0xa000002c: 83 c7 87 db     lbu	a5, -0x248(a5)
+0xa0000030: 97 16 00 00     auipc	a3, 1
+0xa0000034: 93 86 06 db     addi	a3, a3, -0x250
+0xa0000038: 63 9c 07 02     bnez	a5, 0x38
+0xa0000070: 37 07 00 10     lui	a4, 0x10000
+0xa0000074: 13 07 57 00     addi	a4, a4, 5
+0xa0000078: b7 06 00 10     lui	a3, 0x10000
+0xa000007c: 83 47 07 00     lbu	a5, 0(a4)
+0xa0000080: 93 f7 07 02     andi	a5, a5, 0x20
+0xa0000084: e3 8c 07 fe     beqz	a5, -8
+0xa0000088: 23 80 a6 00     sb	a0, 0(a3)
+0xa000008c: 67 80 00 00     ret
+0xa0000c1c: e3 9a 84 fe     bne	s1, s0, -0xc
+0xa0000c20: 03 24 c1 40     lw	s0, 0x40c(sp)
+0xa0000c24: 83 24 81 40     lw	s1, 0x408(sp)
+0xa0000c28: 83 20 01 41     lw	ra, 0x410(sp)
+0xa0000c2c: 03 25 01 00     lw	a0, 0(sp)
+0xa0000c30: 13 01 81 42     addi	sp, sp, 0x428
+0xa0000c34: 67 80 00 00     ret
+0xa00000e8: 97 17 00 00     auipc	a5, 1
+0xa00000ec: 93 87 87 cf     addi	a5, a5, -0x308
+0xa00000f0: 17 16 00 00     auipc	a2, 1
+0xa00000f4: 13 06 06 cf     addi	a2, a2, -0x310
+0xa00000f8: 63 f0 c7 02     bgeu	a5, a2, 0x20
+0xa0000118: 97 17 00 00     auipc	a5, 1
+0xa000011c: 93 87 87 cc     addi	a5, a5, -0x338
+0xa0000120: 17 17 00 00     auipc	a4, 1
+0xa0000124: 13 07 47 cc     addi	a4, a4, -0x33c
+0xa0000128: 63 f8 e7 00     bgeu	a5, a4, 0x10
+0xa000012c: 93 87 17 00     addi	a5, a5, 1
+0xa0000130: a3 8f 07 fe     sb	zero, -1(a5)
+0xa0000134: e3 9c e7 fe     bne	a5, a4, -8
+0xa000012c: 93 87 17 00     addi	a5, a5, 1
+0xa0000130: a3 8f 07 fe     sb	zero, -1(a5)
+0xa0000134: e3 9c e7 fe     bne	a5, a4, -8
+0xa000012c: 93 87 17 00     addi	a5, a5, 1
+0xa0000130: a3 8f 07 fe     sb	zero, -1(a5)
+0xa0000134: e3 9c e7 fe     bne	a5, a4, -8
+0xa000012c: 93 87 17 00     addi	a5, a5, 1
+0xa0000130: a3 8f 07 fe     sb	zero, -1(a5)
+0xa0000134: e3 9c e7 fe     bne	a5, a4, -8
+0xa0000138: 17 15 00 00     auipc	a0, 1
+0xa000013c: 13 05 05 c1     addi	a0, a0, -0x3f0
+0xa0000140: ef f0 1f ed     jal	-0x130
+0xa0000010: b7 07 01 00     lui	a5, 0x10
+0xa0000014: 93 87 f7 ff     addi	a5, a5, -1
+0xa0000018: 37 27 00 10     lui	a4, 0x10002
+0xa000001c: 23 20 f7 00     sw	a5, 0(a4)
+0xa0000020: 13 05 00 00     mv	a0, zero
+0xa0000024: 67 80 00 00     ret
