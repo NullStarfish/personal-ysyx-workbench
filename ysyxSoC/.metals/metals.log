@@ -2762,3 +2762,222 @@ WARNING: Unmatched cancel notification for request id 1
 2026.04.29 14:09:34 INFO  time: compiled ysyxsoc in 6.31s[0m
 Apr 29, 2026 2:21:35 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFO: Unsupported notification method: $/setTrace
+2026.04.29 15:54:49 INFO  Shutting down server[0m
+2026.04.29 15:54:49 INFO  Memory monitor stopped[0m
+2026.04.29 15:54:49 INFO  shutting down Metals[0m
+2026.04.29 15:54:50 INFO  Shut down connection with build server.[0m
+2026.04.29 15:54:49 INFO  Exiting server[0m
+2026.04.30 22:44:50 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.04.30 22:44:51 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.04.30 22:44:51 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.117.0.[0m
+2026.04.30 22:44:51 INFO  Memory monitor started[0m
+2026.04.30 22:44:53 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.04.30 22:44:53 INFO  Attempting to connect to the build server...[0m
+2026.04.30 22:44:53 INFO  Found a Bloop server running[0m
+2026.04.30 22:44:53 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.04.30 22:44:59 INFO  time: Connected to build server in 6.48s[0m
+2026.04.30 22:44:59 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.04.30 22:45:00 INFO  time: Imported build in 0.12s[0m
+2026.04.30 22:44:59 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.04.30 22:45:03 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.04.30 22:45:03 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-04-30/r_scala-toplevel-mtags_22-45-03-860.md")[0m
+2026.04.30 22:45:05 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.04.30 22:45:05 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.04.30 22:45:05 INFO  time: indexed workspace in 5.8s[0m
+2026.05.01 00:12:19 INFO  Shutting down server[0m
+2026.05.01 00:12:19 INFO  Memory monitor stopped[0m
+2026.05.01 00:12:19 INFO  shutting down Metals[0m
+2026.05.01 00:12:19 INFO  Shut down connection with build server.[0m
+2026.05.01 00:12:19 INFO  Exiting server[0m
+2026.05.01 09:09:47 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.05.01 09:09:48 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.05.01 09:09:48 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.117.0.[0m
+2026.05.01 09:09:48 INFO  Memory monitor started[0m
+2026.05.01 09:09:50 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.05.01 09:09:50 INFO  Attempting to connect to the build server...[0m
+2026.05.01 09:09:50 INFO  No running Bloop server found, starting one.[0m
+2026.05.01 09:09:51 INFO  Starting compilation server[0m
+2026.05.01 09:09:52 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.05.01 09:09:55 INFO  time: Connected to build server in 4.95s[0m
+2026.05.01 09:09:55 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.05.01 09:09:55 INFO  time: Imported build in 0.16s[0m
+2026.05.01 09:09:55 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.05.01 09:09:59 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.05.01 09:09:59 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-05-01/r_scala-toplevel-mtags_09-09-59-060.md")[0m
+2026.05.01 09:09:59 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.05.01 09:09:59 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.05.01 09:09:59 INFO  time: indexed workspace in 3.69s[0m
+May 01, 2026 9:14:43 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+May 01, 2026 9:14:43 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.05.01 11:37:11 INFO  Shutting down server[0m
+2026.05.01 11:37:11 INFO  Memory monitor stopped[0m
+2026.05.01 11:37:11 INFO  shutting down Metals[0m
+2026.05.01 11:37:11 INFO  Shut down connection with build server.[0m
+2026.05.01 11:37:11 INFO  Exiting server[0m
+2026.05.04 10:09:17 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.05.04 10:09:18 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.05.04 10:09:18 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.118.1.[0m
+2026.05.04 10:09:18 INFO  Memory monitor started[0m
+2026.05.04 10:09:20 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.05.04 10:09:20 INFO  Attempting to connect to the build server...[0m
+2026.05.04 10:09:20 INFO  Found a Bloop server running[0m
+2026.05.04 10:09:20 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.05.04 10:09:24 INFO  time: Connected to build server in 3.93s[0m
+2026.05.04 10:09:24 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.05.04 10:09:24 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.05.04 10:09:27 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.05.04 10:09:27 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-05-04/r_scala-toplevel-mtags_10-09-27-966.md")[0m
+2026.05.04 10:09:28 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/io/github/alexarchambault/data-class_2.13/0.2.6/data-class_2.13-0.2.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upack_2.13/3.3.0/upack_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/os-lib_2.13/0.10.0/os-lib_2.13-0.10.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/geny_2.13/1.1.0/geny_2.13-1.1.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/ujson_2.13/3.3.0/ujson_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/chisel_2.13/7.0.0-M2/chisel_2.13-7.0.0-M2-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-text/1.12.0/commons-text-1.12.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle_2.13/3.3.0/upickle_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/chipsalliance/firtool-resolver_2.13/2.0.0/firtool-resolver_2.13-2.0.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.14/scala-library-2.13.14-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-implicits_2.13/3.3.0/upickle-implicits_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.0.4/scala-parallel-collections_2.13-1.0.4-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/upickle-core_2.13/3.3.0/upickle-core_2.13-3.3.0-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mainargs_2.13/0.5.4/mainargs_2.13-0.5.4-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.12.7/jackson-databind-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.13/0.3.1/sourcecode_2.13-0.3.1-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson-core_2.13/4.0.6/json4s-jackson-core_2.13-4.0.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.12.7/jackson-core-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/json4s/json4s-jackson_2.13/4.0.6/json4s-jackson_2.13-4.0.6-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.12.7/jackson-annotations-2.12.7-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.15/scala-library-2.13.15-sources.jar[0m
+2026.05.04 10:09:28 WARN  unexpected dependency with absolute path: /home/nullstarfish/.cache/coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/mill-moduledefs_2.13/0.11.1/mill-moduledefs_2.13-0.11.1-sources.jar[0m
+2026.05.04 10:09:28 INFO  time: indexed workspace in 4.07s[0m
+2026.05.04 10:09:37 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.05.04 10:09:37 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.05.04 10:09:37 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+May 04, 2026 10:09:37 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1
+2026.05.04 10:09:40 INFO  time: compiled rocketchip.macros in 3.06s[0m
+2026.05.04 10:09:40 INFO  time: compiled rocketchip.cde in 3.07s[0m
+2026.05.04 10:09:40 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m

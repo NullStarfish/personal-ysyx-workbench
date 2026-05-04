@@ -36,6 +36,13 @@ class CSR extends Module {
   val MVENDORID = 0xBC0.U
   val MARCHID = 0xBC1.U
 
+  val MSTATUS_MIE = 3
+  val MSTATUS_MPIE = 7
+  val MSTATUS_MPP_HI = 12
+  val MSTATUS_MPP_LO = 11
+
+  private def mstatusBit(index: Int): UInt = index.U(5.W)
+
   val mstatus = RegInit(0x1800.U(XLEN.W)) // Reset to M-mode
   val mtvec   = RegInit(0.U(XLEN.W))
   val mepc    = RegInit(0.U(XLEN.W))
@@ -78,9 +85,15 @@ class CSR extends Module {
   when (io.isEcall) {
     mepc := io.pc
     mcause := 11.U // Machine ECALL
-    // mstatus push logic (MIE -> MPIE) 略简化
+    mstatus := mstatus.bitSet(mstatusBit(MSTATUS_MPIE), mstatus(MSTATUS_MIE))
+      .bitSet(mstatusBit(MSTATUS_MIE), false.B)
+      .bitSet(mstatusBit(MSTATUS_MPP_LO), true.B)
+      .bitSet(mstatusBit(MSTATUS_MPP_HI), true.B)
   } .elsewhen (io.isMret) {
-    // mstatus pop logic (MPIE -> MIE) 略简化
+    mstatus := mstatus.bitSet(mstatusBit(MSTATUS_MIE), mstatus(MSTATUS_MPIE))
+      .bitSet(mstatusBit(MSTATUS_MPIE), true.B)
+      .bitSet(mstatusBit(MSTATUS_MPP_LO), false.B)
+      .bitSet(mstatusBit(MSTATUS_MPP_HI), false.B)
   } .elsewhen (wen) {
     switch (io.addr) {
       is (MSTATUS) { mstatus := newVal }

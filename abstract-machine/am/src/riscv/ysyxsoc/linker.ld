@@ -2,7 +2,6 @@ ENTRY(_start)
 
 MEMORY {
   sdram (rwx) : ORIGIN = 0xa0000000, LENGTH = 32M
-  sram  (rwx) : ORIGIN = 0x0f000000, LENGTH = 8K
 }
 
 SECTIONS {
@@ -36,7 +35,7 @@ SECTIONS {
 
   _heap_start = ALIGN(4);
 
-  _stack_pointer = ORIGIN(sram) + LENGTH(sram);
+  _stack_pointer = ORIGIN(sdram) + LENGTH(sdram);
 
   _end = .;
 }

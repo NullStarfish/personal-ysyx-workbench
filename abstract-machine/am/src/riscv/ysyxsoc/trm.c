@@ -3,6 +3,7 @@
 #include <klib-macros.h>
 #include "../riscv.h"
 #include "ysyxsoc.h"
+#include "seg.h"
 
 extern char _heap_start;
 // 引入链接脚本中定义的符号
@@ -29,54 +30,27 @@ static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined 
 
 static bool init_uart = false;
 
-// 简单的阻塞式发送，用于调试硬件问题
-void putch_blocking(char ch) {
-    // 1. 一直等待，直到发送保持寄存器为空 (FIFO Empty)
-    // 如果卡在这里，说明波特率设置错误或时钟未使能
-    while ((inb(SERIAL_PORT + 5) & UART_LSR_THRE) == 0  );
-    
-    // 2. 发送数据
-    outb(SERIAL_PORT, ch);
+
+void __am_uart_init_once(void) {
+  if (init_uart) return;
+
+  outb(SERIAL_PORT + 1, 0x00);
+  outb(SERIAL_PORT + 3, 0x83);
+
+  uint16_t divisor = 1;
+  outb(SERIAL_PORT + 1, (divisor >> 8) & 0xff);
+  outb(SERIAL_PORT + 0, divisor & 0xff);  // 你现在写成 &0x0f 了，最好改成 &0xff
+
+  outb(SERIAL_PORT + 3, 0x03);
+  outb(SERIAL_PORT + 2, 0xc7);
+
+  init_uart = true;
 }
 
 void putch(char ch) {
-  
-    if (!init_uart) {
-        // --- 初始化开始 ---
-        
-        // 1. 关闭中断 (防止初始化过程中触发中断)
-        outb(SERIAL_PORT + 1, 0x00);
-
-        // 2. 设置 DLAB=1 (允许访问波特率分频器)
-        outb(SERIAL_PORT + 3, 0x83);
-
-        // 3. 设置波特率
-        // 注意：请根据你的实际时钟频率修改这里！
-        // 如果是 QEMU/标准PC，Divisor 设为 1 (115200 baud)
-        uint16_t divisor = 0x0001; 
-        // 如果你需要 0x28B，请确保你确认过时钟频率
-        // uint16_t divisor = 0x28B; 
-        
-        outb(SERIAL_PORT + 1, (divisor >> 8) & 0xFF); // High byte
-        outb(SERIAL_PORT + 0, divisor & 0x0F);        // Low byte
-
-        // 4. 设置 LCR (8位数据, 1停止位, 无校验) 并 **清除 DLAB**
-        // 0x03 = 0000 0011 (DLAB=0)
-        // 这一步至关重要！如果是 0xC0 会导致死锁。
-        outb(SERIAL_PORT + 3, 0x03);
-
-        // 5. 启用 FIFO, 清除 TX/RX FIFO, 设置触发阈值 14
-        outb(SERIAL_PORT + 2, 0xC7);
-
-        // 6. (可选) 启用中断
-        // outb(SERIAL_PORT + 1, 0x01); // 仅启用接收中断
-
-        init_uart = true;
-        // --- 初始化结束 ---
-    }
-
-    // 使用简单的阻塞发送，先确保能打印出来
-    putch_blocking(ch);
+  __am_uart_init_once();
+  while ((inb(SERIAL_PORT + 5) & UART_LSR_THRE) == 0);
+  outb(SERIAL_PORT, ch);
 }
 
 void halt(int code) {
@@ -96,6 +70,10 @@ void _trm_init() {
 
   asm volatile ("csrr %0, 0xBC1" : "=r"(x));
   printf("archid: %d\n", x);
+
+  print_seg(x);
+  
+  __am_uart_init_once();
 
 
   // 1. Data Relocation: 将 .data 从 MROM 复制到 SRAM

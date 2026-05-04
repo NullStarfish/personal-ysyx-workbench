@@ -68,23 +68,7 @@ VysyxSoCFull* top_ptr = NULL;
 long long cycle_count = 0;
 long long instr_count = 0;
 
-#ifdef CONFIG_BOARD
-static void nvboard_probe_gpio_out() {
-    static uint16_t last_gpio_out = 0xffffu;
-    uint16_t gpio_out = top_ptr ? top_ptr->externalPins_gpio_out : 0;
-    if (gpio_out != last_gpio_out) {
-        printf("[nvboard] top externalPins_gpio_out = 0x%04x\n", gpio_out);
-        fflush(stdout);
-        last_gpio_out = gpio_out;
-    }
-}
 
-static int nvboard_readline_event_hook() {
-    nvboard_update();
-    usleep(1000);
-    return 0;
-}
-#endif
 
 // =========================================================================
 // 全局退休快照（由 DPI 在指令退休当拍更新）
@@ -168,9 +152,12 @@ static const uint32_t PROGRAM_BASE = 0xa0000000u;
 static const uint32_t PSRAM_BASE = 0x80000000u;
 static const uint32_t PSRAM_SIZE = 0x01000000u;
 static const uint32_t SDRAM_BASE = 0xa0000000u;
-static const uint32_t SDRAM_HALFWORDS = 0x00400000u;
+// The Chisel SDRAM model uses Cat(bank[1:0], row[12:0], col[8:0]) as the
+// per-chip halfword address. The controller only drives 11 row bits today,
+// but the bank bits still make the address space sparse, so each chip needs
+// the full 24-bit backing store.
+static const uint32_t SDRAM_HALFWORDS = 0x01000000u;
 
-static long last_pc = -1;
 
 
 uint8_t *flash_mem;
@@ -210,11 +197,13 @@ extern "C" void psram_write_byte(int32_t addr, uint8_t data) {
 
 extern "C" void sdram_read_halfword_chip(int chip, int32_t addr, uint16_t *data) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
+    assert(uaddr < SDRAM_HALFWORDS);
     *data = sdram_mem[chip & 1][uaddr];
 }
 
 extern "C" void sdram_write_halfword_chip(int chip, int32_t addr, uint16_t data, uint8_t mask) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
+    assert(uaddr < SDRAM_HALFWORDS);
     uint16_t old = sdram_mem[chip & 1][uaddr];
     uint16_t next = old;
     if (mask & 0x1) next = (next & 0xff00u) | (data & 0x00ffu);
@@ -295,6 +284,7 @@ void init_verilator(int argc, char *argv[]) {
     top_ptr = new VysyxSoCFull;
 
 #ifdef CONFIG_BOARD
+    printf("nvboard initing...\n");
     nvboard_bind_all_pins(top_ptr);
     nvboard_init();
 #endif
@@ -314,13 +304,35 @@ uint32_t get_inst_cpp() {
 
 void set_dpi_scope() {}
 
+#ifdef CONFIG_BOARD
+void nvboard_flush() {
+    nvboard_update();
+}
+#endif
+
 void step_one_clk() {
     // 1. 执行硬件逻辑
     top_ptr->clock = 0; top_ptr->eval();
     top_ptr->clock = 1; top_ptr->eval();
+
 #ifdef CONFIG_BOARD
-    nvboard_probe_gpio_out();
     nvboard_update();
+    static int trace_uart = 1;
+    static uint8_t last_uart_rx = 0xffu;
+    static uint8_t last_uart_tx = 0xffu;
+    if (trace_uart < 0) {
+        trace_uart = getenv("NPC_TRACE_UART") != NULL;
+    }
+    if (trace_uart) {
+        uint8_t uart_rx = top_ptr->externalPins_uart_rx;
+        uint8_t uart_tx = top_ptr->externalPins_uart_tx;
+        if (uart_rx != last_uart_rx || uart_tx != last_uart_tx) {
+            printf("[nvboard-uart] cycle=%lld rx=%u tx=%u\n",
+                   cycle_count, uart_rx & 1u, uart_tx & 1u);
+            last_uart_rx = uart_rx;
+            last_uart_tx = uart_tx;
+        }
+    }
 #endif
 
     // 2. 速度控制逻辑 (复用你的 get_time)
@@ -361,19 +373,6 @@ void exec_one_cycle_cpp() {
     if (npc_state.state == NPC_RUNNING) {
         instr_count++;
     }
-    #ifdef CONFIG_BOARD
-        nvboard_update();
-    #endif
-}
-
-void nvboard_flush_cpp() {
-#ifdef CONFIG_BOARD
-    uint64_t deadline = get_time() + 25000;
-    while (get_time() < deadline) {
-        nvboard_update();
-        usleep(1000);
-    }
-#endif
 }
 
 
@@ -403,6 +402,7 @@ void load_data_to_rom(const uint8_t* data, size_t size) {
     for (size_t off = 0; off < size; off += 4) {
         uint32_t addr = PROGRAM_BASE + static_cast<uint32_t>(off);
         uint32_t halfaddr = sdram_linear_halfaddr_from_bus(addr);
+        assert(halfaddr < SDRAM_HALFWORDS);
         uint16_t lower = 0;
         uint16_t upper = 0;
         if (off + 0 < size) lower |= static_cast<uint16_t>(data[off + 0]);

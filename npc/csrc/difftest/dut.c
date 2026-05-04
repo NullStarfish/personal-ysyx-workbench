@@ -29,51 +29,15 @@ static bool is_skip_ref = false;
 #define IMAGE_BASE_ADDR 0xa0000000u
 #endif
 static const uint32_t IMAGE_BASE = IMAGE_BASE_ADDR;
-
-typedef struct {
-  uint32_t dut_base;
-  uint32_t ref_base;
-  uint32_t mem_size;
-  uint32_t value_size;
-} DifftestWindow;
-
-static const DifftestWindow difftest_windows[] = {
-  {0xa0000000u, 0x80000000u, 0x02000000u, 0x02000000u}, // ysyxSoC SDRAM, 32 MiB
-  {0x0f000000u, 0x82000000u, 0x00002000u, 0x00002008u}, // ysyxSoC AXI SRAM, 8 KiB plus one-past stack values
-};
+static const uint32_t DIFFTEST_MEM_SIZE = 0x02000000u;
 
 static riscv32_CPU_state last_dut_state;
 static bool has_last_dut_state = false;
 
-static bool map_addr(uint32_t addr, uint32_t *mapped) {
-  for (size_t i = 0; i < sizeof(difftest_windows) / sizeof(difftest_windows[0]); i++) {
-    const DifftestWindow *w = &difftest_windows[i];
-    if (addr >= w->dut_base && addr - w->dut_base < w->value_size) {
-      *mapped = w->ref_base + (addr - w->dut_base);
-      return true;
-    }
-  }
-  *mapped = addr;
-  return false;
-}
-
-static bool addr_range_in_window(uint32_t addr, uint32_t len) {
-  for (size_t i = 0; i < sizeof(difftest_windows) / sizeof(difftest_windows[0]); i++) {
-    const DifftestWindow *w = &difftest_windows[i];
-    if (len <= w->mem_size && addr >= w->dut_base && addr - w->dut_base <= w->mem_size - len) {
-      return true;
-    }
-  }
-  return false;
-}
-
-static void map_cpu_state_to_ref(riscv32_CPU_state *s) {
-  map_addr(s->pc, &s->pc);
-  for (int i = 0; i < 32; i++) {
-    map_addr(s->gpr[i], &s->gpr[i]);
-  }
-  map_addr(s->csrs.mepc, &s->csrs.mepc);
-  map_addr(s->csrs.mtvec, &s->csrs.mtvec);
+static bool in_difftest_mem(uint32_t addr, uint32_t len) {
+  return len <= DIFFTEST_MEM_SIZE &&
+         addr >= IMAGE_BASE &&
+         addr - IMAGE_BASE <= DIFFTEST_MEM_SIZE - len;
 }
 
 static uint32_t sign_extend(uint32_t value, int bits) {
@@ -128,51 +92,7 @@ static bool should_skip_ref_for_inst(uint32_t inst) {
   uint32_t len = 0;
   if (!is_memory_instruction(inst, &addr, &len)) return false;
 
-  return !addr_range_in_window(addr, len);
-}
-
-static int inst_rd(uint32_t inst) {
-  uint32_t opcode = inst & 0x7fu;
-  switch (opcode) {
-    case 0x03u: // load
-    case 0x0fu: // fence
-    case 0x13u: // op-imm
-    case 0x17u: // auipc
-    case 0x1bu: // op-imm-32
-    case 0x33u: // op
-    case 0x37u: // lui
-    case 0x3bu: // op-32
-    case 0x67u: // jalr
-    case 0x6fu: // jal
-    case 0x73u: // system/csr
-      return (inst >> 7) & 0x1f;
-    default:
-      return 0;
-  }
-}
-
-static void normalize_ref_written_addr(uint32_t inst, const riscv32_CPU_state *dut, riscv32_CPU_state *ref) {
-  int rd = inst_rd(inst);
-  uint32_t mapped = 0;
-  if (rd != 0 && map_addr(dut->gpr[rd], &mapped)) {
-    ref->gpr[rd] = mapped;
-  }
-}
-
-static void zero_window_to_ref(uint32_t ref_base, uint32_t size) {
-  const uint32_t chunk_size = 4096;
-  uint8_t *buf = (uint8_t*)calloc(chunk_size, 1);
-  if (!buf) {
-    printf("Error: failed to allocate difftest zero sync buffer.\n");
-    exit(1);
-  }
-
-  for (uint32_t off = 0; off < size; off += chunk_size) {
-    uint32_t n = size - off < chunk_size ? size - off : chunk_size;
-    ref_difftest_memcpy(ref_base + off, buf, n, DIFFTEST_TO_REF);
-  }
-
-  free(buf);
+  return !in_difftest_mem(addr, len);
 }
 
 
@@ -223,25 +143,15 @@ void init_difftest(char *ref_so_file, long img_size) {
 
   ref_difftest_init(0);
 
-  uint32_t image_ref_base = 0;
-  if (!map_addr(IMAGE_BASE, &image_ref_base)) {
-    printf("Error: image base 0x%08x is outside the difftest memory windows.\n", IMAGE_BASE);
-    exit(1);
-  }
-
   uint8_t *guest_mem = (uint8_t*)malloc(img_size);
   pmem_read_chunk(IMAGE_BASE, guest_mem, img_size);
-  ref_difftest_memcpy(image_ref_base, guest_mem, img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(IMAGE_BASE, guest_mem, img_size, DIFFTEST_TO_REF);
   free(guest_mem);
-
-  // SRAM starts zeroed in the SoC model; make the reference window match.
-  zero_window_to_ref(0x82000000u, 0x00002000u);
 
   riscv32_CPU_state dut_regs;
   get_dut_regstate_cpp(&dut_regs);
   last_dut_state = dut_regs;
   has_last_dut_state = true;
-  map_cpu_state_to_ref(&dut_regs);
   ref_difftest_regcpy(&dut_regs, DIFFTEST_TO_REF);
 }
 
@@ -299,9 +209,7 @@ void difftest_step() {
   uint32_t inst = get_inst_cpp();
 
   if (is_skip_ref) {
-    riscv32_CPU_state mapped = dut;
-    map_cpu_state_to_ref(&mapped);
-    ref_difftest_regcpy(&mapped, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
     last_dut_state = dut;
     has_last_dut_state = true;
     is_skip_ref = false;
@@ -309,9 +217,7 @@ void difftest_step() {
   }
 
   if (should_skip_ref_for_inst(inst)) {
-    riscv32_CPU_state mapped = dut;
-    map_cpu_state_to_ref(&mapped);
-    ref_difftest_regcpy(&mapped, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
     last_dut_state = dut;
     has_last_dut_state = true;
     return;
@@ -321,12 +227,7 @@ void difftest_step() {
 
   riscv32_CPU_state ref_r;
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-  normalize_ref_written_addr(inst, &dut, &ref_r);
-  map_cpu_state_to_ref(&ref_r);
-
-  riscv32_CPU_state mapped_dut = dut;
-  map_cpu_state_to_ref(&mapped_dut);
-  checkregs(&mapped_dut, &ref_r);
+  checkregs(&dut, &ref_r);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_REF);
 
   last_dut_state = dut;

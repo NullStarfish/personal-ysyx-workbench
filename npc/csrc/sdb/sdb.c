@@ -8,10 +8,17 @@
 #include "../reg.h"
 #include "../state.h"
 
-
+void nvboard_flush();
 int pmem_read(int raddr);
 
 static bool is_batch_mode = false;
+
+#ifdef CONFIG_BOARD
+static int nvboard_readline_event_hook() {
+    nvboard_flush();
+    return 0;
+}
+#endif
 
 // --- Command handlers (no changes needed in these functions) ---
 static int cmd_c(char *args) {
@@ -86,10 +93,20 @@ void sdb_set_batch_mode() { is_batch_mode = true; }
 
 void sdb_mainloop() {
     if (is_batch_mode) { cmd_c(NULL); return; }
+#ifdef CONFIG_BOARD
+    rl_set_keyboard_input_timeout(1000);
+    rl_event_hook = nvboard_readline_event_hook;
+#endif
     for (char *str; (str = readline("(npc) ")) != NULL; ) {
         char *cmd = strtok(str, " ");
-        if (cmd == NULL) { continue; }
+        if (cmd == NULL) {
+            free(str);
+            continue;
+        }
 
+#ifdef CONFIG_BOARD
+        nvboard_flush();
+#endif
         // BUG FIX: 使用 strtok(NULL, "") 来安全地获取命令后的所有内容作为参数
         char *args = strtok(NULL, "");
 

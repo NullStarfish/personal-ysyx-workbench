@@ -35,7 +35,7 @@ class gpioChisel extends Module {
 
   io.gpio.out := gpioOutReg
   for (i <- 0 until 8) {
-    io.gpio.seg(i) := hexToSeg(segHexReg(i * 4 + 3, i * 4))
+    io.gpio.seg(i) := Reverse(hexToSeg(segHexReg(i * 4 + 3, i * 4)))
   }
 
   io.in.pready := true.B

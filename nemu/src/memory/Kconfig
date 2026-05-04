@@ -2,6 +2,7 @@ menu "Memory Configuration"
 
 config MBASE
   hex "Memory base address"
+  default 0xa0000000 if TARGET_SHARE && ISA_riscv
   default 0x0        if ISA_x86
   default 0x80000000
 

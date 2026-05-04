@@ -7,7 +7,7 @@ export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
 export SOC_HOME ?= $(shell realpath $(NPC_HOME)/../ysyxSoC)
 export NVBOARD_HOME ?= $(shell realpath $(NPC_HOME)/../../nvboard)
 
-BOARD ?= 1
+BOARD ?= 0
 
 
 TARGET := npc
@@ -43,11 +43,17 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 DEBUG=1
 # 定义一个存储 DEBUG 状态的文件
 DEBUG_FLAG_FILE := $(BUILD_DIR)/.debug_flag
+BOARD_FLAG_FILE := $(BUILD_DIR)/.board_flag
 
 $(DEBUG_FLAG_FILE): FORCE
 	@mkdir -p $(dir $@)
 	@# 将当前的 DEBUG 变量写入临时比较
 	@echo "$(DEBUG)" | cmp -s - $@ || echo "$(DEBUG)" > $@
+
+$(BOARD_FLAG_FILE): FORCE
+	@mkdir -p $(dir $@)
+	@# 切换 BOARD 配置时强制重新编译 C/C++ 目标，避免混用旧对象文件
+	@echo "$(BOARD)" | cmp -s - $@ || echo "$(BOARD)" > $@
 
 
 
@@ -122,6 +128,7 @@ LDFLAGS := -lreadline -pthread -ldl
 
 NVBOARD_ARCHIVE :=
 ifeq ($(BOARD),1)
+  CFLAGS += -DCONFIG_BOARD
   CXXFLAGS += -DCONFIG_BOARD
   include $(NVBOARD_HOME)/scripts/nvboard.mk
 endif
@@ -174,6 +181,7 @@ VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 .PHONY: all npc  ysyxsoc_scala local_scala run rundiff gdb-diff clean menuconfig check_config FORCE
 
 $(ALL_OBJS): .config
+$(ALL_OBJS): $(BOARD_FLAG_FILE)
 $(CXX_OBJS): $(VERILATED_LIB)
 
 all: npc 

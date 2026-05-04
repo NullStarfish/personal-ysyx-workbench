@@ -20,10 +20,17 @@ CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAI
 NPC_HOME=$(NEMU_HOME)/../npc
 YSYXSOC_BIN = $(NPC_HOME)/npc
 
-ysyxsoc:
-	$(MAKE) -C $(NPC_HOME)
 
-ARGS =  --ftrace=$(IMAGE).elf --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so 
+CARGS ?= 
+ifeq ($(BOARD),1)
+CARGS += "BOARD=1"
+endif
+
+
+ysyxsoc:
+	$(MAKE) -C $(NPC_HOME) $(CARGS)
+
+ARGS = 
 
 ifeq ($(BATCH),1)
 ARGS += -b

@@ -17,14 +17,14 @@ module CSR(	// src/main/scala/mycpu/core/components/CSR.scala:7:7
                 io_debug_mcause	// src/main/scala/mycpu/core/components/CSR.scala:8:14
 );
 
-  reg  [31:0] mstatus;	// src/main/scala/mycpu/core/components/CSR.scala:39:24
-  reg  [31:0] mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:40:24
-  reg  [31:0] mepc;	// src/main/scala/mycpu/core/components/CSR.scala:41:24
-  reg  [31:0] mcause;	// src/main/scala/mycpu/core/components/CSR.scala:42:24
-  wire        _io_rdata_T = io_addr == 12'h300;	// src/main/scala/mycpu/core/components/CSR.scala:56:38
-  wire        _io_rdata_T_2 = io_addr == 12'h305;	// src/main/scala/mycpu/core/components/CSR.scala:56:38
-  wire        _io_rdata_T_4 = io_addr == 12'h341;	// src/main/scala/mycpu/core/components/CSR.scala:56:38
-  wire        _io_rdata_T_6 = io_addr == 12'h342;	// src/main/scala/mycpu/core/components/CSR.scala:56:38
+  reg  [31:0] mstatus;	// src/main/scala/mycpu/core/components/CSR.scala:46:24
+  reg  [31:0] mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:47:24
+  reg  [31:0] mepc;	// src/main/scala/mycpu/core/components/CSR.scala:48:24
+  reg  [31:0] mcause;	// src/main/scala/mycpu/core/components/CSR.scala:49:24
+  wire        _io_rdata_T = io_addr == 12'h300;	// src/main/scala/mycpu/core/components/CSR.scala:63:38
+  wire        _io_rdata_T_2 = io_addr == 12'h305;	// src/main/scala/mycpu/core/components/CSR.scala:63:38
+  wire        _io_rdata_T_4 = io_addr == 12'h341;	// src/main/scala/mycpu/core/components/CSR.scala:63:38
+  wire        _io_rdata_T_6 = io_addr == 12'h342;	// src/main/scala/mycpu/core/components/CSR.scala:63:38
   wire [31:0] io_rdata_0 =
     io_addr == 12'hBC1
       ? 32'h17E3C27
@@ -34,49 +34,52 @@ module CSR(	// src/main/scala/mycpu/core/components/CSR.scala:7:7
               ? mcause
               : _io_rdata_T_4
                   ? mepc
-                  : _io_rdata_T_2 ? mtvec : _io_rdata_T ? mstatus : 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :40:24, :41:24, :42:24, :56:38
+                  : _io_rdata_T_2 ? mtvec : _io_rdata_T ? mstatus : 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:46:24, :47:24, :48:24, :49:24, :63:38
   always @(posedge clock) begin	// src/main/scala/mycpu/core/components/CSR.scala:7:7
     if (reset) begin	// src/main/scala/mycpu/core/components/CSR.scala:7:7
-      mstatus <= 32'h1800;	// src/main/scala/mycpu/core/components/CSR.scala:39:24
-      mtvec <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:40:24
-      mepc <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:41:24
-      mcause <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:42:24
+      mstatus <= 32'h1800;	// src/main/scala/mycpu/core/components/CSR.scala:46:24
+      mtvec <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:47:24
+      mepc <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:48:24
+      mcause <= 32'h0;	// src/main/scala/mycpu/core/components/CSR.scala:49:24
     end
     else begin	// src/main/scala/mycpu/core/components/CSR.scala:7:7
       automatic logic [3:0][31:0] _GEN =
-        {{io_rdata_0 & ~io_wdata}, {io_rdata_0 | io_wdata}, {io_wdata}, {io_rdata_0}};	// src/main/scala/mycpu/core/components/CSR.scala:56:38, :70:41, :72:24, :73:{24,26}
-      automatic logic             _GEN_0 = io_isEcall | io_isMret;	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :78:21, :82:27, :84:21
-      if (_GEN_0 | ~((|io_cmd) & _io_rdata_T)) begin	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :56:38, :76:20, :78:21, :82:27, :84:21, :85:22, :86:30
-      end
-      else	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :78:21, :82:27, :84:21
-        mstatus <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :70:41
-      if (_GEN_0 | ~(|io_cmd) | _io_rdata_T | ~_io_rdata_T_2) begin	// src/main/scala/mycpu/core/components/CSR.scala:39:24, :40:24, :56:38, :76:20, :78:21, :82:27, :84:21, :85:22
-      end
-      else	// src/main/scala/mycpu/core/components/CSR.scala:40:24, :78:21, :82:27, :84:21, :85:22
-        mtvec <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:40:24, :70:41
+        {{io_rdata_0 & ~io_wdata}, {io_rdata_0 | io_wdata}, {io_wdata}, {io_rdata_0}};	// src/main/scala/mycpu/core/components/CSR.scala:63:38, :77:41, :79:24, :80:{24,26}
       if (io_isEcall) begin	// src/main/scala/mycpu/core/components/CSR.scala:8:14
-        mepc <= io_pc;	// src/main/scala/mycpu/core/components/CSR.scala:41:24
-        mcause <= 32'hB;	// src/main/scala/mycpu/core/components/CSR.scala:42:24
+        mstatus <=
+          ~(~(mstatus[3] ? mstatus | 32'h80 : ~(~mstatus | 32'h80)) | 32'h8) | 32'h1800;	// src/main/scala/mycpu/core/components/CSR.scala:46:24, :88:{30,64}, :89:14, :90:14, :91:14
+        mepc <= io_pc;	// src/main/scala/mycpu/core/components/CSR.scala:48:24
+        mcause <= 32'hB;	// src/main/scala/mycpu/core/components/CSR.scala:49:24
       end
       else begin	// src/main/scala/mycpu/core/components/CSR.scala:8:14
-        if (io_isMret | ~(|io_cmd) | _io_rdata_T | _io_rdata_T_2 | ~_io_rdata_T_4) begin	// src/main/scala/mycpu/core/components/CSR.scala:40:24, :41:24, :56:38, :76:20, :82:27, :84:21, :85:22
+        if (io_isMret)	// src/main/scala/mycpu/core/components/CSR.scala:8:14
+          mstatus <=
+            ~(~((mstatus[7] ? mstatus | 32'h8 : ~(~mstatus | 32'h8)) | 32'h80)
+              | 32'h1800);	// src/main/scala/mycpu/core/components/CSR.scala:46:24, :93:{30,63}, :94:14, :95:14, :96:14
+        else if ((|io_cmd) & _io_rdata_T)	// src/main/scala/mycpu/core/components/CSR.scala:46:24, :63:38, :83:20, :97:21, :98:22, :99:30
+          mstatus <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:46:24, :77:41
+        if (io_isMret | ~(|io_cmd) | _io_rdata_T | _io_rdata_T_2 | ~_io_rdata_T_4) begin	// src/main/scala/mycpu/core/components/CSR.scala:47:24, :48:24, :63:38, :83:20, :92:27, :97:21, :98:22
         end
-        else	// src/main/scala/mycpu/core/components/CSR.scala:41:24, :82:27, :84:21, :85:22
-          mepc <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:41:24, :70:41
+        else	// src/main/scala/mycpu/core/components/CSR.scala:48:24, :92:27, :97:21, :98:22
+          mepc <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:48:24, :77:41
         if (io_isMret | ~(|io_cmd) | _io_rdata_T | _io_rdata_T_2 | _io_rdata_T_4
-            | ~_io_rdata_T_6) begin	// src/main/scala/mycpu/core/components/CSR.scala:40:24, :42:24, :56:38, :76:20, :82:27, :84:21, :85:22
+            | ~_io_rdata_T_6) begin	// src/main/scala/mycpu/core/components/CSR.scala:47:24, :49:24, :63:38, :83:20, :92:27, :97:21, :98:22
         end
-        else	// src/main/scala/mycpu/core/components/CSR.scala:42:24, :82:27, :84:21, :85:22
-          mcause <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:42:24, :70:41
+        else	// src/main/scala/mycpu/core/components/CSR.scala:49:24, :92:27, :97:21, :98:22
+          mcause <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:49:24, :77:41
       end
+      if (io_isEcall | io_isMret | ~(|io_cmd) | _io_rdata_T | ~_io_rdata_T_2) begin	// src/main/scala/mycpu/core/components/CSR.scala:47:24, :63:38, :83:20, :85:21, :92:27, :97:21, :98:22
+      end
+      else	// src/main/scala/mycpu/core/components/CSR.scala:47:24, :85:21, :92:27, :97:21, :98:22
+        mtvec <= _GEN[io_cmd];	// src/main/scala/mycpu/core/components/CSR.scala:47:24, :77:41
     end
   end // always @(posedge)
-  assign io_rdata = io_rdata_0;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :56:38
-  assign io_evec = mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :40:24
-  assign io_epc = mepc;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :41:24
-  assign io_debug_mtvec = mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :40:24
-  assign io_debug_mepc = mepc;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :41:24
-  assign io_debug_mstatus = mstatus;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :39:24
-  assign io_debug_mcause = mcause;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :42:24
+  assign io_rdata = io_rdata_0;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :63:38
+  assign io_evec = mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :47:24
+  assign io_epc = mepc;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :48:24
+  assign io_debug_mtvec = mtvec;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :47:24
+  assign io_debug_mepc = mepc;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :48:24
+  assign io_debug_mstatus = mstatus;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :46:24
+  assign io_debug_mcause = mcause;	// src/main/scala/mycpu/core/components/CSR.scala:7:7, :49:24
 endmodule
 
