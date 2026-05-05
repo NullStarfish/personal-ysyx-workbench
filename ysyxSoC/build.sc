@@ -84,4 +84,12 @@ trait ysyxSoC extends ysyxSoCModule with HasThisChisel {
   override def millSourcePath = pwd
   override def sources = Task.Sources(millSourcePath / "src")
   def rocketModule = rocketchip
+
+  object test extends ScalaTests {
+    def testFramework = "org.scalatest.tools.Framework"
+    def ivyDeps = Agg(
+      ivy"org.scalatest::scalatest:3.2.18",
+      ivy"edu.berkeley.cs::chiseltest:0.6.0"
+    )
+  }
 }

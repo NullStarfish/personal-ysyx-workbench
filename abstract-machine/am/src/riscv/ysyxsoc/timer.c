@@ -6,38 +6,57 @@ void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uint32_t lo = inl(RTC_UP_ADDR);
-  uint32_t hi = inl(RTC_UP_ADDR + 4);
-  uptime->us = ((uint64_t)hi << 32) | lo;
+  uint32_t hi1, lo, hi2;
 
+  do {
+    hi1 = inl(RTC_UP_ADDR + 4);
+    lo  = inl(RTC_UP_ADDR);
+    hi2 = inl(RTC_UP_ADDR + 4);
+  } while (hi1 != hi2);
+
+  uint64_t ticks = ((uint64_t)hi1 << 32) | lo;
+  uptime->us = ticks;
+}
+
+static bool is_leap_year(int year) {
+  return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+static int days_in_month(int year, int month) {
+  static const int days[] = {
+    31, 28, 31, 30, 31, 30,
+    31, 31, 30, 31, 30, 31
+  };
+
+  if (month == 2 && is_leap_year(year)) return 29;
+  return days[month - 1];
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
-  rtc->second = 0;
-  rtc->minute = 0;
-  rtc->hour   = 0;
-  rtc->day    = 0;
-  rtc->month  = 0;
-  rtc->year   = 1900;
-  return ;
-  // Read the packed RTC words produced by main.cpp:
-  // word0 @ RTC_ADDR: (sec) | (min << 6) | (hour << 12)
-  // word1 @ SERIAL_PORT+4: (year) | (month << 12) | (day << 16)
-  uint32_t w0 = inl(RTC_ADDR);
-  uint32_t w1 = inl(RTC_ADDR + 4);
+  AM_TIMER_UPTIME_T uptime;
+  __am_timer_uptime(&uptime);
 
-  rtc->second =  w0        & 0x3F;        // bits [5:0]
-  rtc->minute = (w0 >> 6)  & 0x3F;        // bits [11:6]
-  rtc->hour   = (w0 >> 12) & 0x3F;        // bits [17:12] (enough width)
+  uint64_t seconds = uptime.us / 1000000;
+  rtc->second = seconds % 60;
+  seconds /= 60;
+  rtc->minute = seconds % 60;
+  seconds /= 60;
+  rtc->hour = seconds % 24;
+  uint64_t days = seconds / 24;
 
-  rtc->year  =  w1        & 0xFFF;        // bits [11:0], main.cpp stores full year
-  rtc->month = (w1 >> 12) & 0xF;          // bits [15:12], 1-12
-  rtc->day   = (w1 >> 16) & 0xFF;         // bits [23:16]
+  int year = 2026;
+  int month = 1;
+  while (days >= (uint64_t)(is_leap_year(year) ? 366 : 365)) {
+    days -= is_leap_year(year) ? 366 : 365;
+    year++;
+  }
 
-  // Defensive bounds (optional)
-  if (rtc->second > 59) rtc->second = rtc->second % 60;
-  if (rtc->minute > 59) rtc->minute = rtc->minute % 60;
-  if (rtc->hour   > 23) rtc->hour   = rtc->hour   % 24;
-  if (rtc->month  < 1 || rtc->month > 12) rtc->month = 1;
-  if (rtc->day    < 1) rtc->day = 1;
+  while (days >= (uint64_t)days_in_month(year, month)) {
+    days -= days_in_month(year, month);
+    month++;
+  }
+
+  rtc->day = days + 1;
+  rtc->month = month;
+  rtc->year = year;
 }
