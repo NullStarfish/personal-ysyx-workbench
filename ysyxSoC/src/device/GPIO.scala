@@ -48,12 +48,12 @@ class gpioChisel extends Module {
       is(0x0.U) {
         val nextGpioOut = (gpioOutReg & ~writeMask(15, 0)) | (io.in.pwdata(15, 0) & writeMask(15, 0))
         gpioOutReg := nextGpioOut
-        printf(p"[gpio] out <= 0x${Hexadecimal(nextGpioOut)} (${Binary(nextGpioOut)})\n")
+        //printf(p"[gpio] out <= 0x${Hexadecimal(nextGpioOut)} (${Binary(nextGpioOut)})\n")
       }
       is(0x8.U) {
         val nextSegHex = (segHexReg & ~writeMask) | (io.in.pwdata & writeMask)
         segHexReg := nextSegHex
-        printf(p"[gpio] seg <= 0x${Hexadecimal(nextSegHex)}\n")
+        //printf(p"[gpio] seg <= 0x${Hexadecimal(nextSegHex)}\n")
       }
     }
   }

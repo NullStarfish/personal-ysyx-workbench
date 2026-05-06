@@ -145,7 +145,7 @@ extern "C" void ebreak() {
 // --- Main Memory Model ---
 static uint8_t* pmem = NULL;
 static uint8_t* psram_mem = NULL;
-static uint16_t* sdram_mem[2] = {NULL, NULL};
+static uint16_t* sdram_mem[4] = {NULL, NULL, NULL, NULL};
 static const long PMEM_SIZE = 0x70000000; // 128MB
 static const long PMEM_BASE = 0x30000000L;
 static const uint32_t PROGRAM_BASE = 0xa0000000u;
@@ -197,18 +197,20 @@ extern "C" void psram_write_byte(int32_t addr, uint8_t data) {
 
 extern "C" void sdram_read_halfword_chip(int chip, int32_t addr, uint16_t *data) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
+    assert(chip >= 0 && chip < 4);
     assert(uaddr < SDRAM_HALFWORDS);
-    *data = sdram_mem[chip & 1][uaddr];
+    *data = sdram_mem[chip][uaddr];
 }
 
 extern "C" void sdram_write_halfword_chip(int chip, int32_t addr, uint16_t data, uint8_t mask) {
     uint32_t uaddr = static_cast<uint32_t>(addr);
+    assert(chip >= 0 && chip < 4);
     assert(uaddr < SDRAM_HALFWORDS);
-    uint16_t old = sdram_mem[chip & 1][uaddr];
+    uint16_t old = sdram_mem[chip][uaddr];
     uint16_t next = old;
     if (mask & 0x1) next = (next & 0xff00u) | (data & 0x00ffu);
     if (mask & 0x2) next = (next & 0x00ffu) | (data & 0xff00u);
-    sdram_mem[chip & 1][uaddr] = next;
+    sdram_mem[chip][uaddr] = next;
 }
 
 static inline uint32_t sdram_linear_halfaddr_from_bus(uint32_t addr) {
@@ -236,8 +238,9 @@ void handle_sigint(int sig) {
     if (top_ptr) delete top_ptr;
     if (pmem) free(pmem);
     if (psram_mem) free(psram_mem);
-    if (sdram_mem[0]) free(sdram_mem[0]);
-    if (sdram_mem[1]) free(sdram_mem[1]);
+    for (int i = 0; i < 4; ++i) {
+        if (sdram_mem[i]) free(sdram_mem[i]);
+    }
     exit(0);
 }
 
@@ -271,15 +274,18 @@ long long get_cycle_count() { return cycle_count; }
 void init_verilator(int argc, char *argv[]) {
     pmem = (uint8_t*)malloc(PMEM_SIZE);
     psram_mem = (uint8_t*)malloc(PSRAM_SIZE);
-    sdram_mem[0] = (uint16_t*)malloc(sizeof(uint16_t) * SDRAM_HALFWORDS);
-    sdram_mem[1] = (uint16_t*)malloc(sizeof(uint16_t) * SDRAM_HALFWORDS);
+    for (int i = 0; i < 4; ++i) {
+        sdram_mem[i] = (uint16_t*)malloc(sizeof(uint16_t) * SDRAM_HALFWORDS);
+    }
     assert(pmem);
     assert(psram_mem);
-    assert(sdram_mem[0]);
-    assert(sdram_mem[1]);
+    for (int i = 0; i < 4; ++i) {
+        assert(sdram_mem[i]);
+    }
     memset(psram_mem, 0, PSRAM_SIZE);
-    memset(sdram_mem[0], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
-    memset(sdram_mem[1], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
+    for (int i = 0; i < 4; ++i) {
+        memset(sdram_mem[i], 0, sizeof(uint16_t) * SDRAM_HALFWORDS);
+    }
     Verilated::commandArgs(argc, argv);
     top_ptr = new VysyxSoCFull;
 
@@ -317,7 +323,7 @@ void step_one_clk() {
 
 #ifdef CONFIG_BOARD
     nvboard_update();
-    static int trace_uart = 1;
+    static int trace_uart = 0;
     static uint8_t last_uart_rx = 0xffu;
     static uint8_t last_uart_tx = 0xffu;
     if (trace_uart < 0) {
@@ -399,6 +405,7 @@ void load_data_to_rom(const uint8_t* data, size_t size) {
     const uint32_t start_rank = (PROGRAM_BASE - SDRAM_BASE) >> 24;
     const uint32_t end_rank = ((end_addr - 1) - SDRAM_BASE) >> 24;
     assert(start_rank == end_rank);
+    assert(start_rank < 2);
     for (size_t off = 0; off < size; off += 4) {
         uint32_t addr = PROGRAM_BASE + static_cast<uint32_t>(off);
         uint32_t halfaddr = sdram_linear_halfaddr_from_bus(addr);
@@ -409,8 +416,8 @@ void load_data_to_rom(const uint8_t* data, size_t size) {
         if (off + 1 < size) lower |= static_cast<uint16_t>(data[off + 1]) << 8;
         if (off + 2 < size) upper |= static_cast<uint16_t>(data[off + 2]);
         if (off + 3 < size) upper |= static_cast<uint16_t>(data[off + 3]) << 8;
-        sdram_mem[0][halfaddr] = lower;
-        sdram_mem[1][halfaddr] = upper;
+        sdram_mem[start_rank * 2 + 0][halfaddr] = lower;
+        sdram_mem[start_rank * 2 + 1][halfaddr] = upper;
     }
 }
 
@@ -466,9 +473,11 @@ void pmem_read_chunk(uint32_t addr, uint8_t *buf, size_t n) {
     if (addr >= SDRAM_BASE && (uint64_t)(addr - SDRAM_BASE) + n <= (1ull << 25)) {
         for (size_t i = 0; i < n; ++i) {
             uint32_t cur = addr + static_cast<uint32_t>(i);
+            uint32_t rank = (cur - SDRAM_BASE) >> 24;
             uint32_t halfaddr = sdram_linear_halfaddr_from_bus(cur);
-            uint16_t lower = sdram_mem[0][halfaddr];
-            uint16_t upper = sdram_mem[1][halfaddr];
+            assert(rank < 2);
+            uint16_t lower = sdram_mem[rank * 2 + 0][halfaddr];
+            uint16_t upper = sdram_mem[rank * 2 + 1][halfaddr];
             switch (cur & 0x3u) {
                 case 0: buf[i] = lower & 0xffu; break;
                 case 1: buf[i] = (lower >> 8) & 0xffu; break;
@@ -618,8 +627,9 @@ int main(int argc, char** argv) {
     print_stats();
     delete top_ptr;
     free(pmem);
-    free(sdram_mem[0]);
-    free(sdram_mem[1]);
+    for (int i = 0; i < 4; ++i) {
+        free(sdram_mem[i]);
+    }
     printf("Simulation finished after %lld execution cycles.\n", cycle_count);
     return is_exit_status_bad();
 }

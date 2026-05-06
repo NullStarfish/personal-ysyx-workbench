@@ -76,8 +76,11 @@ parameter SDRAM_READ_LATENCY     = 2;
 // Defines / Local params
 //-----------------------------------------------------------------
 localparam SDRAM_BANK_W          = 2;
+localparam SDRAM_RANK_W          = 1;
 localparam SDRAM_DQM_W           = 4;
 localparam SDRAM_BANKS           = 2 ** SDRAM_BANK_W;
+localparam SDRAM_RANKS           = 2 ** SDRAM_RANK_W;
+localparam SDRAM_SLOTS           = SDRAM_BANKS * SDRAM_RANKS;
 localparam SDRAM_ROW_W           = SDRAM_ADDR_W - SDRAM_COL_W - SDRAM_BANK_W;
 localparam SDRAM_REFRESH_CNT     = 2 ** SDRAM_ROW_W;
 localparam SDRAM_START_DELAY     = 100000 / (1000 / SDRAM_MHZ); // 100uS
@@ -169,8 +172,8 @@ wire [SDRAM_DATA_W-1:0] sdram_data_in_w;
 
 reg                    refresh_q;
 
-reg [SDRAM_BANKS-1:0]  row_open_q;
-reg [SDRAM_ROW_W-1:0]  active_row_q[0:SDRAM_BANKS-1];
+reg [SDRAM_SLOTS-1:0]  row_open_q;
+reg [SDRAM_ROW_W-1:0]  active_row_q[0:SDRAM_SLOTS-1];
 
 reg  [STATE_W-1:0]     state_q;
 reg  [STATE_W-1:0]     next_state_r;
@@ -183,6 +186,7 @@ wire [SDRAM_ROW_W-1:0]  addr_col_w  = {{(SDRAM_ROW_W-SDRAM_COL_W){1'b0}}, ram_ad
 wire [SDRAM_ROW_W-1:0]  addr_row_w  = {{2{1'b0}}, ram_addr_w[23:13]};
 wire [SDRAM_BANK_W-1:0] addr_bank_w = ram_addr_w[12:11];
 wire                    addr_rank_w = ram_addr_w[24];
+wire [SDRAM_BANK_W:0]   addr_slot_w = {addr_rank_w, addr_bank_w};
 
 //-----------------------------------------------------------------
 // SDRAM State Machine
@@ -223,7 +227,7 @@ begin
         else if (ram_req_w)
         begin
             // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+            if (row_open_q[addr_slot_w] && addr_row_w == active_row_q[addr_slot_w])
             begin
                 if (!ram_rd_w)
                     next_state_r = STATE_WRITE0;
@@ -231,7 +235,7 @@ begin
                     next_state_r = STATE_READ;
             end
             // Row miss, close row, open new row
-            else if (row_open_q[addr_bank_w])
+            else if (row_open_q[addr_slot_w])
             begin
                 next_state_r   = STATE_PRECHARGE;
 
@@ -278,7 +282,7 @@ begin
         if (!refresh_q && ram_req_w && ram_rd_w)
         begin
             // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+            if (row_open_q[addr_slot_w] && addr_row_w == active_row_q[addr_slot_w])
                 next_state_r = STATE_READ;
         end
     end
@@ -293,7 +297,7 @@ begin
         if (!refresh_q && ram_req_w && (ram_wr_w != 4'b0))
         begin
             // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+            if (row_open_q[addr_slot_w] && addr_row_w == active_row_q[addr_slot_w])
                 next_state_r = STATE_WRITE0;
         end
     end
@@ -367,7 +371,7 @@ begin
         if (!refresh_q && ram_req_w && ram_rd_w)
         begin
             // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+            if (row_open_q[addr_slot_w] && addr_row_w == active_row_q[addr_slot_w])
                 delay_r = 4'd0;
         end
     end
@@ -496,10 +500,10 @@ begin
     data_rd_en_q    <= 1'b1;
     dqm_buffer_q    <= {SDRAM_DQM_W{1'b0}};
 
-    for (idx=0;idx<SDRAM_BANKS;idx=idx+1)
+    for (idx=0;idx<SDRAM_SLOTS;idx=idx+1)
         active_row_q[idx] <= {SDRAM_ROW_W{1'b0}};
 
-    row_open_q      <= {SDRAM_BANKS{1'b0}};
+    row_open_q      <= {SDRAM_SLOTS{1'b0}};
 end
 else
 begin
@@ -568,8 +572,8 @@ begin
         rank_q        <= addr_rank_w;
         rank_broadcast_q <= 1'b0;
 
-        active_row_q[addr_bank_w]  <= addr_row_w;
-        row_open_q[addr_bank_w]    <= 1'b1;
+        active_row_q[addr_slot_w]  <= addr_row_w;
+        row_open_q[addr_slot_w]    <= 1'b1;
     end
     //-----------------------------------------
     // STATE_PRECHARGE
@@ -582,7 +586,7 @@ begin
             // Precharge all banks
             command_q           <= CMD_PRECHARGE;
             addr_q[ALL_BANKS]   <= 1'b1;
-            row_open_q          <= {SDRAM_BANKS{1'b0}};
+            row_open_q          <= {SDRAM_SLOTS{1'b0}};
             rank_broadcast_q    <= 1'b1;
         end
         else
@@ -594,7 +598,7 @@ begin
             rank_q              <= addr_rank_w;
             rank_broadcast_q    <= 1'b0;
 
-            row_open_q[addr_bank_w] <= 1'b0;
+            row_open_q[addr_slot_w] <= 1'b0;
         end
     end
     //-----------------------------------------

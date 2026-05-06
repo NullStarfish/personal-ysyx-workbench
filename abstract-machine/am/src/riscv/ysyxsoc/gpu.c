@@ -7,7 +7,7 @@ static uint32_t w, h;
 void __am_gpu_init() {
 	w = SCREEN_WIDTH;
 	h = SCREEN_HEIGHT;
-  for (int i = 0; i < w * h; i ++) fb[i] = 0;
+  //for (int i = 0; i < w * h; i ++) fb[i] = 0;
 }
 
 
