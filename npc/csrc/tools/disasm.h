@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Initializes the Capstone disassembler engine.
  * This must be called once before any disassembly.
@@ -19,5 +23,9 @@ void init_disasm();
  * @param nbyte The number of bytes in the instruction (e.g., 4 for RISC-V).
  */
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

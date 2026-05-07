@@ -38,6 +38,16 @@ class FetchControlBundle extends Bundle {
   val redirect = Valid(UInt(XLEN.W))
 }
 
+class FetchPerfBundle extends Bundle {
+  val reqFire = Bool()
+  val respFire = Bool()
+  val waitCycle = Bool()
+  val blockedByPending = Bool()
+  val blockedByOutValid = Bool()
+  val blockedByStall = Bool()
+  val blockedByRedirect = Bool()
+}
+
 class ExecuteDataBundle extends Bundle {
   val pc = XLenU
   val rs1 = XLenU
@@ -191,15 +201,52 @@ class LsuStatusBundle extends Bundle {
   val pendingRd = UInt(5.W)
 }
 
+class LsuPerfBundle extends Bundle {
+  val loadReqFire = Bool()
+  val loadRespFire = Bool()
+  val loadWaitCycle = Bool()
+  val storeReqFire = Bool()
+  val storeRespFire = Bool()
+  val storeWaitCycle = Bool()
+  val passThroughFire = Bool()
+}
+
 class CoreTraceBundle extends Bundle {
   val ifValid = Bool()
   val idValid = Bool()
   val exValid = Bool()
   val memValid = Bool()
+  val cycleCount = UInt(32.W)
   val retireCount = UInt(32.W)
   val lastRetire = Valid(new TraceCarryBundle)
   val branchCount = UInt(32.W)
   val branchCorrectCount = UInt(32.W)
+  val ifuReqCount = UInt(32.W)
+  val ifuRespCount = UInt(32.W)
+  val ifuWaitCycleCount = UInt(32.W)
+  val ifuBlockedByPendingCount = UInt(32.W)
+  val ifuBlockedByOutValidCount = UInt(32.W)
+  val ifuBlockedByStallCount = UInt(32.W)
+  val ifuBlockedByRedirectCount = UInt(32.W)
+  val decodeAcceptedCount = UInt(32.W)
+  val exuCompleteCount = UInt(32.W)
+  val lsuLoadReqCount = UInt(32.W)
+  val lsuLoadRespCount = UInt(32.W)
+  val lsuLoadWaitCycleCount = UInt(32.W)
+  val lsuStoreReqCount = UInt(32.W)
+  val lsuStoreRespCount = UInt(32.W)
+  val lsuStoreWaitCycleCount = UInt(32.W)
+  val lsuPassThroughCount = UInt(32.W)
+  val loadUseStallCount = UInt(32.W)
+  val redirectFlushCount = UInt(32.W)
+  val computeInstCount = UInt(32.W)
+  val memoryInstCount = UInt(32.W)
+  val loadInstCount = UInt(32.W)
+  val storeInstCount = UInt(32.W)
+  val branchInstCount = UInt(32.W)
+  val jumpInstCount = UInt(32.W)
+  val csrInstCount = UInt(32.W)
+  val systemInstCount = UInt(32.W)
 }
 
 class WriteBackIO extends Bundle {

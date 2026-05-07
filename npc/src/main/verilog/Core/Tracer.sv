@@ -33,7 +33,7 @@ module Tracer(	// src/main/scala/mycpu/core/components/Tracer.scala:10:7
     .inst      (io_commitTrace_bits_inst)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:26:19
   SimEbreakDPI core_sim_ebreak (	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
-    .valid     (io_commitTrace_valid & io_commitTrace_bits_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:56:{36,64}
+    .valid     (io_commitTrace_valid & io_commitTrace_bits_inst == 32'h100073),	// src/main/scala/mycpu/core/components/Tracer.scala:136:{36,64}
     .is_ebreak (32'h1)
   );	// src/main/scala/mycpu/dpi/DpiApi.scala:13:19
   DifftestSkipDPI core_difftest_skip (	// src/main/scala/mycpu/dpi/DpiApi.scala:7:19

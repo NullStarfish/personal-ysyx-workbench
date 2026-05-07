@@ -12,6 +12,7 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val out = Decoupled(new MemoryPacket(enableTraceFields))
     val axi = new AXI4LiteBundle(XLEN, XLEN)
     val status = Output(new LsuStatusBundle)
+    val perf = Output(new LsuPerfBundle)
   })
 
   val readBridge = Module(new AXI4ReadBridge(XLEN, XLEN))
@@ -91,6 +92,12 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val isInputLoad = isInputMem && !io.in.bits.mem.write
   val isInputStore = isInputMem && io.in.bits.mem.write
   val isInputPassThrough = !isInputMem
+  val canAcceptPassThrough = isInputPassThrough
+  val canAcceptLoad = isInputLoad && readBridge.io.rReq.ready
+  val canAcceptStore = isInputStore && writeBridge.io.wReq.ready && writeBridge.io.wStream.ready
+  val acceptPassThrough = state === State.Idle && io.in.valid && canAcceptPassThrough
+  val acceptLoad = state === State.Idle && io.in.valid && canAcceptLoad
+  val acceptStore = state === State.Idle && io.in.valid && canAcceptStore
 
   io.in.ready := false.B
   io.out.valid := false.B
@@ -126,14 +133,17 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   io.status.pendingLoad := (state === State.WaitReadResp) && reqReg.mem.valid && !reqReg.mem.write
   io.status.pendingRd := reqReg.wb.rd
+  io.perf.loadReqFire := acceptLoad
+  io.perf.loadRespFire := (state === State.WaitReadResp) && io.out.fire
+  io.perf.loadWaitCycle := (state === State.WaitReadResp)
+  io.perf.storeReqFire := acceptStore
+  io.perf.storeRespFire := (state === State.WaitWriteResp) && io.out.fire
+  io.perf.storeWaitCycle := (state === State.WaitWriteResp)
+  io.perf.passThroughFire := acceptPassThrough
 
   switch(state) {
     is(State.Idle) {
-      val acceptPassThrough = isInputPassThrough
-      val acceptLoad = isInputLoad && readBridge.io.rReq.ready
-      val acceptStore = isInputStore && writeBridge.io.wReq.ready && writeBridge.io.wStream.ready
-
-      io.in.ready := acceptPassThrough || acceptLoad || acceptStore
+      io.in.ready := canAcceptPassThrough || canAcceptLoad || canAcceptStore
 
       when(io.in.fire) {
         reqReg := io.in.bits

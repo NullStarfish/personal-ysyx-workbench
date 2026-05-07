@@ -1,3 +1,0 @@
-图中可见，execute计算出redirect后一拍，
-fetch级redirect，ifId, idEx级reg的flush全部被拉高，尽心flush
-说明control hazard正确

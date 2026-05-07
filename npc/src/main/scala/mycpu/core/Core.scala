@@ -129,6 +129,11 @@ class Core(
     tracerMod.io.mstatus := io.debug_csrs.mstatus
     tracerMod.io.mcause := io.debug_csrs.mcause
     tracerMod.io.flush := redirectFlush
+    tracerMod.io.decodeAccepted := decodeFire
+    tracerMod.io.exuComplete := exFire
+    tracerMod.io.loadUseStall := loadUseStall
+    tracerMod.io.fetchPerf := fetch.io.perf
+    tracerMod.io.lsuPerf := lsu.io.perf
     io.trace := tracerMod.io.trace
   } else {
     io.trace := 0.U.asTypeOf(new CoreTraceBundle)

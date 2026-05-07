@@ -11,6 +11,7 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val axi = new AXI4LiteBundle(XLEN, XLEN)
     val out = Decoupled(new FetchPacket)
     val ctrl = Input(new FetchControlBundle)
+    val perf = Output(new FetchPerfBundle)
   })
 
   val readBridge = Module(new AXI4ReadBridge(XLEN, XLEN))
@@ -47,6 +48,14 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   readBridge.io.rReq.valid := canIssueReq
   readBridge.io.rReq.bits := reqBits
   readBridge.io.rStream.ready := reqPendingReg && !outValidReg
+
+  io.perf.reqFire := readBridge.io.rReq.fire
+  io.perf.respFire := readBridge.io.rStream.fire
+  io.perf.waitCycle := reqPendingReg
+  io.perf.blockedByPending := !canIssueReq && reqPendingReg
+  io.perf.blockedByOutValid := !canIssueReq && outValidReg
+  io.perf.blockedByStall := !canIssueReq && io.ctrl.stall
+  io.perf.blockedByRedirect := !canIssueReq && io.ctrl.redirect.valid
 
   io.out.valid := outValidReg
   io.out.bits := outBitsReg

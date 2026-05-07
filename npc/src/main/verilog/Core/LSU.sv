@@ -53,89 +53,88 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
   output [4:0]  io_status_pendingRd	// src/main/scala/mycpu/core/backend/LSU.scala:10:14
 );
 
-  wire        _writeBridge_io_wReq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
-  wire        _writeBridge_io_wStream_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
-  wire        _writeBridge_io_bResp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
-  wire [2:0]  _writeBridge_io_axi_aw_bits_id;	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
-  wire        _readBridge_io_rReq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
-  wire        _readBridge_io_rStream_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
-  wire [31:0] _readBridge_io_rStream_bits_data;	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
-  wire [2:0]  _readBridge_io_axi_ar_bits_id;	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
-  reg  [1:0]  state;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22
-  reg  [31:0] reqReg_result;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [31:0] reqReg_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg         reqReg_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [4:0]  reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg         reqReg_mem_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg         reqReg_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg         reqReg_mem_unsigned;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [2:0]  reqReg_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [31:0] reqReg_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [31:0] reqReg_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  reg  [31:0] reqReg_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-  wire        _GEN = state == 2'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22, :32:14
-  wire [31:0] memReq_addr = _GEN ? io_in_bits_result : reqReg_result;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19, :31:11, :32:{14,30}, :33:13
-  wire [31:0] reqView_rhs = _GEN ? io_in_bits_rhs : reqReg_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19, :31:11, :32:{14,30}, :33:13
-  wire [2:0]  reqView_mem_subop = _GEN ? io_in_bits_mem_subop : reqReg_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19, :31:11, :32:{14,30}, :33:13
-  wire        _GEN_0 = reqView_mem_subop == 3'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :42:29
+  wire        _writeBridge_io_wReq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
+  wire        _writeBridge_io_wStream_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
+  wire        _writeBridge_io_bResp_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
+  wire [2:0]  _writeBridge_io_axi_aw_bits_id;	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
+  wire        _readBridge_io_rReq_ready;	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
+  wire        _readBridge_io_rStream_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
+  wire [31:0] _readBridge_io_rStream_bits_data;	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
+  wire [2:0]  _readBridge_io_axi_ar_bits_id;	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
+  reg  [1:0]  state;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22
+  reg  [31:0] reqReg_result;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [31:0] reqReg_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg         reqReg_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [4:0]  reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg         reqReg_mem_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg         reqReg_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg         reqReg_mem_unsigned;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [2:0]  reqReg_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [31:0] reqReg_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [31:0] reqReg_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  reg  [31:0] reqReg_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+  wire [31:0] memReq_addr = (|state) ? reqReg_result : io_in_bits_result;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  wire [31:0] reqView_rhs = (|state) ? reqReg_rhs : io_in_bits_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  wire [2:0]  reqView_mem_subop = (|state) ? reqReg_mem_subop : io_in_bits_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  wire        _GEN = reqView_mem_subop == 3'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :43:29
   wire [38:0] _writeData_T_2 =
-    {31'h0, reqView_rhs[7:0]} << {34'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :37:24, :45:{31,38}
-  wire        _GEN_1 = reqView_mem_subop == 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :42:29
-  wire [4:0]  _writeStrb_T_1 = 5'h3 << memReq_addr[1:0];	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :37:24, :49:30
+    {31'h0, reqView_rhs[7:0]} << {34'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :38:24, :46:{31,38}
+  wire        _GEN_0 = reqView_mem_subop == 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :43:29
+  wire [4:0]  _writeStrb_T_1 = 5'h3 << memReq_addr[1:0];	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :38:24, :50:30
   wire [46:0] _writeData_T_5 =
-    {31'h0, reqView_rhs[15:0]} << {42'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :37:24, :45:38, :50:{31,39}
-  wire        _GEN_2 = reqView_mem_subop == 3'h3;	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :42:29
-  wire [2:0]  accessSize = _GEN_0 ? 3'h0 : _GEN_1 ? 3'h1 : 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:42:29, :46:18, :51:18
+    {31'h0, reqView_rhs[15:0]} << {42'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :38:24, :46:38, :51:{31,39}
+  wire        _GEN_1 = reqView_mem_subop == 3'h3;	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :43:29
+  wire [2:0]  accessSize = _GEN ? 3'h0 : _GEN_0 ? 3'h1 : 3'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:43:29, :47:18, :52:18
   wire [31:0] shiftedReadData =
-    _readBridge_io_rStream_bits_data >> {27'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:17:26, :31:11, :32:30, :33:13, :37:24, :76:57
-  wire        isInputLoad = io_in_bits_mem_valid & ~io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:91:{32,35}
-  wire        isInputStore = io_in_bits_mem_valid & io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:92:33
+    _readBridge_io_rStream_bits_data >> {27'h0, memReq_addr[1:0], 3'h0};	// src/main/scala/mycpu/core/backend/LSU.scala:18:26, :32:11, :33:30, :34:13, :38:24, :77:57
+  wire        isInputLoad = io_in_bits_mem_valid & ~io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:92:{32,35}
+  wire        isInputStore = io_in_bits_mem_valid & io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:93:33
   wire        io_in_ready_0 =
-    _GEN
+    ~(|state)
     & (~io_in_bits_mem_valid | isInputLoad & _readBridge_io_rReq_ready | isInputStore
-       & _writeBridge_io_wReq_ready & _writeBridge_io_wStream_ready);	// src/main/scala/mycpu/core/backend/LSU.scala:17:26, :18:27, :32:14, :91:32, :92:33, :93:28, :95:15, :130:17, :133:36, :134:{38,67}, :136:{19,40,54}
-  wire        writeBridge_io_wReq_valid = _GEN & io_in_valid & isInputStore;	// src/main/scala/mycpu/core/backend/LSU.scala:32:14, :92:33, :121:29, :130:17, :150:{33,48}
-  wire        _GEN_3 = state == 2'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22, :127:35, :130:17
-  wire        _GEN_4 = state == 2'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22, :130:17
+       & _writeBridge_io_wReq_ready & _writeBridge_io_wStream_ready);	// src/main/scala/mycpu/core/backend/LSU.scala:18:26, :19:27, :28:22, :33:14, :92:32, :93:33, :94:28, :96:35, :97:{37,66}, :102:15, :144:17, :146:{19,43,60}
+  wire        writeBridge_io_wReq_valid = ~(|state) & io_in_valid & isInputStore;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :33:14, :93:33, :128:29, :144:17, :160:{33,48}
+  wire        _GEN_2 = state == 2'h1;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :134:35, :144:17
+  wire        _GEN_3 = state == 2'h2;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :144:17
   wire        io_out_valid_0 =
-    ~_GEN
-    & (_GEN_3
+    (|state)
+    & (_GEN_2
          ? _readBridge_io_rStream_valid
-         : _GEN_4 ? _writeBridge_io_bResp_valid : (&state));	// src/main/scala/mycpu/core/backend/LSU.scala:17:26, :18:27, :27:22, :32:14, :96:16, :120:31, :130:17, :155:20, :163:20
+         : _GEN_3 ? _writeBridge_io_bResp_valid : (&state));	// src/main/scala/mycpu/core/backend/LSU.scala:18:26, :19:27, :28:22, :33:14, :103:16, :144:17, :165:20, :173:20
   always @(posedge clock) begin	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
-    automatic logic _GEN_5;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    _GEN_5 = io_in_ready_0 & io_in_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:95:15, :130:17, :136:19
+    automatic logic _GEN_4;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    _GEN_4 = io_in_ready_0 & io_in_valid;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:102:15, :144:17, :146:19
     if (reset)	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
-      state <= 2'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22
-    else if (_GEN) begin	// src/main/scala/mycpu/core/backend/LSU.scala:32:14
-      if (_GEN_5)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        state <= io_in_bits_mem_valid ? (isInputLoad ? 2'h1 : 2'h2) : 2'h3;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22, :91:32, :127:35, :140:34, :141:17, :142:33, :143:17, :145:17
+      state <= 2'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22
+    else if (|state) begin	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :33:14
+      if ((_GEN_2 | _GEN_3 | (&state)) & io_out_valid_0)	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :103:16, :144:17, :167:25, :168:15, :175:25, :182:25, :183:15
+        state <= 2'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22
     end
-    else if ((_GEN_3 | _GEN_4 | (&state)) & io_out_valid_0)	// src/main/scala/mycpu/core/backend/LSU.scala:27:22, :96:16, :130:17, :157:25, :158:15, :165:25, :172:25, :173:15
-      state <= 2'h0;	// src/main/scala/mycpu/core/backend/LSU.scala:27:22
-    if (_GEN & _GEN_5) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:28:19, :32:14, :130:17, :138:24, :139:16
-      reqReg_result <= io_in_bits_result;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_rhs <= io_in_bits_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_wb_regWen <= io_in_bits_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_wb_rd <= io_in_bits_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_mem_valid <= io_in_bits_mem_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_mem_write <= io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_mem_unsigned <= io_in_bits_mem_unsigned;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_mem_subop <= io_in_bits_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_trace_pc <= io_in_bits_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_trace_inst <= io_in_bits_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
-      reqReg_trace_dnpc <= io_in_bits_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:28:19
+    else if (_GEN_4)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      state <= io_in_bits_mem_valid ? (isInputLoad ? 2'h1 : 2'h2) : 2'h3;	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :92:32, :134:35, :150:34, :151:17, :152:33, :153:17, :155:17
+    if (~(|state) & _GEN_4) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35, src/main/scala/mycpu/core/backend/LSU.scala:28:22, :29:19, :33:14, :144:17, :148:24, :149:16
+      reqReg_result <= io_in_bits_result;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_rhs <= io_in_bits_rhs;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_wb_regWen <= io_in_bits_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_wb_rd <= io_in_bits_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_mem_valid <= io_in_bits_mem_valid;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_mem_write <= io_in_bits_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_mem_unsigned <= io_in_bits_mem_unsigned;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_mem_subop <= io_in_bits_mem_subop;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_trace_pc <= io_in_bits_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_trace_inst <= io_in_bits_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
+      reqReg_trace_dnpc <= io_in_bits_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:29:19
     end
   end // always @(posedge)
-  AXI4ReadBridge readBridge (	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
+  AXI4ReadBridge readBridge (	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
     .clock                (clock),
     .reset                (reset),
     .io_rReq_ready        (_readBridge_io_rReq_ready),
-    .io_rReq_valid        (_GEN & io_in_valid & isInputLoad),	// src/main/scala/mycpu/core/backend/LSU.scala:32:14, :91:32, :118:28, :130:17, :149:{32,47}
-    .io_rReq_bits_id      (32'h1),	// src/main/scala/mycpu/core/backend/LSU.scala:119:27
-    .io_rReq_bits_addr    (memReq_addr),	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13
-    .io_rReq_bits_size    (accessSize),	// src/main/scala/mycpu/core/backend/LSU.scala:42:29, :46:18
-    .io_rStream_ready     (~_GEN & _GEN_3),	// src/main/scala/mycpu/core/backend/LSU.scala:32:14, :120:31, :130:17
+    .io_rReq_valid        (~(|state) & io_in_valid & isInputLoad),	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :33:14, :92:32, :125:28, :144:17, :159:{32,47}
+    .io_rReq_bits_id      (32'h1),	// src/main/scala/mycpu/core/backend/LSU.scala:126:27
+    .io_rReq_bits_addr    (memReq_addr),	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13
+    .io_rReq_bits_size    (accessSize),	// src/main/scala/mycpu/core/backend/LSU.scala:43:29, :47:18
+    .io_rStream_ready     ((|state) & _GEN_2),	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :33:14, :127:31, :144:17
     .io_rStream_valid     (_readBridge_io_rStream_valid),
     .io_rStream_bits_data (_readBridge_io_rStream_bits_data),
     .io_axi_ar_ready      (io_axi_ar_ready),
@@ -147,27 +146,27 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     .io_axi_ar_bits_burst (io_axi_ar_bits_burst),
     .io_axi_r_ready       (io_axi_r_ready),
     .io_axi_r_valid       (io_axi_r_valid),
-    .io_axi_r_bits_id     ({2'h0, io_axi_r_bits_id}),	// src/main/scala/mycpu/core/backend/LSU.scala:21:21, :27:22
+    .io_axi_r_bits_id     ({2'h0, io_axi_r_bits_id}),	// src/main/scala/mycpu/core/backend/LSU.scala:22:21, :28:22
     .io_axi_r_bits_data   (io_axi_r_bits_data),
     .io_axi_r_bits_resp   (io_axi_r_bits_resp),
     .io_axi_r_bits_last   (io_axi_r_bits_last)
-  );	// src/main/scala/mycpu/core/backend/LSU.scala:17:26
-  AXI4WriteBridge writeBridge (	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
+  );	// src/main/scala/mycpu/core/backend/LSU.scala:18:26
+  AXI4WriteBridge writeBridge (	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
     .clock                (clock),
     .reset                (reset),
     .io_wReq_ready        (_writeBridge_io_wReq_ready),
-    .io_wReq_valid        (writeBridge_io_wReq_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:121:29, :130:17, :150:{33,48}
-    .io_wReq_bits_addr    (memReq_addr),	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13
-    .io_wReq_bits_size    (accessSize),	// src/main/scala/mycpu/core/backend/LSU.scala:42:29, :46:18
+    .io_wReq_valid        (writeBridge_io_wReq_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:128:29, :144:17, :160:{33,48}
+    .io_wReq_bits_addr    (memReq_addr),	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13
+    .io_wReq_bits_size    (accessSize),	// src/main/scala/mycpu/core/backend/LSU.scala:43:29, :47:18
     .io_wStream_ready     (_writeBridge_io_wStream_ready),
-    .io_wStream_valid     (writeBridge_io_wReq_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:121:29, :130:17, :150:{33,48}
+    .io_wStream_valid     (writeBridge_io_wReq_valid),	// src/main/scala/mycpu/core/backend/LSU.scala:128:29, :144:17, :160:{33,48}
     .io_wStream_bits_data
-      (_GEN_0
+      (_GEN
          ? _writeData_T_2[31:0]
-         : _GEN_1 ? _writeData_T_5[31:0] : _GEN_2 ? reqView_rhs : 32'h0),	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :39:30, :42:29, :45:{17,38}, :50:{17,39}, :55:17
+         : _GEN_0 ? _writeData_T_5[31:0] : _GEN_1 ? reqView_rhs : 32'h0),	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :40:30, :43:29, :46:{17,38}, :51:{17,39}, :56:17
     .io_wStream_bits_strb
-      (_GEN_0 ? 4'h1 << memReq_addr[1:0] : _GEN_1 ? _writeStrb_T_1[3:0] : {4{_GEN_2}}),	// src/main/scala/mycpu/core/backend/LSU.scala:31:11, :32:30, :33:13, :37:24, :38:30, :42:29, :44:{17,30}, :49:{17,30}, :54:17
-    .io_bResp_ready       (~(_GEN | _GEN_3) & _GEN_4),	// src/main/scala/mycpu/core/backend/LSU.scala:32:14, :125:30, :130:17
+      (_GEN ? 4'h1 << memReq_addr[1:0] : _GEN_0 ? _writeStrb_T_1[3:0] : {4{_GEN_1}}),	// src/main/scala/mycpu/core/backend/LSU.scala:32:11, :33:30, :34:13, :38:24, :39:30, :43:29, :45:{17,30}, :50:{17,30}, :55:17
+    .io_bResp_ready       (~(~(|state) | _GEN_2) & _GEN_3),	// src/main/scala/mycpu/core/backend/LSU.scala:28:22, :33:14, :132:30, :144:17
     .io_bResp_valid       (_writeBridge_io_bResp_valid),
     .io_axi_aw_ready      (io_axi_aw_ready),
     .io_axi_aw_valid      (io_axi_aw_valid),
@@ -183,9 +182,9 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
     .io_axi_w_bits_last   (io_axi_w_bits_last),
     .io_axi_b_ready       (io_axi_b_ready),
     .io_axi_b_valid       (io_axi_b_valid)
-  );	// src/main/scala/mycpu/core/backend/LSU.scala:18:27
-  assign io_in_ready = io_in_ready_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :95:15, :130:17, :136:19
-  assign io_out_valid = io_out_valid_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :96:16, :130:17
+  );	// src/main/scala/mycpu/core/backend/LSU.scala:19:27
+  assign io_in_ready = io_in_ready_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :102:15, :144:17, :146:19
+  assign io_out_valid = io_out_valid_0;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :103:16, :144:17
   assign io_out_bits_wbData =
     reqReg_mem_valid & ~reqReg_mem_write
       ? (reqReg_mem_subop == 3'h1
@@ -195,15 +194,15 @@ module LSU(	// src/main/scala/mycpu/core/backend/LSU.scala:9:7
                ? {reqReg_mem_unsigned ? 16'h0 : {16{shiftedReadData[15]}},
                   shiftedReadData[15:0]}
                : _readBridge_io_rStream_bits_data)
-      : reqReg_result;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:26, :28:19, :76:57, :78:28, :80:{16,22,59,70,95}, :83:{16,22,59,71,96}, :97:{28,46,49}
-  assign io_out_bits_wb_regWen = reqReg_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19
-  assign io_out_bits_wb_rd = reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19
-  assign io_out_bits_trace_pc = _GEN ? io_in_bits_trace_pc : reqReg_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19, :31:11, :32:{14,30}, :33:13
-  assign io_out_bits_trace_inst = _GEN ? io_in_bits_trace_inst : reqReg_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19, :31:11, :32:{14,30}, :33:13
-  assign io_out_bits_trace_dnpc = _GEN ? io_in_bits_trace_dnpc : reqReg_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19, :31:11, :32:{14,30}, :33:13
-  assign io_axi_aw_bits_id = _writeBridge_io_axi_aw_bits_id[0];	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :18:27, :22:22
-  assign io_axi_ar_bits_id = _readBridge_io_axi_ar_bits_id[0];	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :17:26, :21:21
-  assign io_status_pendingLoad = state == 2'h1 & reqReg_mem_valid & ~reqReg_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :27:22, :28:19, :97:49, :127:{35,59,79}
-  assign io_status_pendingRd = reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:19
+      : reqReg_result;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :18:26, :29:19, :77:57, :79:28, :81:{16,22,59,70,95}, :84:{16,22,59,71,96}, :104:{28,46,49}
+  assign io_out_bits_wb_regWen = reqReg_wb_regWen;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :29:19
+  assign io_out_bits_wb_rd = reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :29:19
+  assign io_out_bits_trace_pc = (|state) ? reqReg_trace_pc : io_in_bits_trace_pc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  assign io_out_bits_trace_inst = (|state) ? reqReg_trace_inst : io_in_bits_trace_inst;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  assign io_out_bits_trace_dnpc = (|state) ? reqReg_trace_dnpc : io_in_bits_trace_dnpc;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:22, :29:19, :32:11, :33:{14,30}, :34:13
+  assign io_axi_aw_bits_id = _writeBridge_io_axi_aw_bits_id[0];	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :19:27, :23:22
+  assign io_axi_ar_bits_id = _readBridge_io_axi_ar_bits_id[0];	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :18:26, :22:21
+  assign io_status_pendingLoad = state == 2'h1 & reqReg_mem_valid & ~reqReg_mem_write;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :28:22, :29:19, :104:49, :134:{35,59,79}
+  assign io_status_pendingRd = reqReg_wb_rd;	// src/main/scala/mycpu/core/backend/LSU.scala:9:7, :29:19
 endmodule
 
