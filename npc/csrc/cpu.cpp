@@ -212,6 +212,7 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
 }
 
 extern "C" void ebreak() {
+  uint32_t a0Val = cpu.regRead(10);
   if (a0Val == 0) runtime.setEnd(a0Val);
   else runtime.setAbort(a0Val);
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);

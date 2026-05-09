@@ -5,88 +5,74 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.utils._
+import mycpu.core.components._
 
 class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   val io = IO(new Bundle {
-    val axi = new AXI4LiteBundle(XLEN, XLEN)
+    //val axi = new AXI4LiteBundle(XLEN, XLEN)
+    val fetch = Decoupled(UInt(32.W))
+    val reply = Flipped(Decoupled(UInt(32.W)))
+
     val out = Decoupled(new FetchPacket)
-    val ctrl = Input(new FetchControlBundle)
-    val perf = Output(new FetchPerfBundle)
+    val redirect = Input(Valid(UInt(XLEN.W)))
   })
 
-  val readBridge = Module(new AXI4ReadBridge(XLEN, XLEN))
-  io.axi.aw.valid := false.B
-  io.axi.aw.bits := DontCare
-  io.axi.w.valid := false.B
-  io.axi.w.bits := DontCare
-  io.axi.b.ready := false.B
 
-  io.axi.ar <> readBridge.io.axi.ar
-  io.axi.r <> readBridge.io.axi.r
+//流水级最好不要留这个valid。让flushablestage来管理这个valid。
+//流水级只知道valid-ready阻塞。flushablestage可以把valid reg数据valid翻译成backpressure valid
 
-  val pcReg = RegInit(START_ADDR.U(XLEN.W))
-  val epochReg = RegInit(false.B)
+  io.out.valid := false.B
+  io.fetch.valid := false.B
+  io.reply.ready := false.B
 
-  val outValidReg = RegInit(false.B)
-  val outBitsReg = Reg(new FetchPacket)
-  val reqPendingReg = RegInit(false.B)
-  val reqPcReg = RegInit(0.U(XLEN.W))
-  val reqEpochReg = RegInit(false.B)
 
-  val reqBits = Wire(new AXI4BundleA(AXI_ID_WIDTH, XLEN))
-  reqBits.id := 0.U
-  reqBits.addr := pcReg
-  reqBits.len := 0.U
-  reqBits.size := "b010".U
-  reqBits.burst := AXI4Parameters.BURST_FIXED
-  reqBits.lock := false.B
-  reqBits.cache := 0.U
-  reqBits.prot := 0.U
-  reqBits.qos := 0.U
 
-  val canIssueReq = !outValidReg && !reqPendingReg && !io.ctrl.stall && !io.ctrl.redirect.valid
-  readBridge.io.rReq.valid := canIssueReq
-  readBridge.io.rReq.bits := reqBits
-  readBridge.io.rStream.ready := reqPendingReg && !outValidReg
-
-  io.perf.reqFire := readBridge.io.rReq.fire
-  io.perf.respFire := readBridge.io.rStream.fire
-  io.perf.waitCycle := reqPendingReg
-  io.perf.blockedByPending := !canIssueReq && reqPendingReg
-  io.perf.blockedByOutValid := !canIssueReq && outValidReg
-  io.perf.blockedByStall := !canIssueReq && io.ctrl.stall
-  io.perf.blockedByRedirect := !canIssueReq && io.ctrl.redirect.valid
-
-  io.out.valid := outValidReg
-  io.out.bits := outBitsReg
-
-  when(io.out.fire) {
-    outValidReg := false.B
+  val pc = RegInit(START_ADDR.U(XLEN.W))
+  when (io.redirect.valid){
+    pc := io.redirect.bits
+  } .elsewhen(io.fetch.fire) {
+    pc := pc + 4.U //默认不跳转
   }
 
-  when(io.ctrl.redirect.valid) {
-    pcReg := io.ctrl.redirect.bits
-    epochReg := ~epochReg
-    outValidReg := false.B
+  val shooted = RegInit(false.B)
+
+  io.fetch.valid := !io.redirect.valid && !shooted
+  io.fetch.bits := pc
+//对于fetch：可能会发生：请求in-flight的情况：
+//因此需要用epoch reg管理
+  val epoch = RegInit(false.B)
+//当fetch fire的时候，记录本次epoch。当reply之后，比较epoch是否一致 
+//这个方法仅适用单发射，不会连续发射的fetch
+  val lastEpoch = RegInit(true.B)
+  val launchedPc = RegInit(START_ADDR.U(XLEN.W))
+
+  when (io.fetch.fire) {
+    lastEpoch := epoch
+    launchedPc := pc
+    shooted := true.B
   }
 
-  when(readBridge.io.rReq.fire) {
-    reqPendingReg := true.B
-    reqPcReg := pcReg
-    reqEpochReg := epochReg
-    pcReg := pcReg + 4.U
+  when (io.reply.fire) {
+    shooted := false.B
   }
 
-  when(readBridge.io.rStream.fire) {
-    reqPendingReg := false.B
-    when(reqEpochReg === epochReg) {
-      outBitsReg.pc := reqPcReg
-      outBitsReg.inst := readBridge.io.rStream.bits.data
-      outBitsReg.isException := readBridge.io.rStream.bits.resp =/= AXI4Parameters.RESP_OKAY
-      outBitsReg.predictedTaken := false.B
-      outBitsReg.predictedRedirect := false.B
-      outBitsReg.predictIndex := 0.U
-      outValidReg := true.B
-    }
+  when (io.redirect.valid) {
+    epoch := !epoch
   }
+
+  //当epoch不一致的时候，丢弃reply包
+  //即来一次dry io.reply.ready：这意味着，此时io.out.valid为0,并耗费一个周期去拉高io.reply.ready 
+  //只有新的reply inst返回时，才能发送
+  
+  io.reply.ready := io.out.ready || (epoch =/= lastEpoch) && io.redirect.valid
+  //当epoch不一致，始终扔掉。当io.redirect.valid的时候，扔掉
+  io.out.valid := (epoch === lastEpoch) && io.reply.valid  && !io.redirect.valid
+  io.out.bits.pc := launchedPc
+  io.out.bits.inst := io.reply.bits
+  
+  
+
+
+  io.out.bits.isException := false.B
+
 }

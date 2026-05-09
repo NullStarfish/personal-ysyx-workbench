@@ -1,4 +1,4 @@
-package mycpu.core.backend
+package mycpu.core.frontend
 
 import chisel3._
 import chisel3.util._
@@ -14,15 +14,9 @@ class Decode(
 ) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new FetchPacket))
-    val out = Decoupled(new DecodePacket(enableTraceFields, enableSys, enableSimEbreak))
+    val out = Decoupled(new DecodePacket)
     val regWrite = Flipped(new WriteBackIO())
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
-    val hazard = Output(new Bundle {
-      val rs1Used = Bool()
-      val rs2Used = Bool()
-      val rs1Addr = UInt(5.W)
-      val rs2Addr = UInt(5.W)
-    })
   })
 
   val inst = io.in.bits.inst
@@ -36,9 +30,9 @@ class Decode(
   val regFile = Module(new RegFile)
   regFile.io.raddr1 := rs1Addr
   regFile.io.raddr2 := rs2Addr
-  regFile.io.wen := io.regWrite.wen
-  regFile.io.waddr := io.regWrite.addr
-  regFile.io.wdata := io.regWrite.data
+  regFile.io.wen := io.regWrite.regWrite.wen
+  regFile.io.waddr := io.regWrite.regWrite.rd
+  regFile.io.wdata := io.regWrite.regWrite.wdata
   io.debug_regs := regFile.io.debug_regs
 
   val immType = Wire(ImmType())
@@ -51,15 +45,15 @@ class Decode(
 
   private def decodeFormat(opcode: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
     Seq(
-      "b0110111".U -> DecodeFormat.PcImm,
-      "b0010111".U -> DecodeFormat.PcImm,
-      "b1101111".U -> DecodeFormat.PcOffset,
-      "b1100111".U -> DecodeFormat.RegOffset,
-      "b1100011".U -> DecodeFormat.RegRegOffset,
-      "b0000011".U -> DecodeFormat.RegOffset,
-      "b0100011".U -> DecodeFormat.RegRegOffset,
-      "b0010011".U -> DecodeFormat.RegImm,
-      "b0110011".U -> DecodeFormat.RegReg,
+      "b0110111".U -> DecodeFormat.Pc_Imm,
+      "b0010111".U -> DecodeFormat.Pc_Imm,
+      "b1101111".U -> DecodeFormat.Pc_Offset,
+      "b1100111".U -> DecodeFormat.Reg_Offset,
+      "b1100011".U -> DecodeFormat.Reg_Reg_Offset,
+      "b0000011".U -> DecodeFormat.Reg_Offset,
+      "b0100011".U -> DecodeFormat.Reg_Reg_Offset,
+      "b0010011".U -> DecodeFormat.Reg_Imm,
+      "b0110011".U -> DecodeFormat.Reg_Reg,
       "b1110011".U -> Mux(
         opcode === "b1110011".U && funct3 === 0.U,
         DecodeFormat.Sys,
@@ -88,6 +82,8 @@ class Decode(
   val isMret = WireDefault(false.B)
   val isEbreak = WireDefault(false.B)
 
+  val instType = TraceVal(WireDefault(InstType.arith))
+
   immType := ImmType.I
 
   switch(opcode) {
@@ -114,6 +110,7 @@ class Decode(
       imm := immGen.io.out
     }
     is("b1101111".U) { // jal
+      instType.foreach(_ := InstType.redirect)
       regWen := rdAddr =/= 0.U
       aluOp := ALUOp.ADD
       aluSrcA := ALUSrcA.Pc
@@ -123,6 +120,7 @@ class Decode(
       isJump := true.B
     }
     is("b1100111".U) { // jalr
+      instType.foreach(_ := InstType.redirect)
       regWen := rdAddr =/= 0.U
       aluOp := ALUOp.ADD
       aluSrcA := ALUSrcA.Rs1
@@ -133,6 +131,7 @@ class Decode(
       isJalr := true.B
     }
     is("b1100011".U) { // branch
+      instType.foreach(_ := InstType.redirect)
       imm := immGen.io.out
       switch(funct3) {
         is("b000".U) { branchType := BranchType.Eq }
@@ -144,6 +143,7 @@ class Decode(
       }
     }
     is("b0000011".U) { // load
+      instType.foreach(_ := InstType.mem)
       regWen := rdAddr =/= 0.U
       aluOp := ALUOp.ADD
       aluSrcA := ALUSrcA.Rs1
@@ -158,6 +158,7 @@ class Decode(
       }
     }
     is("b0100011".U) { // store
+      instType.foreach(_ := InstType.mem)
       aluOp := ALUOp.ADD
       aluSrcA := ALUSrcA.Rs1
       aluSrcB := ALUSrcB.Imm
@@ -198,6 +199,7 @@ class Decode(
       }
     }
     is("b1110011".U) { // csr/sys
+      instType.foreach(_ := InstType.sys)
       when(enableSys.B && inst === Instructions.ECALL.value.U) {
         isEcall := true.B
       }.elsewhen(enableSys.B && inst === Instructions.MRET.value.U) {
@@ -222,24 +224,23 @@ class Decode(
     }
   }
 
-  io.hazard.rs1Addr := rs1Addr
-  io.hazard.rs2Addr := rs2Addr
-  io.hazard.rs1Used :=
-      format === DecodeFormat.RegReg ||
-      format === DecodeFormat.RegImm ||
-      format === DecodeFormat.RegOffset ||
-      format === DecodeFormat.RegRegOffset ||
+  io.out.bits.rs1.bits.addr := rs1Addr
+  io.out.bits.rs1.bits.rdata := rs1Data
+  io.out.bits.rs1.valid :=
+      format === DecodeFormat.Reg_Reg ||
+      format === DecodeFormat.Reg_Imm ||
+      format === DecodeFormat.Reg_Offset ||
+      format === DecodeFormat.Reg_Reg_Offset ||
       (enableSys.B && format === DecodeFormat.CsrReg)
-  io.hazard.rs2Used :=
-    format === DecodeFormat.RegReg ||
-      format === DecodeFormat.RegRegOffset
+  io.out.bits.rs2.bits.addr := rs2Addr
+  io.out.bits.rs2.bits.rdata := rs2Data
+  io.out.bits.rs2.valid :=
+    format === DecodeFormat.Reg_Reg ||
+      format === DecodeFormat.Reg_Reg_Offset
 
-  io.out.bits.data.pc := io.in.bits.pc
-  io.out.bits.data.rs1 := rs1Data
-  io.out.bits.data.rs2 := rs2Data
-  io.out.bits.data.imm := imm
-  io.out.bits.bypass.rs1Addr := rs1Addr
-  io.out.bits.bypass.rs2Addr := rs2Addr
+  io.out.bits.pc := io.in.bits.pc
+  io.out.bits.imm := imm
+
   io.out.bits.exec.aluOp := aluOp
   io.out.bits.exec.aluSrcA := aluSrcA
   io.out.bits.exec.aluSrcB := aluSrcB
@@ -247,12 +248,15 @@ class Decode(
   io.out.bits.exec.branchType := branchType
   io.out.bits.exec.isJump := isJump
   io.out.bits.exec.isJalr := isJalr
-  io.out.bits.wb.regWen := regWen
+
+  io.out.bits.wb.wen := regWen
   io.out.bits.wb.rd := rdAddr
+
   io.out.bits.mem.valid := opcode === "b0000011".U || opcode === "b0100011".U
   io.out.bits.mem.write := opcode === "b0100011".U
   io.out.bits.mem.unsigned := memUnsigned
   io.out.bits.mem.subop := subop
+
   if (enableSys) {
     io.out.bits.sys.csrOp.get := csrOp
     io.out.bits.sys.csrAddr.get := csrAddr
@@ -262,32 +266,15 @@ class Decode(
   if (enableSimEbreak) {
     io.out.bits.sys.isEbreak.get := isEbreak
   }
-  val fetchPredictedRedirect = io.in.bits.predictedRedirect
-  val branchPredictedTaken = (branchType =/= BranchType.None) && io.in.bits.predictedTaken
-  val effectiveBranchPredictedTaken = (branchType =/= BranchType.None) && (fetchPredictedRedirect || branchPredictedTaken)
-  val directJumpPredicted = isJump && !isJalr
-  io.out.bits.pred.predictedTaken := effectiveBranchPredictedTaken
-  io.out.bits.pred.directionPredictedTaken := branchPredictedTaken
-  io.out.bits.pred.redirectPredicted := fetchPredictedRedirect || effectiveBranchPredictedTaken || directJumpPredicted
-  io.out.bits.pred.fetchPredictedRedirect := fetchPredictedRedirect
-  io.out.bits.pred.index := io.in.bits.predictIndex
+
   if (enableTraceFields) {
-    io.out.bits.trace.get.pc := io.in.bits.pc
-    io.out.bits.trace.get.inst := io.in.bits.inst
-    io.out.bits.trace.get.dnpc := io.in.bits.pc + 4.U
-    io.out.bits.trace.get.regWen := false.B
-    io.out.bits.trace.get.rd := 0.U
-    io.out.bits.trace.get.data := 0.U
-    io.out.bits.trace.get.ifValid := io.in.valid
-    io.out.bits.trace.get.idValid := io.in.valid
-    io.out.bits.trace.get.exValid := false.B
-    io.out.bits.trace.get.memValid := false.B
-    io.out.bits.trace.get.branchResolved := false.B
-    io.out.bits.trace.get.branchCorrect := false.B
-    io.out.bits.trace.get.redirectValid := false.B
-    io.out.bits.trace.get.redirectTarget := 0.U
-    io.out.bits.trace.get.actualTaken := false.B
-    io.out.bits.trace.get.predictedTaken := false.B
+    io.out.bits.retireTrace.get.pc := io.in.bits.pc
+    io.out.bits.retireTrace.get.inst := io.in.bits.inst
+    io.out.bits.retireTrace.get.dnpc := io.in.bits.pc + 4.U
+    io.out.bits.retireTrace.get.regWrite.wen := io.regWrite.regWrite.wen
+    io.out.bits.retireTrace.get.regWrite.rd := io.regWrite.regWrite.rd
+    io.out.bits.retireTrace.get.regWrite.wdata := io.regWrite.regWrite.wdata
+    instType.foreach(io.out.bits.retireTrace.get.instType := _)
   }
 
   io.out.valid := io.in.valid

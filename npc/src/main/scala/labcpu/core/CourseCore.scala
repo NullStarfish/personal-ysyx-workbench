@@ -7,7 +7,8 @@ import labcpu.core.bundles._
 import labcpu.core.components.HazardUnit
 import labcpu.core.frontend.Fetch
 import mycpu.common._
-import mycpu.core.backend.{Decode, Execute}
+import mycpu.core.backend.{Execute}
+import mycpu.core.frontend.Decode
 import mycpu.core.bundles._
 import mycpu.core.components.{FlushableStage, Tracer}
 

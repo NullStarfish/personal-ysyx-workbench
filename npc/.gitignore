@@ -15,9 +15,12 @@
 !*.scala
 !*.json
 !*.sbt
+!*.mill
+!.mill-version
 !.gitignore
 !Kconfig
 !.config
 !README.md
 !HwOS/
 build/
+out/

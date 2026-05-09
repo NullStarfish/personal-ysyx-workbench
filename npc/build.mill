@@ -1,0 +1,214 @@
+import mill._
+import scalalib._
+import java.nio.file.Files
+
+trait NpcScalaModule extends ScalaModule {
+  def scalaVersion = "2.13.16"
+
+  def chiselVersion = "7.0.0"
+
+  def ivyDeps = Agg(
+    ivy"org.chipsalliance::chisel:${chiselVersion}"
+  )
+
+  def scalacPluginIvyDeps = Agg(
+    ivy"org.chipsalliance:::chisel-plugin:${chiselVersion}"
+  )
+
+  def scalacOptions = Seq(
+    "-language:reflectiveCalls",
+    "-deprecation",
+    "-feature",
+    "-Xcheckinit",
+    "-Ymacro-annotations",
+  )
+}
+
+trait NpcScalaTestDeps extends mill.scalalib.TestModule.ScalaTest {
+  def ivyDeps = Agg(
+    ivy"org.scalatest::scalatest:3.2.19"
+  )
+
+  def testFramework = "org.scalatest.tools.Framework"
+}
+
+object hwos extends NpcScalaModule {
+  override def millSourcePath = os.pwd / "HwOS"
+}
+
+object npc extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def moduleDeps = Seq(hwos)
+
+  object test extends ScalaTests with NpcScalaTestDeps
+}
+
+object fetch extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
+      root / "src/main/scala/mycpu/core/components/ReadyValidHelper.scala",
+      root / "src/main/scala/mycpu/utils/Debug.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/frontend/Fetch.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object decode extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
+      root / "src/main/scala/mycpu/core/bundles/Decode.scala",
+      root / "src/main/scala/mycpu/core/bundles/Execute.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/components/ImmGen.scala",
+      root / "src/main/scala/mycpu/core/components/RegFile.scala",
+      root / "src/main/scala/mycpu/core/frontend/Decode.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/frontend/Decode.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object stage extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/core/components/FlushableStage.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/components/FlushableStage.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object fetchDecode extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
+      root / "src/main/scala/mycpu/core/bundles/Decode.scala",
+      root / "src/main/scala/mycpu/core/bundles/Execute.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/components/FlushableStage.scala",
+      root / "src/main/scala/mycpu/core/components/ImmGen.scala",
+      root / "src/main/scala/mycpu/core/components/RegFile.scala",
+      root / "src/main/scala/mycpu/utils/Debug.scala",
+      root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
+      root / "src/main/scala/mycpu/core/frontend/Decode.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/frontend/FetchDecode.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
