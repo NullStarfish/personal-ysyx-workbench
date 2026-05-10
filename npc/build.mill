@@ -164,6 +164,49 @@ object stage extends NpcScalaModule {
   }
 }
 
+object hazard extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/components/HazardUnit.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/components/HazardUnitSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
 object execute extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
