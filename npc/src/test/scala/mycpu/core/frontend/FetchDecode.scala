@@ -119,26 +119,26 @@ class FetchDecodeSim extends AnyFlatSpec {
       returnInst(c, inst0)
 
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc0.U)
-      c.io.out.bits.imm.expect(5.U)
-      c.io.out.bits.wb.wen.expect(true.B)
-      c.io.out.bits.wb.rd.expect(1.U)
-      c.io.out.bits.mem.valid.expect(false.B)
+      c.io.out.bits.execData.pc.expect(pc0.U)
+      c.io.out.bits.execData.imm.expect(5.U)
+      c.io.out.bits.wbCtrl.wen.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(1.U)
+      c.io.out.bits.memCtrl.en.expect(false.B)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.arith)
 
       acceptFetch(c, pc1)
       returnInst(c, inst1)
 
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc1.U)
+      c.io.out.bits.execData.pc.expect(pc1.U)
       c.io.out.bits.rs1.valid.expect(true.B)
       c.io.out.bits.rs1.bits.addr.expect(1.U)
-      c.io.out.bits.imm.expect(8.U)
-      c.io.out.bits.wb.wen.expect(true.B)
-      c.io.out.bits.wb.rd.expect(2.U)
-      c.io.out.bits.mem.valid.expect(true.B)
-      c.io.out.bits.mem.write.expect(false.B)
-      c.io.out.bits.mem.subop.expect(ExecSubop.Word)
+      c.io.out.bits.execData.imm.expect(8.U)
+      c.io.out.bits.wbCtrl.wen.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(2.U)
+      c.io.out.bits.memCtrl.en.expect(true.B)
+      c.io.out.bits.memCtrl.write.expect(false.B)
+      c.io.out.bits.memCtrl.subop.expect(SizeSubop.Word)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.mem)
     }
   }
@@ -155,7 +155,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       returnInst(c, inst0)
 
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc0.U)
+      c.io.out.bits.execData.pc.expect(pc0.U)
       c.io.fetchReq.valid.expect(true.B)
       c.io.fetchReq.bits.expect(pc1.U)
 
@@ -165,7 +165,7 @@ class FetchDecodeSim extends AnyFlatSpec {
 
       c.clock.step(3)
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc0.U)
+      c.io.out.bits.execData.pc.expect(pc0.U)
       c.io.reply.ready.expect(false.B)
 
       c.io.out.ready.poke(true.B)
@@ -175,7 +175,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       c.io.reply.valid.poke(false.B)
 
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc1.U)
+      c.io.out.bits.execData.pc.expect(pc1.U)
     }
   }
 
@@ -191,7 +191,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       c.io.stageStall.poke(true.B)
       c.io.out.ready.poke(false.B)
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc0.U)
+      c.io.out.bits.execData.pc.expect(pc0.U)
 
       acceptFetch(c, pc1)
       c.io.reply.valid.poke(true.B)
@@ -216,7 +216,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       acceptFetch(c, pc0)
       returnInst(c, wrongPath)
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(pc0.U)
+      c.io.out.bits.execData.pc.expect(pc0.U)
 
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke(target.U)
@@ -231,8 +231,8 @@ class FetchDecodeSim extends AnyFlatSpec {
       c.io.out.ready.poke(true.B)
       returnInst(c, targetInst)
       c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(target.U)
-      c.io.out.bits.exec.branchType.expect(BranchType.Eq)
+      c.io.out.bits.execData.pc.expect(target.U)
+      c.io.out.bits.execCtrl.branchType.expect(BranchType.Eq)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.redirect)
     }
   }

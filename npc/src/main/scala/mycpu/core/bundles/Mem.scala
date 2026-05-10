@@ -3,20 +3,54 @@ import chisel3._
 import mycpu.common._
 
 
-class MemCtrlBundle extends Bundle {
-  val valid = Bool()
+
+trait MemCtrl { 
+  def en: Bool
+  def write: Bool
+  def unsigned: Bool
+  def subop: SizeSubop.Type
+}
+
+trait MemData {
+  def data: UInt
+  def addr: UInt
+}
+
+trait MemIn {
+  def ctrl: MemCtrl
+  def data: MemData
+}
+
+trait MemOut {
+  def wbCtrl : WriteBackCtrl
+  def wbData: WriteBackData
+  def forward: ForwardSource
+}
+
+class LsuReq extends Bundle {
+  val addr = XLenU
+  val data = XLenU
+  val strb = UInt(4.W)
   val write = Bool()
-  val unsigned = Bool()
-  val subop = UInt(3.W)
+  val size = UInt(2.W)
 }
 
 
 
-class MemoryPacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle with withRetireTrace with ForwardSourceView {
-  val wbData = XLenU
-  val wb = new WritebackCtrlBundle
+class MemoryPacket extends Bundle with withRetireTrace with MemOut {
+  val wbCtrl = new Bundle with WriteBackCtrl {
+    val rd = UInt(5.W)
+    val wen = Bool()
+  }
 
-  override def valid: Bool = wb.wen && (wb.rd =/= 0.U)
-  override def addr: UInt = wb.rd
-  override def data: UInt = wbData
+  val wbData = new Bundle with WriteBackData {
+    val wdata = XLenU
+  }
+
+  val forward = new Bundle with ForwardSource {
+    def valid = MemoryPacket.this.wbCtrl.wen && (MemoryPacket.this.wbCtrl.rd =/= 0.U)
+    def addr = MemoryPacket.this.wbCtrl.rd
+    def data = MemoryPacket.this.wbData.wdata
+  }
+  
 }

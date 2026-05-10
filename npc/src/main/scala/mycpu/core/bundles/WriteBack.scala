@@ -2,10 +2,15 @@ package mycpu.core.bundles
 import chisel3._
 import mycpu.common._
 
-class WritebackCtrlBundle extends Bundle {
-  val wen = Bool()
-  val rd = UInt(5.W)
+trait WriteBackCtrl {
+  def wen : Bool
+  def  rd : UInt
 }
+
+trait WriteBackData {
+  def wdata: UInt
+}
+
 
 
 class WriteBackIO extends Bundle {

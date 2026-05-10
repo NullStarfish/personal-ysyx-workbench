@@ -9,8 +9,6 @@ import mycpu.core.components.{ImmGen, RegFile}
 
 class Decode(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
-    enableSys: Boolean = true,
-    enableSimEbreak: Boolean = true,
 ) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new FetchPacket))
@@ -43,7 +41,7 @@ class Decode(
   val rs1Raw = regFile.io.rdata1
   val rs2Raw = regFile.io.rdata2
 
-  private def decodeFormat(opcode: UInt, funct3: UInt): UInt = MuxLookup(opcode, DecodeFormat.None)(
+  private def decodeFormat(opcode: UInt, funct3: UInt): DecodeFormat.Type = MuxLookup(opcode, DecodeFormat.None)(
     Seq(
       "b0110111".U -> DecodeFormat.Pc_Imm,
       "b0010111".U -> DecodeFormat.Pc_Imm,
@@ -63,7 +61,7 @@ class Decode(
   )
 
   val format = decodeFormat(opcode, funct3)
-  val subop = WireDefault(ExecSubop.None)
+  val subop = WireDefault(SizeSubop.None)
   val rs1Data = WireDefault(rs1Raw)
   val rs2Data = WireDefault(rs2Raw)
   val imm = WireDefault(0.U(XLEN.W))
@@ -150,11 +148,11 @@ class Decode(
       aluSrcB := ALUSrcB.Imm
       imm := immGen.io.out
       switch(funct3) {
-        is("b000".U) { subop := ExecSubop.Byte }
-        is("b001".U) { subop := ExecSubop.Half }
-        is("b010".U) { subop := ExecSubop.Word }
-        is("b100".U) { subop := ExecSubop.Byte; memUnsigned := true.B }
-        is("b101".U) { subop := ExecSubop.Half; memUnsigned := true.B }
+        is("b000".U) { subop := SizeSubop.Byte }
+        is("b001".U) { subop := SizeSubop.Half }
+        is("b010".U) { subop := SizeSubop.Word }
+        is("b100".U) { subop := SizeSubop.Byte; memUnsigned := true.B }
+        is("b101".U) { subop := SizeSubop.Half; memUnsigned := true.B }
       }
     }
     is("b0100011".U) { // store
@@ -164,9 +162,9 @@ class Decode(
       aluSrcB := ALUSrcB.Imm
       imm := immGen.io.out
       switch(funct3) {
-        is("b000".U) { subop := ExecSubop.Byte }
-        is("b001".U) { subop := ExecSubop.Half }
-        is("b010".U) { subop := ExecSubop.Word }
+        is("b000".U) { subop := SizeSubop.Byte }
+        is("b001".U) { subop := SizeSubop.Half }
+        is("b010".U) { subop := SizeSubop.Word }
       }
     }
     is("b0010011".U) { // alu imm
@@ -200,13 +198,13 @@ class Decode(
     }
     is("b1110011".U) { // csr/sys
       instType.foreach(_ := InstType.sys)
-      when(enableSys.B && inst === Instructions.ECALL.value.U) {
+      when(inst === Instructions.ECALL.value.U) {
         isEcall := true.B
-      }.elsewhen(enableSys.B && inst === Instructions.MRET.value.U) {
+      }.elsewhen(inst === Instructions.MRET.value.U) {
         isMret := true.B
-      }.elsewhen(enableSimEbreak.B && inst === Instructions.EBREAK.value.U) {
+      }.elsewhen(inst === Instructions.EBREAK.value.U) {
         isEbreak := true.B
-      }.elsewhen(enableSys.B) {
+      }.otherwise {
         regWen := rdAddr =/= 0.U
         wbSel := WBSel.Csr
         csrOp := MuxLookup(funct3, CSROp.N)(Seq(
@@ -231,41 +229,37 @@ class Decode(
       format === DecodeFormat.Reg_Imm ||
       format === DecodeFormat.Reg_Offset ||
       format === DecodeFormat.Reg_Reg_Offset ||
-      (enableSys.B && format === DecodeFormat.CsrReg)
+      format === DecodeFormat.CsrReg
   io.out.bits.rs2.bits.addr := rs2Addr
   io.out.bits.rs2.bits.rdata := rs2Data
   io.out.bits.rs2.valid :=
     format === DecodeFormat.Reg_Reg ||
       format === DecodeFormat.Reg_Reg_Offset
 
-  io.out.bits.pc := io.in.bits.pc
-  io.out.bits.imm := imm
+  io.out.bits.rd := rdAddr
 
-  io.out.bits.exec.aluOp := aluOp
-  io.out.bits.exec.aluSrcA := aluSrcA
-  io.out.bits.exec.aluSrcB := aluSrcB
-  io.out.bits.exec.wbSel := wbSel
-  io.out.bits.exec.branchType := branchType
-  io.out.bits.exec.isJump := isJump
-  io.out.bits.exec.isJalr := isJalr
+  io.out.bits.execData.pc := io.in.bits.pc
+  io.out.bits.execData.imm := imm
 
-  io.out.bits.wb.wen := regWen
-  io.out.bits.wb.rd := rdAddr
+  io.out.bits.execCtrl.aluOp := aluOp
+  io.out.bits.execCtrl.aluSrcA := aluSrcA
+  io.out.bits.execCtrl.aluSrcB := aluSrcB
+  io.out.bits.execCtrl.wbSel := wbSel
+  io.out.bits.execCtrl.branchType := branchType
+  io.out.bits.execCtrl.isJump := isJump
+  io.out.bits.execCtrl.isJalr := isJalr
+  io.out.bits.execCtrl.sys.csrOp := csrOp
+  io.out.bits.execCtrl.sys.csrAddr := csrAddr
+  io.out.bits.execCtrl.sys.ecall := isEcall
+  io.out.bits.execCtrl.sys.mret := isMret
+  io.out.bits.execCtrl.sys.ebreak := isEbreak
 
-  io.out.bits.mem.valid := opcode === "b0000011".U || opcode === "b0100011".U
-  io.out.bits.mem.write := opcode === "b0100011".U
-  io.out.bits.mem.unsigned := memUnsigned
-  io.out.bits.mem.subop := subop
+  io.out.bits.wbCtrl.wen := regWen
 
-  if (enableSys) {
-    io.out.bits.sys.csrOp.get := csrOp
-    io.out.bits.sys.csrAddr.get := csrAddr
-    io.out.bits.sys.isEcall.get := isEcall
-    io.out.bits.sys.isMret.get := isMret
-  }
-  if (enableSimEbreak) {
-    io.out.bits.sys.isEbreak.get := isEbreak
-  }
+  io.out.bits.memCtrl.en := opcode === "b0000011".U || opcode === "b0100011".U
+  io.out.bits.memCtrl.write := opcode === "b0100011".U
+  io.out.bits.memCtrl.unsigned := memUnsigned
+  io.out.bits.memCtrl.subop := subop
 
   if (enableTraceFields) {
     io.out.bits.retireTrace.get.pc := io.in.bits.pc

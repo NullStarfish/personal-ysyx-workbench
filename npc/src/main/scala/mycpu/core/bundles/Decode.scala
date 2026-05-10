@@ -8,22 +8,63 @@ class RegReadMeta extends Bundle {
   val rdata = XLenU
 }
 
-class DecodePacket extends Bundle with withRetireTrace{
-  val rs1 = Valid(new RegReadMeta)
-  val rs2 = Valid(new RegReadMeta)
-  val pc  = XLenU
-  val imm = UInt(32.W)
-  val exec = new ExecuteCtrlBundle
-  val wb = new WritebackCtrlBundle
-  val mem = new MemCtrlBundle
-  val sys = new SysCtrlBundle(true, true)
+trait DecodeOut {
+  def execCtrl: ExecuteCtrl
+  def execData: ExecuteData
+  def memCtrl: MemCtrl
+  def wbCtrl: WriteBackCtrl
+  def raw:   RAWDetect
 }
 
 
-class SysCtrlBundle(enableSys: Boolean = true, enableSimEbreak: Boolean = true) extends Bundle {
-  val csrOp = if (enableSys) Some(CSROp()) else None
-  val csrAddr = if (enableSys) Some(UInt(12.W)) else None
-  val isEcall = if (enableSys) Some(Bool()) else None
-  val isMret = if (enableSys) Some(Bool()) else None
-  val isEbreak = if (enableSimEbreak) Some(Bool()) else None
+
+class DecodePacket extends Bundle with withRetireTrace with DecodeOut {
+  val rs1 = Valid(new RegReadMeta)
+  val rs2 = Valid(new RegReadMeta)
+  val rd = UInt(5.W)
+
+
+  val raw = new Bundle with RAWDetect {
+    def rd = DecodePacket.this.rd
+    object rs1 extends ValidUIntView {
+      def valid = DecodePacket.this.rs1.valid
+      def bits = DecodePacket.this.rs1.bits.addr
+    }
+    object rs2 extends ValidUIntView {
+      def valid = DecodePacket.this.rs2.valid
+      def bits = DecodePacket.this.rs2.bits.addr
+    }
+  }  
+
+  val execCtrl = new Bundle with ExecuteCtrl {
+    val aluOp = ALUOp()
+    val aluSrcA = ALUSrcA()
+    val aluSrcB = ALUSrcB()
+    val wbSel = WBSel()
+    val branchType = BranchType()
+    val isJump = Bool()
+    val isJalr = Bool()
+    val sys   = new SysBundle
+  }
+
+  val execData = new Bundle with ExecuteData {
+    val pc = UInt(32.W)
+    val imm = UInt(32.W)
+    def rs1 = DecodePacket.this.rs1.bits.rdata
+    def rs2 = DecodePacket.this.rs2.bits.rdata
+  }
+
+
+  val memCtrl = new Bundle with MemCtrl {
+    val en = Bool()
+    val write = Bool()
+    val unsigned = Bool()
+    val subop = SizeSubop()
+  }
+
+  val wbCtrl = new Bundle with WriteBackCtrl {
+    val wen = Bool()
+    def rd = DecodePacket.this.rd
+  }
+
 }

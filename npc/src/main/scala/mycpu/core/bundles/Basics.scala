@@ -2,6 +2,11 @@ package mycpu.core.bundles
 import chisel3._
 import mycpu.common._
 
+trait ValidUIntView {
+    def valid: Bool
+    def bits: UInt
+}
+
 class RegWriteMeta extends Bundle {
   val rd = UInt(5.W)
   val wen = Bool()
@@ -17,7 +22,7 @@ object InstType {
 }
 
 
-trait ForwardSourceView { this: Bundle =>
+trait ForwardSource {
   def valid: Bool
   def addr: UInt
   def data: UInt

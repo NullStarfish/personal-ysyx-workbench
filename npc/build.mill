@@ -98,6 +98,7 @@ object decode extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Decode.scala",
       root / "src/main/scala/mycpu/core/bundles/Execute.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
@@ -163,6 +164,141 @@ object stage extends NpcScalaModule {
   }
 }
 
+object execute extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Decode.scala",
+      root / "src/main/scala/mycpu/core/bundles/Execute.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/components/ALU.scala",
+      root / "src/main/scala/mycpu/core/components/CSR.scala",
+      root / "src/main/scala/mycpu/core/components/SimEbreak.scala",
+      root / "src/main/scala/mycpu/core/backend/Execute.scala",
+      root / "src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/backend/Execute.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object lsu extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Decode.scala",
+      root / "src/main/scala/mycpu/core/bundles/Execute.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/backend/LSU.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/backend/LSUSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object writeback extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/backend/WriteBack.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/backend/WriteBackSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
 object fetchDecode extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
@@ -179,6 +315,7 @@ object fetchDecode extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Decode.scala",
       root / "src/main/scala/mycpu/core/bundles/Execute.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",

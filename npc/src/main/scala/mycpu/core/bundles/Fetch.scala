@@ -6,11 +6,17 @@ import mycpu.common._
 
 
 
+trait FetchRedirect {
+  def redirect : ValidUIntView
+}
+
+
+
+
 class FetchPacket extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)
   val isException = Bool()
-
 }
 
 
