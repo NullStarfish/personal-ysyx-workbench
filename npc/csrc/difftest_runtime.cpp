@@ -74,10 +74,10 @@ void Difftest::init(char *refSoFile, long imgSize) {
     exit(1);
   }
 
-  refMemcpy = reinterpret_cast<RefMemcpy>(dlsym(handle, "difftestmemcpy"));
-  refRegcpy = reinterpret_cast<RefRegcpy>(dlsym(handle, "difftestregcpy"));
-  refExec = reinterpret_cast<RefExec>(dlsym(handle, "difftestexec"));
-  refInit = reinterpret_cast<RefInit>(dlsym(handle, "difftestinit"));
+  refMemcpy = reinterpret_cast<RefMemcpy>(dlsym(handle, "difftest_memcpy"));
+  refRegcpy = reinterpret_cast<RefRegcpy>(dlsym(handle, "difftest_regcpy"));
+  refExec = reinterpret_cast<RefExec>(dlsym(handle, "difftest_exec"));
+  refInit = reinterpret_cast<RefInit>(dlsym(handle, "difftest_init"));
   if (refMemcpy == nullptr || refRegcpy == nullptr || refExec == nullptr || refInit == nullptr) {
     printf("Error: API symbols not found in reference simulator.\n");
     exit(1);

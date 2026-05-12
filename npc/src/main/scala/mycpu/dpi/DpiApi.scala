@@ -3,11 +3,7 @@ package mycpu.dpi
 import chisel3._
 
 object DpiApi {
-  def difftestSkip(clock: Clock, skip: Bool, localName: String = "difftest_skip"): Unit = {
-    val m = Module(new DifftestSkipDPI).suggestName(localName)
-    m.io.clock := clock
-    m.io.skip := skip
-  }
+
 
   def simEbreak(valid: Bool, isEbreak: UInt = 0.U(32.W), localName: String = "sim_ebreak"): Unit = {
     val m = Module(new SimEbreakDPI).suggestName(localName)

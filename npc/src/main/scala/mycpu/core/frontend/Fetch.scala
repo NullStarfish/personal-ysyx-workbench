@@ -36,7 +36,7 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   val shooted = RegInit(false.B)
 
-  io.fetch.valid := !io.redirect.valid && !shooted
+  io.fetch.valid := !reset.asBool && !io.redirect.valid && !shooted
   io.fetch.bits := pc
 //对于fetch：可能会发生：请求in-flight的情况：
 //因此需要用epoch reg管理
@@ -64,7 +64,7 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   //即来一次dry io.reply.ready：这意味着，此时io.out.valid为0,并耗费一个周期去拉高io.reply.ready 
   //只有新的reply inst返回时，才能发送
   
-  io.reply.ready := io.out.ready || (epoch =/= lastEpoch) && io.redirect.valid
+  io.reply.ready := !reset.asBool && (io.out.ready || (epoch =/= lastEpoch) && io.redirect.valid)
   //当epoch不一致，始终扔掉。当io.redirect.valid的时候，扔掉
   io.out.valid := (epoch === lastEpoch) && io.reply.valid  && !io.redirect.valid
   io.out.bits.pc := launchedPc
@@ -74,5 +74,13 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
 
   io.out.bits.isException := false.B
+
+
+  // when (io.fetch.fire) {
+  //   printf(p"fetch accept: $pc\n")
+  // }
+  // when (io.reply.fire) {
+  //   printf(p"reply: ${io.reply.bits}\n")
+  // }
 
 }

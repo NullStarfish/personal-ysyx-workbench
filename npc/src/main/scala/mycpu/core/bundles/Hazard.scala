@@ -3,29 +3,30 @@ package mycpu.core.bundles
 import chisel3._
 
 
-trait RAWDetect {
-    def rd: UInt
-    def rs1: ValidUIntView
-    def rs2: ValidUIntView
+
+
+trait RAWRegInfo {
+    def valid : Bool
+    def addr  : UInt
 }
 
-class HazardRdInfo extends Bundle {
+class RAWRdPacket extends Bundle with RAWRegInfo{
     val valid = Bool()
-    val rd = UInt(5.W)
+    val addr = UInt(5.W)
 }
 
-class HazardRsInfo extends Bundle {
-    val rs1 = new Bundle with ValidUIntView {
+class RAWRsPacket extends Bundle {
+    val rs1 = new Bundle with RAWRegInfo {
         val valid = Bool()
-        val bits = UInt(5.W)
+        val addr = UInt(5.W)
     }
-    val rs2 = new Bundle with ValidUIntView {
+    val rs2 = new Bundle with RAWRegInfo {
         val valid = Bool()
-        val bits = UInt(5.W)
+        val addr = UInt(5.W)
     }
 }
 
-class HazardPacket extends Bundle {
-    val stall = Bool()
-    val flush = Bool()
+trait HazardResolv {
+    def stall: Bool
+    def flush: Bool
 }

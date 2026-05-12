@@ -32,8 +32,8 @@ class ExecuteOperandSelect(
   }
 
   val decoded = io.in.bits
-  val forwardedRs1 = resolveRegValue(decoded.raw.rs1.bits, decoded.execData.rs1)
-  val forwardedRs2 = resolveRegValue(decoded.raw.rs2.bits, decoded.execData.rs2)
+  val forwardedRs1 = resolveRegValue(decoded.rawRs1.addr, decoded.execData.rs1)
+  val forwardedRs2 = resolveRegValue(decoded.rawRs2.addr, decoded.execData.rs2)
 
   io.out.bits := decoded
   io.out.bits.rs1.bits.rdata := forwardedRs1

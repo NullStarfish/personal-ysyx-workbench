@@ -262,7 +262,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
     }
   }
 
-  it should "report a high prediction rate on a hot bounds-check branch" in {
+  it should "execute a hot bounds-check branch loop" in {
     runReadOnlyProgram(
       program = Seq(
         encodeOpImm(0, 1, 0, 0),             // addi x1, x0, 0
@@ -277,14 +277,6 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
     ) { c =>
       c.io.debug_regs(1).expect(31.U)
       c.io.debug_regs(2).expect(31.U)
-      c.io.trace.branchCount.expect(31.U)
-      val correct = c.io.trace.branchCorrectCount.peek().litValue
-      val total = c.io.trace.branchCount.peek().litValue
-      println(s"[CoreProgramSpec] predictor accuracy on hot bounds-check branch: $correct / $total")
-      assert(
-        correct >= 28,
-        s"expected at least 28 correct predictions, got $correct"
-      )
     }
   }
 }

@@ -51,6 +51,33 @@ class LSUSpec extends AnyFlatSpec {
     }
   }
 
+  it should "keep its private memory protocol quiet during reset" in {
+    simulate(new LSU) { c =>
+      initInput(c)
+
+      c.reset.poke(true.B)
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.rhs.poke("h80000000".U)
+      c.io.in.bits.memCtrl.en.poke(true.B)
+      c.io.in.bits.memCtrl.write.poke(false.B)
+      c.io.in.bits.memCtrl.subop.poke(SizeSubop.Word)
+      c.io.req.ready.poke(true.B)
+      c.io.reply.valid.poke(true.B)
+      c.io.reply.bits.poke("h12345678".U)
+
+      c.io.in.ready.expect(false.B)
+      c.io.req.valid.expect(false.B)
+      c.io.reply.ready.expect(false.B)
+      c.io.out.valid.expect(false.B)
+      c.io.pendingLoad.valid.expect(false.B)
+      c.clock.step()
+
+      c.reset.poke(false.B)
+      c.io.in.ready.expect(true.B)
+      c.io.req.valid.expect(true.B)
+    }
+  }
+
   it should "issue one load request and sign extend the reply" in {
     simulate(new LSU) { c =>
       resetDut(c)
@@ -68,7 +95,7 @@ class LSUSpec extends AnyFlatSpec {
       c.io.req.valid.expect(true.B)
       c.io.req.bits.addr.expect(1.U)
       c.io.req.bits.write.expect(false.B)
-      c.io.req.bits.size.expect(2.U)
+      c.io.req.bits.size.expect(0.U)
       c.clock.step()
 
       c.io.in.valid.poke(false.B)
@@ -102,9 +129,9 @@ class LSUSpec extends AnyFlatSpec {
       c.io.req.valid.expect(true.B)
       c.io.req.bits.addr.expect(3.U)
       c.io.req.bits.write.expect(true.B)
-      c.io.req.bits.data.expect("h00aa0000".U)
-      c.io.req.bits.strb.expect("b0100".U)
-      c.io.req.bits.size.expect(2.U)
+      c.io.req.bits.data.expect("haa000000".U)
+      c.io.req.bits.strb.expect("b1000".U)
+      c.io.req.bits.size.expect(0.U)
       c.clock.step()
 
       c.io.in.valid.poke(false.B)

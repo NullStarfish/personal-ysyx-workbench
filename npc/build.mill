@@ -207,6 +207,49 @@ object hazard extends NpcScalaModule {
   }
 }
 
+object memctrl extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/common/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Mem.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/core/components/MemoryController.scala",
+      root / "src/main/scala/mycpu/utils/AXI4Defs.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/components/MemoryControllerSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
 object execute extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
@@ -339,6 +382,133 @@ object writeback extends NpcScalaModule {
       os.copy(file, out)
       Seq(PathRef(dest))
     }
+  }
+}
+
+object tracer extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val files = Seq(
+      root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+      root / "src/main/scala/mycpu/dpi/DpiApi.scala",
+      root / "src/main/scala/mycpu/core/components/Tracer.scala",
+    )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/core/components/TracerSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object coreprogram extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def moduleDeps = Seq(hwos)
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val roots = Seq(
+      root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/utils",
+    )
+    val files =
+      roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala")) ++
+        Seq(
+          root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+          root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+          root / "src/main/scala/mycpu/dpi/DpiApi.scala",
+        )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val files = Seq(
+        root / "src/test/scala/mycpu/core/CoreProgramSupport.scala",
+        root / "src/test/scala/mycpu/core/CoreHazardSpec.scala",
+        root / "src/test/scala/mycpu/core/CoreProgramSpec.scala",
+        root / "src/test/scala/mycpu/core/CoreHazardStressSpec.scala",
+        root / "src/test/scala/mycpu/core/Rv32eEncoders.scala",
+      )
+      val dest = T.dest / "src"
+      for (file <- files) {
+        val out = dest / file.relativeTo(root)
+        Files.createDirectories(out.toNIO.getParent)
+        os.copy(file, out)
+      }
+      Seq(PathRef(dest))
+    }
+  }
+}
+
+object coreverilog extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def moduleDeps = Seq(hwos)
+
+  def mainClass = Some("mycpu.GenCore")
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val roots = Seq(
+      root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/utils",
+    )
+    val files =
+      roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala")) ++
+        Seq(
+          root / "src/main/scala/mycpu/CoreWrapper.scala",
+          root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+          root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+          root / "src/main/scala/mycpu/dpi/DpiApi.scala",
+        )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
   }
 }
 

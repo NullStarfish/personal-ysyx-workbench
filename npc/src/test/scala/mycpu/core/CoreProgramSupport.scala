@@ -31,11 +31,19 @@ trait CoreProgramSupport {
       service: => Unit,
   ): Unit = {
     var cycles = 0
-    while (c.io.trace.retireCount.peek().litValue < targetRetires && cycles < maxCycles) {
+    var retireCount = 0
+    while (retireCount < targetRetires && cycles < maxCycles) {
       service
       c.clock.step()
       cycles += 1
+      if (c.io.simState.valid.peek().litValue == 1) {
+        retireCount += 1
+      }
     }
+    assert(
+      retireCount >= targetRetires,
+      s"timed out waiting for $targetRetires retires after $cycles cycles; got $retireCount",
+    )
   }
 
   protected def stepUntilRetireCountCollect(
@@ -45,22 +53,25 @@ trait CoreProgramSupport {
       service: => Unit,
   ): Seq[(BigInt, BigInt, BigInt)] = {
     var cycles = 0
-    var lastRetireCount = c.io.trace.retireCount.peek().litValue
+    var retireCount = 0
     val retired = scala.collection.mutable.ArrayBuffer.empty[(BigInt, BigInt, BigInt)]
-    while (c.io.trace.retireCount.peek().litValue < targetRetires && cycles < maxCycles) {
+    while (retireCount < targetRetires && cycles < maxCycles) {
       service
       c.clock.step()
       cycles += 1
-      val retireCount = c.io.trace.retireCount.peek().litValue
-      if (retireCount != lastRetireCount) {
+      if (c.io.simState.valid.peek().litValue == 1) {
+        retireCount += 1
         retired += ((
-          c.io.trace.lastRetire.bits.pc.peek().litValue,
-          c.io.trace.lastRetire.bits.inst.peek().litValue,
-          c.io.trace.lastRetire.bits.dnpc.peek().litValue,
+          c.io.simState.pc.peek().litValue,
+          c.io.simState.inst.peek().litValue,
+          c.io.simState.dnpc.peek().litValue,
         ))
-        lastRetireCount = retireCount
       }
     }
+    assert(
+      retireCount >= targetRetires,
+      s"timed out waiting for $targetRetires retires after $cycles cycles; got $retireCount; retired=$retired",
+    )
     retired.toSeq
   }
 

@@ -58,6 +58,16 @@ module uart_top_apb (
    end
 
 
+/*
+   always @(posedge clock) begin
+    if (in_psel && in_penable) begin
+      $display("visit uart");
+      if (!in_pwrite)
+        $display("%x", in_prdata);
+    end
+  end
+*/
+
    //--------------------------------------------------------
    // Registers
    // As shown below reg_dat_i should be stable

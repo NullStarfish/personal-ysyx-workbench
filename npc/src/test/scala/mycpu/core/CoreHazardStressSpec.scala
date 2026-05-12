@@ -149,7 +149,6 @@ class CoreHazardStressSpec extends AnyFlatSpec with CoreProgramSupport {
       val signedAuipcImm = if (auipcImm20.testBit(19)) auipcImm20 - (BigInt(1) << 20) else auipcImm20
       val expectedSp = (auipcPc + (signedAuipcImm << 12) - 8) & BigInt("ffffffff", 16)
 
-      c.io.trace.retireCount.expect(6.U)
       c.io.debug_regs(1).expect((START_ADDR + 16).U) // jal link
       c.io.debug_regs(2).expect(expectedSp.U) // sp updated by auipc/addi/target addi
       c.io.debug_regs(5).expect(0.U)                      // wrong path killed

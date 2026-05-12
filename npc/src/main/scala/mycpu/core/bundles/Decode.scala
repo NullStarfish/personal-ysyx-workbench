@@ -13,7 +13,8 @@ trait DecodeOut {
   def execData: ExecuteData
   def memCtrl: MemCtrl
   def wbCtrl: WriteBackCtrl
-  def raw:   RAWDetect
+  def rawRs1:  RAWRegInfo 
+  def rawRs2: RAWRegInfo
 }
 
 
@@ -24,17 +25,14 @@ class DecodePacket extends Bundle with withRetireTrace with DecodeOut {
   val rd = UInt(5.W)
 
 
-  val raw = new Bundle with RAWDetect {
-    def rd = DecodePacket.this.rd
-    object rs1 extends ValidUIntView {
-      def valid = DecodePacket.this.rs1.valid
-      def bits = DecodePacket.this.rs1.bits.addr
-    }
-    object rs2 extends ValidUIntView {
-      def valid = DecodePacket.this.rs2.valid
-      def bits = DecodePacket.this.rs2.bits.addr
-    }
+  val rawRs1 = new Bundle with RAWRegInfo {
+    def valid = rs1.valid
+    def addr = rs1.bits.addr
   }  
+  val rawRs2 = new Bundle with RAWRegInfo {
+    def valid = rs2.valid
+    def addr = rs2.bits.addr
+  }
 
   val execCtrl = new Bundle with ExecuteCtrl {
     val aluOp = ALUOp()

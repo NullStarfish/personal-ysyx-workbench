@@ -12,14 +12,16 @@
 #include "runtime.h"
 #include "sim.h"
 
-extern "C" void nvboard_flush();
+#ifdef CONFIG_BOARD
+#include <nvboard.h>
+#endif
 
 namespace {
 bool batchMode = false;
 
 #ifdef CONFIG_BOARD
 int nvboard_readline_event_hook() {
-  nvboard_flush();
+  nvboard_update();
   return 0;
 }
 #endif
@@ -179,7 +181,7 @@ void sdb_mainloop() {
       continue;
     }
 #ifdef CONFIG_BOARD
-    nvboard_flush();
+    nvboard_update();
 #endif
     char *args = strtok(nullptr, "");
     size_t i = 0;

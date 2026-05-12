@@ -3,6 +3,19 @@ import chisel3._
 import mycpu.common._
 
 
+trait ReadReq {
+  def addr: UInt
+}
+trait ReadReply {
+  def data: UInt
+}
+
+trait WriteReq {
+  def addr: UInt
+  def strb: UInt
+}
+
+
 
 trait MemCtrl { 
   def en: Bool
@@ -32,7 +45,7 @@ class LsuReq extends Bundle {
   val data = XLenU
   val strb = UInt(4.W)
   val write = Bool()
-  val size = UInt(2.W)
+  val size = UInt(3.W)
 }
 
 

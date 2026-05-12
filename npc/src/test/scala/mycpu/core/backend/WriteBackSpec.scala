@@ -32,7 +32,7 @@ class WriteBackSpec extends AnyFlatSpec {
     }
   }
 
-  it should "commit retire trace with final writeback data" in {
+  it should "emit retire trace with final writeback data" in {
     simulate(new WriteBack) { c =>
       init(c)
 
@@ -43,12 +43,15 @@ class WriteBackSpec extends AnyFlatSpec {
       c.io.in.bits.retireTrace.get.pc.poke("ha0000000".U)
       c.io.in.bits.retireTrace.get.inst.poke("h00000013".U)
 
-      c.io.traceCommit.get.valid.expect(true.B)
-      c.io.traceCommit.get.bits.pc.expect("ha0000000".U)
-      c.io.traceCommit.get.bits.inst.expect("h00000013".U)
-      c.io.traceCommit.get.bits.regWrite.wen.expect(true.B)
-      c.io.traceCommit.get.bits.regWrite.rd.expect(2.U)
-      c.io.traceCommit.get.bits.regWrite.wdata.expect("h12345678".U)
+      c.io.regWrite.regWrite.wen.expect(true.B)
+      c.io.regWrite.regWrite.rd.expect(2.U)
+      c.io.regWrite.regWrite.wdata.expect("h12345678".U)
+      c.io.retireTrace.get.valid.expect(true.B)
+      c.io.retireTrace.get.bits.pc.expect("ha0000000".U)
+      c.io.retireTrace.get.bits.inst.expect("h00000013".U)
+      c.io.retireTrace.get.bits.regWrite.wen.expect(true.B)
+      c.io.retireTrace.get.bits.regWrite.rd.expect(2.U)
+      c.io.retireTrace.get.bits.regWrite.wdata.expect("h12345678".U)
     }
   }
 }

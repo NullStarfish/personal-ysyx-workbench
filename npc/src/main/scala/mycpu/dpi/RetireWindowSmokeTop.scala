@@ -25,7 +25,7 @@ class RetireWindowSmokeTop extends Module {
   val idle :: retire0 :: retire1 :: finished :: Nil = Enum(4)
   val stateReg = RegInit(idle)
 
-  val commitTrace = WireInit(0.U.asTypeOf(Valid(new TraceCarryBundle)))
+  val retireTrace = WireInit(0.U.asTypeOf(Valid(new RetireTrace)))
 
   switch(stateReg) {
     is(idle) {
@@ -34,35 +34,34 @@ class RetireWindowSmokeTop extends Module {
       }
     }
     is(retire0) {
-      commitTrace.valid := true.B
-      commitTrace.bits.pc := "h30000000".U
-      commitTrace.bits.dnpc := "h30000004".U
-      commitTrace.bits.inst := "h00100093".U // addi x1, x0, 1
-      commitTrace.bits.regWen := true.B
-      commitTrace.bits.rd := 1.U
-      commitTrace.bits.data := 1.U
+      retireTrace.valid := true.B
+      retireTrace.bits.pc := "h30000000".U
+      retireTrace.bits.dnpc := "h30000004".U
+      retireTrace.bits.inst := "h00100093".U // addi x1, x0, 1
+      retireTrace.bits.regWrite.wen := true.B
+      retireTrace.bits.regWrite.rd := 1.U
+      retireTrace.bits.regWrite.wdata := 1.U
       regs(1) := 1.U
       stateReg := retire1
     }
     is(retire1) {
-      commitTrace.valid := true.B
-      commitTrace.bits.pc := "h30000004".U
-      commitTrace.bits.dnpc := "h30000008".U
-      commitTrace.bits.inst := Instructions.EBREAK.value.U
-      commitTrace.bits.regWen := false.B
-      commitTrace.bits.rd := 0.U
-      commitTrace.bits.data := 0.U
+      retireTrace.valid := true.B
+      retireTrace.bits.pc := "h30000004".U
+      retireTrace.bits.dnpc := "h30000008".U
+      retireTrace.bits.inst := Instructions.EBREAK.value.U
+      retireTrace.bits.regWrite.wen := false.B
+      retireTrace.bits.regWrite.rd := 0.U
+      retireTrace.bits.regWrite.wdata := 0.U
       stateReg := finished
     }
   }
 
-  tracer.io.commitTrace := commitTrace
-  tracer.io.regsFlat := Cat(regs.reverse)
-  tracer.io.mtvec := mtvecReg
-  tracer.io.mepc := mepcReg
-  tracer.io.mstatus := mstatusReg
-  tracer.io.mcause := mcauseReg
-  tracer.io.flush := false.B
+  tracer.io.retireTrace := retireTrace
+  tracer.io.gprs := regs
+  tracer.io.csrs.mtvec := mtvecReg
+  tracer.io.csrs.mepc := mepcReg
+  tracer.io.csrs.mstatus := mstatusReg
+  tracer.io.csrs.mcause := mcauseReg
 
   io.done := stateReg === finished
 }

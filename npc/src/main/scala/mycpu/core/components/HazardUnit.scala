@@ -4,20 +4,32 @@ import chisel3._
 import mycpu.core.bundles._
 
 class HazardUnit extends Module {
-  val io = IO(new Bundle {
-    val decode = Input(new HazardRsInfo)
-    val idExLoad = Input(new HazardRdInfo)
-    val lsuLoad = Input(new HazardRdInfo)
-    val lsuToMemWbFire = Input(Bool())
-    val loadUseStall = Output(Bool())
-  })
+  val io = IO(new Bundle with HazardResolv {
+
+    val raw = new Bundle {
+      val decode = Input(new RAWRsPacket)
+      val idExLoad = Input(new RAWRdPacket)
+      val lsuLoad = Input(new RAWRdPacket)
+      val lsuToMemWbFire = Input(Bool())
+      val loadUseStall = Output(Bool())
+    }
+    val ctrl = new Bundle {
+      val redirect = Input(Bool())
+      val flush = Output(Bool())
+    }
+
+    def stall: Bool = raw.loadUseStall
+    def flush: Bool = ctrl.flush
+ })
 
   private def hazardsWith(rd: UInt): Bool =
     (rd =/= 0.U) &&
-      ((io.decode.rs1.valid && (io.decode.rs1.bits === rd)) ||
-        (io.decode.rs2.valid && (io.decode.rs2.bits === rd)))
+      ((io.raw.decode.rs1.valid && (io.raw.decode.rs1.addr === rd)) ||
+        (io.raw.decode.rs2.valid && (io.raw.decode.rs2.addr === rd)))
 
-  io.loadUseStall :=
-    (io.idExLoad.valid && hazardsWith(io.idExLoad.rd)) ||
-      (io.lsuLoad.valid && !io.lsuToMemWbFire && hazardsWith(io.lsuLoad.rd))
+  io.raw.loadUseStall :=
+    (io.raw.idExLoad.valid && hazardsWith(io.raw.idExLoad.addr)) ||
+      (io.raw.lsuLoad.valid && !io.raw.lsuToMemWbFire && hazardsWith(io.raw.lsuLoad.addr))
+
+  io.ctrl.flush := io.ctrl.redirect
 }

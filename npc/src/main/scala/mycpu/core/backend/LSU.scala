@@ -11,6 +11,7 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     val req = Decoupled(new LsuReq)
     val reply = Flipped(Decoupled(UInt(XLEN.W)))
     val out = Decoupled(new MemoryPacket)
+    val pendingLoad = Output(new RAWRdPacket)
   })
 
   object State extends ChiselEnum {
@@ -28,16 +29,15 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   val addr = reqView.memData.addr
   val addrOffset = addr(1, 0)
-  val byteLane = Mux(addrOffset === 3.U, 2.U, addrOffset)
   val writeData = WireDefault(reqView.memData.data)
   val writeStrb = WireDefault(0.U(4.W))
-  val reqSize = WireDefault(0.U(2.W))
+  val reqSize = WireDefault(2.U(3.W))
 
   switch(reqView.memCtrl.subop) {
     is(SizeSubop.Byte) {
-      writeData := reqView.memData.data(7, 0) << (byteLane << 3)
-      writeStrb := "b0001".U << byteLane
-      reqSize := 2.U
+      writeData := reqView.memData.data(7, 0) << (addrOffset << 3)
+      writeStrb := "b0001".U << addrOffset
+      reqSize := 0.U
     }
     is(SizeSubop.Half) {
       writeData := reqView.memData.data(15, 0) << (addrOffset << 3)
@@ -47,7 +47,7 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     is(SizeSubop.Word) {
       writeData := reqView.memData.data
       writeStrb := "b1111".U
-      reqSize := 0.U
+      reqSize := 2.U
     }
   }
 
@@ -67,6 +67,8 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   val isInputMem = io.in.bits.memCtrl.en
   val isInputPassThrough = !isInputMem
+  val reqRegIsLoad = reqReg.memCtrl.en && !reqReg.memCtrl.write
+  val notReset = !reset.asBool
 
   io.in.ready := false.B
   io.req.valid := false.B
@@ -77,6 +79,8 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   io.req.bits.size := reqSize
   io.reply.ready := false.B
   io.out.valid := false.B
+  io.pendingLoad.valid := notReset && state === State.WaitReply && reqRegIsLoad
+  io.pendingLoad.addr := reqReg.wbCtrl.rd
 
   io.out.bits.wbData.wdata := Mux(reqReg.memCtrl.en && !reqReg.memCtrl.write, loadData, reqReg.wbData.wdata)
   io.out.bits.wbCtrl := reqReg.wbCtrl
@@ -87,8 +91,8 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
 
   switch(state) {
     is(State.Idle) {
-      io.in.ready := isInputPassThrough || io.req.ready
-      io.req.valid := io.in.valid && isInputMem
+      io.in.ready := notReset && (isInputPassThrough || io.req.ready)
+      io.req.valid := notReset && io.in.valid && isInputMem
 
       when(io.in.fire) {
         reqReg := io.in.bits
@@ -101,15 +105,15 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
     }
 
     is(State.WaitReply) {
-      io.out.valid := io.reply.valid
-      io.reply.ready := io.out.ready
+      io.out.valid := notReset && io.reply.valid
+      io.reply.ready := notReset && io.out.ready
       when(io.out.fire) {
         state := State.Idle
       }
     }
 
     is(State.EmitPassThrough) {
-      io.out.valid := true.B
+      io.out.valid := notReset
       when(io.out.fire) {
         state := State.Idle
       }

@@ -193,7 +193,7 @@ ysyxsoc_scala:
 
 local_scala:
 	@echo -e "\033[31m SCALA!!! \033[0m\n"
-	sbt 'runMain mycpu.GenCore'
+	mill coreverilog.run
 
 scala: ysyxsoc_scala local_scala
 

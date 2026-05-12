@@ -5,6 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components._
+import mycpu.dpi.SimEbreakDPI
 
 class Execute(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
@@ -41,7 +42,7 @@ class Execute(
   csr.io.isEcall := ctrl.sys.ecall && io.in.valid
   csr.io.isMret := ctrl.sys.mret && io.in.valid
 
-  val simEbreak = Module(new SimEbreak)
+  val simEbreak = Module(new SimEbreakDPI)
   simEbreak.io.valid := ctrl.sys.ebreak && io.in.valid
   simEbreak.io.is_ebreak := 0.U
 
@@ -120,6 +121,7 @@ class Execute(
     io.out.bits.retireTrace.get.regWrite.rd := data.wbCtrl.rd
     io.out.bits.retireTrace.get.regWrite.wdata := result
   }
+  
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready

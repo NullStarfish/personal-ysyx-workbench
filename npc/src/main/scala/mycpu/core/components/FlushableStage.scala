@@ -12,7 +12,7 @@ class FlushableStage[T <: Data](gen: T, entries:Int = 1) extends Module {
     val stall = Input(Bool())
   })
 
-  val queue = Module(new Queue(gen, entries = entries, hasFlush = true))
+  val queue = Module(new Queue(gen, entries = entries, pipe = true, hasFlush = true))
   queue.io.enq <> io.enq
   io.deq <> queue.io.deq
   queue.flush <> io.flush
