@@ -34,5 +34,6 @@ object DpiApi {
     m.io.mstatus := state.mstatus
     m.io.mcause := state.mcause
     m.io.inst := state.inst
+    m.io.instType := state.instType
   }
 }

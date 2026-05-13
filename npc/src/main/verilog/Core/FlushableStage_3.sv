@@ -17,6 +17,7 @@ module FlushableStage_3(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
   output [31:0] io_deq_bits_retireTrace_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
                 io_deq_bits_retireTrace_inst,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
                 io_deq_bits_retireTrace_dnpc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+  output [1:0]  io_deq_bits_retireTrace_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output [4:0]  io_deq_bits_wbCtrl_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output        io_deq_bits_wbCtrl_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output [31:0] io_deq_bits_wbData_wdata	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
@@ -40,6 +41,7 @@ module FlushableStage_3(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
     .io_deq_bits_retireTrace_pc             (io_deq_bits_retireTrace_pc),
     .io_deq_bits_retireTrace_inst           (io_deq_bits_retireTrace_inst),
     .io_deq_bits_retireTrace_dnpc           (io_deq_bits_retireTrace_dnpc),
+    .io_deq_bits_retireTrace_instType       (io_deq_bits_retireTrace_instType),
     .io_deq_bits_wbCtrl_rd                  (io_deq_bits_wbCtrl_rd),
     .io_deq_bits_wbCtrl_wen                 (io_deq_bits_wbCtrl_wen),
     .io_deq_bits_wbData_wdata               (io_deq_bits_wbData_wdata)

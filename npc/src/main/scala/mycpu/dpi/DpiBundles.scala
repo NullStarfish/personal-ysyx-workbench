@@ -15,4 +15,5 @@ final class SimStateBundle extends Bundle {
   val mstatus = UInt(32.W)
   val mcause = UInt(32.W)
   val inst = UInt(32.W)
+  val instType = UInt(2.W)
 }

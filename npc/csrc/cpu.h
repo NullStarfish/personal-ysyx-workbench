@@ -44,10 +44,12 @@ class Mem;
 
 class CPU {
 public:
+  enum instType {arith, mem, redirect, sys};
   struct RetireSnapshot {
     uint32_t pc = 0;
     uint32_t dnpc = 0;
     uint32_t inst = 0;
+    uint32_t instType = arith;
     uint32_t gpr[32] = {};
     bool regWen = false;
     uint32_t regAddr = 0;
@@ -61,6 +63,9 @@ public:
   void exec(uint64_t n);
   void execOnce();
   void commitRetire(const RetireSnapshot &snapshot);
+  void traceFetch(bool gotInst);
+  void traceExecute(bool finished);
+  void traceLsu(bool gotData);
 
   uint32_t pc() const;
   uint32_t retirePc() const;
@@ -86,6 +91,13 @@ private:
   bool hasCommitted = false;
   long long cycleCountValue = 0;
   long long instrCountValue = 0;
+  long long instArithCnt = 0;
+  long long instMemCnt = 0;
+  long long instRdrctCnt = 0;
+  long long instSysCnt =0 ;
+  long long fetchGotInstCnt = 0;
+  long long executeFinishedCnt = 0;
+  long long lsuGotDataCnt = 0;
 };
 #endif
 

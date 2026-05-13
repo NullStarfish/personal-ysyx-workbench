@@ -1,5 +1,6 @@
 #include "cpu.h"
 
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -93,7 +94,28 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
   if (snapshot.regWen && snapshot.regAddr != 0) {
     archState.gpr[snapshot.regAddr & 0x1f] = snapshot.regData;
   }
+
+  switch(snapshot.instType) {
+    case CPU::arith: this->instArithCnt++; break;
+    case CPU::mem: this->instMemCnt++; break;
+    case CPU::redirect: this->instRdrctCnt++; break;
+    case CPU::sys: this->instSysCnt++; break;
+  }
+
+
   hasCommitted = true;
+}
+
+void CPU::traceFetch(bool gotInst) {
+  if (gotInst) fetchGotInstCnt++;
+}
+
+void CPU::traceExecute(bool finished) {
+  if (finished) executeFinishedCnt++;
+}
+
+void CPU::traceLsu(bool gotData) {
+  if (gotData) lsuGotDataCnt++;
 }
 
 uint32_t CPU::pc() const { return archState.pc; }
@@ -179,6 +201,10 @@ void CPU::printStats() const {
   printf("\nExecution Statistics:\n");
   printf("  Total Cycles:       %lld\n", cycleCountValue);
   printf("  Total Instructions: %lld\n", instrCountValue);
+  printf("Inst statistics: \n");
+  printf("Arith: %lld\t, Mem: %lld\t, Redirect: %lld\t, Sys: %lld\n", this->instArithCnt, this->instMemCnt, this->instRdrctCnt, this->instSysCnt);
+  printf("Arith: %lf%%, Mem: %lf%%, Redirect: %lf%%, Sys: %lf%%\n", 100.0*instArithCnt/instrCountValue, 100.0*instMemCnt/instrCountValue, 100.0*instRdrctCnt/instrCountValue, 100.0*instSysCnt/instrCountValue);
+  printf("Pipeline trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuData=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt);
   if (cycleCountValue > 0) {
     printf("  Average IPC:        %f\n", static_cast<double>(instrCountValue) / cycleCountValue);
   } else {
@@ -192,8 +218,13 @@ void CPU::handleSigint() {
   exit(0);
 }
 
+
+
+
+
+
 extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal *gprs,
-                                 int mtvec, int mepc, int mstatus, int mcause, int inst) {
+                                 int mtvec, int mepc, int mstatus, int mcause, int inst, int instType) {
   CPU::RetireSnapshot snapshot;
   snapshot.pc = static_cast<uint32_t>(pc);
   snapshot.dnpc = static_cast<uint32_t>(dnpc);
@@ -208,6 +239,7 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
   snapshot.csrs.mepc = static_cast<uint32_t>(mepc);
   snapshot.csrs.mstatus = static_cast<uint32_t>(mstatus);
   snapshot.csrs.mcause = static_cast<uint32_t>(mcause);
+  snapshot.instType = static_cast<uint32_t>(instType);
   cpu.commitRetire(snapshot);
 }
 
@@ -216,4 +248,16 @@ extern "C" void ebreak() {
   if (a0Val == 0) runtime.setEnd(a0Val);
   else runtime.setAbort(a0Val);
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);
+}
+
+extern "C" void fetch_trace(svBit gotInst) {
+  cpu.traceFetch(gotInst != 0);
+}
+
+extern "C" void execute_trace(svBit finished) {
+  cpu.traceExecute(finished != 0);
+}
+
+extern "C" void lsu_trace(svBit gotData) {
+  cpu.traceLsu(gotData != 0);
 }

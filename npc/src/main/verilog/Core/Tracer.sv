@@ -9,7 +9,8 @@ module Tracer(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
   input [4:0]  io_retireTrace_bits_regWrite_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input        io_retireTrace_bits_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input [31:0] io_retireTrace_bits_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_gprs_0,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input [1:0]  io_retireTrace_bits_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input [31:0] io_gprs_0,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_1,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_2,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_3,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
@@ -93,7 +94,8 @@ module Tracer(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
     .mepc      (io_csrs_mepc),
     .mstatus   (io_csrs_mstatus),
     .mcause    (io_csrs_mcause),
-    .inst      (io_retireTrace_bits_inst)
+    .inst      (io_retireTrace_bits_inst),
+    .instType  (io_retireTrace_bits_instType)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/dpi/DpiApi.scala:22:19
 endmodule
 

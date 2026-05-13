@@ -53,7 +53,9 @@ object fetch extends NpcScalaModule {
     val root = mill.api.WorkspaceRoot.workspaceRoot
     val files = Seq(
       root / "src/main/scala/mycpu/common/Config.scala",
+      root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
+      root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
       root / "src/main/scala/mycpu/core/components/ReadyValidHelper.scala",
       root / "src/main/scala/mycpu/utils/Debug.scala",
@@ -272,6 +274,7 @@ object execute extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/components/ALU.scala",
       root / "src/main/scala/mycpu/core/components/CSR.scala",
       root / "src/main/scala/mycpu/core/components/SimEbreak.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
       root / "src/main/scala/mycpu/core/backend/Execute.scala",
       root / "src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala",
     )

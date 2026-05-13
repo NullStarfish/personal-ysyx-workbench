@@ -4,6 +4,7 @@ module WriteBack(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreveril
   input  [31:0] io_in_bits_retireTrace_pc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
                 io_in_bits_retireTrace_inst,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
                 io_in_bits_retireTrace_dnpc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+  input  [1:0]  io_in_bits_retireTrace_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   input  [4:0]  io_in_bits_wbCtrl_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   input         io_in_bits_wbCtrl_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   input  [31:0] io_in_bits_wbData_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
@@ -14,6 +15,7 @@ module WriteBack(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreveril
   output [4:0]  io_retireTrace_bits_regWrite_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output        io_retireTrace_bits_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output [31:0] io_retireTrace_bits_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
+  output [1:0]  io_retireTrace_bits_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output [4:0]  io_regWrite_regWrite_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output        io_regWrite_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
   output [31:0] io_regWrite_regWrite_wdata	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:9:14
@@ -26,6 +28,7 @@ module WriteBack(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreveril
   assign io_retireTrace_bits_regWrite_rd = io_in_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_retireTrace_bits_regWrite_wen = io_in_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_retireTrace_bits_regWrite_wdata = io_in_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
+  assign io_retireTrace_bits_instType = io_in_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_regWrite_regWrite_rd = io_in_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7
   assign io_regWrite_regWrite_wen = io_in_valid & io_in_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7, :17:43
   assign io_regWrite_regWrite_wdata = io_in_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/WriteBack.scala:8:7

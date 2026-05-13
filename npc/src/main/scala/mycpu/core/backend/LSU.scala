@@ -5,7 +5,10 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 
-class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
+class LSU(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableDpi: Boolean = false,
+) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new ExecutePacket(enableTraceFields)))
     val req = Decoupled(new LsuReq)
@@ -118,5 +121,12 @@ class LSU(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
         state := State.Idle
       }
     }
+  }
+
+  if (enableDpi) {
+    val lsuTrace = Module(new LSUTrace)
+    lsuTrace.io.clk := clock
+    lsuTrace.io.reset := reset.asBool
+    lsuTrace.io.gotData := io.reply.fire && reqRegIsLoad
   }
 }

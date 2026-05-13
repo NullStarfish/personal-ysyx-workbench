@@ -9,6 +9,7 @@ import mycpu.dpi.SimEbreakDPI
 
 class Execute(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableDpi: Boolean = false,
 ) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new DecodePacket))
@@ -42,9 +43,11 @@ class Execute(
   csr.io.isEcall := ctrl.sys.ecall && io.in.valid
   csr.io.isMret := ctrl.sys.mret && io.in.valid
 
-  val simEbreak = Module(new SimEbreakDPI)
-  simEbreak.io.valid := ctrl.sys.ebreak && io.in.valid
-  simEbreak.io.is_ebreak := 0.U
+  if (enableDpi) {
+    val simEbreak = Module(new SimEbreakDPI)
+    simEbreak.io.valid := ctrl.sys.ebreak && io.in.valid
+    simEbreak.io.is_ebreak := 0.U
+  }
 
   io.debug_csrs.mtvec := csr.io.debug_mtvec
   io.debug_csrs.mepc := csr.io.debug_mepc
@@ -125,4 +128,11 @@ class Execute(
 
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready
+
+  if (enableDpi) {
+    val executeTrace = Module(new ExecuteTrace)
+    executeTrace.io.clk := clock
+    executeTrace.io.reset := reset.asBool
+    executeTrace.io.finished := io.out.fire
+  }
 }

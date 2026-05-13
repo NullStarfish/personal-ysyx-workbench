@@ -33,6 +33,7 @@ class Tracer(enableDpi: Boolean = false) extends Module {
   io.simState.mstatus := io.csrs.mstatus
   io.simState.mcause := io.csrs.mcause
   io.simState.inst := trace.inst
+  io.simState.instType := trace.instType
 
   if (enableDpi) {
     DpiApi.simState(clock, reset.asBool, io.simState, localName = "core_sim_state")

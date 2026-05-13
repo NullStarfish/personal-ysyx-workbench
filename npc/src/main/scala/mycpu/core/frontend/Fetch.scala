@@ -7,7 +7,10 @@ import mycpu.core.bundles._
 import mycpu.utils._
 import mycpu.core.components._
 
-class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
+class Fetch(
+    enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
+    enableDpi: Boolean = false,
+) extends Module {
   val io = IO(new Bundle {
     //val axi = new AXI4LiteBundle(XLEN, XLEN)
     val fetch = Decoupled(UInt(32.W))
@@ -82,5 +85,12 @@ class Fetch(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Module {
   // when (io.reply.fire) {
   //   printf(p"reply: ${io.reply.bits}\n")
   // }
+
+  if (enableDpi) {
+    val fetchTrace = Module(new FetchTrace)
+    fetchTrace.io.clk := clock
+    fetchTrace.io.reset := reset.asBool
+    fetchTrace.io.gotInst := io.reply.fire
+  }
 
 }
