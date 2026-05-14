@@ -1,5 +1,9 @@
-#ifndef NPC_MEM_H
-#define NPC_MEM_H
+#ifdef CONFIG_NPC_VIRTUAL_SOC
+#include "npc/mem.h"
+#else
+
+#ifndef NPC_SOC_MEM_H
+#define NPC_SOC_MEM_H
 
 #include <cstddef>
 #include <cstdint>
@@ -37,4 +41,5 @@ private:
   uint16_t *sdramMem[4] = {nullptr, nullptr, nullptr, nullptr};
 };
 
+#endif
 #endif

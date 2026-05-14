@@ -121,12 +121,16 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
   hasCommitted = true;
 }
 
-void CPU::traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t latency) {
+void CPU::traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t memLatency, uint32_t waitLatency) {
   if (gotInst) {
     fetchGotInstCnt++;
-    fetchLatencyCnt += latency;
-    if (latency > fetchMaxLatency) {
-      fetchMaxLatency = latency;
+    fetchMemLatencyCnt += memLatency;
+    if (memLatency > fetchMaxMemLatency) {
+      fetchMaxMemLatency = memLatency;
+    }
+    fetchWaitLatencyCnt += waitLatency;
+    if (waitLatency > fetchMaxWaitLatency) {
+      fetchMaxWaitLatency = waitLatency;
     }
     Inst inst = {};
     inst.pc = pc;
@@ -249,7 +253,8 @@ void CPU::printStats() const {
   printf("Arith: %lf%%, Mem: %lf%%, Redirect: %lf%%, Sys: %lf%%\n", 100.0*instArithCnt/instrCountValue, 100.0*instMemCnt/instrCountValue, 100.0*instRdrctCnt/instrCountValue, 100.0*instSysCnt/instrCountValue);
   printf("Pipeline trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuLoadData=%lld\t, LsuStoreAck=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt, lsuWriteDataCnt);
   if (fetchGotInstCnt > 0) {
-    printf("Fetch latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchLatencyCnt) / fetchGotInstCnt, fetchMaxLatency);
+    printf("Fetch memory latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchMemLatencyCnt) / fetchGotInstCnt, fetchMaxMemLatency);
+    printf("Fetch output wait: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchWaitLatencyCnt) / fetchGotInstCnt, fetchMaxWaitLatency);
   }
   if (lsuGotDataCnt > 0) {
     printf("LSU load latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(lsuLoadLatencyCnt) / lsuGotDataCnt, lsuMaxLoadLatency);
@@ -310,8 +315,8 @@ extern "C" void ebreak() {
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);
 }
 
-extern "C" void fetch_trace(svBit gotInst, int pc, int inst, int latency) {
-  cpu.traceFetch(gotInst != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst), static_cast<uint32_t>(latency));
+extern "C" void fetch_trace(svBit gotInst, int pc, int inst, int memLatency, int waitLatency) {
+  cpu.traceFetch(gotInst != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst), static_cast<uint32_t>(memLatency), static_cast<uint32_t>(waitLatency));
 }
 
 extern "C" void execute_trace(svBit finished) {

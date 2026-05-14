@@ -91,6 +91,7 @@ class Fetch(
     fetchTrace.io.clk := clock
     fetchTrace.io.reset := reset.asBool
     fetchTrace.io.reqInst := io.fetch.fire
+    fetchTrace.io.gotReply := io.reply.valid
     fetchTrace.io.gotInst := io.out.fire
     fetchTrace.io.pc := io.out.bits.pc
     fetchTrace.io.inst := io.out.bits.inst

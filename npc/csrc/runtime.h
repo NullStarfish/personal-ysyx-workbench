@@ -5,7 +5,13 @@
 #include <cstdint>
 
 #ifdef __cplusplus
+#ifdef CONFIG_NPC_VIRTUAL_SOC
+class VNpcTop;
+using VerilatedDut = VNpcTop;
+#else
 class VysyxSoCFull;
+using VerilatedDut = VysyxSoCFull;
+#endif
 class CPU;
 #endif
 
@@ -51,7 +57,7 @@ private:
   uint64_t getTimeInternal() const;
   uint64_t getTime();
 
-  VysyxSoCFull *top = nullptr;
+  VerilatedDut *top = nullptr;
   uint64_t bootTime = 0;
   NpcState npcState{NPC_STOP, 0};
 };

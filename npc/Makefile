@@ -11,7 +11,12 @@ BOARD ?= 0
 
 
 TARGET := npc
+SIM_TARGET ?= npc
+ifeq ($(SIM_TARGET),npc)
+TOP_MODULE := NpcTop
+else
 TOP_MODULE := ysyxSoCFull
+endif
 IMG ?= ./dummy-riscv32e-ysyxsoc.bin
 
 # Include Kconfig generated configuration and parent Makefile if they exist.
@@ -24,6 +29,10 @@ IMG ?= ./dummy-riscv32e-ysyxsoc.bin
 VSRC_DIR := $(NPC_HOME)/src/main/verilog/Core
 VPERIP_DIR := $(SOC_HOME)/perip
 VSOC_DIR := $(SOC_HOME)/build
+VSRC_SEARCH_DIRS := $(VSRC_DIR)
+ifeq ($(SIM_TARGET),ysyxsoc)
+VSRC_SEARCH_DIRS += $(VPERIP_DIR) $(VSOC_DIR)
+endif
 
 # [新增] 定义生成目录路径
 GEN_DIR  := $(VSRC_DIR)
@@ -60,11 +69,23 @@ $(BOARD_FLAG_FILE): FORCE
 # 4. Generated Verification Sources & Layers
 #    (Must cover gen/verification, gen/verification/assert, etc.)
 VSRC_VERI := $(shell find $(GEN_DIR)/verification -name "*.sv")
+MYCORE_VERI := $(shell find $(GEN_DIR)/verification -name "layers-myCore*.sv")
+NPCTOP_VERI := $(shell find $(GEN_DIR)/verification -name "layers-NpcTop*.sv")
+ifeq ($(SIM_TARGET),npc)
+VSRC_VERI := $(filter-out $(MYCORE_VERI), $(VSRC_VERI))
+else
+VSRC_VERI := $(filter-out $(NPCTOP_VERI), $(VSRC_VERI))
+endif
 
 # 5. Main Source Files (Top.sv, generated modules, handwritten files)
 #    We use find on VSRC_DIR but filter out what we already found to avoid duplicates.
 #    Also explicitly look in GEN_DIR to ensure Top.sv is found.
-VSRC_ALL_RAW := $(shell find $(VSRC_DIR) $(VPERIP_DIR) $(VSOC_DIR) -name "*.v" -o -name "*.sv")
+VSRC_ALL_RAW := $(shell find $(VSRC_SEARCH_DIRS) \( -name "*.v" -o -name "*.sv" \))
+ifeq ($(SIM_TARGET),npc)
+VSRC_ALL_RAW := $(filter-out $(MYCORE_VERI), $(VSRC_ALL_RAW))
+else
+VSRC_ALL_RAW := $(filter-out %/NpcTop.sv %/NpcVirtualAxiRam.sv $(NPCTOP_VERI), $(VSRC_ALL_RAW))
+endif
 VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
 
 # 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
@@ -92,6 +113,11 @@ CXX_SRCS_BASE := $(shell find $(CSRC_DIR) -name "*.cpp")
 C_SRCS_BASE   := $(shell find $(CSRC_DIR) -name "*.c")
 C_SRCS_BASE   := $(filter-out %/disasm.c, $(C_SRCS_BASE))
 CXX_SRCS_BASE := $(filter-out %/dpi/dpi_tracer_smoke_main.cpp, $(CXX_SRCS_BASE))
+ifeq ($(SIM_TARGET),npc)
+  CXX_SRCS_BASE := $(filter-out $(CSRC_DIR)/mem.cpp, $(CXX_SRCS_BASE))
+else
+  CXX_SRCS_BASE := $(filter-out $(CSRC_DIR)/npc/%.cpp, $(CXX_SRCS_BASE))
+endif
 
 CXX_SRCS := $(CXX_SRCS_BASE)
 C_SRCS   := $(C_SRCS_BASE)
@@ -122,6 +148,10 @@ CXX := g++
 
 CFLAGS   := $(INCFLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 CXXFLAGS := $(INCFLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
+ifeq ($(SIM_TARGET),npc)
+  CFLAGS += -DCONFIG_NPC_VIRTUAL_SOC
+  CXXFLAGS += -DCONFIG_NPC_VIRTUAL_SOC
+endif
 
 # --- Linker Flags ---
 LDFLAGS := -lreadline -pthread -ldl
@@ -195,7 +225,11 @@ local_scala:
 	@echo -e "\033[31m SCALA!!! \033[0m\n"
 	mill coreverilog.run
 
+ifeq ($(SIM_TARGET),npc)
+scala: local_scala
+else
 scala: ysyxsoc_scala local_scala
+endif
 
 
 check_config:

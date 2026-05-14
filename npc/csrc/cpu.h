@@ -158,7 +158,7 @@ public:
   void exec(uint64_t n);
   void execOnce();
   void commitRetire(const RetireSnapshot &snapshot);
-  void traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t latency);
+  void traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t memLatency, uint32_t waitLatency);
   void traceExecute(bool finished);
   void traceLsu(uint32_t latency, bool write);
   void traceFlush(bool flush, uint32_t pc, uint32_t instVal);
@@ -194,8 +194,10 @@ private:
   long long instLifeCycleCnt[4] = {};
   long long instTypeCnt[4] = {};
   long long fetchGotInstCnt = 0;
-  long long fetchLatencyCnt = 0;
-  long long fetchMaxLatency = 0;
+  long long fetchMemLatencyCnt = 0;
+  long long fetchMaxMemLatency = 0;
+  long long fetchWaitLatencyCnt = 0;
+  long long fetchMaxWaitLatency = 0;
   long long executeFinishedCnt = 0;
   long long lsuGotDataCnt = 0;
   long long lsuWriteDataCnt = 0;

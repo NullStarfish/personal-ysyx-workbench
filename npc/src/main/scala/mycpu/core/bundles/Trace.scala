@@ -31,6 +31,7 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
     val clk = Input(Clock())
     val reset = Input(Bool())
     val reqInst = Input(Bool())
+    val gotReply = Input(Bool())
     val gotInst = Input(Bool())
     val pc = Input(UInt(XLEN.W))
     val inst = Input(UInt(32.W))
@@ -41,6 +42,7 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |    input logic   clk,
       |    input logic reset,
       |    input logic reqInst,
+      |    input logic gotReply,
       |    input logic gotInst,
       |    input logic [31:0] pc,
       |    input logic [31:0] inst
@@ -49,30 +51,48 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |   input gotInst,
       |   input int pc,
       |   input int inst,
-      |   input int latency
+      |   input int memLatency,
+      |   input int waitLatency
       |);
       |
-      |logic [31:0] latency;
+      |logic [31:0] memLatency;
+      |logic [31:0] waitLatency;
       |logic inflight;
+      |logic waitingOut;
       |
       |always_ff @(posedge clk) begin
       | if(reset) begin
-      |   latency <= 32'd0;
+      |   memLatency <= 32'd0;
+      |   waitLatency <= 32'd0;
       |   inflight <= 1'b0;
+      |   waitingOut <= 1'b0;
       | end else begin
       |   if(inflight) begin
-      |     latency <= latency + 32'd1;
+      |     memLatency <= memLatency + 32'd1;
+      |   end
+      |
+      |   if(waitingOut) begin
+      |     waitLatency <= waitLatency + 32'd1;
       |   end
       |
       |   if(reqInst) begin
-      |     latency <= 32'd0;
+      |     memLatency <= 32'd0;
+      |     waitLatency <= 32'd0;
       |     inflight <= 1'b1;
+      |     waitingOut <= 1'b0;
+      |   end
+      |
+      |   if(gotReply && !gotInst) begin
+      |     inflight <= 1'b0;
+      |     waitingOut <= 1'b1;
       |   end
       |
       |   if(gotInst) begin
-      |     fetch_trace(gotInst, pc, inst, latency);
+      |     fetch_trace(gotInst, pc, inst, memLatency, waitLatency);
       |     inflight <= 1'b0;
-      |     latency <= 32'd0;
+      |     waitingOut <= 1'b0;
+      |     memLatency <= 32'd0;
+      |     waitLatency <= 32'd0;
       |   end
       | end
       |end

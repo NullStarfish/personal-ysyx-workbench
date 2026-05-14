@@ -49,12 +49,13 @@ module Fetch(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/g
     end
   end // always @(posedge)
   FetchTrace fetchTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:90:28
-    .clk     (clock),
-    .reset   (reset),
-    .reqInst (_fetchTrace_io_reqInst_T),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .gotInst (io_out_ready & io_out_valid_0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:72:{41,60}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .pc      (launchedPc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:50:27
-    .inst    (io_reply_bits)
+    .clk      (clock),
+    .reset    (reset),
+    .reqInst  (_fetchTrace_io_reqInst_T),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .gotReply (io_reply_valid),
+    .gotInst  (io_out_ready & io_out_valid_0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:72:{41,60}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .pc       (launchedPc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:50:27
+    .inst     (io_reply_bits)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:90:28
   assign io_fetch_valid = io_fetch_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :42:{35,57}
   assign io_fetch_bits = pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :33:19

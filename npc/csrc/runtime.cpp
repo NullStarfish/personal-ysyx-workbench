@@ -5,7 +5,11 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#ifdef CONFIG_NPC_VIRTUAL_SOC
+#include "VNpcTop.h"
+#else
 #include "VysyxSoCFull.h"
+#endif
 #include "cpu.h"
 #include "sim.h"
 #include "trace/ftrace.h"
@@ -13,7 +17,7 @@
 
 #ifdef CONFIG_BOARD
 #include <nvboard.h>
-void nvboard_bind_all_pins(VysyxSoCFull *top);
+void nvboard_bind_all_pins(VerilatedDut *top);
 #endif
 
 namespace {
@@ -33,9 +37,9 @@ Runtime::~Runtime() {
 void Runtime::initVerilator(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  top = new VysyxSoCFull;
+  top = new VerilatedDut;
 
-#ifdef CONFIG_BOARD
+#if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   printf("nvboard initing...\n");
   nvboard_bind_all_pins(top);
   nvboard_init();
@@ -61,7 +65,7 @@ void Runtime::stepOneClk() {
   top->clock = 1;
   top->eval();
 
-#ifdef CONFIG_BOARD
+#if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   nvboard_update();
   static int traceUart = -1;
   static uint8_t lastUartRx = 0xffu;
