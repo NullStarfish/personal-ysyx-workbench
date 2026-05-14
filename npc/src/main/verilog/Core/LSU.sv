@@ -61,6 +61,8 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
   wire        _GEN = state == 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:24:22, :29:14
   wire [31:0] reqView_lhs = _GEN ? io_in_bits_lhs : reqReg_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :28:11, :29:{14,30}, :30:13
   wire [31:0] reqView_rhs = _GEN ? io_in_bits_rhs : reqReg_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :28:11, :29:{14,30}, :30:13
+  wire        reqView_memCtrl_write =
+    _GEN ? io_in_bits_memCtrl_write : reqReg_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :28:11, :29:{14,30}, :30:13
   wire [1:0]  reqView_memCtrl_subop =
     _GEN ? io_in_bits_memCtrl_subop : reqReg_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :28:11, :29:{14,30}, :30:13
   wire        _GEN_0 = reqView_memCtrl_subop == 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:28:11, :29:30, :30:13, :39:33, :85:45
@@ -71,7 +73,6 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
     {31'h0, reqView_lhs[15:0]} << {42'h0, reqView_rhs[1:0], 3'h0};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:28:11, :29:30, :30:13, :34:24, :41:47, :46:{40,48}
   wire [4:0]  _writeStrb_T_1 = 5'h3 << reqView_rhs[1:0];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:28:11, :29:30, :30:13, :34:24, :47:30
   wire [31:0] shiftedReadData = io_reply_bits >> {27'h0, reqReg_rhs[1:0], 3'h0};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :57:{39,62}
-  wire        reqRegIsLoad = reqReg_memCtrl_en & ~reqReg_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :73:{40,43}
   wire [31:0] io_out_bits_wbData_wdata_0 =
     reqReg_memCtrl_en & ~reqReg_memCtrl_write
       ? (reqReg_memCtrl_subop == 2'h1
@@ -83,11 +84,13 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
                : io_reply_bits)
       : reqReg_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :57:39, :59:32, :61:{16,22,63,74,99}, :64:{16,22,63,75,100}, :73:43, :85:45, :88:{34,53}
   wire        io_in_ready_0 = _GEN & ~reset & (~io_in_bits_memCtrl_en | io_req_ready);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:29:14, :72:28, :74:18, :76:15, :95:17, :97:{19,31,54}
+  wire        io_req_valid_0 = _GEN & ~reset & io_in_valid & io_in_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:29:14, :74:18, :77:16, :95:17, :98:{20,32,47}
   wire        _GEN_2 = state == 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:24:22, :85:45, :95:17
   wire        io_reply_ready_0 = ~_GEN & _GEN_2 & ~reset;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:29:14, :74:18, :83:18, :95:17, :112:22
   wire        _GEN_3 = state == 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:24:22, :95:17
   wire        io_out_valid_0 =
     ~_GEN & (_GEN_2 ? ~reset & io_reply_valid : _GEN_3 & ~reset);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:29:14, :74:18, :83:18, :84:16, :95:17, :111:{20,32}, :119:20
+  wire        _lsuTrace_io_reqWriteData_T = io_req_ready & io_req_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:77:16, :95:17, :98:{20,32,47}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7
     automatic logic _GEN_4;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     _GEN_4 = io_in_ready_0 & io_in_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:76:15, :95:17, :97:{19,31}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
@@ -117,12 +120,14 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
     end
   end // always @(posedge)
   LSUTrace lsuTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:127:26
-    .clk     (clock),
-    .reset   (reset),
-    .gotData (io_reply_ready_0 & io_reply_valid & reqRegIsLoad)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:73:40, :83:18, :95:17, :112:22, :130:42, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .clk          (clock),
+    .reset        (reset),
+    .reqReadData  (_lsuTrace_io_reqWriteData_T & ~reqView_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:28:11, :29:30, :30:13, :130:{44,47}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .reqWriteData (_lsuTrace_io_reqWriteData_T & reqView_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:28:11, :29:30, :30:13, :131:45, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .gotData      (io_reply_ready_0 & io_reply_valid & reqReg_memCtrl_en)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:25:19, :83:18, :95:17, :112:22, :132:42, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:127:26
   assign io_in_ready = io_in_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :76:15, :95:17, :97:{19,31}
-  assign io_req_valid = _GEN & ~reset & io_in_valid & io_in_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :29:14, :74:18, :77:16, :95:17, :98:{20,32,47}
+  assign io_req_valid = io_req_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :77:16, :95:17, :98:{20,32,47}
   assign io_req_bits_addr = reqView_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :28:11, :29:30, :30:13
   assign io_req_bits_data =
     _GEN_0 ? _writeData_T_2[31:0] : _GEN_1 ? _writeData_T_5[31:0] : reqView_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :28:11, :29:30, :30:13, :39:33, :41:{17,47}, :46:{17,48}
@@ -130,7 +135,7 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
     _GEN_0
       ? 4'h1 << reqView_rhs[1:0]
       : _GEN_1 ? _writeStrb_T_1[3:0] : {4{&reqView_memCtrl_subop}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :28:11, :29:30, :30:13, :34:24, :36:30, :39:33, :42:{17,30}, :47:{17,30}, :52:17
-  assign io_req_bits_write = _GEN ? io_in_bits_memCtrl_write : reqReg_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :25:19, :28:11, :29:{14,30}, :30:13
+  assign io_req_bits_write = reqView_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :28:11, :29:30, :30:13
   assign io_req_bits_size = _GEN_0 ? 3'h0 : _GEN_1 ? 3'h1 : 3'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :39:33, :43:15, :48:15
   assign io_reply_ready = io_reply_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :83:18, :95:17, :112:22
   assign io_out_valid = io_out_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :84:16, :95:17
@@ -144,7 +149,8 @@ module LSU(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/gen
   assign io_out_bits_wbCtrl_rd = reqReg_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :25:19
   assign io_out_bits_wbCtrl_wen = reqReg_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :25:19
   assign io_out_bits_wbData_wdata = io_out_bits_wbData_wdata_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :88:34
-  assign io_pendingLoad_valid = ~reset & state == 2'h1 & reqRegIsLoad;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :24:22, :73:40, :74:18, :85:{36,45,65}
+  assign io_pendingLoad_valid =
+    ~reset & state == 2'h1 & reqReg_memCtrl_en & ~reqReg_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :24:22, :25:19, :73:{40,43}, :74:18, :85:{36,45,65}
   assign io_pendingLoad_addr = reqReg_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/LSU.scala:8:7, :25:19
 endmodule
 

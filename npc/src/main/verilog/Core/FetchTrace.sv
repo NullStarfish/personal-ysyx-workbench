@@ -2,15 +2,40 @@
 module FetchTrace(
     input logic   clk,
     input logic reset,
-    input logic gotInst
+    input logic reqInst,
+    input logic gotInst,
+    input logic [31:0] pc,
+    input logic [31:0] inst
 );
  import "DPI-C" function void fetch_trace(
-   input gotInst
+   input gotInst,
+   input int pc,
+   input int inst,
+   input int latency
 );
 
+logic [31:0] latency;
+logic inflight;
+
 always_ff @(posedge clk) begin
- if(!reset && gotInst) begin
-   fetch_trace(gotInst);
+ if(reset) begin
+   latency <= 32'd0;
+   inflight <= 1'b0;
+ end else begin
+   if(inflight) begin
+     latency <= latency + 32'd1;
+   end
+
+   if(reqInst) begin
+     latency <= 32'd0;
+     inflight <= 1'b1;
+   end
+
+   if(gotInst) begin
+     fetch_trace(gotInst, pc, inst, latency);
+     inflight <= 1'b0;
+     latency <= 32'd0;
+   end
  end
 end
 

@@ -41,6 +41,101 @@ class CPU;
 class Runtime;
 class Difftest;
 class Mem;
+class Inst;
+
+
+
+class Inst {
+public:
+  uint32_t pc = 0;
+  uint32_t instVal = 0;
+  uint32_t instType = 0;
+  uint32_t lifeCycleCount = 0;
+};
+
+class InstQueue {
+  public:
+    Inst queue[5];
+    int tail = 0;
+    int head = 0;
+    int cnt = 0;
+
+    void run(Inst inst) {
+      if (cnt >= 5) return;
+      queue[tail++] = inst;
+      if (tail >= 5) {
+        tail = 0;
+      }
+      cnt ++;
+    }
+    Inst pop() {
+      Inst inst = {};
+      if (!cnt) return inst;
+      inst = queue[head++];
+      if (head >= 5) {
+        head = 0;
+      }
+      cnt --;
+      return inst;
+    }
+    Inst retire(uint32_t pc, uint32_t instVal) {
+      int matchDistance = -1;
+      int index = head;
+      for (int i = 0; i < cnt; i++) {
+        if (queue[index].pc == pc && queue[index].instVal == instVal) {
+          matchDistance = i;
+          break;
+        }
+        index++;
+        if (index >= 5) {
+          index = 0;
+        }
+      }
+      if (matchDistance < 0) return {};
+
+      for (int i = 0; i <= matchDistance; i++) {
+        Inst inst = pop();
+        if (inst.pc == pc && inst.instVal == instVal) {
+          return inst;
+        }
+      }
+      return {};
+    }
+    void discardAfter(uint32_t pc, uint32_t instVal) {
+      int index = head;
+      for (int i = 0; i < cnt; i++) {
+        if (queue[index].pc == pc && queue[index].instVal == instVal) {
+          tail = index + 1;
+          if (tail >= 5) {
+            tail = 0;
+          }
+          cnt = i + 1;
+          return;
+        }
+        index++;
+        if (index >= 5) {
+          index = 0;
+        }
+      }
+    }
+
+    bool inQueue(int index) {
+      if (!cnt) return false;
+      
+      if (tail > head) return (index >= head) && (index < tail);
+      else return (index >= head && index < 5) || (index < tail && index >= 0);
+    }
+
+    void updateCycles() {
+      for (int i = 0; i < 5; i ++) {
+        if (inQueue(i)) {
+          queue[i].lifeCycleCount ++;
+        }
+      }
+    }
+};
+
+
 
 class CPU {
 public:
@@ -63,9 +158,10 @@ public:
   void exec(uint64_t n);
   void execOnce();
   void commitRetire(const RetireSnapshot &snapshot);
-  void traceFetch(bool gotInst);
+  void traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t latency);
   void traceExecute(bool finished);
-  void traceLsu(bool gotData);
+  void traceLsu(uint32_t latency, bool write);
+  void traceFlush(bool flush, uint32_t pc, uint32_t instVal);
 
   uint32_t pc() const;
   uint32_t retirePc() const;
@@ -95,9 +191,21 @@ private:
   long long instMemCnt = 0;
   long long instRdrctCnt = 0;
   long long instSysCnt =0 ;
+  long long instLifeCycleCnt[4] = {};
+  long long instTypeCnt[4] = {};
   long long fetchGotInstCnt = 0;
+  long long fetchLatencyCnt = 0;
+  long long fetchMaxLatency = 0;
   long long executeFinishedCnt = 0;
   long long lsuGotDataCnt = 0;
+  long long lsuWriteDataCnt = 0;
+  long long lsuLoadLatencyCnt = 0;
+  long long lsuMaxLoadLatency = 0;
+  long long lsuStoreLatencyCnt = 0;
+  long long lsuMaxStoreLatency = 0;
+  long long totalInstLifeCycles = 0;
+  long long maxInstLifeCycles = 0;
+  InstQueue instQueue;
 };
 #endif
 

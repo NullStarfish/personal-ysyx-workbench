@@ -597,7 +597,7 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .clock            (clock),
     .reset            (reset),
     .io_enq_ready     (_ifId_io_enq_ready),
-    .io_enq_valid     (~_hazard_io_ctrl_flush & _fetch_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21, :32:22, :54:16, :104:23, :105:23
+    .io_enq_valid     (~_hazard_io_ctrl_flush & _fetch_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21, :32:22, :54:16, :113:23, :114:23
     .io_enq_bits_pc   (_fetch_io_out_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
     .io_enq_bits_inst (_fetch_io_out_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
     .io_deq_ready     (_decode_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
@@ -611,7 +611,7 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .reset                                  (reset),
     .io_enq_ready                           (_idEx_io_enq_ready),
     .io_enq_valid
-      (~_hazard_io_ctrl_flush & _decode_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :32:22, :54:16, :56:17, :104:23, :105:23, :106:23
+      (~_hazard_io_ctrl_flush & _decode_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :32:22, :54:16, :56:17, :113:23, :114:23, :115:23
     .io_enq_bits_retireTrace_pc             (_decode_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_retireTrace_inst           (_decode_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_retireTrace_dnpc           (_decode_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
@@ -791,5 +791,12 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_csrs_mstatus                    (_execute_io_debug_csrs_mstatus),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
     .io_csrs_mcause                     (_execute_io_debug_csrs_mcause)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:37:66
+  FlushTrace flushTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:95:28
+    .clk   (clock),
+    .reset (reset),
+    .flush (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
+    .pc    (_execute_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+    .inst  (_execute_io_out_bits_retireTrace_inst)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:95:28
 endmodule
 

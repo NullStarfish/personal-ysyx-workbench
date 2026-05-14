@@ -90,7 +90,10 @@ class Fetch(
     val fetchTrace = Module(new FetchTrace)
     fetchTrace.io.clk := clock
     fetchTrace.io.reset := reset.asBool
-    fetchTrace.io.gotInst := io.reply.fire
+    fetchTrace.io.reqInst := io.fetch.fire
+    fetchTrace.io.gotInst := io.out.fire
+    fetchTrace.io.pc := io.out.bits.pc
+    fetchTrace.io.inst := io.out.bits.inst
   }
 
 }

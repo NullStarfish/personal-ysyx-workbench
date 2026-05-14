@@ -16,16 +16,16 @@ module Fetch(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/g
   input  [31:0] io_redirect_bits	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:14:14
 );
 
-  wire        io_reply_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:70:35
   reg  [31:0] pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
   reg         shooted;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:40:24
   wire        io_fetch_valid_0 = ~reset & ~io_redirect_valid & ~shooted;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:40:24, :42:{21,35,38,57,60}
   reg         epoch;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:46:22
   reg         lastEpoch;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:49:26
   reg  [31:0] launchedPc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:50:27
-  wire        _fetchTrace_io_gotInst_T = io_reply_ready_0 & io_reply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:70:35, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-  assign io_reply_ready_0 =
+  wire        _fetchTrace_io_reqInst_T = io_fetch_ready & io_fetch_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:42:{35,57}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        io_reply_ready_0 =
     ~reset & (io_out_ready | epoch != lastEpoch & io_redirect_valid);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:46:22, :49:26, :70:{21,35,52,62,77}
+  wire        io_out_valid_0 = epoch == lastEpoch & io_reply_valid & ~io_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:42:38, :46:22, :49:26, :72:{26,41,60}
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
     if (reset) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
       pc <= 32'hA0000000;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
@@ -35,15 +35,14 @@ module Fetch(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/g
       launchedPc <= 32'hA0000000;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:50:27
     end
     else begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
-      automatic logic _GEN;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      _GEN = io_fetch_ready & io_fetch_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:42:{35,57}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
       if (io_redirect_valid)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:14:14
         pc <= io_redirect_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:33:19
-      else if (_GEN)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      else if (io_fetch_ready & io_fetch_valid_0)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:42:{35,57}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
         pc <= pc + 32'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:33:19, :37:14
-      shooted <= ~_fetchTrace_io_gotInst_T & (_GEN | shooted);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:40:24, :52:24, :55:13, :58:24, :59:13, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      shooted <=
+        ~(io_reply_ready_0 & io_reply_valid) & (_fetchTrace_io_reqInst_T | shooted);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:40:24, :52:24, :55:13, :58:24, :59:13, :70:35, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
       epoch <= io_redirect_valid ^ epoch;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:46:22, :62:28, :63:11
-      if (_GEN) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      if (_fetchTrace_io_reqInst_T) begin	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
         lastEpoch <= epoch;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:46:22, :49:26
         launchedPc <= pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:33:19, :50:27
       end
@@ -52,12 +51,15 @@ module Fetch(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/g
   FetchTrace fetchTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:90:28
     .clk     (clock),
     .reset   (reset),
-    .gotInst (_fetchTrace_io_gotInst_T)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .reqInst (_fetchTrace_io_reqInst_T),	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .gotInst (io_out_ready & io_out_valid_0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:72:{41,60}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .pc      (launchedPc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:50:27
+    .inst    (io_reply_bits)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:90:28
   assign io_fetch_valid = io_fetch_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :42:{35,57}
   assign io_fetch_bits = pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :33:19
   assign io_reply_ready = io_reply_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :70:35
-  assign io_out_valid = epoch == lastEpoch & io_reply_valid & ~io_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :42:38, :46:22, :49:26, :72:{26,41,60}
+  assign io_out_valid = io_out_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :72:{41,60}
   assign io_out_bits_pc = launchedPc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7, :50:27
   assign io_out_bits_inst = io_reply_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:10:7
 endmodule

@@ -2,15 +2,41 @@
 module LSUTrace(
     input logic clk,
     input logic reset,
+    input logic reqReadData,
+    input logic reqWriteData,
     input logic gotData
 );
  import "DPI-C" function void lsu_trace(
-   input gotData
+   input int latency,
+   input bit write
 );
 
+logic [31:0] latency;
+logic inflight;
+logic inflightWrite;
+
 always_ff @(posedge clk) begin
- if(!reset && gotData) begin
-   lsu_trace(gotData);
+ if(reset) begin
+   latency <= 32'd0;
+   inflight <= 1'b0;
+   inflightWrite <= 1'b0;
+ end else begin
+   if(inflight) begin
+     latency <= latency + 32'd1;
+   end
+
+   if(reqReadData || reqWriteData) begin
+     latency <= 32'd0;
+     inflight <= 1'b1;
+     inflightWrite <= reqWriteData;
+   end
+
+   if(gotData) begin
+     lsu_trace(latency, inflightWrite);
+     inflight <= 1'b0;
+     latency <= 32'd0;
+     inflightWrite <= 1'b0;
+   end
  end
 end
 

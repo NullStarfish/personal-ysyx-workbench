@@ -91,6 +91,15 @@ class Core(
   fetch.io.redirect.valid := redirectFlush
   fetch.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
 
+  if (enableDpi && enableTraceFields) {
+    val flushTrace = Module(new FlushTrace)
+    flushTrace.io.clk := clock
+    flushTrace.io.reset := reset.asBool
+    flushTrace.io.flush := redirectFlush
+    flushTrace.io.pc := execute.io.out.bits.retireTrace.get.pc
+    flushTrace.io.inst := execute.io.out.bits.retireTrace.get.inst
+  }
+
   ifId.io.flush := redirectFlush
   idEx.io.flush := redirectFlush
   exMem.io.flush := false.B

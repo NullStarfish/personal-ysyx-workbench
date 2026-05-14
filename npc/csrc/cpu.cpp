@@ -37,6 +37,7 @@ void CPU::init() {
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
+  instQueue = {};
 }
 
 void CPU::exec(uint64_t n) {
@@ -59,6 +60,7 @@ void CPU::execOnce() {
   while (!hasCommitted && runtime.isRunning()) {
     runtime.stepOneClk();
     cycleCountValue++;
+    instQueue.updateCycles();
   }
   if (!runtime.isRunning()) return;
 
@@ -86,6 +88,19 @@ void CPU::traceAndDifftest() {
 }
 
 void CPU::commitRetire(const RetireSnapshot &snapshot) {
+  Inst retiredInst = instQueue.retire(snapshot.pc, snapshot.inst);
+  retiredInst.instType = snapshot.instType;
+  if (retiredInst.lifeCycleCount > 0) {
+    totalInstLifeCycles += retiredInst.lifeCycleCount;
+    if (retiredInst.lifeCycleCount > maxInstLifeCycles) {
+      maxInstLifeCycles = retiredInst.lifeCycleCount;
+    }
+    if (retiredInst.instType < 4) {
+      instLifeCycleCnt[retiredInst.instType] += retiredInst.lifeCycleCount;
+      instTypeCnt[retiredInst.instType]++;
+    }
+  }
+
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
   archState.pc = snapshot.dnpc;
@@ -106,16 +121,44 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
   hasCommitted = true;
 }
 
-void CPU::traceFetch(bool gotInst) {
-  if (gotInst) fetchGotInstCnt++;
+void CPU::traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t latency) {
+  if (gotInst) {
+    fetchGotInstCnt++;
+    fetchLatencyCnt += latency;
+    if (latency > fetchMaxLatency) {
+      fetchMaxLatency = latency;
+    }
+    Inst inst = {};
+    inst.pc = pc;
+    inst.instVal = instVal;
+    instQueue.run(inst);
+  }
 }
 
 void CPU::traceExecute(bool finished) {
   if (finished) executeFinishedCnt++;
 }
 
-void CPU::traceLsu(bool gotData) {
-  if (gotData) lsuGotDataCnt++;
+void CPU::traceLsu(uint32_t latency, bool write) {
+  if (write) {
+    lsuWriteDataCnt++;
+    lsuStoreLatencyCnt += latency;
+    if (latency > lsuMaxStoreLatency) {
+      lsuMaxStoreLatency = latency;
+    }
+  } else {
+    lsuGotDataCnt++;
+    lsuLoadLatencyCnt += latency;
+    if (latency > lsuMaxLoadLatency) {
+      lsuMaxLoadLatency = latency;
+    }
+  }
+}
+
+void CPU::traceFlush(bool flush, uint32_t pc, uint32_t instVal) {
+  if (flush) {
+    instQueue.discardAfter(pc, instVal);
+  }
 }
 
 uint32_t CPU::pc() const { return archState.pc; }
@@ -204,7 +247,24 @@ void CPU::printStats() const {
   printf("Inst statistics: \n");
   printf("Arith: %lld\t, Mem: %lld\t, Redirect: %lld\t, Sys: %lld\n", this->instArithCnt, this->instMemCnt, this->instRdrctCnt, this->instSysCnt);
   printf("Arith: %lf%%, Mem: %lf%%, Redirect: %lf%%, Sys: %lf%%\n", 100.0*instArithCnt/instrCountValue, 100.0*instMemCnt/instrCountValue, 100.0*instRdrctCnt/instrCountValue, 100.0*instSysCnt/instrCountValue);
-  printf("Pipeline trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuData=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt);
+  printf("Pipeline trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuLoadData=%lld\t, LsuStoreAck=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt, lsuWriteDataCnt);
+  if (fetchGotInstCnt > 0) {
+    printf("Fetch latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchLatencyCnt) / fetchGotInstCnt, fetchMaxLatency);
+  }
+  if (lsuGotDataCnt > 0) {
+    printf("LSU load latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(lsuLoadLatencyCnt) / lsuGotDataCnt, lsuMaxLoadLatency);
+  }
+  if (lsuWriteDataCnt > 0) {
+    printf("LSU store latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(lsuStoreLatencyCnt) / lsuWriteDataCnt, lsuMaxStoreLatency);
+  }
+  if (instrCountValue > 0) {
+    printf("Inst lifecycle: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(totalInstLifeCycles) / instrCountValue, maxInstLifeCycles);
+    printf("Inst lifecycle by type: Arith=%lf\t, Mem=%lf\t, Redirect=%lf\t, Sys=%lf\n",
+           instTypeCnt[CPU::arith] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::arith]) / instTypeCnt[CPU::arith],
+           instTypeCnt[CPU::mem] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::mem]) / instTypeCnt[CPU::mem],
+           instTypeCnt[CPU::redirect] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::redirect]) / instTypeCnt[CPU::redirect],
+           instTypeCnt[CPU::sys] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::sys]) / instTypeCnt[CPU::sys]);
+  }
   if (cycleCountValue > 0) {
     printf("  Average IPC:        %f\n", static_cast<double>(instrCountValue) / cycleCountValue);
   } else {
@@ -250,14 +310,18 @@ extern "C" void ebreak() {
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);
 }
 
-extern "C" void fetch_trace(svBit gotInst) {
-  cpu.traceFetch(gotInst != 0);
+extern "C" void fetch_trace(svBit gotInst, int pc, int inst, int latency) {
+  cpu.traceFetch(gotInst != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst), static_cast<uint32_t>(latency));
 }
 
 extern "C" void execute_trace(svBit finished) {
   cpu.traceExecute(finished != 0);
 }
 
-extern "C" void lsu_trace(svBit gotData) {
-  cpu.traceLsu(gotData != 0);
+extern "C" void lsu_trace(int latency, svBit write) {
+  cpu.traceLsu(static_cast<uint32_t>(latency), write != 0);
+}
+
+extern "C" void flush_trace(svBit flush, int pc, int inst) {
+  cpu.traceFlush(flush != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst));
 }
