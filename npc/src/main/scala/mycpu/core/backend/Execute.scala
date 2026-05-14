@@ -35,17 +35,19 @@ class Execute(
   alu.io.b := aluInB
   alu.io.op := ctrl.aluOp
 
+  val executeFire = io.in.valid && io.out.ready
+
   val csr = Module(new CSR)
-  csr.io.cmd := ctrl.sys.csrOp
+  csr.io.cmd := Mux(executeFire, ctrl.sys.csrOp, CSROp.N)
   csr.io.addr := ctrl.sys.csrAddr
   csr.io.wdata := execData.rs1
   csr.io.pc := execData.pc
-  csr.io.isEcall := ctrl.sys.ecall && io.in.valid
-  csr.io.isMret := ctrl.sys.mret && io.in.valid
+  csr.io.isEcall := ctrl.sys.ecall && executeFire
+  csr.io.isMret := ctrl.sys.mret && executeFire
 
   if (enableDpi) {
     val simEbreak = Module(new SimEbreakDPI)
-    simEbreak.io.valid := ctrl.sys.ebreak && io.in.valid
+    simEbreak.io.valid := ctrl.sys.ebreak && executeFire
     simEbreak.io.is_ebreak := 0.U
   }
 

@@ -161,6 +161,21 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
     }
   }
 
+  it should "forward a freshly computed rs1 value into CSR writes" in {
+    runReadOnlyProgram(
+      program = Seq(
+        BigInt("00000717", 16), // auipc a4, 0
+        BigInt("05070713", 16), // addi a4, a4, 0x50
+        BigInt("30571073", 16), // csrw mtvec, a4
+        BigInt("00100073", 16), // ebreak
+      ),
+      targetRetires = 4,
+    ) { c =>
+      c.io.debug_regs(14).expect((START_ADDR + 0x50L).U)
+      c.io.debug_csrs.mtvec.expect((START_ADDR + 0x50L).U)
+    }
+  }
+
   it should "execute jal and jalr" in {
     runReadOnlyProgram(
       program = Seq(

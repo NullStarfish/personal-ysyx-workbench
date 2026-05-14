@@ -40,14 +40,14 @@ class LSUSpec extends AnyFlatSpec {
 
       c.io.in.ready.expect(true.B)
       c.io.req.valid.expect(false.B)
-      c.clock.step()
-
-      c.io.in.valid.poke(false.B)
       c.io.out.valid.expect(true.B)
       c.io.out.bits.wbCtrl.rd.expect(5.U)
       c.io.out.bits.wbCtrl.wen.expect(true.B)
       c.io.out.bits.wbData.wdata.expect("h12345678".U)
       c.clock.step()
+
+      c.io.in.valid.poke(false.B)
+      c.io.out.valid.expect(false.B)
     }
   }
 

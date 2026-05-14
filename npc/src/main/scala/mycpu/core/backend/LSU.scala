@@ -18,7 +18,7 @@ class LSU(
   })
 
   object State extends ChiselEnum {
-    val Idle, WaitReply, EmitPassThrough = Value
+    val Idle, WaitReply = Value
   }
 
   val state = RegInit(State.Idle)
@@ -70,6 +70,8 @@ class LSU(
 
   val isInputMem = io.in.bits.memCtrl.en
   val isInputPassThrough = !isInputMem
+  val reqViewIsMem = reqView.memCtrl.en
+  val reqViewIsLoad = reqView.memCtrl.en && !reqView.memCtrl.write
   val reqRegIsLoad = reqReg.memCtrl.en && !reqReg.memCtrl.write
   val notReset = !reset.asBool
 
@@ -85,38 +87,28 @@ class LSU(
   io.pendingLoad.valid := notReset && state === State.WaitReply && reqRegIsLoad
   io.pendingLoad.addr := reqReg.wbCtrl.rd
 
-  io.out.bits.wbData.wdata := Mux(reqReg.memCtrl.en && !reqReg.memCtrl.write, loadData, reqReg.wbData.wdata)
-  io.out.bits.wbCtrl := reqReg.wbCtrl
+  io.out.bits.wbData.wdata := Mux(reqViewIsLoad, loadData, reqView.wbData.wdata)
+  io.out.bits.wbCtrl := reqView.wbCtrl
   if (enableTraceFields) {
-    io.out.bits.retireTrace.get := reqReg.retireTrace.get
+    io.out.bits.retireTrace.get := reqView.retireTrace.get
     io.out.bits.retireTrace.get.regWrite.wdata := io.out.bits.wbData.wdata
   }
 
   switch(state) {
     is(State.Idle) {
-      io.in.ready := notReset && (isInputPassThrough || io.req.ready)
+      io.in.ready := notReset && Mux(isInputPassThrough, io.out.ready, io.req.ready)
       io.req.valid := notReset && io.in.valid && isInputMem
+      io.out.valid := notReset && io.in.valid && isInputPassThrough
 
-      when(io.in.fire) {
+      when(io.in.fire && isInputMem) {
         reqReg := io.in.bits
-        when(isInputPassThrough) {
-          state := State.EmitPassThrough
-        }.otherwise {
-          state := State.WaitReply
-        }
+        state := State.WaitReply
       }
     }
 
     is(State.WaitReply) {
       io.out.valid := notReset && io.reply.valid
       io.reply.ready := notReset && io.out.ready
-      when(io.out.fire) {
-        state := State.Idle
-      }
-    }
-
-    is(State.EmitPassThrough) {
-      io.out.valid := notReset
       when(io.out.fire) {
         state := State.Idle
       }
