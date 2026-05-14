@@ -74,7 +74,7 @@ class Core(
   hazard.io.raw.decode.rs2.valid := decode.io.out.valid && decode.io.out.bits.rawRs2.valid
   hazard.io.raw.decode.rs2.addr := decode.io.out.bits.rawRs2.addr
 
-  hazard.io.raw.idExLoad.valid := idEx.io.deq.valid && idEx.io.deq.bits.wbCtrl.wen
+  hazard.io.raw.idExLoad.valid := idEx.io.deq.valid && idEx.io.deq.bits.memCtrl.en && !idEx.io.deq.bits.memCtrl.write
   hazard.io.raw.idExLoad.addr := idEx.io.deq.bits.wbCtrl.rd
   val exMemLoad = Wire(new RAWRdPacket)
   exMemLoad.valid := exMem.io.deq.valid && exMem.io.deq.bits.memCtrl.en && !exMem.io.deq.bits.memCtrl.write

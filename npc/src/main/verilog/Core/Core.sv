@@ -577,7 +577,9 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_raw_decode_rs1_addr  (_decode_io_out_bits_rs1_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_raw_decode_rs2_valid (_decode_io_out_valid & _decode_io_out_bits_rs2_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :74:57
     .io_raw_decode_rs2_addr  (_decode_io_out_bits_rs2_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
-    .io_raw_idExLoad_valid   (_idEx_io_deq_valid & _idEx_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20, :77:53
+    .io_raw_idExLoad_valid
+      (_idEx_io_deq_valid & _idEx_io_deq_bits_memCtrl_en
+       & ~_idEx_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20, :77:{53,84,87}
     .io_raw_idExLoad_addr    (_idEx_io_deq_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
     .io_raw_lsuLoad_valid
       (_lsu_io_pendingLoad_valid | _exMem_io_deq_valid & _exMem_io_deq_bits_memCtrl_en
