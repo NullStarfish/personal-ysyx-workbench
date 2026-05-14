@@ -70,6 +70,11 @@ class DecodeSim extends AnyFlatSpec {
     c.io.regWrite.regWrite.wen.poke(false.B)
     c.io.regWrite.regWrite.rd.poke(0.U)
     c.io.regWrite.regWrite.wdata.poke(0.U)
+    for (forward <- c.io.forwards) {
+      forward.valid.poke(false.B)
+      forward.addr.poke(0.U)
+      forward.data.poke(0.U)
+    }
   }
 
   private def resetDut(c: Decode): Unit = {
@@ -130,6 +135,28 @@ class DecodeSim extends AnyFlatSpec {
       c.io.out.bits.wbCtrl.rd.expect(2.U)
       c.io.out.bits.memCtrl.en.expect(false.B)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.arith)
+    }
+  }
+
+  it should "prefer the newest forwarded source register value" in {
+    simulate(new Decode) { c =>
+      resetDut(c)
+
+      c.io.regWrite.regWrite.wen.poke(true.B)
+      c.io.regWrite.regWrite.rd.poke(1.U)
+      c.io.regWrite.regWrite.wdata.poke("h11111111".U)
+      c.io.forwards(0).valid.poke(true.B)
+      c.io.forwards(0).addr.poke(1.U)
+      c.io.forwards(0).data.poke("h22222222".U)
+      c.io.forwards(1).valid.poke(true.B)
+      c.io.forwards(1).addr.poke(1.U)
+      c.io.forwards(1).data.poke("h33333333".U)
+
+      driveInst(c, iType(4, rs1 = 1, funct3 = 0, rd = 2, opcode = BigInt("0010011", 2).toInt))
+
+      c.io.out.bits.rs1.valid.expect(true.B)
+      c.io.out.bits.rs1.bits.addr.expect(1.U)
+      c.io.out.bits.rs1.bits.rdata.expect("h22222222".U)
     }
   }
 

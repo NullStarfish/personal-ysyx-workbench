@@ -21,152 +21,123 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
   input  [31:0] io_master_r_bits_data	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:18:14
 );
 
-  wire        _memWb_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [31:0] _memWb_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [31:0] _memWb_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [31:0] _memWb_io_deq_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [1:0]  _memWb_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [4:0]  _memWb_io_deq_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire        _memWb_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire [31:0] _memWb_io_deq_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  wire        _exMem_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [31:0] _exMem_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [31:0] _exMem_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [31:0] _exMem_io_deq_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [4:0]  _exMem_io_deq_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [1:0]  _exMem_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [31:0] _exMem_io_deq_bits_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [31:0] _exMem_io_deq_bits_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [4:0]  _exMem_io_deq_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _exMem_io_deq_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire [1:0]  _exMem_io_deq_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  wire        _idEx_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [1:0]  _idEx_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [4:0]  _idEx_io_deq_bits_rs1_bits_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_rs1_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [4:0]  _idEx_io_deq_bits_rs2_bits_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_rs2_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [4:0]  _idEx_io_deq_bits_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [3:0]  _idEx_io_deq_bits_execCtrl_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [1:0]  _idEx_io_deq_bits_execCtrl_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [2:0]  _idEx_io_deq_bits_execCtrl_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [1:0]  _idEx_io_deq_bits_execCtrl_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [11:0] _idEx_io_deq_bits_execCtrl_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_sys_ecall;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_sys_ebreak;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_execCtrl_sys_mret;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_execData_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [31:0] _idEx_io_deq_bits_execData_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire [1:0]  _idEx_io_deq_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _idEx_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  wire        _ifId_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-  wire        _ifId_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-  wire [31:0] _ifId_io_deq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-  wire [31:0] _ifId_io_deq_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-  wire        _hazard_io_raw_loadUseStall;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-  wire        _hazard_io_ctrl_flush;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-  wire        _memory_io_fetchReq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire        _memory_io_fetchReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire [31:0] _memory_io_fetchReply_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire        _memory_io_lsuReq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire        _memory_io_lsuReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire [31:0] _memory_io_lsuReply_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  wire        _writeBack_io_retireTrace_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [31:0] _writeBack_io_retireTrace_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [31:0] _writeBack_io_retireTrace_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [31:0] _writeBack_io_retireTrace_bits_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [4:0]  _writeBack_io_retireTrace_bits_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire        _writeBack_io_retireTrace_bits_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [31:0] _writeBack_io_retireTrace_bits_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [1:0]  _writeBack_io_retireTrace_bits_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [4:0]  _writeBack_io_regWrite_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire        _writeBack_io_regWrite_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire [31:0] _writeBack_io_regWrite_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  wire        _lsu_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_req_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_req_bits_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_req_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [3:0]  _lsu_io_req_bits_strb;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_req_bits_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [2:0]  _lsu_io_req_bits_size;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_reply_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_out_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_out_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [4:0]  _lsu_io_out_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_out_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_out_bits_retireTrace_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [1:0]  _lsu_io_out_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [4:0]  _lsu_io_out_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_out_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [31:0] _lsu_io_out_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _lsu_io_pendingLoad_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire [4:0]  _lsu_io_pendingLoad_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  wire        _execute_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [4:0]  _execute_io_out_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_retireTrace_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [1:0]  _execute_io_out_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_out_bits_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [4:0]  _execute_io_out_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [1:0]  _execute_io_out_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _execute_io_out_bits_ifRedct_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_debug_csrs_mtvec;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_debug_csrs_mepc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_debug_csrs_mstatus;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire [31:0] _execute_io_debug_csrs_mcause;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  wire        _operandSelect_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [1:0]  _operandSelect_io_out_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_rs1_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_rs2_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [4:0]  _operandSelect_io_out_bits_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [3:0]  _operandSelect_io_out_bits_execCtrl_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [1:0]  _operandSelect_io_out_bits_execCtrl_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [2:0]  _operandSelect_io_out_bits_execCtrl_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [1:0]  _operandSelect_io_out_bits_execCtrl_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [11:0] _operandSelect_io_out_bits_execCtrl_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_sys_ecall;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_sys_ebreak;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_execCtrl_sys_mret;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_execData_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [31:0] _operandSelect_io_out_bits_execData_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire [1:0]  _operandSelect_io_out_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  wire        _operandSelect_io_out_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
+  wire        _memWb_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [31:0] _memWb_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [31:0] _memWb_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [31:0] _memWb_io_deq_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [1:0]  _memWb_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [4:0]  _memWb_io_deq_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire        _memWb_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire [31:0] _memWb_io_deq_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  wire        _exMem_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [31:0] _exMem_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [31:0] _exMem_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [31:0] _exMem_io_deq_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [4:0]  _exMem_io_deq_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [1:0]  _exMem_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [31:0] _exMem_io_deq_bits_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [31:0] _exMem_io_deq_bits_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [4:0]  _exMem_io_deq_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _exMem_io_deq_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire [1:0]  _exMem_io_deq_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  wire        _idEx_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [1:0]  _idEx_io_deq_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_rs1_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_rs2_bits_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [4:0]  _idEx_io_deq_bits_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [3:0]  _idEx_io_deq_bits_execCtrl_aluOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_aluSrcA;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_aluSrcB;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [1:0]  _idEx_io_deq_bits_execCtrl_wbSel;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [2:0]  _idEx_io_deq_bits_execCtrl_branchType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_isJump;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_isJalr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [1:0]  _idEx_io_deq_bits_execCtrl_sys_csrOp;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [11:0] _idEx_io_deq_bits_execCtrl_sys_csrAddr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_sys_ecall;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_sys_ebreak;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_execCtrl_sys_mret;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_execData_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [31:0] _idEx_io_deq_bits_execData_imm;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire [1:0]  _idEx_io_deq_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _idEx_io_deq_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  wire        _ifId_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+  wire        _ifId_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+  wire [31:0] _ifId_io_deq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+  wire [31:0] _ifId_io_deq_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+  wire        _hazard_io_raw_loadUseStall;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  wire        _hazard_io_ctrl_flush;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  wire        _memory_io_fetchReq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire        _memory_io_fetchReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire [31:0] _memory_io_fetchReply_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire        _memory_io_lsuReq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire        _memory_io_lsuReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire [31:0] _memory_io_lsuReply_bits;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  wire        _writeBack_io_retireTrace_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [31:0] _writeBack_io_retireTrace_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [31:0] _writeBack_io_retireTrace_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [31:0] _writeBack_io_retireTrace_bits_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [4:0]  _writeBack_io_retireTrace_bits_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire        _writeBack_io_retireTrace_bits_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [31:0] _writeBack_io_retireTrace_bits_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [1:0]  _writeBack_io_retireTrace_bits_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [4:0]  _writeBack_io_regWrite_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire        _writeBack_io_regWrite_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire [31:0] _writeBack_io_regWrite_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  wire        _lsu_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_req_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_req_bits_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_req_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [3:0]  _lsu_io_req_bits_strb;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_req_bits_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [2:0]  _lsu_io_req_bits_size;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_reply_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_out_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_out_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [4:0]  _lsu_io_out_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_out_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_out_bits_retireTrace_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [1:0]  _lsu_io_out_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [4:0]  _lsu_io_out_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_out_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [31:0] _lsu_io_out_bits_wbData_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _lsu_io_pendingLoad_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire [4:0]  _lsu_io_pendingLoad_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  wire        _execute_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_retireTrace_dnpc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [4:0]  _execute_io_out_bits_retireTrace_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_retireTrace_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_retireTrace_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [1:0]  _execute_io_out_bits_retireTrace_instType;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_lhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_out_bits_rhs;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_wbCtrl_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [4:0]  _execute_io_out_bits_wbCtrl_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_memCtrl_en;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_memCtrl_write;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_memCtrl_unsigned;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [1:0]  _execute_io_out_bits_memCtrl_subop;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire        _execute_io_out_bits_ifRedct_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_debug_csrs_mtvec;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_debug_csrs_mepc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_debug_csrs_mstatus;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  wire [31:0] _execute_io_debug_csrs_mcause;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
   wire        _decode_io_in_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
   wire        _decode_io_out_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
   wire [31:0] _decode_io_out_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
@@ -243,27 +214,27 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
   Fetch fetch (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
     .clock             (clock),
     .reset             (reset),
-    .io_fetch_ready    (_memory_io_fetchReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_fetch_ready    (_memory_io_fetchReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
     .io_fetch_valid    (_fetch_io_fetch_valid),
     .io_fetch_bits     (_fetch_io_fetch_bits),
     .io_reply_ready    (_fetch_io_reply_ready),
-    .io_reply_valid    (_memory_io_fetchReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-    .io_reply_bits     (_memory_io_fetchReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-    .io_out_ready      (_ifId_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_reply_valid    (_memory_io_fetchReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+    .io_reply_bits     (_memory_io_fetchReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+    .io_out_ready      (_ifId_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
     .io_out_valid      (_fetch_io_out_valid),
     .io_out_bits_pc    (_fetch_io_out_bits_pc),
     .io_out_bits_inst  (_fetch_io_out_bits_inst),
-    .io_redirect_valid (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-    .io_redirect_bits  (_execute_io_out_bits_rhs)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+    .io_redirect_valid (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_redirect_bits  (_execute_io_out_bits_rhs)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
   Decode decode (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .clock                                  (clock),
     .reset                                  (reset),
     .io_in_ready                            (_decode_io_in_ready),
-    .io_in_valid                            (_ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-    .io_in_bits_pc                          (_ifId_io_deq_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-    .io_in_bits_inst                        (_ifId_io_deq_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-    .io_out_ready                           (_idEx_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
+    .io_in_valid                            (_ifId_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+    .io_in_bits_pc                          (_ifId_io_deq_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+    .io_in_bits_inst                        (_ifId_io_deq_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+    .io_out_ready                           (_idEx_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
     .io_out_valid                           (_decode_io_out_valid),
     .io_out_bits_retireTrace_pc             (_decode_io_out_bits_retireTrace_pc),
     .io_out_bits_retireTrace_inst           (_decode_io_out_bits_retireTrace_inst),
@@ -300,9 +271,28 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_out_bits_memCtrl_unsigned           (_decode_io_out_bits_memCtrl_unsigned),
     .io_out_bits_memCtrl_subop              (_decode_io_out_bits_memCtrl_subop),
     .io_out_bits_wbCtrl_wen                 (_decode_io_out_bits_wbCtrl_wen),
-    .io_regWrite_regWrite_rd                (_writeBack_io_regWrite_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_regWrite_regWrite_wen               (_writeBack_io_regWrite_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_regWrite_regWrite_wdata             (_writeBack_io_regWrite_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
+    .io_regWrite_regWrite_rd                (_writeBack_io_regWrite_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_regWrite_regWrite_wen               (_writeBack_io_regWrite_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_regWrite_regWrite_wdata             (_writeBack_io_regWrite_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_forwards_0_valid
+      (_execute_io_out_valid & _execute_io_out_bits_wbCtrl_wen
+       & ~_execute_io_out_bits_memCtrl_en & (|_execute_io_out_bits_wbCtrl_rd)),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23, :63:27, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/bundles/Execute.scala:111:{47,50,81,114}
+    .io_forwards_0_addr                     (_execute_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_forwards_0_data                     (_execute_io_out_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_forwards_1_valid
+      (_exMem_io_deq_valid & _exMem_io_deq_bits_wbCtrl_wen
+       & ~_exMem_io_deq_bits_memCtrl_en & (|_exMem_io_deq_bits_wbCtrl_rd)),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21, :63:27, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/bundles/Execute.scala:111:{47,50,81,114}
+    .io_forwards_1_addr                     (_exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_forwards_1_data                     (_exMem_io_deq_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_forwards_2_valid
+      (_lsu_io_out_valid & _lsu_io_out_bits_wbCtrl_wen & (|_lsu_io_out_bits_wbCtrl_rd)),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19, :63:27, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/bundles/Mem.scala:64:{46,78}
+    .io_forwards_2_addr                     (_lsu_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_forwards_2_data                     (_lsu_io_out_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_forwards_3_valid
+      (_memWb_io_deq_valid & _memWb_io_deq_bits_wbCtrl_wen
+       & (|_memWb_io_deq_bits_wbCtrl_rd)),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21, :63:27, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/bundles/Mem.scala:64:{46,78}
+    .io_forwards_3_addr                     (_memWb_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_forwards_3_data                     (_memWb_io_deq_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
     .io_debug_regs_0                        (_decode_io_debug_regs_0),
     .io_debug_regs_1                        (_decode_io_debug_regs_1),
     .io_debug_regs_2                        (_decode_io_debug_regs_2),
@@ -336,116 +326,37 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_debug_regs_30                       (_decode_io_debug_regs_30),
     .io_debug_regs_31                       (_decode_io_debug_regs_31)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
-  ExecuteOperandSelect operandSelect (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_ready                      (_operandSelect_io_in_ready),
-    .io_in_valid                      (_idEx_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_retireTrace_pc        (_idEx_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_retireTrace_inst      (_idEx_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_retireTrace_instType  (_idEx_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_rs1_bits_addr         (_idEx_io_deq_bits_rs1_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_rs1_bits_rdata        (_idEx_io_deq_bits_rs1_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_rs2_bits_addr         (_idEx_io_deq_bits_rs2_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_rs2_bits_rdata        (_idEx_io_deq_bits_rs2_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_rd                    (_idEx_io_deq_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_aluOp        (_idEx_io_deq_bits_execCtrl_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_aluSrcA      (_idEx_io_deq_bits_execCtrl_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_aluSrcB      (_idEx_io_deq_bits_execCtrl_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_wbSel        (_idEx_io_deq_bits_execCtrl_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_branchType   (_idEx_io_deq_bits_execCtrl_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_isJump       (_idEx_io_deq_bits_execCtrl_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_isJalr       (_idEx_io_deq_bits_execCtrl_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_sys_csrOp    (_idEx_io_deq_bits_execCtrl_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_sys_csrAddr  (_idEx_io_deq_bits_execCtrl_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_sys_ecall    (_idEx_io_deq_bits_execCtrl_sys_ecall),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_sys_ebreak   (_idEx_io_deq_bits_execCtrl_sys_ebreak),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execCtrl_sys_mret     (_idEx_io_deq_bits_execCtrl_sys_mret),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execData_pc           (_idEx_io_deq_bits_execData_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_execData_imm          (_idEx_io_deq_bits_execData_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_memCtrl_en            (_idEx_io_deq_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_memCtrl_write         (_idEx_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_memCtrl_unsigned      (_idEx_io_deq_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_memCtrl_subop         (_idEx_io_deq_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_in_bits_wbCtrl_wen            (_idEx_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-    .io_out_ready                     (_execute_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_out_valid                     (_operandSelect_io_out_valid),
-    .io_out_bits_retireTrace_pc       (_operandSelect_io_out_bits_retireTrace_pc),
-    .io_out_bits_retireTrace_inst     (_operandSelect_io_out_bits_retireTrace_inst),
-    .io_out_bits_retireTrace_instType (_operandSelect_io_out_bits_retireTrace_instType),
-    .io_out_bits_rs1_bits_rdata       (_operandSelect_io_out_bits_rs1_bits_rdata),
-    .io_out_bits_rs2_bits_rdata       (_operandSelect_io_out_bits_rs2_bits_rdata),
-    .io_out_bits_rd                   (_operandSelect_io_out_bits_rd),
-    .io_out_bits_execCtrl_aluOp       (_operandSelect_io_out_bits_execCtrl_aluOp),
-    .io_out_bits_execCtrl_aluSrcA     (_operandSelect_io_out_bits_execCtrl_aluSrcA),
-    .io_out_bits_execCtrl_aluSrcB     (_operandSelect_io_out_bits_execCtrl_aluSrcB),
-    .io_out_bits_execCtrl_wbSel       (_operandSelect_io_out_bits_execCtrl_wbSel),
-    .io_out_bits_execCtrl_branchType  (_operandSelect_io_out_bits_execCtrl_branchType),
-    .io_out_bits_execCtrl_isJump      (_operandSelect_io_out_bits_execCtrl_isJump),
-    .io_out_bits_execCtrl_isJalr      (_operandSelect_io_out_bits_execCtrl_isJalr),
-    .io_out_bits_execCtrl_sys_csrOp   (_operandSelect_io_out_bits_execCtrl_sys_csrOp),
-    .io_out_bits_execCtrl_sys_csrAddr (_operandSelect_io_out_bits_execCtrl_sys_csrAddr),
-    .io_out_bits_execCtrl_sys_ecall   (_operandSelect_io_out_bits_execCtrl_sys_ecall),
-    .io_out_bits_execCtrl_sys_ebreak  (_operandSelect_io_out_bits_execCtrl_sys_ebreak),
-    .io_out_bits_execCtrl_sys_mret    (_operandSelect_io_out_bits_execCtrl_sys_mret),
-    .io_out_bits_execData_pc          (_operandSelect_io_out_bits_execData_pc),
-    .io_out_bits_execData_imm         (_operandSelect_io_out_bits_execData_imm),
-    .io_out_bits_memCtrl_en           (_operandSelect_io_out_bits_memCtrl_en),
-    .io_out_bits_memCtrl_write        (_operandSelect_io_out_bits_memCtrl_write),
-    .io_out_bits_memCtrl_unsigned     (_operandSelect_io_out_bits_memCtrl_unsigned),
-    .io_out_bits_memCtrl_subop        (_operandSelect_io_out_bits_memCtrl_subop),
-    .io_out_bits_wbCtrl_wen           (_operandSelect_io_out_bits_wbCtrl_wen),
-    .io_exForward_valid               (_exMem_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_exForward_bits_lhs            (_exMem_io_deq_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_exForward_bits_wbCtrl_wen     (_exMem_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_exForward_bits_wbCtrl_rd      (_exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_exForward_bits_memCtrl_en     (_exMem_io_deq_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_memForward_valid              (_lsu_io_out_valid | _memWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :36:21, :68:40
-    .io_memForward_bits_wbCtrl_rd
-      (_lsu_io_out_valid ? _lsu_io_out_bits_wbCtrl_rd : _memWb_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :36:21, :69:25
-    .io_memForward_bits_wbCtrl_wen
-      (_lsu_io_out_valid ? _lsu_io_out_bits_wbCtrl_wen : _memWb_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :36:21, :69:25
-    .io_memForward_bits_wbData_wdata
-      (_lsu_io_out_valid
-         ? _lsu_io_out_bits_wbData_wdata
-         : _memWb_io_deq_bits_wbData_wdata)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :36:21, :69:25
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-  Execute execute (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+  Execute execute (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
     .clock                                  (clock),
     .reset                                  (reset),
     .io_in_ready                            (_execute_io_in_ready),
-    .io_in_valid                            (_operandSelect_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_retireTrace_pc              (_operandSelect_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_retireTrace_inst            (_operandSelect_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_retireTrace_instType
-      (_operandSelect_io_out_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_rs1_bits_rdata              (_operandSelect_io_out_bits_rs1_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_rs2_bits_rdata              (_operandSelect_io_out_bits_rs2_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_rd                          (_operandSelect_io_out_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_aluOp              (_operandSelect_io_out_bits_execCtrl_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_aluSrcA            (_operandSelect_io_out_bits_execCtrl_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_aluSrcB            (_operandSelect_io_out_bits_execCtrl_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_wbSel              (_operandSelect_io_out_bits_execCtrl_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_branchType
-      (_operandSelect_io_out_bits_execCtrl_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_isJump             (_operandSelect_io_out_bits_execCtrl_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_isJalr             (_operandSelect_io_out_bits_execCtrl_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_sys_csrOp
-      (_operandSelect_io_out_bits_execCtrl_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_sys_csrAddr
-      (_operandSelect_io_out_bits_execCtrl_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_sys_ecall
-      (_operandSelect_io_out_bits_execCtrl_sys_ecall),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_sys_ebreak
-      (_operandSelect_io_out_bits_execCtrl_sys_ebreak),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execCtrl_sys_mret
-      (_operandSelect_io_out_bits_execCtrl_sys_mret),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execData_pc                 (_operandSelect_io_out_bits_execData_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_execData_imm                (_operandSelect_io_out_bits_execData_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_memCtrl_en                  (_operandSelect_io_out_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_memCtrl_write               (_operandSelect_io_out_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_memCtrl_unsigned            (_operandSelect_io_out_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_memCtrl_subop               (_operandSelect_io_out_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_in_bits_wbCtrl_wen                  (_operandSelect_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
-    .io_out_ready                           (_exMem_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_valid                            (_idEx_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_retireTrace_pc              (_idEx_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_retireTrace_inst            (_idEx_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_retireTrace_instType        (_idEx_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_rs1_bits_rdata              (_idEx_io_deq_bits_rs1_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_rs2_bits_rdata              (_idEx_io_deq_bits_rs2_bits_rdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_rd                          (_idEx_io_deq_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_aluOp              (_idEx_io_deq_bits_execCtrl_aluOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_aluSrcA            (_idEx_io_deq_bits_execCtrl_aluSrcA),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_aluSrcB            (_idEx_io_deq_bits_execCtrl_aluSrcB),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_wbSel              (_idEx_io_deq_bits_execCtrl_wbSel),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_branchType         (_idEx_io_deq_bits_execCtrl_branchType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_isJump             (_idEx_io_deq_bits_execCtrl_isJump),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_isJalr             (_idEx_io_deq_bits_execCtrl_isJalr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_sys_csrOp          (_idEx_io_deq_bits_execCtrl_sys_csrOp),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_sys_csrAddr        (_idEx_io_deq_bits_execCtrl_sys_csrAddr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_sys_ecall          (_idEx_io_deq_bits_execCtrl_sys_ecall),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_sys_ebreak         (_idEx_io_deq_bits_execCtrl_sys_ebreak),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execCtrl_sys_mret           (_idEx_io_deq_bits_execCtrl_sys_mret),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execData_pc                 (_idEx_io_deq_bits_execData_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_execData_imm                (_idEx_io_deq_bits_execData_imm),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_memCtrl_en                  (_idEx_io_deq_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_memCtrl_write               (_idEx_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_memCtrl_unsigned            (_idEx_io_deq_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_memCtrl_subop               (_idEx_io_deq_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_in_bits_wbCtrl_wen                  (_idEx_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+    .io_out_ready                           (_exMem_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
     .io_out_valid                           (_execute_io_out_valid),
     .io_out_bits_retireTrace_pc             (_execute_io_out_bits_retireTrace_pc),
     .io_out_bits_retireTrace_inst           (_execute_io_out_bits_retireTrace_inst),
@@ -470,27 +381,27 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_debug_csrs_mepc                     (_execute_io_debug_csrs_mepc),
     .io_debug_csrs_mstatus                  (_execute_io_debug_csrs_mstatus),
     .io_debug_csrs_mcause                   (_execute_io_debug_csrs_mcause)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  LSU lsu (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  LSU lsu (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
     .clock                                  (clock),
     .reset                                  (reset),
     .io_in_ready                            (_lsu_io_in_ready),
-    .io_in_valid                            (_exMem_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_pc              (_exMem_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_inst            (_exMem_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_dnpc            (_exMem_io_deq_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_regWrite_rd     (_exMem_io_deq_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_regWrite_wen    (_exMem_io_deq_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_retireTrace_instType        (_exMem_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_lhs                         (_exMem_io_deq_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_rhs                         (_exMem_io_deq_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_wbCtrl_wen                  (_exMem_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_wbCtrl_rd                   (_exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_memCtrl_en                  (_exMem_io_deq_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_memCtrl_write               (_exMem_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_memCtrl_unsigned            (_exMem_io_deq_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_in_bits_memCtrl_subop               (_exMem_io_deq_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-    .io_req_ready                           (_memory_io_lsuReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_in_valid                            (_exMem_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_pc              (_exMem_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_inst            (_exMem_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_dnpc            (_exMem_io_deq_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_regWrite_rd     (_exMem_io_deq_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_regWrite_wen    (_exMem_io_deq_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_retireTrace_instType        (_exMem_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_lhs                         (_exMem_io_deq_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_rhs                         (_exMem_io_deq_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_wbCtrl_wen                  (_exMem_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_wbCtrl_rd                   (_exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_memCtrl_en                  (_exMem_io_deq_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_memCtrl_write               (_exMem_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_memCtrl_unsigned            (_exMem_io_deq_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_in_bits_memCtrl_subop               (_exMem_io_deq_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+    .io_req_ready                           (_memory_io_lsuReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
     .io_req_valid                           (_lsu_io_req_valid),
     .io_req_bits_addr                       (_lsu_io_req_bits_addr),
     .io_req_bits_data                       (_lsu_io_req_bits_data),
@@ -498,8 +409,8 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_req_bits_write                      (_lsu_io_req_bits_write),
     .io_req_bits_size                       (_lsu_io_req_bits_size),
     .io_reply_ready                         (_lsu_io_reply_ready),
-    .io_reply_valid                         (_memory_io_lsuReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-    .io_reply_bits                          (_memory_io_lsuReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_reply_valid                         (_memory_io_lsuReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+    .io_reply_bits                          (_memory_io_lsuReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
     .io_out_valid                           (_lsu_io_out_valid),
     .io_out_bits_retireTrace_pc             (_lsu_io_out_bits_retireTrace_pc),
     .io_out_bits_retireTrace_inst           (_lsu_io_out_bits_retireTrace_inst),
@@ -513,16 +424,16 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_out_bits_wbData_wdata               (_lsu_io_out_bits_wbData_wdata),
     .io_pendingLoad_valid                   (_lsu_io_pendingLoad_valid),
     .io_pendingLoad_addr                    (_lsu_io_pendingLoad_addr)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-  WriteBack writeBack (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_in_valid                        (_memWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_retireTrace_pc          (_memWb_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_retireTrace_inst        (_memWb_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_retireTrace_dnpc        (_memWb_io_deq_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_retireTrace_instType    (_memWb_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_wbCtrl_rd               (_memWb_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_wbCtrl_wen              (_memWb_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-    .io_in_bits_wbData_wdata            (_memWb_io_deq_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+  WriteBack writeBack (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_in_valid                        (_memWb_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_retireTrace_pc          (_memWb_io_deq_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_retireTrace_inst        (_memWb_io_deq_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_retireTrace_dnpc        (_memWb_io_deq_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_retireTrace_instType    (_memWb_io_deq_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_wbCtrl_rd               (_memWb_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_wbCtrl_wen              (_memWb_io_deq_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_in_bits_wbData_wdata            (_memWb_io_deq_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
     .io_retireTrace_valid               (_writeBack_io_retireTrace_valid),
     .io_retireTrace_bits_pc             (_writeBack_io_retireTrace_bits_pc),
     .io_retireTrace_bits_inst           (_writeBack_io_retireTrace_bits_inst),
@@ -534,8 +445,8 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_regWrite_regWrite_rd            (_writeBack_io_regWrite_regWrite_rd),
     .io_regWrite_regWrite_wen           (_writeBack_io_regWrite_regWrite_wen),
     .io_regWrite_regWrite_wdata         (_writeBack_io_regWrite_regWrite_wdata)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-  MemoryController memory (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+  MemoryController memory (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
     .clock                (clock),
     .reset                (reset),
     .io_fetchReq_ready    (_memory_io_fetchReq_ready),
@@ -545,13 +456,13 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_fetchReply_valid  (_memory_io_fetchReply_valid),
     .io_fetchReply_bits   (_memory_io_fetchReply_bits),
     .io_lsuReq_ready      (_memory_io_lsuReq_ready),
-    .io_lsuReq_valid      (_lsu_io_req_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReq_bits_addr  (_lsu_io_req_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReq_bits_data  (_lsu_io_req_bits_data),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReq_bits_strb  (_lsu_io_req_bits_strb),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReq_bits_write (_lsu_io_req_bits_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReq_bits_size  (_lsu_io_req_bits_size),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_lsuReply_ready    (_lsu_io_reply_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
+    .io_lsuReq_valid      (_lsu_io_req_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReq_bits_addr  (_lsu_io_req_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReq_bits_data  (_lsu_io_req_bits_data),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReq_bits_strb  (_lsu_io_req_bits_strb),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReq_bits_write (_lsu_io_req_bits_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReq_bits_size  (_lsu_io_req_bits_size),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_lsuReply_ready    (_lsu_io_reply_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
     .io_lsuReply_valid    (_memory_io_lsuReply_valid),
     .io_lsuReply_bits     (_memory_io_lsuReply_bits),
     .io_axi_aw_ready      (io_master_aw_ready),
@@ -571,49 +482,49 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_axi_r_ready       (io_master_r_ready),
     .io_axi_r_valid       (io_master_r_valid),
     .io_axi_r_bits_data   (io_master_r_bits_data)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-  HazardUnit hazard (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-    .io_raw_decode_rs1_valid (_decode_io_out_valid & _decode_io_out_bits_rs1_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :72:57
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:22
+  HazardUnit hazard (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_raw_decode_rs1_valid (_decode_io_out_valid & _decode_io_out_bits_rs1_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :73:57
     .io_raw_decode_rs1_addr  (_decode_io_out_bits_rs1_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
-    .io_raw_decode_rs2_valid (_decode_io_out_valid & _decode_io_out_bits_rs2_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :74:57
+    .io_raw_decode_rs2_valid (_decode_io_out_valid & _decode_io_out_bits_rs2_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :75:57
     .io_raw_decode_rs2_addr  (_decode_io_out_bits_rs2_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_raw_idExLoad_valid
       (_idEx_io_deq_valid & _idEx_io_deq_bits_memCtrl_en
-       & ~_idEx_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20, :77:{53,84,87}
-    .io_raw_idExLoad_addr    (_idEx_io_deq_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
+       & ~_idEx_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20, :78:{53,84,87}
+    .io_raw_idExLoad_addr    (_idEx_io_deq_bits_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
     .io_raw_lsuLoad_valid
       (_lsu_io_pendingLoad_valid | _exMem_io_deq_valid & _exMem_io_deq_bits_memCtrl_en
-       & ~_exMem_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :35:21, :80:{41,73,76}, :82:59
+       & ~_exMem_io_deq_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19, :34:21, :81:{41,73,76}, :83:59
     .io_raw_lsuLoad_addr
       (_lsu_io_pendingLoad_valid
          ? _lsu_io_pendingLoad_addr
-         : _exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :35:21, :83:36
-    .io_raw_lsuToMemWbFire   (_lsu_io_pendingLoad_valid & _lsu_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19, :84:60
+         : _exMem_io_deq_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19, :34:21, :84:36
+    .io_raw_lsuToMemWbFire   (_lsu_io_pendingLoad_valid & _lsu_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19, :85:60
     .io_raw_loadUseStall     (_hazard_io_raw_loadUseStall),
     .io_ctrl_redirect
       (_exMem_io_enq_ready & _execute_io_out_valid
-       & _execute_io_out_bits_ifRedct_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23, :35:21, :86:45, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+       & _execute_io_out_bits_ifRedct_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23, :34:21, :87:45, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     .io_ctrl_flush           (_hazard_io_ctrl_flush)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-  FlushableStage ifId (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  FlushableStage ifId (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
     .clock            (clock),
     .reset            (reset),
     .io_enq_ready     (_ifId_io_enq_ready),
-    .io_enq_valid     (~_hazard_io_ctrl_flush & _fetch_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21, :32:22, :54:16, :113:23, :114:23
+    .io_enq_valid     (~_hazard_io_ctrl_flush & _fetch_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21, :31:22, :53:16, :114:23, :115:23
     .io_enq_bits_pc   (_fetch_io_out_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
     .io_enq_bits_inst (_fetch_io_out_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:25:21
     .io_deq_ready     (_decode_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_deq_valid     (_ifId_io_deq_valid),
     .io_deq_bits_pc   (_ifId_io_deq_bits_pc),
     .io_deq_bits_inst (_ifId_io_deq_bits_inst),
-    .io_flush         (_hazard_io_ctrl_flush)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
-  FlushableStage_1 idEx (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
+    .io_flush         (_hazard_io_ctrl_flush)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:20
+  FlushableStage_1 idEx (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
     .clock                                  (clock),
     .reset                                  (reset),
     .io_enq_ready                           (_idEx_io_enq_ready),
     .io_enq_valid
-      (~_hazard_io_ctrl_flush & _decode_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :32:22, :54:16, :56:17, :113:23, :114:23, :115:23
+      (~_hazard_io_ctrl_flush & _decode_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22, :31:22, :53:16, :55:17, :114:23, :115:23, :116:23
     .io_enq_bits_retireTrace_pc             (_decode_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_retireTrace_inst           (_decode_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_retireTrace_dnpc           (_decode_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
@@ -649,14 +560,12 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_enq_bits_memCtrl_unsigned           (_decode_io_out_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_memCtrl_subop              (_decode_io_out_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_enq_bits_wbCtrl_wen                 (_decode_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
-    .io_deq_ready                           (_operandSelect_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:29
+    .io_deq_ready                           (_execute_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
     .io_deq_valid                           (_idEx_io_deq_valid),
     .io_deq_bits_retireTrace_pc             (_idEx_io_deq_bits_retireTrace_pc),
     .io_deq_bits_retireTrace_inst           (_idEx_io_deq_bits_retireTrace_inst),
     .io_deq_bits_retireTrace_instType       (_idEx_io_deq_bits_retireTrace_instType),
-    .io_deq_bits_rs1_bits_addr              (_idEx_io_deq_bits_rs1_bits_addr),
     .io_deq_bits_rs1_bits_rdata             (_idEx_io_deq_bits_rs1_bits_rdata),
-    .io_deq_bits_rs2_bits_addr              (_idEx_io_deq_bits_rs2_bits_addr),
     .io_deq_bits_rs2_bits_rdata             (_idEx_io_deq_bits_rs2_bits_rdata),
     .io_deq_bits_rd                         (_idEx_io_deq_bits_rd),
     .io_deq_bits_execCtrl_aluOp             (_idEx_io_deq_bits_execCtrl_aluOp),
@@ -678,34 +587,34 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_deq_bits_memCtrl_unsigned           (_idEx_io_deq_bits_memCtrl_unsigned),
     .io_deq_bits_memCtrl_subop              (_idEx_io_deq_bits_memCtrl_subop),
     .io_deq_bits_wbCtrl_wen                 (_idEx_io_deq_bits_wbCtrl_wen),
-    .io_flush                               (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-    .io_stall                               (_hazard_io_raw_loadUseStall)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:20
-  FlushableStage_2 exMem (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+    .io_flush                               (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_stall                               (_hazard_io_raw_loadUseStall)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
+  FlushableStage_2 exMem (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
     .clock                                  (clock),
     .reset                                  (reset),
     .io_enq_ready                           (_exMem_io_enq_ready),
-    .io_enq_valid                           (_execute_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_retireTrace_pc             (_execute_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_retireTrace_inst           (_execute_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_retireTrace_dnpc           (_execute_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+    .io_enq_valid                           (_execute_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_retireTrace_pc             (_execute_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_retireTrace_inst           (_execute_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_retireTrace_dnpc           (_execute_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
     .io_enq_bits_retireTrace_regWrite_rd
-      (_execute_io_out_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+      (_execute_io_out_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
     .io_enq_bits_retireTrace_regWrite_wen
-      (_execute_io_out_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
+      (_execute_io_out_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
     .io_enq_bits_retireTrace_regWrite_wdata
-      (_execute_io_out_bits_retireTrace_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_retireTrace_instType       (_execute_io_out_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_lhs                        (_execute_io_out_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_rhs                        (_execute_io_out_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_wbCtrl_wen                 (_execute_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_wbCtrl_rd                  (_execute_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_memCtrl_en                 (_execute_io_out_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_memCtrl_write              (_execute_io_out_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_memCtrl_unsigned           (_execute_io_out_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_memCtrl_subop              (_execute_io_out_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_enq_bits_ifRedct_redirect_valid     (_execute_io_out_bits_ifRedct_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_deq_ready                           (_lsu_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
+      (_execute_io_out_bits_retireTrace_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_retireTrace_instType       (_execute_io_out_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_lhs                        (_execute_io_out_bits_lhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_rhs                        (_execute_io_out_bits_rhs),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_wbCtrl_wen                 (_execute_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_wbCtrl_rd                  (_execute_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_memCtrl_en                 (_execute_io_out_bits_memCtrl_en),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_memCtrl_write              (_execute_io_out_bits_memCtrl_write),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_memCtrl_unsigned           (_execute_io_out_bits_memCtrl_unsigned),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_memCtrl_subop              (_execute_io_out_bits_memCtrl_subop),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_enq_bits_ifRedct_redirect_valid     (_execute_io_out_bits_ifRedct_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_deq_ready                           (_lsu_io_in_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
     .io_deq_valid                           (_exMem_io_deq_valid),
     .io_deq_bits_retireTrace_pc             (_exMem_io_deq_bits_retireTrace_pc),
     .io_deq_bits_retireTrace_inst           (_exMem_io_deq_bits_retireTrace_inst),
@@ -721,21 +630,21 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_deq_bits_memCtrl_write              (_exMem_io_deq_bits_memCtrl_write),
     .io_deq_bits_memCtrl_unsigned           (_exMem_io_deq_bits_memCtrl_unsigned),
     .io_deq_bits_memCtrl_subop              (_exMem_io_deq_bits_memCtrl_subop)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
-  FlushableStage_3 memWb (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:34:21
+  FlushableStage_3 memWb (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
     .clock                                  (clock),
     .reset                                  (reset),
-    .io_enq_valid                           (_lsu_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_pc             (_lsu_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_inst           (_lsu_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_dnpc           (_lsu_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_regWrite_rd    (_lsu_io_out_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_regWrite_wen   (_lsu_io_out_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_regWrite_wdata (_lsu_io_out_bits_retireTrace_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_retireTrace_instType       (_lsu_io_out_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_wbCtrl_rd                  (_lsu_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_wbCtrl_wen                 (_lsu_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
-    .io_enq_bits_wbData_wdata               (_lsu_io_out_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:19
+    .io_enq_valid                           (_lsu_io_out_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_pc             (_lsu_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_inst           (_lsu_io_out_bits_retireTrace_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_dnpc           (_lsu_io_out_bits_retireTrace_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_regWrite_rd    (_lsu_io_out_bits_retireTrace_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_regWrite_wen   (_lsu_io_out_bits_retireTrace_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_regWrite_wdata (_lsu_io_out_bits_retireTrace_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_retireTrace_instType       (_lsu_io_out_bits_retireTrace_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_wbCtrl_rd                  (_lsu_io_out_bits_wbCtrl_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_wbCtrl_wen                 (_lsu_io_out_bits_wbCtrl_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
+    .io_enq_bits_wbData_wdata               (_lsu_io_out_bits_wbData_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:19
     .io_deq_valid                           (_memWb_io_deq_valid),
     .io_deq_bits_retireTrace_pc             (_memWb_io_deq_bits_retireTrace_pc),
     .io_deq_bits_retireTrace_inst           (_memWb_io_deq_bits_retireTrace_inst),
@@ -744,18 +653,18 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_deq_bits_wbCtrl_rd                  (_memWb_io_deq_bits_wbCtrl_rd),
     .io_deq_bits_wbCtrl_wen                 (_memWb_io_deq_bits_wbCtrl_wen),
     .io_deq_bits_wbData_wdata               (_memWb_io_deq_bits_wbData_wdata)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
-  Tracer tracer (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:37:66
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:35:21
+  Tracer tracer (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:66
     .clock                              (clock),
     .reset                              (reset),
-    .io_retireTrace_valid               (_writeBack_io_retireTrace_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_pc             (_writeBack_io_retireTrace_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_inst           (_writeBack_io_retireTrace_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_dnpc           (_writeBack_io_retireTrace_bits_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_regWrite_rd    (_writeBack_io_retireTrace_bits_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_regWrite_wen   (_writeBack_io_retireTrace_bits_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_regWrite_wdata (_writeBack_io_retireTrace_bits_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
-    .io_retireTrace_bits_instType       (_writeBack_io_retireTrace_bits_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:30:25
+    .io_retireTrace_valid               (_writeBack_io_retireTrace_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_pc             (_writeBack_io_retireTrace_bits_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_inst           (_writeBack_io_retireTrace_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_dnpc           (_writeBack_io_retireTrace_bits_dnpc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_regWrite_rd    (_writeBack_io_retireTrace_bits_regWrite_rd),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_regWrite_wen   (_writeBack_io_retireTrace_bits_regWrite_wen),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_regWrite_wdata (_writeBack_io_retireTrace_bits_regWrite_wdata),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
+    .io_retireTrace_bits_instType       (_writeBack_io_retireTrace_bits_instType),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:29:25
     .io_gprs_0                          (_decode_io_debug_regs_0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_gprs_1                          (_decode_io_debug_regs_1),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_gprs_2                          (_decode_io_debug_regs_2),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
@@ -788,17 +697,17 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_gprs_29                         (_decode_io_debug_regs_29),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_gprs_30                         (_decode_io_debug_regs_30),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
     .io_gprs_31                         (_decode_io_debug_regs_31),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:22
-    .io_csrs_mtvec                      (_execute_io_debug_csrs_mtvec),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_csrs_mepc                       (_execute_io_debug_csrs_mepc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_csrs_mstatus                    (_execute_io_debug_csrs_mstatus),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .io_csrs_mcause                     (_execute_io_debug_csrs_mcause)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:37:66
-  FlushTrace flushTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:95:28
+    .io_csrs_mtvec                      (_execute_io_debug_csrs_mtvec),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_csrs_mepc                       (_execute_io_debug_csrs_mepc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_csrs_mstatus                    (_execute_io_debug_csrs_mstatus),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .io_csrs_mcause                     (_execute_io_debug_csrs_mcause)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:66
+  FlushTrace flushTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:96:28
     .clk   (clock),
     .reset (reset),
-    .flush (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
-    .pc    (_execute_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-    .inst  (_execute_io_out_bits_retireTrace_inst)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:28:23
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:95:28
+    .flush (_hazard_io_ctrl_flush),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .pc    (_execute_io_out_bits_retireTrace_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+    .inst  (_execute_io_out_bits_retireTrace_inst)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:23
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:96:28
 endmodule
 

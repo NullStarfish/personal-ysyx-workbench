@@ -14,6 +14,7 @@ class Decode(
     val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket)
     val regWrite = Flipped(new WriteBackIO())
+    val forwards = Input(Vec(4, new ForwardPacket))
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
   })
 
@@ -81,6 +82,19 @@ class Decode(
   val isEbreak = WireDefault(false.B)
 
   val instType = TraceVal(WireDefault(InstType.arith))
+
+  private def forwardHit(src: ForwardSource, regAddr: UInt): Bool =
+    src.valid && regAddr =/= 0.U && src.addr === regAddr
+
+  private def resolveRegValue(srcValid: Bool, regAddr: UInt, regValue: UInt): UInt = {
+    val forwarded = WireDefault(regValue)
+    for (src <- io.forwards.reverse) {
+      when(srcValid && forwardHit(src, regAddr)) {
+        forwarded := src.data
+      }
+    }
+    forwarded
+  }
 
   immType := ImmType.I
 
@@ -222,19 +236,23 @@ class Decode(
     }
   }
 
-  io.out.bits.rs1.bits.addr := rs1Addr
-  io.out.bits.rs1.bits.rdata := rs1Data
-  io.out.bits.rs1.valid :=
+  val rs1Valid =
       format === DecodeFormat.Reg_Reg ||
       format === DecodeFormat.Reg_Imm ||
       format === DecodeFormat.Reg_Offset ||
       format === DecodeFormat.Reg_Reg_Offset ||
       format === DecodeFormat.CsrReg
-  io.out.bits.rs2.bits.addr := rs2Addr
-  io.out.bits.rs2.bits.rdata := rs2Data
-  io.out.bits.rs2.valid :=
+
+  val rs2Valid =
     format === DecodeFormat.Reg_Reg ||
       format === DecodeFormat.Reg_Reg_Offset
+
+  io.out.bits.rs1.bits.addr := rs1Addr
+  io.out.bits.rs1.bits.rdata := resolveRegValue(rs1Valid, rs1Addr, rs1Data)
+  io.out.bits.rs1.valid := rs1Valid
+  io.out.bits.rs2.bits.addr := rs2Addr
+  io.out.bits.rs2.bits.rdata := resolveRegValue(rs2Valid, rs2Addr, rs2Data)
+  io.out.bits.rs2.valid := rs2Valid
 
   io.out.bits.rd := rdAddr
 

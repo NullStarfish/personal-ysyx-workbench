@@ -24,7 +24,6 @@ class Core(
 
   val fetch = Module(new Fetch(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
-  val operandSelect = Module(new ExecuteOperandSelect(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val lsu = Module(new LSU(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
@@ -55,19 +54,21 @@ class Core(
   decode.io.in <> ifId.io.deq
   decode.io.out <> idEx.io.enq
 
-  operandSelect.io.in <> idEx.io.deq
-  execute.io.in <> operandSelect.io.out
+  execute.io.in <> idEx.io.deq
   execute.io.out <> exMem.io.enq
   lsu.io.in <> exMem.io.deq
   lsu.io.out <> memWb.io.enq
 
-  operandSelect.io.exForward.valid := exMem.io.deq.valid
-  operandSelect.io.exForward.bits := exMem.io.deq.bits
+  private def connectForward(dst: ForwardPacket, srcValid: Bool, src: ForwardSource): Unit = {
+    dst.valid := srcValid && src.valid
+    dst.addr := src.addr
+    dst.data := src.data
+  }
 
-  val memForward = Wire(Valid(new MemoryPacket))
-  memForward.valid := lsu.io.out.valid || memWb.io.deq.valid
-  memForward.bits := Mux(lsu.io.out.valid, lsu.io.out.bits, memWb.io.deq.bits)
-  operandSelect.io.memForward := memForward
+  connectForward(decode.io.forwards(0), execute.io.out.valid, execute.io.out.bits.forward)
+  connectForward(decode.io.forwards(1), exMem.io.deq.valid, exMem.io.deq.bits.forward)
+  connectForward(decode.io.forwards(2), lsu.io.out.valid, lsu.io.out.bits.forward)
+  connectForward(decode.io.forwards(3), memWb.io.deq.valid, memWb.io.deq.bits.forward)
 
   hazard.io.raw.decode.rs1.valid := decode.io.out.valid && decode.io.out.bits.rawRs1.valid
   hazard.io.raw.decode.rs1.addr := decode.io.out.bits.rawRs1.addr

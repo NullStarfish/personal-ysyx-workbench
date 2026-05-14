@@ -44,6 +44,18 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
   input  [4:0]  io_regWrite_regWrite_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
   input         io_regWrite_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
   input  [31:0] io_regWrite_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input         io_forwards_0_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [4:0]  io_forwards_0_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [31:0] io_forwards_0_data,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input         io_forwards_1_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [4:0]  io_forwards_1_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [31:0] io_forwards_1_data,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input         io_forwards_2_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [4:0]  io_forwards_2_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [31:0] io_forwards_2_data,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input         io_forwards_3_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [4:0]  io_forwards_3_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
+  input  [31:0] io_forwards_3_data,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
   output [31:0] io_debug_regs_0,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
                 io_debug_regs_1,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
                 io_debug_regs_2,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
@@ -78,21 +90,22 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                 io_debug_regs_31	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:13:14
 );
 
-  wire [31:0]     _immGen_io_out;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:37:22
-  wire [31:0]     _regFile_io_rdata1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:28:23
+  wire [31:0]     _immGen_io_out;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:38:22
+  wire [31:0]     _regFile_io_rdata1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:29:23
+  wire [31:0]     _regFile_io_rdata2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:29:23
   wire [7:0][2:0] _GEN = '{3'h6, 3'h5, 3'h4, 3'h3, 3'h0, 3'h0, 3'h2, 3'h1};
-  wire            _format_T_24 = io_in_bits_inst[6:0] == 7'h73;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :56:16
-  wire            _format_T_1 = io_in_bits_inst[14:12] == 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :56:43
-  wire            _format_T_6 = io_in_bits_inst[6:0] == 7'h37;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _format_T_8 = io_in_bits_inst[6:0] == 7'h17;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _GEN_0 = _format_T_8 | _format_T_6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113
-  wire            _format_T_10 = io_in_bits_inst[6:0] == 7'h6F;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _format_T_12 = io_in_bits_inst[6:0] == 7'h67;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _format_T_14 = io_in_bits_inst[6:0] == 7'h63;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _io_out_bits_memCtrl_en_T = io_in_bits_inst[6:0] == 7'h3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            io_out_bits_memCtrl_write_0 = io_in_bits_inst[6:0] == 7'h23;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _format_T_20 = io_in_bits_inst[6:0] == 7'h13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
-  wire            _format_T_22 = io_in_bits_inst[6:0] == 7'h33;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:21:20, :44:113
+  wire            _format_T_24 = io_in_bits_inst[6:0] == 7'h73;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :57:16
+  wire            _format_T_1 = io_in_bits_inst[14:12] == 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :57:43
+  wire            _format_T_6 = io_in_bits_inst[6:0] == 7'h37;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _format_T_8 = io_in_bits_inst[6:0] == 7'h17;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _GEN_0 = _format_T_8 | _format_T_6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113
+  wire            _format_T_10 = io_in_bits_inst[6:0] == 7'h6F;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _format_T_12 = io_in_bits_inst[6:0] == 7'h67;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _format_T_14 = io_in_bits_inst[6:0] == 7'h63;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _io_out_bits_memCtrl_en_T = io_in_bits_inst[6:0] == 7'h3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            io_out_bits_memCtrl_write_0 = io_in_bits_inst[6:0] == 7'h23;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _format_T_20 = io_in_bits_inst[6:0] == 7'h13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
+  wire            _format_T_22 = io_in_bits_inst[6:0] == 7'h33;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :45:113
   wire [3:0]      format =
     _format_T_24
       ? (_format_T_24 & _format_T_1 ? 4'h9 : io_in_bits_inst[14] ? 4'h8 : 4'h7)
@@ -109,17 +122,17 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                            ? 3'h6
                            : _format_T_12
                                ? 3'h5
-                               : _format_T_10 ? 3'h4 : {1'h0, {2{_GEN_0}}}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :44:113, :55:26, :56:{16,33,43}, :58:{12,19}, :134:22, :150:22, :232:14
-  wire            _GEN_1 = io_in_bits_inst[14:12] == 3'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :134:22
-  wire            _GEN_2 = io_in_bits_inst[14:12] == 3'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :134:22
-  wire            _GEN_3 = io_in_bits_inst[14:12] == 3'h5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :134:22
-  wire            _GEN_4 = _format_T_10 | _format_T_12;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :72:31, :96:18
-  wire            _GEN_5 = _format_T_8 | _GEN_4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :72:31, :96:18
-  wire            _GEN_6 = _format_T_6 | _GEN_5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :72:31, :96:18
-  wire            _GEN_7 = io_in_bits_inst[14:12] == 3'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :150:22
-  wire            _GEN_8 = _format_T_10 | _format_T_12 | _format_T_14;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :76:32, :96:18
-  wire            _GEN_9 = _format_T_6 | _format_T_8 | _GEN_8;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :76:32, :96:18
-  wire            _GEN_10 = _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :96:18, :148:15, :162:15
+                               : _format_T_10 ? 3'h4 : {1'h0, {2{_GEN_0}}}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :45:113, :56:26, :57:{16,33,43}, :59:{12,19}, :148:22, :164:22, :244:14
+  wire            _GEN_1 = io_in_bits_inst[14:12] == 3'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :148:22
+  wire            _GEN_2 = io_in_bits_inst[14:12] == 3'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :148:22
+  wire            _GEN_3 = io_in_bits_inst[14:12] == 3'h5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :148:22
+  wire            _GEN_4 = _format_T_10 | _format_T_12;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :73:31, :110:18
+  wire            _GEN_5 = _format_T_8 | _GEN_4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :73:31, :110:18
+  wire            _GEN_6 = _format_T_6 | _GEN_5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :73:31, :110:18
+  wire            _GEN_7 = io_in_bits_inst[14:12] == 3'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :164:22
+  wire            _GEN_8 = _format_T_10 | _format_T_12 | _format_T_14;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :77:32, :110:18
+  wire            _GEN_9 = _format_T_6 | _format_T_8 | _GEN_8;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :77:32, :110:18
+  wire            _GEN_10 = _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :110:18, :162:15, :176:15
   wire [7:0][3:0] _GEN_11 =
     {{4'h2},
      {4'h3},
@@ -128,7 +141,7 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
      {4'h6},
      {4'h5},
      {4'h7},
-     {4'h0}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :56:43, :68:26, :134:22, :150:22, :175:22, :176:30, :177:30, :178:30, :179:30, :180:30, :181:30, :182:30, :183:{30,36,44}, :229:14, :230:14, :231:14, :232:14
+     {4'h0}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:24:20, :57:43, :69:26, :148:22, :164:22, :189:22, :190:30, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :197:{30,36,44}, :241:14, :242:14, :243:14, :244:14
   wire [7:0][3:0] _GEN_12 =
     {{4'h2},
      {4'h3},
@@ -137,28 +150,31 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
      {4'h6},
      {4'h5},
      {4'h7},
-     {{3'h0, io_in_bits_inst[31:25] == 7'h20}}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :56:43, :68:26, :134:22, :150:22, :175:22, :188:22, :189:{30,44}, :190:30, :191:30, :192:30, :193:30, :194:30, :195:30, :196:{30,36,44}, :229:14, :230:14, :231:14, :232:14
-  wire            _GEN_13 = _format_T_20 | _format_T_22;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :83:38, :96:18
-  wire            _GEN_14 = io_in_bits_inst == 32'h73;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:201:17
+     {{3'h0, io_in_bits_inst[31:25] == 7'h20}}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:24:20, :57:43, :69:26, :148:22, :164:22, :189:22, :202:22, :203:{30,44}, :204:30, :205:30, :206:30, :207:30, :208:30, :209:30, :210:{30,36,44}, :241:14, :242:14, :243:14, :244:14
+  wire            _GEN_13 = _format_T_20 | _format_T_22;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :84:38, :110:18
+  wire            _GEN_14 = io_in_bits_inst == 32'h73;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:215:17
   wire            _GEN_15 =
-    _format_T_14 | _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0 | _GEN_13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :79:28, :83:38, :96:18
+    _format_T_14 | _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0 | _GEN_13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :80:28, :84:38, :110:18
   wire            _GEN_16 =
-    _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _GEN_15;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :79:28, :96:18
-  wire            _GEN_17 = io_in_bits_inst == 32'h30200073;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:203:23
-  wire            _GEN_18 = io_in_bits_inst == 32'h100073;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:205:23
-  wire            _GEN_19 = _GEN_14 | _GEN_17 | _GEN_18;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:75:27, :201:{17,49}, :203:{23,54}, :205:{23,56}, :208:16
-  wire [1:0]      _GEN_20 = {1'h0, io_in_bits_inst[14:12] == 3'h1};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:22:20, :134:22, :210:44
+    _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _GEN_15;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :80:28, :110:18
+  wire            _GEN_17 = io_in_bits_inst == 32'h30200073;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:217:23
+  wire            _GEN_18 = io_in_bits_inst == 32'h100073;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:219:23
+  wire            _GEN_19 = _GEN_14 | _GEN_17 | _GEN_18;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:76:27, :215:{17,49}, :217:{23,54}, :219:{23,56}, :222:16
+  wire [1:0]      _GEN_20 = {1'h0, io_in_bits_inst[14:12] == 3'h1};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:23:20, :148:22, :224:44
   wire [7:0][1:0] _GEN_21 =
-    {{2'h3}, {2'h2}, {2'h1}, {_GEN_20}, {2'h3}, {2'h2}, {_GEN_20}, {_GEN_20}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:210:44
-  wire            _io_out_bits_rs2_valid_T = format == 4'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :228:14
-  wire            _io_out_bits_rs2_valid_T_1 = format == 4'h6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :231:14
-  RegFile regFile (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:28:23
+    {{2'h3}, {2'h2}, {2'h1}, {_GEN_20}, {2'h3}, {2'h2}, {_GEN_20}, {_GEN_20}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:224:44
+  wire            _rs2Valid_T = format == 4'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :240:14
+  wire            _rs2Valid_T_1 = format == 4'h6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :243:14
+  wire            rs1Valid =
+    _rs2Valid_T | format == 4'h2 | format == 4'h5 | _rs2Valid_T_1 | format == 4'h7;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :240:{14,39}, :241:{14,39}, :242:{14,42}, :243:{14,46}, :244:14
+  wire            rs2Valid = _rs2Valid_T | _rs2Valid_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:240:14, :243:14, :247:37
+  RegFile regFile (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:29:23
     .clock            (clock),
     .reset            (reset),
-    .io_raddr1        (io_in_bits_inst[19:15]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:24:21
-    .io_raddr2        (io_in_bits_inst[24:20]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:25:21
+    .io_raddr1        (io_in_bits_inst[19:15]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:25:21
+    .io_raddr2        (io_in_bits_inst[24:20]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:26:21
     .io_rdata1        (_regFile_io_rdata1),
-    .io_rdata2        (io_out_bits_rs2_bits_rdata),
+    .io_rdata2        (_regFile_io_rdata2),
     .io_wen           (io_regWrite_regWrite_wen),
     .io_waddr         (io_regWrite_regWrite_rd),
     .io_wdata         (io_regWrite_regWrite_wdata),
@@ -194,8 +210,8 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
     .io_debug_regs_29 (io_debug_regs_29),
     .io_debug_regs_30 (io_debug_regs_30),
     .io_debug_regs_31 (io_debug_regs_31)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:28:23
-  ImmGen immGen (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:37:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:29:23
+  ImmGen immGen (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:38:22
     .io_inst (io_in_bits_inst),
     .io_sel
       (_GEN_0
@@ -204,30 +220,54 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
              ? 3'h4
              : _format_T_14
                  ? 3'h2
-                 : io_out_bits_memCtrl_write_0 ? 3'h1 : _format_T_22 ? 3'h5 : 3'h0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:44:113, :85:11, :87:18, :88:32, :89:32, :90:32, :91:32, :92:32, :93:32, :134:22, :150:22, :175:22
+                 : io_out_bits_memCtrl_write_0 ? 3'h1 : _format_T_22 ? 3'h5 : 3'h0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:45:113, :99:11, :101:18, :102:32, :103:32, :104:32, :105:32, :106:32, :107:32, :148:22, :164:22, :189:22
     .io_out  (_immGen_io_out)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:37:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:38:22
   assign io_in_ready = io_out_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_valid = io_in_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_retireTrace_pc = io_in_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_retireTrace_inst = io_in_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
-  assign io_out_bits_retireTrace_dnpc = io_in_bits_pc + 32'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :267:55
+  assign io_out_bits_retireTrace_dnpc = io_in_bits_pc + 32'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :285:55
   assign io_out_bits_retireTrace_regWrite_rd = io_regWrite_regWrite_rd;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_retireTrace_regWrite_wen = io_regWrite_regWrite_wen;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_retireTrace_regWrite_wdata = io_regWrite_regWrite_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_retireTrace_instType =
-    _GEN_0 ? 2'h0 : _GEN_8 ? 2'h2 : _GEN_10 ? 2'h1 : _GEN_13 ? 2'h0 : {2{_format_T_24}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :56:16, :76:32, :83:38, :96:18, :111:26, :121:26, :132:26, :144:26, :148:15, :159:26, :162:15, :200:26
-  assign io_out_bits_rs1_valid =
-    _io_out_bits_rs2_valid_T | format == 4'h2 | format == 4'h5
-    | _io_out_bits_rs2_valid_T_1 | format == 4'h7;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :228:{14,39}, :229:{14,39}, :230:{14,42}, :231:{14,46}, :232:14
-  assign io_out_bits_rs1_bits_addr = io_in_bits_inst[19:15];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :24:21
+    _GEN_0 ? 2'h0 : _GEN_8 ? 2'h2 : _GEN_10 ? 2'h1 : _GEN_13 ? 2'h0 : {2{_format_T_24}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :57:16, :77:32, :84:38, :110:18, :125:26, :135:26, :146:26, :158:26, :162:15, :173:26, :176:15, :214:26
+  assign io_out_bits_rs1_valid = rs1Valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :240:39, :241:39, :242:42, :243:46
+  assign io_out_bits_rs1_bits_addr = io_in_bits_inst[19:15];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :25:21
   assign io_out_bits_rs1_bits_rdata =
-    _GEN_16 | ~_format_T_24 | _GEN_19 | ~(io_in_bits_inst[14])
-      ? _regFile_io_rdata1
-      : {27'h0, io_in_bits_inst[19:15]};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :22:20, :24:21, :28:23, :56:16, :58:19, :65:28, :71:26, :75:27, :79:28, :96:18, :201:49, :203:54, :205:56, :208:16, :218:25, :219:25
-  assign io_out_bits_rs2_valid = _io_out_bits_rs2_valid_T | _io_out_bits_rs2_valid_T_1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :228:14, :231:14, :236:37
-  assign io_out_bits_rs2_bits_addr = io_in_bits_inst[24:20];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :25:21
-  assign io_out_bits_rd = io_in_bits_inst[11:7];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :26:20
+    rs1Valid & io_forwards_0_valid & (|(io_in_bits_inst[19:15]))
+    & io_forwards_0_addr == io_in_bits_inst[19:15]
+      ? io_forwards_0_data
+      : rs1Valid & io_forwards_1_valid & (|(io_in_bits_inst[19:15]))
+        & io_forwards_1_addr == io_in_bits_inst[19:15]
+          ? io_forwards_1_data
+          : rs1Valid & io_forwards_2_valid & (|(io_in_bits_inst[19:15]))
+            & io_forwards_2_addr == io_in_bits_inst[19:15]
+              ? io_forwards_2_data
+              : rs1Valid & io_forwards_3_valid & (|(io_in_bits_inst[19:15]))
+                & io_forwards_3_addr == io_in_bits_inst[19:15]
+                  ? io_forwards_3_data
+                  : _GEN_16 | ~_format_T_24 | _GEN_19 | ~(io_in_bits_inst[14])
+                      ? _regFile_io_rdata1
+                      : {27'h0, io_in_bits_inst[19:15]};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :23:20, :25:21, :29:23, :57:16, :59:19, :66:28, :72:26, :76:27, :80:28, :87:{15,26,34,46}, :90:32, :92:{21,50}, :93:19, :110:18, :215:49, :217:54, :219:56, :222:16, :232:25, :233:25, :240:39, :241:39, :242:42, :243:46
+  assign io_out_bits_rs2_valid = rs2Valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :247:37
+  assign io_out_bits_rs2_bits_addr = io_in_bits_inst[24:20];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :26:21
+  assign io_out_bits_rs2_bits_rdata =
+    rs2Valid & io_forwards_0_valid & (|(io_in_bits_inst[24:20]))
+    & io_forwards_0_addr == io_in_bits_inst[24:20]
+      ? io_forwards_0_data
+      : rs2Valid & io_forwards_1_valid & (|(io_in_bits_inst[24:20]))
+        & io_forwards_1_addr == io_in_bits_inst[24:20]
+          ? io_forwards_1_data
+          : rs2Valid & io_forwards_2_valid & (|(io_in_bits_inst[24:20]))
+            & io_forwards_2_addr == io_in_bits_inst[24:20]
+              ? io_forwards_2_data
+              : rs2Valid & io_forwards_3_valid & (|(io_in_bits_inst[24:20]))
+                & io_forwards_3_addr == io_in_bits_inst[24:20]
+                  ? io_forwards_3_data
+                  : _regFile_io_rdata2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :26:21, :29:23, :87:{15,26,34,46}, :90:32, :92:{21,50}, :93:19, :247:37
+  assign io_out_bits_rd = io_in_bits_inst[11:7];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :27:20
   assign io_out_bits_execCtrl_aluOp =
     _format_T_6
       ? 4'hB
@@ -245,34 +285,34 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                   ? 4'h0
                   : _format_T_20
                       ? _GEN_11[io_in_bits_inst[14:12]]
-                      : _format_T_22 ? _GEN_12[io_in_bits_inst[14:12]] : 4'hC;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :22:20, :44:113, :56:43, :68:26, :72:31, :96:18, :99:13, :105:13, :113:13, :123:13, :134:22, :137:59, :138:59, :139:60, :140:60, :146:13, :148:15, :150:22, :160:13, :162:15, :175:22, :176:30, :177:30, :178:30, :179:30, :180:30, :181:30, :182:30, :183:30, :188:22, :189:30, :190:30, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :230:14, :231:14
-  assign io_out_bits_execCtrl_aluSrcA = ~_format_T_6 & (_format_T_8 | _format_T_10);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :69:28, :96:18, :106:15
-  assign io_out_bits_execCtrl_aluSrcB = _GEN_6 | ~_format_T_14 & (_GEN_10 | _format_T_20);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :70:28, :72:31, :96:18, :100:15, :107:15, :115:15, :125:15, :148:15, :162:15
+                      : _format_T_22 ? _GEN_12[io_in_bits_inst[14:12]] : 4'hC;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :23:20, :45:113, :57:43, :69:26, :73:31, :110:18, :113:13, :119:13, :127:13, :137:13, :148:22, :151:59, :152:59, :153:60, :154:60, :160:13, :162:15, :164:22, :174:13, :176:15, :189:22, :190:30, :191:30, :192:30, :193:30, :194:30, :195:30, :196:30, :197:30, :202:22, :203:30, :204:30, :205:30, :206:30, :207:30, :208:30, :209:30, :210:30, :242:14, :243:14
+  assign io_out_bits_execCtrl_aluSrcA = ~_format_T_6 & (_format_T_8 | _format_T_10);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :70:28, :110:18, :120:15
+  assign io_out_bits_execCtrl_aluSrcB = _GEN_6 | ~_format_T_14 & (_GEN_10 | _format_T_20);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :71:28, :73:31, :110:18, :114:15, :121:15, :129:15, :139:15, :162:15, :176:15
   assign io_out_bits_execCtrl_wbSel =
-    _GEN_0 ? 2'h0 : _GEN_4 ? 2'h2 : _GEN_15 | ~_format_T_24 ? 2'h0 : {1'h0, ~_GEN_19};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :56:16, :71:26, :72:31, :75:27, :79:28, :96:18, :117:13, :127:13, :201:49, :203:54, :205:56, :208:16, :209:15
+    _GEN_0 ? 2'h0 : _GEN_4 ? 2'h2 : _GEN_15 | ~_format_T_24 ? 2'h0 : {1'h0, ~_GEN_19};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :57:16, :72:26, :73:31, :76:27, :80:28, :110:18, :131:13, :141:13, :215:49, :217:54, :219:56, :222:16, :223:15
   assign io_out_bits_execCtrl_branchType =
-    _GEN_6 | ~_format_T_14 ? 3'h0 : _GEN[io_in_bits_inst[14:12]];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :22:20, :44:113, :72:31, :96:18, :134:22, :135:35
-  assign io_out_bits_execCtrl_isJump = ~_GEN_0 & (_format_T_10 | _format_T_12);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :73:27, :96:18, :118:14
+    _GEN_6 | ~_format_T_14 ? 3'h0 : _GEN[io_in_bits_inst[14:12]];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :23:20, :45:113, :73:31, :110:18, :148:22, :149:35
+  assign io_out_bits_execCtrl_isJump = ~_GEN_0 & (_format_T_10 | _format_T_12);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :74:27, :110:18, :132:14
   assign io_out_bits_execCtrl_isJalr =
-    ~(_format_T_6 | _format_T_8 | _format_T_10) & _format_T_12;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :74:27, :96:18
+    ~(_format_T_6 | _format_T_8 | _format_T_10) & _format_T_12;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :75:27, :110:18
   assign io_out_bits_execCtrl_sys_csrOp =
-    _GEN_16 | ~_format_T_24 | _GEN_19 ? 2'h0 : _GEN_21[io_in_bits_inst[14:12]];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :22:20, :56:16, :71:26, :75:27, :78:26, :79:28, :96:18, :201:49, :203:54, :205:56, :208:16, :210:44
-  assign io_out_bits_execCtrl_sys_csrAddr = io_in_bits_inst[31:20];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :77:33
-  assign io_out_bits_execCtrl_sys_ecall = ~_GEN_16 & _format_T_24 & _GEN_14;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :56:16, :79:28, :96:18, :201:{17,49}
+    _GEN_16 | ~_format_T_24 | _GEN_19 ? 2'h0 : _GEN_21[io_in_bits_inst[14:12]];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :23:20, :57:16, :72:26, :76:27, :79:26, :80:28, :110:18, :215:49, :217:54, :219:56, :222:16, :224:44
+  assign io_out_bits_execCtrl_sys_csrAddr = io_in_bits_inst[31:20];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :78:33
+  assign io_out_bits_execCtrl_sys_ecall = ~_GEN_16 & _format_T_24 & _GEN_14;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :57:16, :80:28, :110:18, :215:{17,49}
   assign io_out_bits_execCtrl_sys_ebreak =
-    ~_GEN_16 & _format_T_24 & ~(_GEN_14 | _GEN_17) & _GEN_18;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :56:16, :79:28, :81:29, :96:18, :201:{17,49}, :203:{23,54}, :205:{23,56}
-  assign io_out_bits_execCtrl_sys_mret = ~_GEN_16 & _format_T_24 & ~_GEN_14 & _GEN_17;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :56:16, :79:28, :80:27, :96:18, :201:{17,49}, :203:{23,54}
+    ~_GEN_16 & _format_T_24 & ~(_GEN_14 | _GEN_17) & _GEN_18;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :57:16, :80:28, :82:29, :110:18, :215:{17,49}, :217:{23,54}, :219:{23,56}
+  assign io_out_bits_execCtrl_sys_mret = ~_GEN_16 & _format_T_24 & ~_GEN_14 & _GEN_17;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :57:16, :80:28, :81:27, :110:18, :215:{17,49}, :217:{23,54}
   assign io_out_bits_execData_pc = io_in_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7
   assign io_out_bits_execData_imm =
     _format_T_6 | _format_T_8 | _format_T_10 | _format_T_12 | _format_T_14
     | _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0 | _format_T_20
       ? _immGen_io_out
-      : 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :37:22, :44:113, :67:24, :96:18, :101:11, :108:11, :116:11, :126:11, :133:11, :149:11, :163:11, :174:11
-  assign io_out_bits_memCtrl_en = _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :259:53
-  assign io_out_bits_memCtrl_write = io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113
+      : 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :38:22, :45:113, :68:24, :110:18, :115:11, :122:11, :130:11, :140:11, :147:11, :163:11, :177:11, :188:11
+  assign io_out_bits_memCtrl_en = _io_out_bits_memCtrl_en_T | io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :277:53
+  assign io_out_bits_memCtrl_write = io_out_bits_memCtrl_write_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113
   assign io_out_bits_memCtrl_unsigned =
     ~_GEN_9 & _io_out_bits_memCtrl_en_T & ~(_format_T_1 | _GEN_1 | _GEN_7)
-    & (_GEN_2 | _GEN_3);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :56:43, :76:32, :96:18, :134:22, :150:22, :154:61
+    & (_GEN_2 | _GEN_3);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :57:43, :77:32, :110:18, :148:22, :164:22, :168:61
   assign io_out_bits_memCtrl_subop =
     _GEN_9
       ? 2'h0
@@ -282,7 +322,7 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                : _GEN_1 ? 2'h2 : _GEN_7 ? 2'h3 : _GEN_2 ? 2'h1 : {_GEN_3, 1'h0})
           : io_out_bits_memCtrl_write_0
               ? (_format_T_1 ? 2'h1 : _GEN_1 ? 2'h2 : {2{_GEN_7}})
-              : 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :44:113, :56:43, :64:26, :76:32, :96:18, :134:22, :150:22, :151:30, :152:30, :153:30, :154:30, :155:30, :164:22, :165:30, :166:30, :167:30
+              : 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :45:113, :57:43, :65:26, :77:32, :110:18, :148:22, :164:22, :165:30, :166:30, :167:30, :168:30, :169:30, :178:22, :179:30, :180:30, :181:30
   assign io_out_bits_wbCtrl_wen =
     _format_T_6
       ? (|(io_in_bits_inst[11:7]))
@@ -301,6 +341,6 @@ module Decode(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                                 : _format_T_22
                                     ? (|(io_in_bits_inst[11:7]))
                                     : _format_T_24 & ~_GEN_19
-                                      & (|(io_in_bits_inst[11:7]))));	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :26:20, :44:113, :56:16, :72:31, :75:27, :96:18, :98:{14,24}, :104:{14,24}, :112:{14,24}, :122:{14,24}, :145:{14,24}, :171:{14,24}, :187:{14,24}, :201:49, :203:54, :205:56, :208:{16,26}
+                                      & (|(io_in_bits_inst[11:7]))));	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Decode.scala:10:7, :27:20, :45:113, :57:16, :73:31, :76:27, :110:18, :112:{14,24}, :118:{14,24}, :126:{14,24}, :136:{14,24}, :159:{14,24}, :185:{14,24}, :201:{14,24}, :215:49, :217:54, :219:56, :222:{16,26}
 endmodule
 

@@ -28,6 +28,12 @@ trait ForwardSource {
   def data: UInt
 }
 
+class ForwardPacket extends Bundle with ForwardSource {
+  val valid = Bool()
+  val addr = UInt(5.W)
+  val data = XLenU
+}
+
 class BypassCtrlBundle extends Bundle {
   val rs1Addr = UInt(5.W)
   val rs2Addr = UInt(5.W)
