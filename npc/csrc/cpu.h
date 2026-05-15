@@ -161,7 +161,10 @@ public:
   void traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t memLatency, uint32_t waitLatency);
   void traceExecute(bool finished);
   void traceLsu(uint32_t latency, bool write);
+  void traceLsuBackpressure(bool blocked);
   void traceFlush(bool flush, uint32_t pc, uint32_t instVal);
+  void traceHazard(bool loadUseStall, bool redirectFlush);
+  void tracePipeline(bool ifIdValid, bool idExValid, bool exMemValid, bool memWbValid);
 
   uint32_t pc() const;
   uint32_t retirePc() const;
@@ -205,6 +208,13 @@ private:
   long long lsuMaxLoadLatency = 0;
   long long lsuStoreLatencyCnt = 0;
   long long lsuMaxStoreLatency = 0;
+  long long lsuBackpressureCycles = 0;
+  long long hazardLoadUseCycles = 0;
+  long long hazardRedirectFlushCycles = 0;
+  long long pipeIfIdValidCycles = 0;
+  long long pipeIdExValidCycles = 0;
+  long long pipeExMemValidCycles = 0;
+  long long pipeMemWbValidCycles = 0;
   long long totalInstLifeCycles = 0;
   long long maxInstLifeCycles = 0;
   InstQueue instQueue;

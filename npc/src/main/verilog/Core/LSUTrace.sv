@@ -4,11 +4,15 @@ module LSUTrace(
     input logic reset,
     input logic reqReadData,
     input logic reqWriteData,
-    input logic gotData
+    input logic gotData,
+    input logic blocked
 );
  import "DPI-C" function void lsu_trace(
    input int latency,
    input bit write
+);
+ import "DPI-C" function void lsu_backpressure_trace(
+   input blocked
 );
 
 logic [31:0] latency;
@@ -21,6 +25,10 @@ always_ff @(posedge clk) begin
    inflight <= 1'b0;
    inflightWrite <= 1'b0;
  end else begin
+   if(blocked) begin
+     lsu_backpressure_trace(blocked);
+   end
+
    if(inflight) begin
      latency <= latency + 32'd1;
    end

@@ -5,6 +5,7 @@ module FetchTrace(
     input logic reqInst,
     input logic gotReply,
     input logic gotInst,
+    input logic flush,
     input logic [31:0] pc,
     input logic [31:0] inst
 );
@@ -17,43 +18,72 @@ module FetchTrace(
 );
 
 logic [31:0] memLatency;
-logic [31:0] waitLatency;
 logic inflight;
-logic waitingOut;
+logic [31:0] memQ [0:7];
+logic [31:0] waitQ [0:7];
+logic [2:0] head;
+logic [2:0] tail;
+logic [3:0] count;
+integer i;
 
 always_ff @(posedge clk) begin
- if(reset) begin
+ if(reset || flush) begin
    memLatency <= 32'd0;
-   waitLatency <= 32'd0;
    inflight <= 1'b0;
-   waitingOut <= 1'b0;
+   head <= 3'd0;
+   tail <= 3'd0;
+   count <= 4'd0;
+   for(i = 0; i < 8; i = i + 1) begin
+     memQ[i] <= 32'd0;
+     waitQ[i] <= 32'd0;
+   end
  end else begin
    if(inflight) begin
      memLatency <= memLatency + 32'd1;
    end
 
-   if(waitingOut) begin
-     waitLatency <= waitLatency + 32'd1;
+   for(i = 0; i < 8; i = i + 1) begin
+     if(i < count) begin
+       waitQ[(head + i) & 3'h7] <= waitQ[(head + i) & 3'h7] + 32'd1;
+     end
    end
 
    if(reqInst) begin
      memLatency <= 32'd0;
-     waitLatency <= 32'd0;
      inflight <= 1'b1;
-     waitingOut <= 1'b0;
    end
 
-   if(gotReply && !gotInst) begin
+   if(gotReply && gotInst) begin
      inflight <= 1'b0;
-     waitingOut <= 1'b1;
-   end
-
-   if(gotInst) begin
-     fetch_trace(gotInst, pc, inst, memLatency, waitLatency);
+     if(count != 4'd0) begin
+       fetch_trace(gotInst, pc, inst, memQ[head], waitQ[head]);
+       head <= head + 3'd1;
+       memQ[tail] <= memLatency;
+       waitQ[tail] <= 32'd0;
+       tail <= tail + 3'd1;
+     end else begin
+       fetch_trace(gotInst, pc, inst, 32'd0, 32'd0);
+       memQ[tail] <= memLatency;
+       waitQ[tail] <= 32'd0;
+       tail <= tail + 3'd1;
+       count <= 4'd1;
+     end
+   end else if(gotReply) begin
      inflight <= 1'b0;
-     waitingOut <= 1'b0;
-     memLatency <= 32'd0;
-     waitLatency <= 32'd0;
+     if(count < 4'd8) begin
+       memQ[tail] <= memLatency;
+       waitQ[tail] <= 32'd0;
+       tail <= tail + 3'd1;
+       count <= count + 4'd1;
+     end
+   end else if(gotInst) begin
+     if(count != 4'd0) begin
+       fetch_trace(gotInst, pc, inst, memQ[head], waitQ[head]);
+       head <= head + 3'd1;
+       count <= count - 4'd1;
+     end else begin
+       fetch_trace(gotInst, pc, inst, 32'd0, 32'd0);
+     end
    end
  end
 end

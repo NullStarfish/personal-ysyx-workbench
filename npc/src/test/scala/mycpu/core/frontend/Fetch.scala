@@ -6,6 +6,8 @@ import mycpu.common._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FetchSim extends AnyFlatSpec {
+  private val maxWait = 20
+
   private def init(c: Fetch): Unit = {
     c.io.fetch.ready.poke(false.B)
     c.io.reply.valid.poke(false.B)
@@ -22,62 +24,69 @@ class FetchSim extends AnyFlatSpec {
     c.reset.poke(false.B)
   }
 
-  "Fetch" should "request the reset PC and hold it until the request fires" in {
+  private def acceptFetch(c: Fetch, expectedPc: BigInt): Unit = {
+    var cycles = 0
+    c.io.fetch.ready.poke(false.B)
+    while (c.io.fetch.valid.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"Fetch did not present request for 0x${expectedPc.toString(16)}")
+    c.io.fetch.bits.expect(expectedPc.U)
+    c.io.fetch.ready.poke(true.B)
+    c.clock.step()
+    c.io.fetch.ready.poke(false.B)
+  }
+
+  private def sendReply(c: Fetch, inst: BigInt): Unit = {
+    var cycles = 0
+    c.io.reply.valid.poke(true.B)
+    c.io.reply.bits.poke(inst.U)
+    while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"Fetch did not accept reply 0x${inst.toString(16)}")
+    c.clock.step()
+    c.io.reply.valid.poke(false.B)
+  }
+
+  private def expectOut(c: Fetch, expectedPc: BigInt, expectedInst: BigInt): Unit = {
+    var cycles = 0
+    c.io.out.ready.poke(true.B)
+    while (c.io.out.valid.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"Fetch did not emit packet for 0x${expectedPc.toString(16)}")
+    c.io.out.bits.pc.expect(expectedPc.U)
+    c.io.out.bits.inst.expect(expectedInst.U)
+    c.io.out.bits.isException.expect(false.B)
+    c.clock.step()
+    c.io.out.ready.poke(false.B)
+  }
+
+  "Fetch" should "present reset PC until the request is accepted" in {
     simulate(new Fetch) { c =>
       resetDut(c)
 
-      c.io.fetch.valid.expect(true.B)
-      c.io.fetch.bits.expect(START_ADDR.U)
-
       c.io.fetch.ready.poke(false.B)
-      c.clock.step()
-
-      c.io.fetch.valid.expect(true.B)
-      c.io.fetch.bits.expect(START_ADDR.U)
+      c.clock.step(3)
+      acceptFetch(c, START_ADDR)
     }
   }
 
-  it should "emit the returned instruction with the PC of the fired request" in {
+  it should "emit returned instructions with the PCs of accepted requests" in {
     simulate(new Fetch) { c =>
       resetDut(c)
 
-      c.io.fetch.ready.poke(true.B)
-      c.io.fetch.valid.expect(true.B)
-      c.io.fetch.bits.expect(START_ADDR.U)
-      c.clock.step()
+      acceptFetch(c, START_ADDR)
+      sendReply(c, BigInt("00112233", 16))
+      expectOut(c, START_ADDR, BigInt("00112233", 16))
 
-      c.io.fetch.ready.poke(false.B)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke("h00112233".U)
-      c.io.out.ready.poke(true.B)
-
-      c.io.reply.ready.expect(true.B)
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.pc.expect(START_ADDR.U)
-      c.io.out.bits.inst.expect("h00112233".U)
-      c.io.out.bits.isException.expect(false.B)
-
-    }
-  }
-
-  it should "advance to the next sequential PC after a completed fetch" in {
-    simulate(new Fetch) { c =>
-      resetDut(c)
-
-      c.io.fetch.ready.poke(true.B)
-      c.io.fetch.bits.expect(START_ADDR.U)
-      c.clock.step()
-
-      c.io.fetch.ready.poke(false.B)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke("h00000013".U)
-      c.io.out.ready.poke(true.B)
-      c.clock.step()
-
-      c.io.reply.valid.poke(false.B)
-      c.io.out.ready.poke(false.B)
-      c.io.fetch.valid.expect(true.B)
-      c.io.fetch.bits.expect((START_ADDR + 4).U)
+      acceptFetch(c, START_ADDR + 4)
+      sendReply(c, BigInt("00000013", 16))
+      expectOut(c, START_ADDR + 4, BigInt("00000013", 16))
     }
   }
 
@@ -87,26 +96,46 @@ class FetchSim extends AnyFlatSpec {
 
       resetDut(c)
 
-      c.io.fetch.ready.poke(true.B)
-      c.io.fetch.bits.expect(START_ADDR.U)
-      c.clock.step()
+      acceptFetch(c, START_ADDR)
 
-      c.io.fetch.ready.poke(false.B)
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke(target.U)
       c.io.reply.valid.poke(true.B)
       c.io.reply.bits.poke("hdeadbeef".U)
       c.io.out.ready.poke(true.B)
-
-      c.io.fetch.valid.expect(false.B)
-      c.io.out.valid.expect(false.B)
       c.clock.step()
 
       c.io.redirect.valid.poke(false.B)
+      c.io.reply.valid.poke(true.B)
+      c.io.reply.bits.poke("hdeadbeef".U)
+      c.io.out.valid.expect(false.B)
+      c.clock.step()
       c.io.reply.valid.poke(false.B)
 
-      c.io.fetch.valid.expect(true.B)
-      c.io.fetch.bits.expect(target.U)
+      acceptFetch(c, target)
+      sendReply(c, BigInt("00112233", 16))
+      expectOut(c, target, BigInt("00112233", 16))
+    }
+  }
+
+  it should "flush prefetched sequential work after a fetched jal" in {
+    simulate(new Fetch) { c =>
+      val jalTarget = START_ADDR + 0x20
+      val jalImm = 0x20
+      val jal =
+        (BigInt((jalImm >> 20) & 0x1) << 31) |
+          (BigInt((jalImm >> 1) & 0x3ff) << 21) |
+          (BigInt((jalImm >> 11) & 0x1) << 20) |
+          (BigInt((jalImm >> 12) & 0xff) << 12) |
+          BigInt("1101111", 2)
+
+      resetDut(c)
+
+      acceptFetch(c, START_ADDR)
+      sendReply(c, jal)
+      expectOut(c, START_ADDR, jal)
+
+      acceptFetch(c, jalTarget)
     }
   }
 }

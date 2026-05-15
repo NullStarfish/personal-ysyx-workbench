@@ -159,10 +159,28 @@ void CPU::traceLsu(uint32_t latency, bool write) {
   }
 }
 
+void CPU::traceLsuBackpressure(bool blocked) {
+  if (blocked) {
+    lsuBackpressureCycles++;
+  }
+}
+
 void CPU::traceFlush(bool flush, uint32_t pc, uint32_t instVal) {
   if (flush) {
     instQueue.discardAfter(pc, instVal);
   }
+}
+
+void CPU::traceHazard(bool loadUseStall, bool redirectFlush) {
+  if (loadUseStall) hazardLoadUseCycles++;
+  if (redirectFlush) hazardRedirectFlushCycles++;
+}
+
+void CPU::tracePipeline(bool ifIdValid, bool idExValid, bool exMemValid, bool memWbValid) {
+  if (ifIdValid) pipeIfIdValidCycles++;
+  if (idExValid) pipeIdExValidCycles++;
+  if (exMemValid) pipeExMemValidCycles++;
+  if (memWbValid) pipeMemWbValidCycles++;
 }
 
 uint32_t CPU::pc() const { return archState.pc; }
@@ -251,7 +269,19 @@ void CPU::printStats() const {
   printf("Inst statistics: \n");
   printf("Arith: %lld\t, Mem: %lld\t, Redirect: %lld\t, Sys: %lld\n", this->instArithCnt, this->instMemCnt, this->instRdrctCnt, this->instSysCnt);
   printf("Arith: %lf%%, Mem: %lf%%, Redirect: %lf%%, Sys: %lf%%\n", 100.0*instArithCnt/instrCountValue, 100.0*instMemCnt/instrCountValue, 100.0*instRdrctCnt/instrCountValue, 100.0*instSysCnt/instrCountValue);
-  printf("Pipeline trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuLoadData=%lld\t, LsuStoreAck=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt, lsuWriteDataCnt);
+  printf("Unit trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuLoadData=%lld\t, LsuStoreAck=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt, lsuWriteDataCnt);
+  if (cycleCountValue > 0) {
+    printf("Pipeline stage occupancy: IF/ID=%lf%%, ID/EX=%lf%%, EX/MEM=%lf%%, MEM/WB=%lf%%\n",
+           100.0 * pipeIfIdValidCycles / cycleCountValue,
+           100.0 * pipeIdExValidCycles / cycleCountValue,
+           100.0 * pipeExMemValidCycles / cycleCountValue,
+           100.0 * pipeMemWbValidCycles / cycleCountValue);
+    printf("Hazard trace: LoadUse=%lld (%lf%%), RedirectFlush=%lld (%lf%%)\n",
+           hazardLoadUseCycles, 100.0 * hazardLoadUseCycles / cycleCountValue,
+           hazardRedirectFlushCycles, 100.0 * hazardRedirectFlushCycles / cycleCountValue);
+    printf("LSU backpressure: %lld (%lf%%)\n",
+           lsuBackpressureCycles, 100.0 * lsuBackpressureCycles / cycleCountValue);
+  }
   if (fetchGotInstCnt > 0) {
     printf("Fetch memory latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchMemLatencyCnt) / fetchGotInstCnt, fetchMaxMemLatency);
     printf("Fetch output wait: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchWaitLatencyCnt) / fetchGotInstCnt, fetchMaxWaitLatency);
@@ -327,6 +357,18 @@ extern "C" void lsu_trace(int latency, svBit write) {
   cpu.traceLsu(static_cast<uint32_t>(latency), write != 0);
 }
 
+extern "C" void lsu_backpressure_trace(svBit blocked) {
+  cpu.traceLsuBackpressure(blocked != 0);
+}
+
 extern "C" void flush_trace(svBit flush, int pc, int inst) {
   cpu.traceFlush(flush != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst));
+}
+
+extern "C" void hazard_trace(svBit loadUseStall, svBit redirectFlush) {
+  cpu.traceHazard(loadUseStall != 0, redirectFlush != 0);
+}
+
+extern "C" void pipeline_trace(svBit ifIdValid, svBit idExValid, svBit exMemValid, svBit memWbValid) {
+  cpu.tracePipeline(ifIdValid != 0, idExValid != 0, exMemValid != 0, memWbValid != 0);
 }

@@ -99,6 +99,20 @@ class Core(
     flushTrace.io.flush := redirectFlush
     flushTrace.io.pc := execute.io.out.bits.retireTrace.get.pc
     flushTrace.io.inst := execute.io.out.bits.retireTrace.get.inst
+
+    val pipelineTrace = Module(new PipelineTrace)
+    pipelineTrace.io.clk := clock
+    pipelineTrace.io.reset := reset.asBool
+    pipelineTrace.io.ifIdValid := ifId.io.deq.valid
+    pipelineTrace.io.idExValid := idEx.io.deq.valid
+    pipelineTrace.io.exMemValid := exMem.io.deq.valid
+    pipelineTrace.io.memWbValid := memWb.io.deq.valid
+
+    val hazardTrace = Module(new HazardTrace)
+    hazardTrace.io.clk := clock
+    hazardTrace.io.reset := reset.asBool
+    hazardTrace.io.loadUseStall := loadUseStall
+    hazardTrace.io.redirectFlush := redirectFlush
   }
 
   ifId.io.flush := redirectFlush

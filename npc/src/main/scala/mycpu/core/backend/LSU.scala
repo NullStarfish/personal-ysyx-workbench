@@ -122,5 +122,6 @@ class LSU(
     lsuTrace.io.reqReadData := io.req.fire && !reqView.memCtrl.write
     lsuTrace.io.reqWriteData := io.req.fire && reqView.memCtrl.write
     lsuTrace.io.gotData := io.reply.fire && reqReg.memCtrl.en
+    lsuTrace.io.blocked := io.in.valid && !io.in.ready
   }
 }

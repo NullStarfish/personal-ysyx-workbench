@@ -33,10 +33,16 @@ class FetchDecodeHarness extends Module {
 
   decode.io.in <> ifId.io.deq
   decode.io.regWrite <> io.regWrite
+  decode.io.forwards.foreach { forward =>
+    forward.valid := false.B
+    forward.addr := 0.U
+    forward.data := 0.U
+  }
   io.out <> decode.io.out
 }
 
 class FetchDecodeSim extends AnyFlatSpec {
+  private val maxWait = 30
   private val pc0 = BigInt(START_ADDR)
   private val pc1 = pc0 + 4
   private val pc2 = pc0 + 8
@@ -92,7 +98,13 @@ class FetchDecodeSim extends AnyFlatSpec {
   }
 
   private def acceptFetch(c: FetchDecodeHarness, pc: BigInt): Unit = {
-    c.io.fetchReq.valid.expect(true.B)
+    var cycles = 0
+    c.io.fetchReq.ready.poke(false.B)
+    while (c.io.fetchReq.valid.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"FetchDecode did not present fetch request for 0x${pc.toString(16)}")
     c.io.fetchReq.bits.expect(pc.U)
     c.io.fetchReq.ready.poke(true.B)
     c.clock.step()
@@ -100,11 +112,26 @@ class FetchDecodeSim extends AnyFlatSpec {
   }
 
   private def returnInst(c: FetchDecodeHarness, inst: BigInt): Unit = {
+    var cycles = 0
     c.io.reply.valid.poke(true.B)
     c.io.reply.bits.poke(inst.U)
-    c.io.reply.ready.expect(true.B)
+    while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"FetchDecode did not accept reply 0x${inst.toString(16)}")
     c.clock.step()
     c.io.reply.valid.poke(false.B)
+  }
+
+  private def waitOut(c: FetchDecodeHarness, pc: BigInt): Unit = {
+    var cycles = 0
+    while (c.io.out.valid.peek().litValue == 0 && cycles < maxWait) {
+      c.clock.step()
+      cycles += 1
+    }
+    assert(cycles < maxWait, s"FetchDecode did not emit decoded packet for 0x${pc.toString(16)}")
+    c.io.out.bits.execData.pc.expect(pc.U)
   }
 
   "Fetch + Decode" should "flow two sequential instructions through IF/ID" in {
@@ -118,8 +145,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       acceptFetch(c, pc0)
       returnInst(c, inst0)
 
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc0.U)
+      waitOut(c, pc0)
       c.io.out.bits.execData.imm.expect(5.U)
       c.io.out.bits.wbCtrl.wen.expect(true.B)
       c.io.out.bits.wbCtrl.rd.expect(1.U)
@@ -129,8 +155,7 @@ class FetchDecodeSim extends AnyFlatSpec {
       acceptFetch(c, pc1)
       returnInst(c, inst1)
 
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc1.U)
+      waitOut(c, pc1)
       c.io.out.bits.rs1.valid.expect(true.B)
       c.io.out.bits.rs1.bits.addr.expect(1.U)
       c.io.out.bits.execData.imm.expect(8.U)
@@ -143,7 +168,7 @@ class FetchDecodeSim extends AnyFlatSpec {
     }
   }
 
-  it should "backpressure fetch reply when decode is not ready" in {
+  it should "hold decoded output stable while downstream is not ready" in {
     simulate(new FetchDecodeHarness) { c =>
       val inst0 = addi(rd = 3, rs1 = 0, imm = 9)
       val inst1 = addi(rd = 4, rs1 = 0, imm = 10)
@@ -154,28 +179,19 @@ class FetchDecodeSim extends AnyFlatSpec {
       c.io.out.ready.poke(false.B)
       returnInst(c, inst0)
 
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc0.U)
-      c.io.fetchReq.valid.expect(true.B)
-      c.io.fetchReq.bits.expect(pc1.U)
+      waitOut(c, pc0)
 
       acceptFetch(c, pc1)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke(inst1.U)
-
-      c.clock.step(3)
-      c.io.out.valid.expect(true.B)
+      returnInst(c, inst1)
+      waitOut(c, pc0)
       c.io.out.bits.execData.pc.expect(pc0.U)
-      c.io.reply.ready.expect(false.B)
+      c.io.out.bits.wbCtrl.rd.expect(3.U)
 
       c.io.out.ready.poke(true.B)
       c.clock.step()
-      c.io.reply.ready.expect(true.B)
-      c.clock.step()
-      c.io.reply.valid.poke(false.B)
 
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc1.U)
+      waitOut(c, pc1)
+      c.io.out.bits.wbCtrl.rd.expect(4.U)
     }
   }
 
@@ -187,21 +203,20 @@ class FetchDecodeSim extends AnyFlatSpec {
 
       acceptFetch(c, pc0)
       returnInst(c, inst0)
+      waitOut(c, pc0)
 
       c.io.stageStall.poke(true.B)
       c.io.out.ready.poke(false.B)
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc0.U)
+      waitOut(c, pc0)
 
       acceptFetch(c, pc1)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke(addi(rd = 5, rs1 = 0, imm = 2).U)
-      c.io.reply.ready.expect(false.B)
+      returnInst(c, addi(rd = 5, rs1 = 0, imm = 2))
+      waitOut(c, pc0)
 
       c.io.stageStall.poke(false.B)
       c.io.out.ready.poke(true.B)
       c.clock.step()
-      c.io.reply.ready.expect(true.B)
+      waitOut(c, pc1)
     }
   }
 
@@ -215,8 +230,7 @@ class FetchDecodeSim extends AnyFlatSpec {
 
       acceptFetch(c, pc0)
       returnInst(c, wrongPath)
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(pc0.U)
+      waitOut(c, pc0)
 
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke(target.U)
@@ -230,8 +244,7 @@ class FetchDecodeSim extends AnyFlatSpec {
 
       c.io.out.ready.poke(true.B)
       returnInst(c, targetInst)
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.execData.pc.expect(target.U)
+      waitOut(c, target)
       c.io.out.bits.execCtrl.branchType.expect(BranchType.Eq)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.redirect)
     }
