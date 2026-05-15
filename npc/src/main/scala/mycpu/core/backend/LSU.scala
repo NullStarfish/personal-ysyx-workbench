@@ -123,5 +123,11 @@ class LSU(
     lsuTrace.io.reqWriteData := io.req.fire && reqView.memCtrl.write
     lsuTrace.io.gotData := io.reply.fire && reqReg.memCtrl.en
     lsuTrace.io.blocked := io.in.valid && !io.in.ready
+
+    val dcacheTrace = Module(new DCacheTrace)
+    dcacheTrace.io.clk := clock
+    dcacheTrace.io.reset := reset.asBool
+    dcacheTrace.io.hit := false.B
+    dcacheTrace.io.miss := io.req.fire
   }
 }

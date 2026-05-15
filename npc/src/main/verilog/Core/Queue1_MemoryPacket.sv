@@ -10,6 +10,10 @@ module Queue1_MemoryPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   input         io_enq_bits_retireTrace_regWrite_wen,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [31:0] io_enq_bits_retireTrace_regWrite_wdata,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [1:0]  io_enq_bits_retireTrace_instType,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  input  [31:0] io_enq_bits_retireTrace_csrs_mtvec,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_enq_bits_retireTrace_csrs_mepc,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_enq_bits_retireTrace_csrs_mstatus,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_enq_bits_retireTrace_csrs_mcause,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [4:0]  io_enq_bits_wbCtrl_rd,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input         io_enq_bits_wbCtrl_wen,	// src/main/scala/chisel3/util/Queue.scala:72:14
   input  [31:0] io_enq_bits_wbData_wdata,	// src/main/scala/chisel3/util/Queue.scala:72:14
@@ -18,12 +22,16 @@ module Queue1_MemoryPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
                 io_deq_bits_retireTrace_inst,	// src/main/scala/chisel3/util/Queue.scala:72:14
                 io_deq_bits_retireTrace_dnpc,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [1:0]  io_deq_bits_retireTrace_instType,	// src/main/scala/chisel3/util/Queue.scala:72:14
+  output [31:0] io_deq_bits_retireTrace_csrs_mtvec,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_retireTrace_csrs_mepc,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_retireTrace_csrs_mstatus,	// src/main/scala/chisel3/util/Queue.scala:72:14
+                io_deq_bits_retireTrace_csrs_mcause,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [4:0]  io_deq_bits_wbCtrl_rd,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output        io_deq_bits_wbCtrl_wen,	// src/main/scala/chisel3/util/Queue.scala:72:14
   output [31:0] io_deq_bits_wbData_wdata	// src/main/scala/chisel3/util/Queue.scala:72:14
 );
 
-  reg [173:0] ram;	// src/main/scala/chisel3/util/Queue.scala:73:91
+  reg [301:0] ram;	// src/main/scala/chisel3/util/Queue.scala:73:91
   reg         maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
     if (reset)	// src/main/scala/chisel3/util/Queue.scala:60:7
@@ -39,15 +47,23 @@ module Queue1_MemoryPacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
          io_enq_bits_retireTrace_regWrite_wen,
          io_enq_bits_retireTrace_regWrite_wdata,
          io_enq_bits_retireTrace_instType,
+         io_enq_bits_retireTrace_csrs_mtvec,
+         io_enq_bits_retireTrace_csrs_mepc,
+         io_enq_bits_retireTrace_csrs_mstatus,
+         io_enq_bits_retireTrace_csrs_mcause,
          io_enq_bits_wbCtrl_rd,
          io_enq_bits_wbCtrl_wen,
          io_enq_bits_wbData_wdata};	// src/main/scala/chisel3/util/Queue.scala:73:91
   end // always @(posedge)
   assign io_deq_valid = maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27
-  assign io_deq_bits_retireTrace_pc = ram[173:142];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_retireTrace_inst = ram[141:110];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_retireTrace_dnpc = ram[109:78];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_retireTrace_instType = ram[39:38];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_pc = ram[301:270];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_inst = ram[269:238];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_dnpc = ram[237:206];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_instType = ram[167:166];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_csrs_mtvec = ram[165:134];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_csrs_mepc = ram[133:102];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_csrs_mstatus = ram[101:70];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_csrs_mcause = ram[69:38];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_wbCtrl_rd = ram[37:33];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_wbCtrl_wen = ram[32];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_wbData_wdata = ram[31:0];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91

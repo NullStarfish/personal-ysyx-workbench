@@ -11,7 +11,11 @@ module FlushableStage_2(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
   input         io_enq_bits_retireTrace_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   input  [31:0] io_enq_bits_retireTrace_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   input  [1:0]  io_enq_bits_retireTrace_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
-  input  [31:0] io_enq_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+  input  [31:0] io_enq_bits_retireTrace_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_enq_bits_retireTrace_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_enq_bits_retireTrace_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_enq_bits_retireTrace_csrs_mcause,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_enq_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
                 io_enq_bits_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   input         io_enq_bits_wbCtrl_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   input  [4:0]  io_enq_bits_wbCtrl_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
@@ -28,7 +32,11 @@ module FlushableStage_2(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
   output [4:0]  io_deq_bits_retireTrace_regWrite_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output        io_deq_bits_retireTrace_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output [1:0]  io_deq_bits_retireTrace_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
-  output [31:0] io_deq_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+  output [31:0] io_deq_bits_retireTrace_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_deq_bits_retireTrace_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_deq_bits_retireTrace_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_deq_bits_retireTrace_csrs_mcause,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
+                io_deq_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
                 io_deq_bits_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output        io_deq_bits_wbCtrl_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
   output [4:0]  io_deq_bits_wbCtrl_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/FlushableStage.scala:8:14
@@ -50,6 +58,10 @@ module FlushableStage_2(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
     .io_enq_bits_retireTrace_regWrite_wen   (io_enq_bits_retireTrace_regWrite_wen),
     .io_enq_bits_retireTrace_regWrite_wdata (io_enq_bits_retireTrace_regWrite_wdata),
     .io_enq_bits_retireTrace_instType       (io_enq_bits_retireTrace_instType),
+    .io_enq_bits_retireTrace_csrs_mtvec     (io_enq_bits_retireTrace_csrs_mtvec),
+    .io_enq_bits_retireTrace_csrs_mepc      (io_enq_bits_retireTrace_csrs_mepc),
+    .io_enq_bits_retireTrace_csrs_mstatus   (io_enq_bits_retireTrace_csrs_mstatus),
+    .io_enq_bits_retireTrace_csrs_mcause    (io_enq_bits_retireTrace_csrs_mcause),
     .io_enq_bits_lhs                        (io_enq_bits_lhs),
     .io_enq_bits_rhs                        (io_enq_bits_rhs),
     .io_enq_bits_wbCtrl_wen                 (io_enq_bits_wbCtrl_wen),
@@ -67,6 +79,10 @@ module FlushableStage_2(	// home/nullstarfish/personal-ysyx-workbench/npc/out/co
     .io_deq_bits_retireTrace_regWrite_rd    (io_deq_bits_retireTrace_regWrite_rd),
     .io_deq_bits_retireTrace_regWrite_wen   (io_deq_bits_retireTrace_regWrite_wen),
     .io_deq_bits_retireTrace_instType       (io_deq_bits_retireTrace_instType),
+    .io_deq_bits_retireTrace_csrs_mtvec     (io_deq_bits_retireTrace_csrs_mtvec),
+    .io_deq_bits_retireTrace_csrs_mepc      (io_deq_bits_retireTrace_csrs_mepc),
+    .io_deq_bits_retireTrace_csrs_mstatus   (io_deq_bits_retireTrace_csrs_mstatus),
+    .io_deq_bits_retireTrace_csrs_mcause    (io_deq_bits_retireTrace_csrs_mcause),
     .io_deq_bits_lhs                        (io_deq_bits_lhs),
     .io_deq_bits_rhs                        (io_deq_bits_rhs),
     .io_deq_bits_wbCtrl_wen                 (io_deq_bits_wbCtrl_wen),

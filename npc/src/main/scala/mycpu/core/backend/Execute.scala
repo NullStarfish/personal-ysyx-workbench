@@ -125,6 +125,7 @@ class Execute(
     io.out.bits.retireTrace.get.regWrite.wen := data.wbCtrl.wen
     io.out.bits.retireTrace.get.regWrite.rd := data.wbCtrl.rd
     io.out.bits.retireTrace.get.regWrite.wdata := result
+    io.out.bits.retireTrace.get.csrs := csr.io.retireCsrs
   }
   
 

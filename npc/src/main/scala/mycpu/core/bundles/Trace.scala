@@ -17,6 +17,7 @@ class RetireTrace extends TraceBase {
   val dnpc = XLenU
   val regWrite = new RegWriteMeta 
   val instType =  InstType()
+  val csrs = new CsrDebugBundle
 }
 
 
@@ -246,6 +247,37 @@ final class LSUTrace extends BlackBox with HasBlackBoxInline {
       |     latency <= 32'd0;
       |     inflightWrite <= 1'b0;
       |   end
+      | end
+      |end
+      |
+      |endmodule
+      |""".stripMargin
+  )
+}
+
+final class DCacheTrace extends BlackBox with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clk = Input(Clock())
+    val reset = Input(Bool())
+    val hit = Input(Bool())
+    val miss = Input(Bool())
+  })
+  setInline(
+    "DCacheTrace.sv",
+    """module DCacheTrace(
+      |    input logic clk,
+      |    input logic reset,
+      |    input logic hit,
+      |    input logic miss
+      |);
+      | import "DPI-C" function void dcache_trace(
+      |   input bit hit,
+      |   input bit miss
+      |);
+      |
+      |always_ff @(posedge clk) begin
+      | if(!reset && (hit || miss)) begin
+      |   dcache_trace(hit, miss);
       | end
       |end
       |

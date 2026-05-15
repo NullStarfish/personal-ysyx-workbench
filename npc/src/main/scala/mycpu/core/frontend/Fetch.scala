@@ -42,50 +42,55 @@ class Fetch(
   val fetchReq = Module(new Queue(XLenU, entries = 3, hasFlush = true))
   val fetchReply = Module(new Queue(new Bundle{val pc = XLenU; val inst = XLenU}, entries = 3, hasFlush = true))
   val pc = RegInit(START_ADDR.U(XLEN.W))
-  val reqMeta = Module(new Queue(new Bundle {
-    val pc = XLenU
-    val epoch = UInt(2.W)
-  }, entries = 3))
+  val reqPc = Module(new Queue(XLenU, entries = 3, hasFlush = true))
 
 
   val outInst = fetchReply.io.deq.bits.inst
   val outPc = fetchReply.io.deq.bits.pc
-  val replyIsJal = outInst(6, 0) === "b1101111".U
-  val jalImm = Cat(Fill(11, outInst(31)), outInst(31), outInst(19, 12), outInst(20), outInst(30, 21), 0.U(1.W))
-  val jalTarget = (outPc.asSInt + jalImm.asSInt).asUInt
-  val jalRedirect = io.out.fire && replyIsJal
-  val frontFlush = io.redirect.valid || jalRedirect
+  val frontFlush = io.redirect.valid
 
   when(io.redirect.valid) {
     pc := io.redirect.bits
-  }.elsewhen(jalRedirect) {
-    pc := jalTarget
   }.elsewhen(fetchReq.io.enq.fire) {
     pc := pc + 4.U
   }
 
   fetchReq.io.enq.valid := !reset.asBool && !frontFlush
   fetchReq.io.enq.bits := pc
-  io.fetch.valid := fetchReq.io.deq.valid && reqMeta.io.enq.ready
+  io.fetch.valid := fetchReq.io.deq.valid && reqPc.io.enq.ready && !frontFlush
   io.fetch.bits := fetchReq.io.deq.bits
-  fetchReq.io.deq.ready := io.fetch.ready && reqMeta.io.enq.ready
+  fetchReq.io.deq.ready := io.fetch.ready && reqPc.io.enq.ready && !frontFlush
 
 
-  reqMeta.io.enq.valid := io.fetch.fire
-  reqMeta.io.enq.bits.pc := fetchReq.io.deq.bits
-  reqMeta.io.enq.bits.epoch := epoch
+  reqPc.io.enq.valid := io.fetch.fire && !frontFlush
+  reqPc.io.enq.bits := fetchReq.io.deq.bits
 
-  val replyMatchesEpoch = reqMeta.io.deq.valid && reqMeta.io.deq.bits.epoch === epoch && !frontFlush
-  fetchReply.io.enq.valid := io.reply.valid && replyMatchesEpoch
-  io.reply.ready := !reset.asBool && reqMeta.io.deq.valid && Mux(replyMatchesEpoch, fetchReply.io.enq.ready, true.B)
-  reqMeta.io.deq.ready := io.reply.fire
 
-  fetchReply.io.enq.bits.pc := reqMeta.io.deq.bits.pc
+  fetchReply.io.enq.valid := io.reply.valid && reqPc.io.deq.valid
+  io.reply.ready := false.B
+
+  when (!reset.asBool) {
+    when (io.redirect.valid) {
+      io.reply.ready := true.B
+    } .otherwise {
+      when (!reqPc.io.deq.valid) {
+        io.reply.ready := true.B
+      }.otherwise {
+        //唯一不丢弃的路径
+        io.reply.ready := fetchReply.io.enq.ready
+      }
+    }
+  }
+
+  reqPc.io.deq.ready := io.reply.fire
+
+  fetchReply.io.enq.bits.pc := reqPc.io.deq.bits
   fetchReply.io.enq.bits.inst := io.reply.bits
 
 
   fetchReq.io.flush.get := frontFlush
   fetchReply.io.flush.get := frontFlush
+  reqPc.io.flush.get := frontFlush
   
 
   when (frontFlush) {

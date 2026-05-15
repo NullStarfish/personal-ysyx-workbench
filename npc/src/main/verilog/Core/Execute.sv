@@ -38,7 +38,11 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog
   output        io_out_bits_retireTrace_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
   output [31:0] io_out_bits_retireTrace_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
   output [1:0]  io_out_bits_retireTrace_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-  output [31:0] io_out_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+  output [31:0] io_out_bits_retireTrace_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+                io_out_bits_retireTrace_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+                io_out_bits_retireTrace_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+                io_out_bits_retireTrace_csrs_mcause,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+                io_out_bits_lhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
                 io_out_bits_rhs,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
   output        io_out_bits_wbCtrl_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
   output [4:0]  io_out_bits_wbCtrl_rd,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
@@ -46,11 +50,7 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog
                 io_out_bits_memCtrl_write,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
                 io_out_bits_memCtrl_unsigned,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
   output [1:0]  io_out_bits_memCtrl_subop,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-  output        io_out_bits_ifRedct_redirect_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-  output [31:0] io_debug_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-                io_debug_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-                io_debug_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
-                io_debug_csrs_mcause	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
+  output        io_out_bits_ifRedct_redirect_valid	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:14:14
 );
 
   wire [31:0] _csr_io_rdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:40:19
@@ -95,31 +95,31 @@ module Execute(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog
     .io_out (_alu_io_out)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:33:19
   CSR csr (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:40:19
-    .clock            (clock),
-    .reset            (reset),
-    .io_cmd           (executeFire ? io_in_bits_execCtrl_sys_csrOp : 2'h0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :41:20
-    .io_addr          (io_in_bits_execCtrl_sys_csrAddr),
-    .io_wdata         (io_in_bits_rs1_bits_rdata),
-    .io_rdata         (_csr_io_rdata),
-    .io_pc            (io_in_bits_execData_pc),
-    .io_isEcall       (io_in_bits_execCtrl_sys_ecall & executeFire),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :45:36
-    .io_isMret        (io_in_bits_execCtrl_sys_mret & executeFire),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :46:34
-    .io_evec          (_csr_io_evec),
-    .io_epc           (_csr_io_epc),
-    .io_debug_mtvec   (io_debug_csrs_mtvec),
-    .io_debug_mepc    (io_debug_csrs_mepc),
-    .io_debug_mstatus (io_debug_csrs_mstatus),
-    .io_debug_mcause  (io_debug_csrs_mcause)
+    .clock                 (clock),
+    .reset                 (reset),
+    .io_cmd                (executeFire ? io_in_bits_execCtrl_sys_csrOp : 2'h0),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :41:20
+    .io_addr               (io_in_bits_execCtrl_sys_csrAddr),
+    .io_wdata              (io_in_bits_rs1_bits_rdata),
+    .io_rdata              (_csr_io_rdata),
+    .io_pc                 (io_in_bits_execData_pc),
+    .io_isEcall            (io_in_bits_execCtrl_sys_ecall & executeFire),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :45:36
+    .io_isMret             (io_in_bits_execCtrl_sys_mret & executeFire),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :46:34
+    .io_evec               (_csr_io_evec),
+    .io_epc                (_csr_io_epc),
+    .io_retireCsrs_mtvec   (io_out_bits_retireTrace_csrs_mtvec),
+    .io_retireCsrs_mepc    (io_out_bits_retireTrace_csrs_mepc),
+    .io_retireCsrs_mstatus (io_out_bits_retireTrace_csrs_mstatus),
+    .io_retireCsrs_mcause  (io_out_bits_retireTrace_csrs_mcause)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:40:19
   SimEbreakDPI simEbreak (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:49:27
     .valid     (io_in_bits_execCtrl_sys_ebreak & executeFire),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:38:33, :50:43
     .is_ebreak (32'h0)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:49:27
-  ExecuteTrace executeTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:135:30
+  ExecuteTrace executeTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:136:30
     .clk      (clock),
     .reset    (reset),
     .finished (io_out_ready & io_in_valid)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:135:30
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:136:30
   assign io_in_ready = io_out_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:10:7
   assign io_out_valid = io_in_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:10:7
   assign io_out_bits_retireTrace_pc = io_in_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/backend/Execute.scala:10:7

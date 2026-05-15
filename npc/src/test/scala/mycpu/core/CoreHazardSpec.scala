@@ -47,13 +47,40 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      stepUntilRetireCount(c, targetRetires = 4, maxCycles = 40, {
+      stepUntilRetireCount(c, targetRetires = 4, maxCycles = 80, {
         pending = serviceReadBus(c, memory, pending)
       })
 
       c.io.debug_regs(1).expect(1.U)
       c.io.debug_regs(2).expect(0.U)
       c.io.debug_regs(3).expect(2.U)
+    }
+  }
+
+  it should "flush multiple prefetched wrong-path instructions after jal" in {
+    simulate(new Core) { c =>
+      val memory = Map[BigInt, BigInt](
+        BigInt(START_ADDR) -> BigInt("00100093", 16),      // addi x1, x0, 1
+        BigInt(START_ADDR + 4) -> BigInt("00c0006f", 16),  // jal x0, 12
+        BigInt(START_ADDR + 8) -> BigInt("010000ef", 16),  // jal x1, 16 (wrong path)
+        BigInt(START_ADDR + 12) -> BigInt("12300613", 16), // addi x12, x0, 0x123 (wrong path)
+        BigInt(START_ADDR + 16) -> BigInt("00200613", 16), // addi x12, x0, 2 (target)
+        BigInt(START_ADDR + 20) -> BigInt("00100073", 16), // ebreak
+        BigInt(START_ADDR + 24) -> BigInt("00300613", 16), // wrong-path jal target if x1 jal leaks
+      )
+
+      c.reset.poke(true.B)
+      initBus(c)
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      var pending: List[ReadTxn] = Nil
+      stepUntilRetireCount(c, targetRetires = 4, maxCycles = 120, {
+        pending = serviceReadBus(c, memory, pending)
+      })
+
+      c.io.debug_regs(1).expect(1.U)
+      c.io.debug_regs(12).expect(2.U)
     }
   }
 

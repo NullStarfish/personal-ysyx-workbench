@@ -13,6 +13,8 @@ class HazardUnitSpec extends AnyFlatSpec {
 
     c.io.raw.idExLoad.valid.poke(false.B)
     c.io.raw.idExLoad.addr.poke(0.U)
+    c.io.raw.exMemLoad.valid.poke(false.B)
+    c.io.raw.exMemLoad.addr.poke(0.U)
     c.io.raw.lsuLoad.valid.poke(false.B)
     c.io.raw.lsuLoad.addr.poke(0.U)
     c.io.raw.lsuToMemWbFire.poke(false.B)
@@ -54,6 +56,21 @@ class HazardUnitSpec extends AnyFlatSpec {
       c.io.raw.lsuToMemWbFire.poke(true.B)
 
       c.io.raw.loadUseStall.expect(false.B)
+    }
+  }
+
+  it should "keep stalling an EX/MEM load dependency even when an older LSU load fires" in {
+    simulate(new HazardUnit) { c =>
+      init(c)
+      c.io.raw.decode.rs1.valid.poke(true.B)
+      c.io.raw.decode.rs1.addr.poke(5.U)
+      c.io.raw.exMemLoad.valid.poke(true.B)
+      c.io.raw.exMemLoad.addr.poke(5.U)
+      c.io.raw.lsuLoad.valid.poke(true.B)
+      c.io.raw.lsuLoad.addr.poke(4.U)
+      c.io.raw.lsuToMemWbFire.poke(true.B)
+
+      c.io.raw.loadUseStall.expect(true.B)
     }
   }
 

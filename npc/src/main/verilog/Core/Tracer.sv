@@ -10,7 +10,11 @@ module Tracer(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
   input        io_retireTrace_bits_regWrite_wen,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input [31:0] io_retireTrace_bits_regWrite_wdata,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
   input [1:0]  io_retireTrace_bits_instType,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-  input [31:0] io_gprs_0,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+  input [31:0] io_retireTrace_bits_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+               io_retireTrace_bits_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+               io_retireTrace_bits_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+               io_retireTrace_bits_csrs_mcause,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+               io_gprs_0,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_1,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_2,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_3,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
@@ -41,11 +45,7 @@ module Tracer(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
                io_gprs_28,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_29,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
                io_gprs_30,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_gprs_31,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_csrs_mtvec,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_csrs_mepc,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_csrs_mstatus,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
-               io_csrs_mcause	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
+               io_gprs_31	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:10:14
 );
 
   SimStateDPI core_sim_state (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/dpi/DpiApi.scala:22:19
@@ -90,10 +90,10 @@ module Tracer(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
         io_gprs_2,
         io_gprs_1,
         io_gprs_0}),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/Tracer.scala:30:30
-    .mtvec     (io_csrs_mtvec),
-    .mepc      (io_csrs_mepc),
-    .mstatus   (io_csrs_mstatus),
-    .mcause    (io_csrs_mcause),
+    .mtvec     (io_retireTrace_bits_csrs_mtvec),
+    .mepc      (io_retireTrace_bits_csrs_mepc),
+    .mstatus   (io_retireTrace_bits_csrs_mstatus),
+    .mcause    (io_retireTrace_bits_csrs_mcause),
     .inst      (io_retireTrace_bits_inst),
     .instType  (io_retireTrace_bits_instType)
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/dpi/DpiApi.scala:22:19

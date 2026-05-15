@@ -2,6 +2,7 @@ package mycpu.core
 
 import chisel3._
 import chisel3.util._
+import mycpu.cache._
 import mycpu.common._
 import mycpu.core.backend._
 import mycpu.core.bundles._
@@ -34,9 +35,33 @@ class Core(
   val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
   val memWb = Module(new FlushableStage(new MemoryPacket))
   val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
+  val icacheOpt = if (ENABLE_ICACHE) Some(Module(new ICache(params = CacheConfigs.CourseCache8KiB2Way32B, enableDpi = enableDpi))) else None
 
-  memory.io.fetchReq <> fetch.io.fetch
-  fetch.io.reply <> memory.io.fetchReply
+  icacheOpt match {
+    case Some(icache) =>
+    icache.io.cpuReq.valid := fetch.io.fetch.valid
+    icache.io.cpuReq.bits.pc := fetch.io.fetch.bits
+    fetch.io.fetch.ready := icache.io.cpuReq.ready
+
+    fetch.io.reply.valid := icache.io.cpuReply.valid
+    fetch.io.reply.bits := icache.io.cpuReply.bits.inst
+    icache.io.cpuReply.ready := fetch.io.reply.ready
+
+    memory.io.fetchReq.valid := icache.io.memReq.valid
+    memory.io.fetchReq.bits := icache.io.memReq.bits.addr
+    icache.io.memReq.ready := memory.io.fetchReq.ready
+
+    icache.io.memReply.valid := memory.io.fetchReply.valid
+    icache.io.memReply.bits.data := memory.io.fetchReply.bits
+    memory.io.fetchReply.ready := icache.io.memReply.ready
+    icache.io.prefetch.valid := false.B
+    icache.io.prefetch.bits.addr := 0.U
+
+    case None =>
+    memory.io.fetchReq <> fetch.io.fetch
+    fetch.io.reply <> memory.io.fetchReply
+  }
+
   memory.io.lsuReq <> lsu.io.req
   lsu.io.reply <> memory.io.lsuReply
   io.master <> memory.io.axi
@@ -77,11 +102,10 @@ class Core(
 
   hazard.io.raw.idExLoad.valid := idEx.io.deq.valid && idEx.io.deq.bits.memCtrl.en && !idEx.io.deq.bits.memCtrl.write
   hazard.io.raw.idExLoad.addr := idEx.io.deq.bits.wbCtrl.rd
-  val exMemLoad = Wire(new RAWRdPacket)
-  exMemLoad.valid := exMem.io.deq.valid && exMem.io.deq.bits.memCtrl.en && !exMem.io.deq.bits.memCtrl.write
-  exMemLoad.addr := exMem.io.deq.bits.wbCtrl.rd
-  hazard.io.raw.lsuLoad.valid := lsu.io.pendingLoad.valid || exMemLoad.valid
-  hazard.io.raw.lsuLoad.addr := Mux(lsu.io.pendingLoad.valid, lsu.io.pendingLoad.addr, exMemLoad.addr)
+  hazard.io.raw.exMemLoad.valid := exMem.io.deq.valid && exMem.io.deq.bits.memCtrl.en && !exMem.io.deq.bits.memCtrl.write
+  hazard.io.raw.exMemLoad.addr := exMem.io.deq.bits.wbCtrl.rd
+  hazard.io.raw.lsuLoad.valid := lsu.io.pendingLoad.valid
+  hazard.io.raw.lsuLoad.addr := lsu.io.pendingLoad.addr
   hazard.io.raw.lsuToMemWbFire := lsu.io.pendingLoad.valid && lsu.io.out.fire
 
   val executeRedirect = execute.io.out.fire && execute.io.out.bits.ifRedct.redirect.valid
@@ -91,6 +115,10 @@ class Core(
 
   fetch.io.redirect.valid := redirectFlush
   fetch.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
+  icacheOpt.foreach { icache =>
+    icache.io.redirect.valid := redirectFlush
+    icache.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
+  }
 
   if (enableDpi && enableTraceFields) {
     val flushTrace = Module(new FlushTrace)

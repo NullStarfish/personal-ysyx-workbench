@@ -54,6 +54,7 @@ object fetch extends NpcScalaModule {
     val files = Seq(
       root / "src/main/scala/mycpu/common/Config.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
@@ -252,6 +253,42 @@ object memctrl extends NpcScalaModule {
   }
 }
 
+object cache extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val roots = Seq(
+      root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/cache",
+    )
+    val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+
+  object test extends ScalaTests with NpcScalaTestDeps {
+    def sources = T.sources()
+
+    def generatedSources = T.input {
+      val root = mill.api.WorkspaceRoot.workspaceRoot
+      val file = root / "src/test/scala/mycpu/cache/ICacheSpec.scala"
+      val dest = T.dest / "src"
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+      Seq(PathRef(dest))
+    }
+  }
+}
+
 object execute extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
@@ -264,6 +301,7 @@ object execute extends NpcScalaModule {
       root / "src/main/scala/mycpu/common/Consts.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Decode.scala",
       root / "src/main/scala/mycpu/core/bundles/Execute.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
@@ -276,7 +314,6 @@ object execute extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/components/SimEbreak.scala",
       root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
       root / "src/main/scala/mycpu/core/backend/Execute.scala",
-      root / "src/main/scala/mycpu/core/backend/ExecuteOperandSelect.scala",
     )
     val dest = T.dest / "src"
     for (file <- files) {
@@ -398,6 +435,7 @@ object tracer extends NpcScalaModule {
     val files = Seq(
       root / "src/main/scala/mycpu/common/Config.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
       root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
@@ -439,6 +477,7 @@ object coreprogram extends NpcScalaModule {
     val root = mill.api.WorkspaceRoot.workspaceRoot
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/cache",
       root / "src/main/scala/mycpu/core",
       root / "src/main/scala/mycpu/utils",
     )
@@ -494,6 +533,7 @@ object coreverilog extends NpcScalaModule {
     val root = mill.api.WorkspaceRoot.workspaceRoot
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/cache",
       root / "src/main/scala/mycpu/core",
       root / "src/main/scala/mycpu/utils",
     )

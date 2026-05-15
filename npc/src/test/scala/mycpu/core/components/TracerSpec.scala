@@ -14,6 +14,10 @@ class TracerSpec extends AnyFlatSpec {
     c.io.retireTrace.bits.regWrite.rd.poke(0.U)
     c.io.retireTrace.bits.regWrite.wdata.poke(0.U)
     c.io.retireTrace.bits.instType.poke(0.U)
+    c.io.retireTrace.bits.csrs.mtvec.poke(0.U)
+    c.io.retireTrace.bits.csrs.mepc.poke(0.U)
+    c.io.retireTrace.bits.csrs.mstatus.poke(0.U)
+    c.io.retireTrace.bits.csrs.mcause.poke(0.U)
     for (idx <- 0 until 32) {
       c.io.gprs(idx).poke(0.U)
     }
@@ -35,10 +39,10 @@ class TracerSpec extends AnyFlatSpec {
       c.io.retireTrace.bits.regWrite.wdata.poke("h12345678".U)
       c.io.gprs(1).poke("h12345678".U)
       c.io.gprs(10).poke("ha0001170".U)
-      c.io.csrs.mtvec.poke("h100".U)
-      c.io.csrs.mepc.poke("h200".U)
-      c.io.csrs.mstatus.poke("h300".U)
-      c.io.csrs.mcause.poke("h400".U)
+      c.io.retireTrace.bits.csrs.mtvec.poke("h100".U)
+      c.io.retireTrace.bits.csrs.mepc.poke("h200".U)
+      c.io.retireTrace.bits.csrs.mstatus.poke("h300".U)
+      c.io.retireTrace.bits.csrs.mcause.poke("h400".U)
 
       c.io.simState.valid.expect(true.B)
       c.io.simState.pc.expect("ha0000000".U)

@@ -11,6 +11,7 @@ package object common {
   val ENABLE_TRACER = true
   val ENABLE_TRACE_FIELDS = true
   val ENABLE_BRANCH_PREDICTOR = true
+  val ENABLE_ICACHE = false
 
   def XLenU = UInt(XLEN.W)
 

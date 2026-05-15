@@ -118,9 +118,8 @@ class FetchSim extends AnyFlatSpec {
     }
   }
 
-  it should "flush prefetched sequential work after a fetched jal" in {
+  it should "leave jump redirection to the backend" in {
     simulate(new Fetch) { c =>
-      val jalTarget = START_ADDR + 0x20
       val jalImm = 0x20
       val jal =
         (BigInt((jalImm >> 20) & 0x1) << 31) |
@@ -135,7 +134,7 @@ class FetchSim extends AnyFlatSpec {
       sendReply(c, jal)
       expectOut(c, START_ADDR, jal)
 
-      acceptFetch(c, jalTarget)
+      acceptFetch(c, START_ADDR + 4)
     }
   }
 }

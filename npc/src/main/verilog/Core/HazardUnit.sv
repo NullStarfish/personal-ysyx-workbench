@@ -6,6 +6,8 @@ module HazardUnit(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreveri
   input  [4:0] io_raw_decode_rs2_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
   input        io_raw_idExLoad_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
   input  [4:0] io_raw_idExLoad_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
+  input        io_raw_exMemLoad_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
+  input  [4:0] io_raw_exMemLoad_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
   input        io_raw_lsuLoad_valid,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
   input  [4:0] io_raw_lsuLoad_addr,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
   input        io_raw_lsuToMemWbFire,	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:7:14
@@ -18,9 +20,12 @@ module HazardUnit(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreveri
     io_raw_idExLoad_valid & (|io_raw_idExLoad_addr)
     & (io_raw_decode_rs1_valid & io_raw_decode_rs1_addr == io_raw_idExLoad_addr
        | io_raw_decode_rs2_valid & io_raw_decode_rs2_addr == io_raw_idExLoad_addr)
+    | io_raw_exMemLoad_valid & (|io_raw_exMemLoad_addr)
+    & (io_raw_decode_rs1_valid & io_raw_decode_rs1_addr == io_raw_exMemLoad_addr
+       | io_raw_decode_rs2_valid & io_raw_decode_rs2_addr == io_raw_exMemLoad_addr)
     | io_raw_lsuLoad_valid & ~io_raw_lsuToMemWbFire & (|io_raw_lsuLoad_addr)
     & (io_raw_decode_rs1_valid & io_raw_decode_rs1_addr == io_raw_lsuLoad_addr
-       | io_raw_decode_rs2_valid & io_raw_decode_rs2_addr == io_raw_lsuLoad_addr);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:6:7, :26:{9,18}, :27:{33,60,69}, :28:{34,61}, :31:{28,66}, :32:{29,32,55}
+       | io_raw_decode_rs2_valid & io_raw_decode_rs2_addr == io_raw_lsuLoad_addr);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:6:7, :27:{9,18}, :28:{33,60,69}, :29:{34,61}, :32:{28,66}, :33:{31,70}, :34:{29,32,55}
   assign io_ctrl_flush = io_ctrl_redirect;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/HazardUnit.scala:6:7
 endmodule
 

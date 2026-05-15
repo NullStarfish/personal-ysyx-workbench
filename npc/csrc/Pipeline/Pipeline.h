@@ -117,6 +117,19 @@ private:
   long long redirectFlushCycles = 0;
 };
 
+class CacheTraceModel {
+public:
+  void traceICache(bool hit, bool miss);
+  void traceDCache(bool hit, bool miss);
+  void printStats() const;
+
+private:
+  long long icacheHits = 0;
+  long long icacheMisses = 0;
+  long long dcacheHits = 0;
+  long long dcacheMisses = 0;
+};
+
 class PipelineModel {
 public:
   enum StageId { Fetch = 0, Decode, Execute, LSU, WriteBack, NumStages };
@@ -127,6 +140,7 @@ public:
   LSUStage lsu;
   WriteBackStage writeBack;
   HazardTraceModel hazard;
+  CacheTraceModel cache;
 
   void reset();
   void tick();

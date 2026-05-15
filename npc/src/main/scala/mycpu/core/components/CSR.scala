@@ -3,6 +3,7 @@ package mycpu.core.components
 import chisel3._
 import chisel3.util._
 import mycpu.common._
+import mycpu.core.bundles.CsrDebugBundle
 
 class CSR extends Module {
   val io = IO(new Bundle {
@@ -26,6 +27,7 @@ class CSR extends Module {
     val debug_mepc    = Output(UInt(XLEN.W))
     val debug_mstatus = Output(UInt(XLEN.W))
     val debug_mcause  = Output(UInt(XLEN.W))
+    val retireCsrs = Output(new CsrDebugBundle)
 
   })
 
@@ -81,25 +83,40 @@ class CSR extends Module {
   ))
   
   val wen = io.cmd =/= CSROp.N
+
+  val nextMstatus = WireDefault(mstatus)
+  val nextMtvec = WireDefault(mtvec)
+  val nextMepc = WireDefault(mepc)
+  val nextMcause = WireDefault(mcause)
   
   when (io.isEcall) {
-    mepc := io.pc
-    mcause := 11.U // Machine ECALL
-    mstatus := mstatus.bitSet(mstatusBit(MSTATUS_MPIE), mstatus(MSTATUS_MIE))
+    nextMepc := io.pc
+    nextMcause := 11.U // Machine ECALL
+    nextMstatus := mstatus.bitSet(mstatusBit(MSTATUS_MPIE), mstatus(MSTATUS_MIE))
       .bitSet(mstatusBit(MSTATUS_MIE), false.B)
       .bitSet(mstatusBit(MSTATUS_MPP_LO), true.B)
       .bitSet(mstatusBit(MSTATUS_MPP_HI), true.B)
   } .elsewhen (io.isMret) {
-    mstatus := mstatus.bitSet(mstatusBit(MSTATUS_MIE), mstatus(MSTATUS_MPIE))
+    nextMstatus := mstatus.bitSet(mstatusBit(MSTATUS_MIE), mstatus(MSTATUS_MPIE))
       .bitSet(mstatusBit(MSTATUS_MPIE), true.B)
       .bitSet(mstatusBit(MSTATUS_MPP_LO), false.B)
       .bitSet(mstatusBit(MSTATUS_MPP_HI), false.B)
   } .elsewhen (wen) {
     switch (io.addr) {
-      is (MSTATUS) { mstatus := newVal }
-      is (MTVEC)   { mtvec   := newVal }
-      is (MEPC)    { mepc    := newVal }
-      is (MCAUSE)  { mcause  := newVal }
+      is (MSTATUS) { nextMstatus := newVal }
+      is (MTVEC)   { nextMtvec   := newVal }
+      is (MEPC)    { nextMepc    := newVal }
+      is (MCAUSE)  { nextMcause  := newVal }
     }
   }
+
+  mstatus := nextMstatus
+  mtvec := nextMtvec
+  mepc := nextMepc
+  mcause := nextMcause
+
+  io.retireCsrs.mtvec := nextMtvec
+  io.retireCsrs.mepc := nextMepc
+  io.retireCsrs.mstatus := nextMstatus
+  io.retireCsrs.mcause := nextMcause
 }

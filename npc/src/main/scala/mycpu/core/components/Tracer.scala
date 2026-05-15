@@ -28,10 +28,10 @@ class Tracer(enableDpi: Boolean = false) extends Module {
   io.simState.regAddr := trace.regWrite.rd
   io.simState.regData := trace.regWrite.wdata
   io.simState.regsFlat := Cat(io.gprs.reverse)
-  io.simState.mtvec := io.csrs.mtvec
-  io.simState.mepc := io.csrs.mepc
-  io.simState.mstatus := io.csrs.mstatus
-  io.simState.mcause := io.csrs.mcause
+  io.simState.mtvec := trace.csrs.mtvec
+  io.simState.mepc := trace.csrs.mepc
+  io.simState.mstatus := trace.csrs.mstatus
+  io.simState.mcause := trace.csrs.mcause
   io.simState.inst := trace.inst
   io.simState.instType := trace.instType
 

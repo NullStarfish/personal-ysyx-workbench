@@ -286,6 +286,7 @@ class Decode(
     io.out.bits.retireTrace.get.regWrite.wen := io.regWrite.regWrite.wen
     io.out.bits.retireTrace.get.regWrite.rd := io.regWrite.regWrite.rd
     io.out.bits.retireTrace.get.regWrite.wdata := io.regWrite.regWrite.wdata
+    io.out.bits.retireTrace.get.csrs := 0.U.asTypeOf(new CsrDebugBundle)
     instType.foreach(io.out.bits.retireTrace.get.instType := _)
   }
 

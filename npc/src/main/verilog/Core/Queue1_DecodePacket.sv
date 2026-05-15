@@ -67,7 +67,7 @@ module Queue1_DecodePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   input         io_flush	// src/main/scala/chisel3/util/Queue.scala:72:14
 );
 
-  reg  [316:0] ram;	// src/main/scala/chisel3/util/Queue.scala:73:91
+  reg  [444:0] ram;	// src/main/scala/chisel3/util/Queue.scala:73:91
   reg          maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27
   wire         io_enq_ready_0 = io_deq_ready | ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :103:{16,19}, :123:{24,39}
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
@@ -87,6 +87,7 @@ module Queue1_DecodePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
          io_enq_bits_retireTrace_regWrite_wen,
          io_enq_bits_retireTrace_regWrite_wdata,
          io_enq_bits_retireTrace_instType,
+         128'h0,
          io_enq_bits_rs1_valid,
          io_enq_bits_rs1_bits_addr,
          io_enq_bits_rs1_bits_rdata,
@@ -116,9 +117,9 @@ module Queue1_DecodePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   end // always @(posedge)
   assign io_enq_ready = io_enq_ready_0;	// src/main/scala/chisel3/util/Queue.scala:60:7, :103:16, :123:{24,39}
   assign io_deq_valid = maybe_full;	// src/main/scala/chisel3/util/Queue.scala:60:7, :76:27
-  assign io_deq_bits_retireTrace_pc = ram[316:285];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_retireTrace_inst = ram[284:253];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
-  assign io_deq_bits_retireTrace_instType = ram[182:181];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_pc = ram[444:413];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_inst = ram[412:381];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
+  assign io_deq_bits_retireTrace_instType = ram[310:309];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_rs1_bits_rdata = ram[174:143];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_rs2_bits_rdata = ram[136:105];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91
   assign io_deq_bits_rd = ram[104:100];	// src/main/scala/chisel3/util/Queue.scala:60:7, :73:91

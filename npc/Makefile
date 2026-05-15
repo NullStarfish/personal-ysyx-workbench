@@ -86,6 +86,18 @@ VSRC_ALL_RAW := $(filter-out $(MYCORE_VERI), $(VSRC_ALL_RAW))
 else
 VSRC_ALL_RAW := $(filter-out %/NpcTop.sv %/NpcVirtualAxiRam.sv $(NPCTOP_VERI), $(VSRC_ALL_RAW))
 endif
+
+ENABLE_ICACHE_FROM_SCALA := $(shell grep -q 'val ENABLE_ICACHE *= *true' $(NPC_HOME)/src/main/scala/mycpu/common/Config.scala && echo 1 || echo 0)
+ifeq ($(ENABLE_ICACHE_FROM_SCALA),0)
+VSRC_ALL_RAW := $(filter-out \
+	%/CacheSet.sv \
+	%/ICache.sv \
+	%/ICacheTrace.sv \
+	%/LRUReplacement.sv \
+	%/Queue8_ICacheCpuReq.sv \
+	%/Queue8_ICacheCpuReply.sv, \
+	$(VSRC_ALL_RAW))
+endif
 VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
 
 # 6. Final Source List (Order matters: Packages -> Interfaces -> Others)

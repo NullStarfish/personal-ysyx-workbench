@@ -9,6 +9,7 @@ class HazardUnit extends Module {
     val raw = new Bundle {
       val decode = Input(new RAWRsPacket)
       val idExLoad = Input(new RAWRdPacket)
+      val exMemLoad = Input(new RAWRdPacket)
       val lsuLoad = Input(new RAWRdPacket)
       val lsuToMemWbFire = Input(Bool())
       val loadUseStall = Output(Bool())
@@ -29,6 +30,7 @@ class HazardUnit extends Module {
 
   io.raw.loadUseStall :=
     (io.raw.idExLoad.valid && hazardsWith(io.raw.idExLoad.addr)) ||
+      (io.raw.exMemLoad.valid && hazardsWith(io.raw.exMemLoad.addr)) ||
       (io.raw.lsuLoad.valid && !io.raw.lsuToMemWbFire && hazardsWith(io.raw.lsuLoad.addr))
 
   io.ctrl.flush := io.ctrl.redirect

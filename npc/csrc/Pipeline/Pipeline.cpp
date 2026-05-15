@@ -144,6 +144,7 @@ void PipelineModel::printStats(long long totalCycles) const {
   lsu.printUnitStats();
   fetch.printStats(totalCycles);
   lsu.printStats(totalCycles);
+  cache.printStats();
   printf("Pipeline stages:\n");
   for (int i = 0; i < NumStages; i++) {
     const PipelineStage *s = stage(static_cast<StageId>(i));
