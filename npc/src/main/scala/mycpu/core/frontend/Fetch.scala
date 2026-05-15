@@ -119,6 +119,8 @@ class Fetch(
     fetchTrace.io.gotReply := io.reply.fire
     fetchTrace.io.gotInst := io.out.fire
     fetchTrace.io.flush := io.redirect.valid || jalRedirect
+    fetchTrace.io.reqBlocked := io.fetch.valid && !io.fetch.ready
+    fetchTrace.io.outBlocked := io.out.valid && !io.out.ready
     fetchTrace.io.pc := io.out.bits.pc
     fetchTrace.io.inst := io.out.bits.inst
   }

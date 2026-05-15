@@ -6,6 +6,8 @@ module FetchTrace(
     input logic gotReply,
     input logic gotInst,
     input logic flush,
+    input logic reqBlocked,
+    input logic outBlocked,
     input logic [31:0] pc,
     input logic [31:0] inst
 );
@@ -15,6 +17,11 @@ module FetchTrace(
    input int inst,
    input int memLatency,
    input int waitLatency
+);
+ import "DPI-C" function void fetch_unit_trace(
+   input reqBlocked,
+   input outBlocked,
+   input flush
 );
 
 logic [31:0] memLatency;
@@ -27,7 +34,7 @@ logic [3:0] count;
 integer i;
 
 always_ff @(posedge clk) begin
- if(reset || flush) begin
+ if(reset) begin
    memLatency <= 32'd0;
    inflight <= 1'b0;
    head <= 3'd0;
@@ -38,6 +45,21 @@ always_ff @(posedge clk) begin
      waitQ[i] <= 32'd0;
    end
  end else begin
+   if(reqBlocked || outBlocked || flush) begin
+     fetch_unit_trace(reqBlocked, outBlocked, flush);
+   end
+
+   if(flush) begin
+     memLatency <= 32'd0;
+     inflight <= 1'b0;
+     head <= 3'd0;
+     tail <= 3'd0;
+     count <= 4'd0;
+     for(i = 0; i < 8; i = i + 1) begin
+       memQ[i] <= 32'd0;
+       waitQ[i] <= 32'd0;
+     end
+   end else begin
    if(inflight) begin
      memLatency <= memLatency + 32'd1;
    end
@@ -84,6 +106,7 @@ always_ff @(posedge clk) begin
      end else begin
        fetch_trace(gotInst, pc, inst, 32'd0, 32'd0);
      end
+   end
    end
  end
 end

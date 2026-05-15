@@ -1,0 +1,21 @@
+#include "Pipeline/Pipeline.h"
+
+#include <cstdio>
+
+#include "svdpi.h"
+
+void HazardTraceModel::trace(bool loadUseStall, bool redirectFlush) {
+  if (loadUseStall) loadUseCycles++;
+  if (redirectFlush) redirectFlushCycles++;
+}
+
+void HazardTraceModel::printStats(long long totalCycles) const {
+  if (totalCycles <= 0) return;
+  printf("Hazard trace: LoadUse=%lld (%lf%%), RedirectFlush=%lld (%lf%%)\n",
+         loadUseCycles, 100.0 * loadUseCycles / totalCycles,
+         redirectFlushCycles, 100.0 * redirectFlushCycles / totalCycles);
+}
+
+extern "C" void hazard_trace(svBit loadUseStall, svBit redirectFlush) {
+  pipeline.hazard.trace(loadUseStall != 0, redirectFlush != 0);
+}

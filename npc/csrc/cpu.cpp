@@ -37,7 +37,7 @@ void CPU::init() {
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
-  instQueue = {};
+  pipeline.reset();
 }
 
 void CPU::exec(uint64_t n) {
@@ -60,11 +60,10 @@ void CPU::execOnce() {
   while (!hasCommitted && runtime.isRunning()) {
     runtime.stepOneClk();
     cycleCountValue++;
-    instQueue.updateCycles();
+    pipeline.tick();
   }
   if (!runtime.isRunning()) return;
 
-  instrCountValue++;
   traceAndDifftest();
 }
 
@@ -88,18 +87,7 @@ void CPU::traceAndDifftest() {
 }
 
 void CPU::commitRetire(const RetireSnapshot &snapshot) {
-  Inst retiredInst = instQueue.retire(snapshot.pc, snapshot.inst);
-  retiredInst.instType = snapshot.instType;
-  if (retiredInst.lifeCycleCount > 0) {
-    totalInstLifeCycles += retiredInst.lifeCycleCount;
-    if (retiredInst.lifeCycleCount > maxInstLifeCycles) {
-      maxInstLifeCycles = retiredInst.lifeCycleCount;
-    }
-    if (retiredInst.instType < 4) {
-      instLifeCycleCnt[retiredInst.instType] += retiredInst.lifeCycleCount;
-      instTypeCnt[retiredInst.instType]++;
-    }
-  }
+  pipeline.retire(snapshot.pc, snapshot.inst, snapshot.instType);
 
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
@@ -110,77 +98,7 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
     archState.gpr[snapshot.regAddr & 0x1f] = snapshot.regData;
   }
 
-  switch(snapshot.instType) {
-    case CPU::arith: this->instArithCnt++; break;
-    case CPU::mem: this->instMemCnt++; break;
-    case CPU::redirect: this->instRdrctCnt++; break;
-    case CPU::sys: this->instSysCnt++; break;
-  }
-
-
   hasCommitted = true;
-}
-
-void CPU::traceFetch(bool gotInst, uint32_t pc, uint32_t instVal, uint32_t memLatency, uint32_t waitLatency) {
-  if (gotInst) {
-    fetchGotInstCnt++;
-    fetchMemLatencyCnt += memLatency;
-    if (memLatency > fetchMaxMemLatency) {
-      fetchMaxMemLatency = memLatency;
-    }
-    fetchWaitLatencyCnt += waitLatency;
-    if (waitLatency > fetchMaxWaitLatency) {
-      fetchMaxWaitLatency = waitLatency;
-    }
-    Inst inst = {};
-    inst.pc = pc;
-    inst.instVal = instVal;
-    instQueue.run(inst);
-  }
-}
-
-void CPU::traceExecute(bool finished) {
-  if (finished) executeFinishedCnt++;
-}
-
-void CPU::traceLsu(uint32_t latency, bool write) {
-  if (write) {
-    lsuWriteDataCnt++;
-    lsuStoreLatencyCnt += latency;
-    if (latency > lsuMaxStoreLatency) {
-      lsuMaxStoreLatency = latency;
-    }
-  } else {
-    lsuGotDataCnt++;
-    lsuLoadLatencyCnt += latency;
-    if (latency > lsuMaxLoadLatency) {
-      lsuMaxLoadLatency = latency;
-    }
-  }
-}
-
-void CPU::traceLsuBackpressure(bool blocked) {
-  if (blocked) {
-    lsuBackpressureCycles++;
-  }
-}
-
-void CPU::traceFlush(bool flush, uint32_t pc, uint32_t instVal) {
-  if (flush) {
-    instQueue.discardAfter(pc, instVal);
-  }
-}
-
-void CPU::traceHazard(bool loadUseStall, bool redirectFlush) {
-  if (loadUseStall) hazardLoadUseCycles++;
-  if (redirectFlush) hazardRedirectFlushCycles++;
-}
-
-void CPU::tracePipeline(bool ifIdValid, bool idExValid, bool exMemValid, bool memWbValid) {
-  if (ifIdValid) pipeIfIdValidCycles++;
-  if (idExValid) pipeIdExValidCycles++;
-  if (exMemValid) pipeExMemValidCycles++;
-  if (memWbValid) pipeMemWbValidCycles++;
 }
 
 uint32_t CPU::pc() const { return archState.pc; }
@@ -263,45 +181,13 @@ void CPU::copyDutState(riscv32_CPU_state *dut) const {
 long long CPU::cycleCount() const { return cycleCountValue; }
 
 void CPU::printStats() const {
+  const long long retired = pipeline.retiredInstructions();
   printf("\nExecution Statistics:\n");
   printf("  Total Cycles:       %lld\n", cycleCountValue);
-  printf("  Total Instructions: %lld\n", instrCountValue);
-  printf("Inst statistics: \n");
-  printf("Arith: %lld\t, Mem: %lld\t, Redirect: %lld\t, Sys: %lld\n", this->instArithCnt, this->instMemCnt, this->instRdrctCnt, this->instSysCnt);
-  printf("Arith: %lf%%, Mem: %lf%%, Redirect: %lf%%, Sys: %lf%%\n", 100.0*instArithCnt/instrCountValue, 100.0*instMemCnt/instrCountValue, 100.0*instRdrctCnt/instrCountValue, 100.0*instSysCnt/instrCountValue);
-  printf("Unit trace: FetchInst=%lld\t, ExecuteDone=%lld\t, LsuLoadData=%lld\t, LsuStoreAck=%lld\n", fetchGotInstCnt, executeFinishedCnt, lsuGotDataCnt, lsuWriteDataCnt);
+  printf("  Total Instructions: %lld\n", retired);
+  pipeline.printStats(cycleCountValue);
   if (cycleCountValue > 0) {
-    printf("Pipeline stage occupancy: IF/ID=%lf%%, ID/EX=%lf%%, EX/MEM=%lf%%, MEM/WB=%lf%%\n",
-           100.0 * pipeIfIdValidCycles / cycleCountValue,
-           100.0 * pipeIdExValidCycles / cycleCountValue,
-           100.0 * pipeExMemValidCycles / cycleCountValue,
-           100.0 * pipeMemWbValidCycles / cycleCountValue);
-    printf("Hazard trace: LoadUse=%lld (%lf%%), RedirectFlush=%lld (%lf%%)\n",
-           hazardLoadUseCycles, 100.0 * hazardLoadUseCycles / cycleCountValue,
-           hazardRedirectFlushCycles, 100.0 * hazardRedirectFlushCycles / cycleCountValue);
-    printf("LSU backpressure: %lld (%lf%%)\n",
-           lsuBackpressureCycles, 100.0 * lsuBackpressureCycles / cycleCountValue);
-  }
-  if (fetchGotInstCnt > 0) {
-    printf("Fetch memory latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchMemLatencyCnt) / fetchGotInstCnt, fetchMaxMemLatency);
-    printf("Fetch output wait: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(fetchWaitLatencyCnt) / fetchGotInstCnt, fetchMaxWaitLatency);
-  }
-  if (lsuGotDataCnt > 0) {
-    printf("LSU load latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(lsuLoadLatencyCnt) / lsuGotDataCnt, lsuMaxLoadLatency);
-  }
-  if (lsuWriteDataCnt > 0) {
-    printf("LSU store latency: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(lsuStoreLatencyCnt) / lsuWriteDataCnt, lsuMaxStoreLatency);
-  }
-  if (instrCountValue > 0) {
-    printf("Inst lifecycle: Avg=%lf cycles\t, Max=%lld cycles\n", static_cast<double>(totalInstLifeCycles) / instrCountValue, maxInstLifeCycles);
-    printf("Inst lifecycle by type: Arith=%lf\t, Mem=%lf\t, Redirect=%lf\t, Sys=%lf\n",
-           instTypeCnt[CPU::arith] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::arith]) / instTypeCnt[CPU::arith],
-           instTypeCnt[CPU::mem] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::mem]) / instTypeCnt[CPU::mem],
-           instTypeCnt[CPU::redirect] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::redirect]) / instTypeCnt[CPU::redirect],
-           instTypeCnt[CPU::sys] == 0 ? 0.0 : static_cast<double>(instLifeCycleCnt[CPU::sys]) / instTypeCnt[CPU::sys]);
-  }
-  if (cycleCountValue > 0) {
-    printf("  Average IPC:        %f\n", static_cast<double>(instrCountValue) / cycleCountValue);
+    printf("  Average IPC:        %f\n", static_cast<double>(retired) / cycleCountValue);
   } else {
     printf("  Average IPC:        N/A (cycles = 0)\n");
   }
@@ -343,32 +229,4 @@ extern "C" void ebreak() {
   if (a0Val == 0) runtime.setEnd(a0Val);
   else runtime.setAbort(a0Val);
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);
-}
-
-extern "C" void fetch_trace(svBit gotInst, int pc, int inst, int memLatency, int waitLatency) {
-  cpu.traceFetch(gotInst != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst), static_cast<uint32_t>(memLatency), static_cast<uint32_t>(waitLatency));
-}
-
-extern "C" void execute_trace(svBit finished) {
-  cpu.traceExecute(finished != 0);
-}
-
-extern "C" void lsu_trace(int latency, svBit write) {
-  cpu.traceLsu(static_cast<uint32_t>(latency), write != 0);
-}
-
-extern "C" void lsu_backpressure_trace(svBit blocked) {
-  cpu.traceLsuBackpressure(blocked != 0);
-}
-
-extern "C" void flush_trace(svBit flush, int pc, int inst) {
-  cpu.traceFlush(flush != 0, static_cast<uint32_t>(pc), static_cast<uint32_t>(inst));
-}
-
-extern "C" void hazard_trace(svBit loadUseStall, svBit redirectFlush) {
-  cpu.traceHazard(loadUseStall != 0, redirectFlush != 0);
-}
-
-extern "C" void pipeline_trace(svBit ifIdValid, svBit idExValid, svBit exMemValid, svBit memWbValid) {
-  cpu.tracePipeline(ifIdValid != 0, idExValid != 0, exMemValid != 0, memWbValid != 0);
 }

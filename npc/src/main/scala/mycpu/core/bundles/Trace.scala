@@ -1,7 +1,7 @@
 package mycpu.core.bundles
 import chisel3._
 import mycpu.common._
-import chisel3.util.HasBlackBoxInline
+import chisel3.util._
 
 class TraceBase extends Bundle {
 }
@@ -34,6 +34,8 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
     val gotReply = Input(Bool())
     val gotInst = Input(Bool())
     val flush = Input(Bool())
+    val reqBlocked = Input(Bool())
+    val outBlocked = Input(Bool())
     val pc = Input(UInt(XLEN.W))
     val inst = Input(UInt(32.W))
   })
@@ -46,6 +48,8 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |    input logic gotReply,
       |    input logic gotInst,
       |    input logic flush,
+      |    input logic reqBlocked,
+      |    input logic outBlocked,
       |    input logic [31:0] pc,
       |    input logic [31:0] inst
       |);
@@ -55,6 +59,11 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |   input int inst,
       |   input int memLatency,
       |   input int waitLatency
+      |);
+      | import "DPI-C" function void fetch_unit_trace(
+      |   input reqBlocked,
+      |   input outBlocked,
+      |   input flush
       |);
       |
       |logic [31:0] memLatency;
@@ -67,7 +76,7 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |integer i;
       |
       |always_ff @(posedge clk) begin
-      | if(reset || flush) begin
+      | if(reset) begin
       |   memLatency <= 32'd0;
       |   inflight <= 1'b0;
       |   head <= 3'd0;
@@ -78,6 +87,21 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |     waitQ[i] <= 32'd0;
       |   end
       | end else begin
+      |   if(reqBlocked || outBlocked || flush) begin
+      |     fetch_unit_trace(reqBlocked, outBlocked, flush);
+      |   end
+      |
+      |   if(flush) begin
+      |     memLatency <= 32'd0;
+      |     inflight <= 1'b0;
+      |     head <= 3'd0;
+      |     tail <= 3'd0;
+      |     count <= 4'd0;
+      |     for(i = 0; i < 8; i = i + 1) begin
+      |       memQ[i] <= 32'd0;
+      |       waitQ[i] <= 32'd0;
+      |     end
+      |   end else begin
       |   if(inflight) begin
       |     memLatency <= memLatency + 32'd1;
       |   end
@@ -124,6 +148,7 @@ final class FetchTrace extends BlackBox with HasBlackBoxInline {
       |     end else begin
       |       fetch_trace(gotInst, pc, inst, 32'd0, 32'd0);
       |     end
+      |   end
       |   end
       | end
       |end
@@ -216,7 +241,7 @@ final class LSUTrace extends BlackBox with HasBlackBoxInline {
       |   end
       |
       |   if(gotData) begin
-      |     lsu_trace(latency, inflightWrite);
+      |     lsu_trace(inflight ? latency + 32'd1 : 32'd1, inflightWrite);
       |     inflight <= 1'b0;
       |     latency <= 32'd0;
       |     inflightWrite <= 1'b0;
@@ -267,10 +292,26 @@ final class PipelineTrace extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val clk = Input(Clock())
     val reset = Input(Bool())
-    val ifIdValid = Input(Bool())
-    val idExValid = Input(Bool())
-    val exMemValid = Input(Bool())
-    val memWbValid = Input(Bool())
+    val fetchOut = Flipped(Valid(new Bundle {
+      val pc = UInt(32.W)
+      val inst = UInt(32.W)
+    }))
+    val decodeOut = Flipped(Valid(new Bundle {
+      val pc = UInt(32.W)
+      val inst = UInt(32.W)
+    }))
+    val executeOut = Flipped(Valid(new Bundle {
+      val pc = UInt(32.W)
+      val inst = UInt(32.W)
+    }))
+    val lsuOut = Flipped(Valid(new Bundle {
+      val pc = UInt(32.W)
+      val inst = UInt(32.W)
+    }))
+    val retire = Flipped(Valid(new Bundle {
+      val pc = UInt(32.W)
+      val inst = UInt(32.W)
+    }))
   })
 
   setInline(
@@ -278,25 +319,58 @@ final class PipelineTrace extends BlackBox with HasBlackBoxInline {
     """module PipelineTrace(
       |  input logic clk,
       |  input logic reset,
-      |  input logic ifIdValid,
-      |  input logic idExValid,
-      |  input logic exMemValid,
-      |  input logic memWbValid
+      |  input logic fetchOut_valid,
+      |  input logic [31:0] fetchOut_bits_pc,
+      |  input logic [31:0] fetchOut_bits_inst,
+      |  input logic decodeOut_valid,
+      |  input logic [31:0] decodeOut_bits_pc,
+      |  input logic [31:0] decodeOut_bits_inst,
+      |  input logic executeOut_valid,
+      |  input logic [31:0] executeOut_bits_pc,
+      |  input logic [31:0] executeOut_bits_inst,
+      |  input logic lsuOut_valid,
+      |  input logic [31:0] lsuOut_bits_pc,
+      |  input logic [31:0] lsuOut_bits_inst,
+      |  input logic retire_valid,
+      |  input logic [31:0] retire_bits_pc,
+      |  input logic [31:0] retire_bits_inst
       |);
       | import "DPI-C" function void pipeline_trace(
-      |   input ifIdValid,
-      |   input idExValid,
-      |   input exMemValid,
-      |   input memWbValid
+      |   input fetchOut,
+      |   input int fetchPc,
+      |   input int fetchInst,
+      |   input decodeOut,
+      |   input int decodePc,
+      |   input int decodeInst,
+      |   input executeOut,
+      |   input int executePc,
+      |   input int executeInst,
+      |   input lsuOut,
+      |   input int lsuPc,
+      |   input int lsuInst,
+      |   input retire,
+      |   input int retirePc,
+      |   input int retireInst
       |);
       |
       | always_ff @(posedge clk) begin
       |   if(!reset) begin
       |     pipeline_trace(
-      |       ifIdValid,
-      |       idExValid,
-      |       exMemValid,
-      |       memWbValid
+      |       fetchOut_valid,
+      |       fetchOut_bits_pc,
+      |       fetchOut_bits_inst,
+      |       decodeOut_valid,
+      |       decodeOut_bits_pc,
+      |       decodeOut_bits_inst,
+      |       executeOut_valid,
+      |       executeOut_bits_pc,
+      |       executeOut_bits_inst,
+      |       lsuOut_valid,
+      |       lsuOut_bits_pc,
+      |       lsuOut_bits_inst,
+      |       retire_valid,
+      |       retire_bits_pc,
+      |       retire_bits_inst
       |     );
       |   end
       | end

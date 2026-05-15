@@ -40,7 +40,7 @@ always_ff @(posedge clk) begin
    end
 
    if(gotData) begin
-     lsu_trace(latency, inflightWrite);
+     lsu_trace(inflight ? latency + 32'd1 : 32'd1, inflightWrite);
      inflight <= 1'b0;
      latency <= 32'd0;
      inflightWrite <= 1'b0;

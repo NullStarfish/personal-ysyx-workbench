@@ -103,10 +103,21 @@ class Core(
     val pipelineTrace = Module(new PipelineTrace)
     pipelineTrace.io.clk := clock
     pipelineTrace.io.reset := reset.asBool
-    pipelineTrace.io.ifIdValid := ifId.io.deq.valid
-    pipelineTrace.io.idExValid := idEx.io.deq.valid
-    pipelineTrace.io.exMemValid := exMem.io.deq.valid
-    pipelineTrace.io.memWbValid := memWb.io.deq.valid
+    pipelineTrace.io.fetchOut.valid := fetch.io.out.fire
+    pipelineTrace.io.fetchOut.bits.pc := fetch.io.out.bits.pc
+    pipelineTrace.io.fetchOut.bits.inst := fetch.io.out.bits.inst
+    pipelineTrace.io.decodeOut.valid := decode.io.out.fire
+    pipelineTrace.io.decodeOut.bits.pc := decode.io.out.bits.retireTrace.get.pc
+    pipelineTrace.io.decodeOut.bits.inst := decode.io.out.bits.retireTrace.get.inst
+    pipelineTrace.io.executeOut.valid := execute.io.out.fire
+    pipelineTrace.io.executeOut.bits.pc := execute.io.out.bits.retireTrace.get.pc
+    pipelineTrace.io.executeOut.bits.inst := execute.io.out.bits.retireTrace.get.inst
+    pipelineTrace.io.lsuOut.valid := lsu.io.out.fire
+    pipelineTrace.io.lsuOut.bits.pc := lsu.io.out.bits.retireTrace.get.pc
+    pipelineTrace.io.lsuOut.bits.inst := lsu.io.out.bits.retireTrace.get.inst
+    pipelineTrace.io.retire.valid := writeBack.io.retireTrace.get.valid
+    pipelineTrace.io.retire.bits.pc := writeBack.io.retireTrace.get.bits.pc
+    pipelineTrace.io.retire.bits.inst := writeBack.io.retireTrace.get.bits.inst
 
     val hazardTrace = Module(new HazardTrace)
     hazardTrace.io.clk := clock
