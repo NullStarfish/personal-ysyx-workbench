@@ -33,11 +33,7 @@ class Fetch(
 //对于fetch：可能会发生：请求in-flight的情况：
 //因此需要用epoch reg管理
 // set in-flight max = 3
-  val epoch = RegInit(false.B)
-//当fetch fire的时候，记录本次epoch。当reply之后，比较epoch是否一致 
-//这个方法仅适用单发射，不会连续发射的fetch
-  val lastEpoch = RegInit(true.B)
-
+  val epoch = RegInit(0.U(2.W))
 
   //内存只支持单in-flight，epoch是为了防止在flight途中被redirect，导致返回失效。
   //我们维护两个Queue：FetchReq和FetchReply。都使能flush就行。我们并不需要多个epoch位
@@ -46,7 +42,11 @@ class Fetch(
   val fetchReq = Module(new Queue(XLenU, entries = 3, hasFlush = true))
   val fetchReply = Module(new Queue(new Bundle{val pc = XLenU; val inst = XLenU}, entries = 3, hasFlush = true))
   val pc = RegInit(START_ADDR.U(XLEN.W))
-  val reqPc = RegInit(START_ADDR.U(XLEN.W))
+  val reqMeta = Module(new Queue(new Bundle {
+    val pc = XLenU
+    val epoch = UInt(2.W)
+  }, entries = 3))
+
 
   val outInst = fetchReply.io.deq.bits.inst
   val outPc = fetchReply.io.deq.bits.pc
@@ -54,6 +54,7 @@ class Fetch(
   val jalImm = Cat(Fill(11, outInst(31)), outInst(31), outInst(19, 12), outInst(20), outInst(30, 21), 0.U(1.W))
   val jalTarget = (outPc.asSInt + jalImm.asSInt).asUInt
   val jalRedirect = io.out.fire && replyIsJal
+  val frontFlush = io.redirect.valid || jalRedirect
 
   when(io.redirect.valid) {
     pc := io.redirect.bits
@@ -63,29 +64,32 @@ class Fetch(
     pc := pc + 4.U
   }
 
-  fetchReq.io.enq.valid := !reset.asBool && !io.redirect.valid && !jalRedirect
+  fetchReq.io.enq.valid := !reset.asBool && !frontFlush
   fetchReq.io.enq.bits := pc
-  io.fetch <> fetchReq.io.deq
-  when (fetchReq.io.deq.fire) {
-    reqPc := fetchReq.io.deq.bits
-  }
+  io.fetch.valid := fetchReq.io.deq.valid && reqMeta.io.enq.ready
+  io.fetch.bits := fetchReq.io.deq.bits
+  fetchReq.io.deq.ready := io.fetch.ready && reqMeta.io.enq.ready
 
-  fetchReply.io.enq.valid := (epoch === lastEpoch) && io.reply.valid && !io.redirect.valid
-  io.reply.ready := !reset.asBool && (fetchReply.io.enq.ready || (epoch =/= lastEpoch) || io.redirect.valid)
-  fetchReply.io.enq.bits.pc := reqPc
+
+  reqMeta.io.enq.valid := io.fetch.fire
+  reqMeta.io.enq.bits.pc := fetchReq.io.deq.bits
+  reqMeta.io.enq.bits.epoch := epoch
+
+  val replyMatchesEpoch = reqMeta.io.deq.valid && reqMeta.io.deq.bits.epoch === epoch && !frontFlush
+  fetchReply.io.enq.valid := io.reply.valid && replyMatchesEpoch
+  io.reply.ready := !reset.asBool && reqMeta.io.deq.valid && Mux(replyMatchesEpoch, fetchReply.io.enq.ready, true.B)
+  reqMeta.io.deq.ready := io.reply.fire
+
+  fetchReply.io.enq.bits.pc := reqMeta.io.deq.bits.pc
   fetchReply.io.enq.bits.inst := io.reply.bits
 
 
-  fetchReq.io.flush.get := io.redirect.valid || jalRedirect
-  fetchReply.io.flush.get := io.redirect.valid || jalRedirect
+  fetchReq.io.flush.get := frontFlush
+  fetchReply.io.flush.get := frontFlush
   
 
-  when (io.fetch.fire) {
-    lastEpoch := epoch
-  }
-
-  when (io.redirect.valid) {
-    epoch := !epoch
+  when (frontFlush) {
+    epoch := epoch + 1.U
   }
 
   //当epoch不一致的时候，丢弃reply包
@@ -118,7 +122,7 @@ class Fetch(
     fetchTrace.io.reqInst := io.fetch.fire
     fetchTrace.io.gotReply := io.reply.fire
     fetchTrace.io.gotInst := io.out.fire
-    fetchTrace.io.flush := io.redirect.valid || jalRedirect
+    fetchTrace.io.flush := frontFlush
     fetchTrace.io.reqBlocked := io.fetch.valid && !io.fetch.ready
     fetchTrace.io.outBlocked := io.out.valid && !io.out.ready
     fetchTrace.io.pc := io.out.bits.pc
