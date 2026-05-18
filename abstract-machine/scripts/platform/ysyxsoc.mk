@@ -29,7 +29,7 @@ endif
 
 
 ysyxsoc:
-	$(MAKE) -C $(NPC_HOME) $(CARGS)
+	$(MAKE) -C $(NPC_HOME) SIM_TARGET=ysyxsoc $(CARGS)
 
 ARGS = 
 

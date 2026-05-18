@@ -22,5 +22,7 @@
 !.config
 !README.md
 !HwOS/
+!*.sh
+!STA/
 build/
 out/

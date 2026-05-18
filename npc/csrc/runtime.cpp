@@ -86,13 +86,13 @@ void Runtime::stepOneClk() {
 #endif
 
   totalSimCycles++;
-  if (totalSimCycles % 1000 == 0) {
-    uint64_t realTimeUs = getTime();
-    uint64_t expectedSimUs = totalSimCycles;
-    if (expectedSimUs > realTimeUs) {
-      usleep(expectedSimUs - realTimeUs);
-    }
-  }
+  // if (totalSimCycles % 1000 == 0) {
+  //   uint64_t realTimeUs = getTime();
+  //   uint64_t expectedSimUs = totalSimCycles;
+  //   if (expectedSimUs > realTimeUs) {
+  //     usleep(expectedSimUs - realTimeUs);
+  //   }
+  // }
 }
 
 void Runtime::resetCpu(int n) {

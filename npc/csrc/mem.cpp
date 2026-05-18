@@ -250,6 +250,11 @@ extern "C" void flash_read(int32_t addr, int32_t *data) { require_mem().flashRea
 extern "C" void mrom_read(int32_t addr, int32_t *data) { require_mem().mromRead(addr, data); }
 extern "C" void psram_read_byte(int32_t addr, uint8_t *data) { require_mem().psramReadByte(addr, data); }
 extern "C" void psram_write_byte(int32_t addr, uint8_t data) { require_mem().psramWriteByte(addr, data); }
+extern "C" void clint_mtime_read(uint64_t *mtime) {
+  if (mtime != nullptr) {
+    *mtime = memget_time();
+  }
+}
 extern "C" void sdram_read_halfword_chip(int chip, int32_t addr, uint16_t *data) {
   require_mem().sdramReadHalfwordChip(chip, addr, data);
 }

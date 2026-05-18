@@ -8,6 +8,28 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import org.chipsalliance.cde.config.Parameters
 
+class DpiClintMtime extends BlackBox with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val mtime = Output(UInt(64.W))
+  })
+
+  setInline(
+    "DpiClintMtime.sv",
+    """module DpiClintMtime(
+      |  input  logic        clock,
+      |  output reg [63:0] mtime
+      |);
+      |  import "DPI-C" function void clint_mtime_read(output longint unsigned mtime);
+      |
+      |  always_ff @(posedge clock) begin
+      |    clint_mtime_read(mtime);
+      |  end
+      |endmodule
+      |""".stripMargin
+  )
+}
+
 class AXI4CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -24,8 +46,9 @@ class AXI4CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyMo
   class Impl extends LazyModuleImp(this) {
     val (in, _) = node.in(0)
 
-    val mtime = RegInit(0.U(64.W))
-    mtime := mtime + 1.U
+    val mtimeDpi = Module(new DpiClintMtime)
+    mtimeDpi.io.clock := clock
+    val mtime = mtimeDpi.io.mtime
 
     val sIdle :: sWaitRready :: Nil = Enum(2)
     val state = RegInit(sIdle)

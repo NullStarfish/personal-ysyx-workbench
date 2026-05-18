@@ -37,11 +37,9 @@ module MemoryReadArbiter(	// home/nullstarfish/personal-ysyx-workbench/npc/out/c
   wire        _io_inReply_ready_T_2 = owner == 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:30:22, :52:77
   wire        io_inReply_ready_0 =
     _io_inReply_ready_T ? ~fetchRespValid : _io_inReply_ready_T_2 & ~lsuRespValid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:31:31, :33:29, :36:40, :37:44, :52:{26,33,70,77}
+  wire        _GEN = io_inReply_ready_0 & io_inReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:52:26, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        _GEN_0 = _GEN & _io_inReply_ready_T;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:31:31, :52:33, :58:25, :59:33, :60:22, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:14:7
-    automatic logic _GEN;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    automatic logic _GEN_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:31:31, :58:25, :59:33, :60:22
-    _GEN = io_inReply_ready_0 & io_inReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:52:26, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    _GEN_0 = _GEN & _io_inReply_ready_T;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:31:31, :52:33, :58:25, :59:33, :60:22, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     if (reset) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:14:7
       owner <= 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:30:22
       fetchRespValid <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/MemoryController.scala:31:31

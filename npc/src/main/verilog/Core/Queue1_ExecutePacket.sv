@@ -49,9 +49,8 @@ module Queue1_ExecutePacket(	// src/main/scala/chisel3/util/Queue.scala:60:7
   reg  [339:0] ram;	// src/main/scala/chisel3/util/Queue.scala:73:91
   reg          maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27
   wire         io_enq_ready_0 = io_deq_ready | ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :103:{16,19}, :123:{24,39}
+  wire         do_enq = io_enq_ready_0 & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:103:16, :123:{24,39}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
-    automatic logic do_enq;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    do_enq = io_enq_ready_0 & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:103:16, :123:{24,39}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     if (reset)	// src/main/scala/chisel3/util/Queue.scala:60:7
       maybe_full <= 1'h0;	// src/main/scala/chisel3/util/Queue.scala:76:27
     else if (do_enq != (io_deq_ready & maybe_full))	// src/main/scala/chisel3/util/Queue.scala:76:27, :93:{15,27}, :94:16, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35

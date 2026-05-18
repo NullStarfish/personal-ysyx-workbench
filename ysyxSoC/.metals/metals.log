@@ -4978,3 +4978,446 @@ WARNING: Unmatched cancel notification for request id 13091
 2026.05.06 15:54:32 INFO  shutting down Metals[0m
 2026.05.06 15:54:33 INFO  Shut down connection with build server.[0m
 2026.05.06 15:54:32 INFO  Exiting server[0m
+2026.05.17 17:35:08 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.05.17 17:35:09 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.05.17 17:35:09 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.120.0.[0m
+2026.05.17 17:35:09 INFO  Memory monitor started[0m
+2026.05.17 17:35:10 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.05.17 17:35:10 INFO  Attempting to connect to the build server...[0m
+2026.05.17 17:35:10 INFO  No running Bloop server found, starting one.[0m
+2026.05.17 17:35:11 INFO  Starting compilation server[0m
+2026.05.17 17:35:12 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.05.17 17:35:18 INFO  time: Connected to build server in 7.75s[0m
+2026.05.17 17:35:18 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.05.17 17:35:18 INFO  time: Imported build in 0.18s[0m
+2026.05.17 17:35:18 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.05.17 17:35:22 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.05.17 17:35:22 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-05-17/r_scala-toplevel-mtags_17-35-22-438.md")[0m
+2026.05.17 17:35:22 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.05.17 17:35:22 INFO  time: indexed workspace in 4.55s[0m
+May 17, 2026 5:35:34 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1
+2026.05.17 17:35:34 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.05.17 17:35:34 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.05.17 17:35:34 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.05.17 17:35:37 INFO  time: compiled rocketchip.macros in 2.52s[0m
+2026.05.17 17:35:37 INFO  time: compiled rocketchip.cde in 2.52s[0m
+2026.05.17 17:35:37 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.05.17 17:35:43 INFO  time: compiled rocketchip.diplomacy in 6.09s[0m
+2026.05.17 17:35:43 INFO  time: compiled rocketchip.hardfloat in 8.99s[0m
+2026.05.17 17:35:44 INFO  compiling rocketchip (317 scala sources)[0m
+2026.05.17 17:36:30 WARN  7 deprecations[0m
+2026.05.17 17:36:30 WARN  78 deprecations (since 2.13.0)[0m
+2026.05.17 17:36:30 WARN  1 deprecation (since 2.13.7)[0m
+2026.05.17 17:36:30 WARN  1 deprecation (since 9)[0m
+2026.05.17 17:36:30 WARN  27 deprecations (since CDE 0.1)[0m
+2026.05.17 17:36:30 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.05.17 17:36:30 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.05.17 17:36:30 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.05.17 17:36:30 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.05.17 17:36:30 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.05.17 17:36:30 INFO  compiling ysyxsoc (38 scala sources)[0m
+2026.05.17 17:36:31 INFO  time: compiled rocketchip in 47s[0m
+2026.05.17 17:36:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:34 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-34-142.md")[0m
+2026.05.17 17:36:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:34 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-34-484.md")[0m
+2026.05.17 17:36:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:34 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-34-665.md")[0m
+2026.05.17 17:36:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:34 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-34-794.md")[0m
+2026.05.17 17:36:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:34 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-35-083.md")[0m
+2026.05.17 17:36:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:35 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-35-212.md")[0m
+2026.05.17 17:36:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:35 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-35-304.md")[0m
+2026.05.17 17:36:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:35 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-35-528.md")[0m
+2026.05.17 17:36:35 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala][0m
+2026.05.17 17:36:35 INFO  scala.reflect.internal.Types$TypeError: illegal cyclic reference involving object Builder (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_shorten-type_(ysyxsoc)_17-36-35-836.md")[0m
+2026.05.17 17:36:37 WARN  1 deprecation (since 2.13.0)[0m
+2026.05.17 17:36:37 WARN  1 deprecation (since 2.13.3)[0m
+2026.05.17 17:36:37 WARN  93 deprecations (since rocketchip 2.0.0)[0m
+2026.05.17 17:36:37 WARN  95 deprecations in total; re-run with -deprecation for details[0m
+2026.05.17 17:36:37 INFO  time: compiled ysyxsoc in 6.7s[0m
+May 17, 2026 5:36:53 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 161
+May 17, 2026 5:36:58 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 208
+May 17, 2026 5:37:00 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 232
+2026.05.17 17:38:12 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala[0m
+May 17, 2026 5:39:33 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 863
+2026.05.17 17:39:34 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:39:50 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1072
+May 17, 2026 5:40:10 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1203
+May 17, 2026 5:48:07 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2038
+May 17, 2026 5:48:57 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:48:57 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:48:57 INFO  scala.ScalaReflectionException: value start is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-48-57-925.md")[0m
+2026.05.17 17:48:57 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:48:58 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:48:57 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:48:57 INFO  scala.ScalaReflectionException: value start is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-48-58-308.md")[0m
+2026.05.17 17:48:58 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:49:05 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2578
+2026.05.17 17:49:08 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 17:49:10 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 17:49:10 INFO  time: compiled ysyxsoc in 1.86s[0m
+May 17, 2026 5:49:16 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:49:16 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:49:16 INFO  scala.ScalaReflectionException: value done is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-49-16-969.md")[0m
+2026.05.17 17:49:16 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:49:18 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:49:18 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:49:18 INFO  scala.ScalaReflectionException: value done is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-49-18-086.md")[0m
+May 17, 2026 5:49:19 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:49:19 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:49:19 INFO  scala.ScalaReflectionException: value done is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-49-19-146.md")[0m
+May 17, 2026 5:49:26 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 17:49:26 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:49:26 INFO  scala.ScalaReflectionException: value done is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-49-26-332.md")[0m
+2026.05.17 17:49:26 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:49:45 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 17:49:46 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 17:49:46 INFO  time: compiled ysyxsoc in 1.3s[0m
+May 17, 2026 5:50:21 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2967
+May 17, 2026 5:50:29 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3091
+2026.05.17 17:50:30 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 17:50:30 INFO  java.lang.StringIndexOutOfBoundsException: Range [895, 895 + -9) out of bounds for length 1517 (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_17-50-30-454.md")[0m
+May 17, 2026 5:50:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3190
+2026.05.17 17:50:39 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:50:45 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3321
+May 17, 2026 5:51:12 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3541
+May 17, 2026 5:51:51 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3897
+2026.05.17 17:51:51 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:51:56 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3984
+2026.05.17 17:51:57 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:52:39 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4457
+2026.05.17 17:52:39 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 5:53:42 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 4859
+May 17, 2026 5:54:33 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5033
+2026.05.17 17:55:15 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 17:55:15 INFO  time: compiled ysyxsoc in 0.71s[0m
+2026.05.17 17:55:16 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:57:44 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:57:51 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:57:51 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:57:52 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 17:57:52 INFO  time: compiled ysyxsoc in 0.37s[0m
+2026.05.17 17:57:53 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:58:10 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:58:12 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 17:58:13 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 17:58:13 INFO  time: compiled ysyxsoc in 0.23s[0m
+2026.05.17 17:58:13 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:00 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:17 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:21 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:21 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:23 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:23 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:23 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:24 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:25 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:28 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:28 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:31 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:31 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:34 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:35 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:38 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:39 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:44 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:46 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:46 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:49 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:49 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:43:49 INFO  time: compiled ysyxsoc in 0.64s[0m
+2026.05.17 18:43:50 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:52 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:54 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:55 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:56 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:57 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:57 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:57 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:58 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:43:59 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:00 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:00 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:01 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:02 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:03 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:03 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:04 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:05 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:05 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:07 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:08 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:08 INFO  time: compiled ysyxsoc in 0.3s[0m
+2026.05.17 18:44:08 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:18 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:19 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:19 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:19 INFO  time: compiled ysyxsoc in 0.24s[0m
+2026.05.17 18:44:20 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:23 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:25 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:25 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:25 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:25 INFO  time: compiled ysyxsoc in 0.21s[0m
+2026.05.17 18:44:25 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:28 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:28 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:28 INFO  time: compiled ysyxsoc in 0.19s[0m
+2026.05.17 18:44:29 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:32 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:34 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:34 INFO  time: compiled ysyxsoc in 0.19s[0m
+2026.05.17 18:44:35 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:37 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:39 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:40 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:43 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:43 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:54 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:55 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:55 INFO  time: compiled ysyxsoc in 0.17s[0m
+2026.05.17 18:44:55 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:59 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:44:59 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:44:59 INFO  time: compiled ysyxsoc in 0.18s[0m
+2026.05.17 18:44:59 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:30 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:33 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:34 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:35 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:35 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:36 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:37 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:45:37 INFO  time: compiled ysyxsoc in 0.27s[0m
+2026.05.17 18:45:37 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:44 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:44 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:44 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:45:44 INFO  time: compiled ysyxsoc in 0.16s[0m
+2026.05.17 18:45:44 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:47 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:48 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:45:48 INFO  time: compiled ysyxsoc in 0.15s[0m
+2026.05.17 18:45:48 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:45:51 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:00 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:03 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:04 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:04 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:05 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:05 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:07 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 6:46:07 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6489
+2026.05.17 18:46:07 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:46:07 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:46:07 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:46:08 INFO  time: compiled ysyxsoc in 1.24s[0m
+2026.05.17 18:46:35 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:46:35 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:46:35 INFO  time: compiled ysyxsoc in 0.93s[0m
+2026.05.17 18:46:40 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:46:40 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:46:40 INFO  time: compiled ysyxsoc in 0.82s[0m
+2026.05.17 18:46:43 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:46:43 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:46:43 INFO  time: compiled ysyxsoc in 0.73s[0m
+May 17, 2026 6:48:19 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6650
+May 17, 2026 6:48:20 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 6665
+2026.05.17 18:48:22 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:48:24 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:48:25 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:48:25 INFO  time: compiled ysyxsoc in 1.96s[0m
+2026.05.17 18:50:00 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:50:01 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:50:01 INFO  time: compiled ysyxsoc in 1.21s[0m
+2026.05.17 18:50:19 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:50:21 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:50:21 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:50:21 INFO  time: compiled ysyxsoc in 0.94s[0m
+2026.05.17 18:51:37 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:51:38 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:51:38 INFO  time: compiled ysyxsoc in 1.11s[0m
+2026.05.17 18:51:55 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 6:52:03 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7279
+2026.05.17 18:52:03 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:52:16 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:52:16 INFO  time: compiled ysyxsoc in 0.25s[0m
+2026.05.17 18:52:21 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:52:21 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:52:21 INFO  time: compiled ysyxsoc in 0.95s[0m
+2026.05.17 18:56:25 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:56:27 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:56:27 INFO  time: compiled ysyxsoc in 1.95s[0m
+May 17, 2026 6:57:13 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7870
+May 17, 2026 6:57:19 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7927
+2026.05.17 18:57:19 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:57:19 INFO  time: compiled ysyxsoc in 0.19s[0m
+2026.05.17 18:57:43 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:57:45 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 18:58:08 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:58:09 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:58:09 INFO  time: compiled ysyxsoc in 1.26s[0m
+2026.05.17 18:58:54 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:58:55 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:58:55 INFO  time: compiled ysyxsoc in 1.15s[0m
+2026.05.17 18:59:03 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:59:03 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:59:03 INFO  time: compiled ysyxsoc in 0.88s[0m
+2026.05.17 18:59:12 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 18:59:12 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 18:59:12 INFO  time: compiled ysyxsoc in 0.78s[0m
+2026.05.17 19:02:38 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:02:40 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:02:40 INFO  time: compiled ysyxsoc in 2.1s[0m
+2026.05.17 19:06:01 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:06:03 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:06:03 INFO  time: compiled ysyxsoc in 2.1s[0m
+2026.05.17 19:15:54 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:15:56 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:15:56 INFO  time: compiled ysyxsoc in 2.09s[0m
+May 17, 2026 7:16:24 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10377
+2026.05.17 19:16:24 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 19:16:41 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 19:16:58 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:16:59 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:16:59 INFO  time: compiled ysyxsoc in 1.38s[0m
+2026.05.17 19:17:36 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 19:17:38 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 19:17:38 INFO  java.lang.IndexOutOfBoundsException: -1 is out of bounds (min 0, max 2) (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_19-17-38-175.md")[0m
+2026.05.17 19:17:38 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 7:17:41 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10987
+May 17, 2026 7:17:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11025
+2026.05.17 19:18:08 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:18:10 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:18:10 INFO  time: compiled ysyxsoc in 2.19s[0m
+May 17, 2026 7:19:41 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11308
+May 17, 2026 7:20:18 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 11702
+May 17, 2026 7:20:28 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 19:20:28 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 19:20:28 INFO  scala.ScalaReflectionException: value startWait is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_19-20-28-664.md")[0m
+2026.05.17 19:20:28 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 7:20:29 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 19:20:28 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 19:20:28 INFO  scala.ScalaReflectionException: value startWait is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_19-20-29-200.md")[0m
+2026.05.17 19:20:28 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 7:20:30 PM scala.meta.internal.pc.CompilerAccess retryWithCleanCompiler
+INFO: compiler crashed due to an error in the Scala compiler, retrying with new compiler instance.
+2026.05.17 19:20:30 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala][0m
+2026.05.17 19:20:30 INFO  scala.ScalaReflectionException: value startWait is not a method (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals-full/2026-05-17/r_compiler-error_(ysyxsoc)_19-20-30-874.md")[0m
+2026.05.17 19:20:30 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 19:20:52 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:20:52 INFO  time: compiled ysyxsoc in 0.78s[0m
+2026.05.17 19:20:56 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:20:56 INFO  time: compiled ysyxsoc in 0.3s[0m
+2026.05.17 19:21:08 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 7:21:09 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12016
+2026.05.17 19:21:25 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+2026.05.17 19:21:27 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:21:27 INFO  time: compiled ysyxsoc in 0.23s[0m
+2026.05.17 19:21:48 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:21:49 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:21:49 INFO  time: compiled ysyxsoc in 1.47s[0m
+2026.05.17 19:22:42 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:22:43 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:22:43 INFO  time: compiled ysyxsoc in 1.25s[0m
+May 17, 2026 7:24:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12529
+2026.05.17 19:24:33 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:24:35 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:24:35 INFO  time: compiled ysyxsoc in 2.12s[0m
+May 17, 2026 7:25:18 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12693
+2026.05.17 19:25:44 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala[0m
+May 17, 2026 7:25:58 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 12994
+May 17, 2026 7:26:16 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 13321
+2026.05.17 19:26:21 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:26:23 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:26:23 INFO  time: compiled ysyxsoc in 2.27s[0m
+2026.05.17 19:28:41 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:28:43 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:28:43 INFO  time: compiled ysyxsoc in 2.24s[0m
+2026.05.17 19:29:58 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:29:59 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:29:59 INFO  time: compiled ysyxsoc in 2.19s[0m
+2026.05.17 19:30:02 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:30:02 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:30:04 INFO  time: compiled ysyxsoc in 1.09s[0m
+2026.05.17 19:30:10 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:30:10 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:30:10 INFO  time: compiled ysyxsoc in 0.91s[0m
+2026.05.17 19:30:13 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:30:13 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:30:13 INFO  time: compiled ysyxsoc in 0.84s[0m
+2026.05.17 19:35:03 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:35:05 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:35:05 INFO  time: compiled ysyxsoc in 2.3s[0m
+2026.05.17 19:35:15 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:35:15 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:35:16 INFO  time: compiled ysyxsoc in 1.18s[0m
+2026.05.17 19:45:15 INFO  compiling ysyxsoc (1 scala source)[0m
+May 17, 2026 7:45:15 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 13978
+2026.05.17 19:45:17 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:45:17 INFO  time: compiled ysyxsoc in 2.26s[0m
+2026.05.17 19:45:20 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.05.17 19:45:21 WARN  3 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.05.17 19:45:21 INFO  time: compiled ysyxsoc in 1.29s[0m
+May 17, 2026 8:03:01 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.05.17 20:21:15 INFO  Shutting down server[0m
+2026.05.17 20:21:15 INFO  Memory monitor stopped[0m
+2026.05.17 20:21:15 INFO  shutting down Metals[0m
+2026.05.17 20:21:15 INFO  Shut down connection with build server.[0m
+2026.05.17 20:21:15 INFO  Exiting server[0m

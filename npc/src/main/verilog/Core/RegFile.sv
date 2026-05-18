@@ -108,6 +108,7 @@ module RegFile(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog
      {regs_2},
      {regs_1},
      {regs_0}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21, :32:8
+  wire              _GEN_0 = io_wen & (|io_waddr);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:25:{15,27}
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:6:7
     if (reset) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:6:7
       regs_0 <= 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21
@@ -144,7 +145,6 @@ module RegFile(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog
       regs_31 <= 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21
     end
     else begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:6:7
-      automatic logic _GEN_0 = io_wen & (|io_waddr);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:25:{15,27}
       if (_GEN_0 & io_waddr == 5'h0)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21, :25:{15,27,36}, :26:20
         regs_0 <= io_wdata;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21
       if (_GEN_0 & io_waddr == 5'h1)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/components/RegFile.scala:23:21, :25:{15,36}, :26:20

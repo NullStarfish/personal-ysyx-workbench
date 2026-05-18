@@ -1,0 +1,54 @@
+ysyx
+archid: 25050151
+======= Running MicroBench [input *train*] =======
+[qsort] Quick sort: * Passed.
+  min time: 554965.203 ms [0]
+[queen] Queen placement: * Passed.
+  min time: 661471.709 ms [0]
+[bf] Brainf**k interpreter: * Passed.
+  min time: 941932.128 ms [0]
+[fib] Fibonacci number:
+* Passed.
+  min time: 12196444.043 ms [0]
+[sieve] Eratosthenes sieve: * Passed.
+  min time: 842010.042 ms [0]
+[15pz] A* 15-puzzle search: * Passed.
+  min time: 659049.171 ms [0]
+[dinic] Dinic's maxflow algorithm: * Passed.
+  min time: 437119.461 ms [0]
+[lzip] Lzip compression: * Passed.
+  min time: 439618.252 ms [0]
+[ssort] Suffix sort: * Passed.
+  min time: 999801.421 ms [0]
+[md5] MD5 digest: * Passed.
+  min time: 1004830.067 ms [0]
+==================================================
+MicroBench PASS
+Scored time: 18737241.497 ms
+Total  time: 20937981.095 ms
+ebreak: state: 2, a0: 0
+
+Execution Statistics:
+  Total Cycles:       16747864794
+  Total Instructions: 195210428
+Inst statistics:
+Arith: 115861366        , Mem: 22595740 , Redirect: 56753320    , Sys: 2
+Arith: 59.352037%, Mem: 11.575068%, Redirect: 29.072894%, Sys: 0.000001%
+Inst lifecycle: Avg=12.684571 cycles    , Max=389 cycles
+Inst lifecycle by type: Arith=10.867743 , Mem=33.467018 , Redirect=8.119295    , Sys=26.500000
+Unit trace: FetchInst=195210429, ExecuteDone=195210428, LsuLoadData=15581863   , LsuStoreAck=7013877
+Fetch memory latency: Avg=49.565491 cycles      , Max=82129 cycles
+Fetch output wait: Avg=71.039686 cycles , Max=281 cycles
+Fetch unit stalls: ReqBlocked=16425231024 (98.073583%), OutBlocked=0 (0.000000%), Flush=42493931 (0.253727%)
+LSU backpressure: 2101029978 (12.545062%)
+LSU load latency: Avg=81.890557 cycles  , Max=173 cycles
+LSU store latency: Avg=105.346258 cycles        , Max=245 cycles
+Cache trace: ICacheHit=0, ICacheMiss=0, DCacheHit=0, DCacheMiss=22595740
+Pipeline stages:
+  Fetch     valid=0 pc=0x00000000 inst=0x00000000 occupancy=0.000000% accepted=0
+  Decode    valid=0 pc=0x00000000 inst=0x00000000 occupancy=3.407225% accepted=195210429
+  Execute   valid=1 pc=0xa00054e8 inst=0x00100073 occupancy=1.165584% accepted=195210429
+  LSU       valid=0 pc=0x00000000 inst=0x00000000 occupancy=19.009924% accepted=195210428
+  WriteBack valid=0 pc=0x00000000 inst=0x00000000 occupancy=1.165584% accepted=195210428
+Hazard trace: LoadUse=375427083 (2.241641%), RedirectFlush=42493931 (0.253727%)
+  Average IPC:        0.011656

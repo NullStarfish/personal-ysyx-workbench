@@ -18,6 +18,7 @@ module Queue3_UInt32(	// src/main/scala/chisel3/util/Queue.scala:60:7
   wire       empty = ptr_match & ~maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :78:{25,28}
   wire       full = ptr_match & maybe_full;	// src/main/scala/chisel3/util/Queue.scala:76:27, :77:33, :79:24
   wire       do_enq = ~full & io_enq_valid;	// src/main/scala/chisel3/util/Queue.scala:79:24, :103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire       do_deq = io_deq_ready & ~empty;	// src/main/scala/chisel3/util/Queue.scala:78:25, :102:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
     if (reset) begin	// src/main/scala/chisel3/util/Queue.scala:60:7
       enq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40
@@ -25,8 +26,6 @@ module Queue3_UInt32(	// src/main/scala/chisel3/util/Queue.scala:60:7
       maybe_full <= 1'h0;	// src/main/scala/chisel3/util/Queue.scala:76:27
     end
     else begin	// src/main/scala/chisel3/util/Queue.scala:60:7
-      automatic logic do_deq;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      do_deq = io_deq_ready & ~empty;	// src/main/scala/chisel3/util/Queue.scala:78:25, :102:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
       if (io_flush) begin	// src/main/scala/chisel3/util/Queue.scala:72:14
         enq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40
         deq_ptr_value <= 2'h0;	// src/main/scala/chisel3/util/Counter.scala:61:40

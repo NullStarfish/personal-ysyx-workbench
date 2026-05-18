@@ -220,7 +220,7 @@ VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 # =============================================================================
 # Makefile Rules
 # =============================================================================
-.PHONY: all npc  ysyxsoc_scala local_scala run rundiff gdb-diff clean menuconfig check_config FORCE
+.PHONY: all npc  ysyxsoc_scala local_scala run rundiff gdb-diff clean menuconfig check_config FORCE perf
 
 $(ALL_OBJS): .config
 $(ALL_OBJS): $(BOARD_FLAG_FILE)
@@ -324,3 +324,7 @@ gdb-diff: npc
 
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
+
+perf: 
+	./yosys-sta.sh
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench/ ARCH=riscv32e-ysyxsoc ARGS=-b run mainargs=train

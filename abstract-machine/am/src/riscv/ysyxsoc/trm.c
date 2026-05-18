@@ -76,22 +76,22 @@ void _trm_init() {
   __am_uart_init_once();
 
 
-  // 1. Data Relocation: 将 .data 从 MROM 复制到 SRAM
-  // ---------------------------------------------------------
-  char *src = &_data_lma;
-  char *dst = &_data_vma;
-  while(dst < &_data_vma_end) {
-    *dst++ = *src++;
-  }
+  // // 1. Data Relocation: 将 .data 从 MROM 复制到 SRAM
+  // // ---------------------------------------------------------
+  // char *src = &_data_lma;
+  // char *dst = &_data_vma;
+  // while(dst < &_data_vma_end) {
+  //   *dst++ = *src++;
+  // }
 
-  // 2. Clear BSS: 将 .bss 段清零 (通常 AM 的 start.S 可能做过，但这里做更保险)
-  // ---------------------------------------------------------
-  // 注意：如果你的 start.S 里已经清零了 BSS，这里可以省略，
-  // 但为了安全起见，建议保留。
-  dst = &_bss_start;
-  while(dst < &_bss_end) {
-    *dst++ = 0;
-  }
+  // // 2. Clear BSS: 将 .bss 段清零 (通常 AM 的 start.S 可能做过，但这里做更保险)
+  // // ---------------------------------------------------------
+  // // 注意：如果你的 start.S 里已经清零了 BSS，这里可以省略，
+  // // 但为了安全起见，建议保留。
+  // dst = &_bss_start;
+  // while(dst < &_bss_end) {
+  //   *dst++ = 0;
+  // }
 
   // 3. 执行 Main
   int ret = main(mainargs);

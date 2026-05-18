@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import mycpu.core.Core
+import mycpu.common._
 import mycpu.utils._
 import mycpu.utils.AXI4Parameters
 import _root_.circt.stage.ChiselStage
@@ -11,7 +12,10 @@ import _root_.circt.stage.ChiselStage
 // ==============================================================================
 // 顶层 Wrapper：符合 YSYX 接口命名规范
 // ==============================================================================
-class myCore extends Module {
+class myCore(
+    enableDpi: Boolean = true,
+    enableTracer: Boolean = ENABLE_TRACER,
+) extends Module {
   // 强制设置模块名为 ysyx_23060000 (请将 23060000 替换为你的实际学号)
   override val desiredName = "myCore"
 
@@ -99,7 +103,7 @@ class myCore extends Module {
   })
 
   // 实例化你的 Core
-  val core = Module(new Core(enableDpi = true))
+  val core = Module(new Core(enableDpi = enableDpi, enableTracer = enableTracer))
 
   core.clock := clock
   core.reset := reset
@@ -189,7 +193,20 @@ object GenCore extends App {
     new myCore,
     args = Array("--target-dir", "src/main/verilog/Core"),
     firtoolOpts = Array(
-      "--disable-all-randomization"
+      "--disable-all-randomization",
+      "--lowering-options=disallowLocalVariables",
+    )
+  )
+}
+
+object GenCoreSta extends App {
+  ChiselStage.emitSystemVerilogFile(
+    new myCore(enableDpi = false, enableTracer = false),
+    args = Array("--target-dir", "src/main/verilog/CoreSta"),
+    firtoolOpts = Array(
+      "--disable-all-randomization",
+      "--strip-debug-info",
+      "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoStyle=none",
     )
   )
 }

@@ -555,6 +555,41 @@ object coreverilog extends NpcScalaModule {
   }
 }
 
+object corestaverilog extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def moduleDeps = Seq(hwos)
+
+  def mainClass = Some("mycpu.GenCoreSta")
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val roots = Seq(
+      root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/cache",
+      root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/utils",
+    )
+    val files =
+      roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala")) ++
+        Seq(
+          root / "src/main/scala/mycpu/CoreWrapper.scala",
+          root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+          root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+          root / "src/main/scala/mycpu/dpi/DpiApi.scala",
+        )
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+}
+
 object fetchDecode extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
