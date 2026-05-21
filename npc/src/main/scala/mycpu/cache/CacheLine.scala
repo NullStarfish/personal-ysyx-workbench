@@ -3,21 +3,19 @@ package mycpu.cache
 import chisel3._
 
 class CacheLineMeta(params: CacheParams) extends Bundle {
-  val valid = Bool()
-  val tag = UInt(params.tagBits.W)
+  val tag = UInt(params.tagWidth.W)
 }
 
-class CacheLineBits(params: CacheParams) extends Bundle {
+class CacheLine(params: CacheParams) extends Bundle {
   val meta = new CacheLineMeta(params)
-  val data = UInt(params.lineBits.W)
+  val data = UInt(params.lineWidth.W)
 }
 
-class CacheSetBits(params: CacheParams) extends Bundle {
-  val ways = Vec(params.ways, new CacheLineBits(params))
+class CacheSets(params: CacheParams) extends Bundle {
+  val ways = Vec(params.ways, new CacheLine(params))
 }
 
 class CacheWayHit(params: CacheParams) extends Bundle {
   val valid = Bool()
-  val way = UInt(params.wayBits.W)
+  val way = UInt(params.wayWidth.W)
 }
-

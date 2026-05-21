@@ -5421,3 +5421,54 @@ INFO: Unsupported notification method: $/setTrace
 2026.05.17 20:21:15 INFO  shutting down Metals[0m
 2026.05.17 20:21:15 INFO  Shut down connection with build server.[0m
 2026.05.17 20:21:15 INFO  Exiting server[0m
+2026.05.19 17:21:37 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.05.19 17:21:38 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.05.19 17:21:38 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.120.0.[0m
+2026.05.19 17:21:38 INFO  Memory monitor started[0m
+2026.05.19 17:21:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.05.19 17:21:40 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.05.19 17:21:40 INFO  Attempting to connect to the build server...[0m
+2026.05.19 17:21:40 INFO  Found a Bloop server running[0m
+2026.05.19 17:21:40 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.05.19 17:21:42 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/GPIO.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.05.19 17:21:48 INFO  time: Connected to build server in 7.49s[0m
+2026.05.19 17:21:48 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.05.19 17:21:48 INFO  time: Imported build in 0.18s[0m
+2026.05.19 17:21:48 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.05.19 17:21:51 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.05.19 17:21:51 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-05-19/r_scala-toplevel-mtags_17-21-51-571.md")[0m
+2026.05.19 17:21:52 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.05.19 17:21:52 INFO  time: indexed workspace in 4.22s[0m
+2026.05.19 17:21:52 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.05.19 17:21:52 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.05.19 17:21:52 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.05.19 17:21:56 INFO  time: compiled rocketchip.macros in 3.22s[0m
+2026.05.19 17:21:56 INFO  time: compiled rocketchip.cde in 3.22s[0m
+2026.05.19 17:21:56 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.05.19 17:22:02 INFO  time: compiled rocketchip.diplomacy in 6.47s[0m
+2026.05.19 17:22:02 INFO  time: compiled rocketchip.hardfloat in 10s[0m
+2026.05.19 17:22:04 INFO  compiling rocketchip (317 scala sources)[0m
+2026.05.19 17:22:52 WARN  7 deprecations[0m
+2026.05.19 17:22:52 WARN  78 deprecations (since 2.13.0)[0m
+2026.05.19 17:22:52 WARN  1 deprecation (since 2.13.7)[0m
+2026.05.19 17:22:52 WARN  1 deprecation (since 9)[0m
+2026.05.19 17:22:52 WARN  27 deprecations (since CDE 0.1)[0m
+2026.05.19 17:22:52 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.05.19 17:22:52 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.05.19 17:22:52 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.05.19 17:22:52 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.05.19 17:22:52 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.05.19 17:22:52 INFO  compiling ysyxsoc (38 scala sources)[0m
+2026.05.19 17:22:54 INFO  time: compiled rocketchip in 50s[0m
+2026.05.19 17:23:00 WARN  1 deprecation (since 2.13.0)[0m
+2026.05.19 17:23:00 WARN  1 deprecation (since 2.13.3)[0m
+2026.05.19 17:23:00 WARN  93 deprecations (since rocketchip 2.0.0)[0m
+2026.05.19 17:23:00 WARN  95 deprecations in total; re-run with -deprecation for details[0m
+2026.05.19 17:23:00 INFO  time: compiled ysyxsoc in 6.69s[0m
+May 19, 2026 5:40:28 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 253
+2026.05.20 00:00:25 INFO  Shutting down server[0m
+2026.05.20 00:00:25 INFO  Memory monitor stopped[0m
+2026.05.20 00:00:25 INFO  shutting down Metals[0m
+2026.05.20 00:00:25 INFO  Shut down connection with build server.[0m
+2026.05.20 00:00:25 INFO  Exiting server[0m

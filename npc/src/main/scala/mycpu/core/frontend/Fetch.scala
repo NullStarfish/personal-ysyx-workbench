@@ -66,7 +66,7 @@ class Fetch(
   reqPc.io.enq.bits := fetchReq.io.deq.bits
 
 
-  fetchReply.io.enq.valid := io.reply.valid && reqPc.io.deq.valid
+  fetchReply.io.enq.valid := io.reply.valid && reqPc.io.deq.valid && !frontFlush
   io.reply.ready := false.B
 
   when (!reset.asBool) {

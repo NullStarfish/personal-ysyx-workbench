@@ -1,6 +1,6 @@
 module NpcVirtualAxiRam #(
-  parameter int unsigned READ_LATENCY = 1,
-  parameter int unsigned WRITE_LATENCY = 1,
+  parameter int unsigned READ_LATENCY = 100,
+  parameter int unsigned WRITE_LATENCY = 100,
   parameter int unsigned READ_DEPTH = 16,
   parameter int unsigned WRITE_DEPTH = 16
 ) (

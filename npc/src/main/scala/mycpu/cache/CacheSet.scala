@@ -4,23 +4,24 @@ import chisel3._
 import chisel3.util._
 
 class CacheSetLookupReq(params: CacheParams) extends Bundle {
-  val index = UInt(params.indexBits.W)
-  val tag = UInt(params.tagBits.W)
-  val wordOffset = UInt(params.wordOffsetBits.W)
+  val index = UInt(params.indexWidth.W)
+  val tag = UInt(params.tagWidth.W)
+  val wordOffset = UInt(params.wordOffsetWidth.W)
 }
 
 class CacheSetLookupResp(params: CacheParams) extends Bundle {
   val hit = Bool()
-  val way = UInt(params.wayBits.W)
-  val line = UInt(params.lineBits.W)
-  val word = UInt(params.dataBits.W)
+  val way = UInt(params.wayWidth.W)
+  val line = UInt(params.lineWidth.W)
+  val word = UInt(params.dataWidth.W)
 }
 
 class CacheSetWriteReq(params: CacheParams) extends Bundle {
-  val index = UInt(params.indexBits.W)
-  val way = UInt(params.wayBits.W)
+  val index = UInt(params.indexWidth.W)
+  val way = UInt(params.wayWidth.W)
+  val valid = Bool()
   val meta = new CacheLineMeta(params)
-  val data = UInt(params.lineBits.W)
+  val data = UInt(params.lineWidth.W)
 }
 
 class CacheSetIO(params: CacheParams) extends Bundle {
@@ -32,19 +33,29 @@ class CacheSetIO(params: CacheParams) extends Bundle {
 class CacheSet(params: CacheParams) extends Module {
   val io = IO(new CacheSetIO(params))
 
-  val lines = RegInit(VecInit(Seq.fill(params.sets) {
-    VecInit(Seq.fill(params.ways) {
-      0.U.asTypeOf(new CacheLineBits(params))
-    })
+  val lines = SyncReadMem(params.sets * params.ways, new CacheLine(params))
+  val validBits = RegInit(VecInit(Seq.fill(params.sets) {
+    VecInit(Seq.fill(params.ways)(false.B))
   }))
 
-  val selectedSet = lines(io.lookup.bits.index)
+  private def lineAddr(index: UInt, way: UInt): UInt =
+    index * params.ways.U + way
+
+  val lookupReq = RegEnable(io.lookup.bits, 0.U.asTypeOf(new CacheSetLookupReq(params)), io.lookup.valid)
+  val lookupValid = RegNext(io.lookup.valid, false.B)
+  val lookupWayValid = RegEnable(validBits(io.lookup.bits.index), 0.U.asTypeOf(Vec(params.ways, Bool())), io.lookup.valid)
+  val selectedSet = Wire(Vec(params.ways, new CacheLine(params)))
+
+  for (way <- 0 until params.ways) {
+    selectedSet(way) := lines.read(lineAddr(io.lookup.bits.index, way.U), io.lookup.valid)
+  }
+
   val wayHits = Wire(Vec(params.ways, Bool()))
 
   for (way <- 0 until params.ways) {
-    wayHits(way) := io.lookup.valid &&
-      selectedSet(way).meta.valid &&
-      selectedSet(way).meta.tag === io.lookup.bits.tag
+    wayHits(way) := lookupValid &&
+      lookupWayValid(way) &&
+      selectedSet(way).meta.tag === lookupReq.tag
   }
 
   val hit = wayHits.asUInt.orR
@@ -56,15 +67,17 @@ class CacheSet(params: CacheParams) extends Module {
   io.lookupResp.hit := hit
   io.lookupResp.way := hitWay
   io.lookupResp.line := hitLine.data
-  io.lookupResp.word := params.wordFromLine(hitLine.data, io.lookup.bits.wordOffset)
+  io.lookupResp.word := params.wordFromLine(hitLine.data, lookupReq.wordOffset)
 
   when(io.write.valid) {
+    val writeLine = Wire(new CacheLine(params))
+    writeLine.meta := io.write.bits.meta
+    writeLine.data := io.write.bits.data
+    lines.write(lineAddr(io.write.bits.index, io.write.bits.way), writeLine)
     if (params.ways == 1) {
-      lines(io.write.bits.index)(0).meta := io.write.bits.meta
-      lines(io.write.bits.index)(0).data := io.write.bits.data
+      validBits(io.write.bits.index)(0) := io.write.bits.valid
     } else {
-      lines(io.write.bits.index)(io.write.bits.way).meta := io.write.bits.meta
-      lines(io.write.bits.index)(io.write.bits.way).data := io.write.bits.data
+      validBits(io.write.bits.index)(io.write.bits.way) := io.write.bits.valid
     }
   }
 }

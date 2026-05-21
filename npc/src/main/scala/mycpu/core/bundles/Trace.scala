@@ -213,13 +213,21 @@ final class LSUTrace extends BlackBox with HasBlackBoxInline {
       |   input int latency,
       |   input bit write
       |);
+      | import "DPI-C" function void dcache_trace(
+      |   input bit hit,
+      |   input bit miss,
+      |   input int latency
+      |);
       | import "DPI-C" function void lsu_backpressure_trace(
       |   input blocked
       |);
       |
       |logic [31:0] latency;
+      |logic [31:0] doneLatency;
       |logic inflight;
       |logic inflightWrite;
+      |
+      |assign doneLatency = inflight ? latency + 32'd1 : 32'd1;
       |
       |always_ff @(posedge clk) begin
       | if(reset) begin
@@ -242,7 +250,8 @@ final class LSUTrace extends BlackBox with HasBlackBoxInline {
       |   end
       |
       |   if(gotData) begin
-      |     lsu_trace(inflight ? latency + 32'd1 : 32'd1, inflightWrite);
+      |     lsu_trace(doneLatency, inflightWrite);
+      |     dcache_trace(1'b0, 1'b1, doneLatency);
       |     inflight <= 1'b0;
       |     latency <= 32'd0;
       |     inflightWrite <= 1'b0;
@@ -261,6 +270,7 @@ final class DCacheTrace extends BlackBox with HasBlackBoxInline {
     val reset = Input(Bool())
     val hit = Input(Bool())
     val miss = Input(Bool())
+    val latency = Input(UInt(32.W))
   })
   setInline(
     "DCacheTrace.sv",
@@ -268,16 +278,18 @@ final class DCacheTrace extends BlackBox with HasBlackBoxInline {
       |    input logic clk,
       |    input logic reset,
       |    input logic hit,
-      |    input logic miss
+      |    input logic miss,
+      |    input logic [31:0] latency
       |);
       | import "DPI-C" function void dcache_trace(
       |   input bit hit,
-      |   input bit miss
+      |   input bit miss,
+      |   input int latency
       |);
       |
       |always_ff @(posedge clk) begin
       | if(!reset && (hit || miss)) begin
-      |   dcache_trace(hit, miss);
+      |   dcache_trace(hit, miss, latency);
       | end
       |end
       |

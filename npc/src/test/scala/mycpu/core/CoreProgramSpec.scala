@@ -219,7 +219,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
         nop,
       ),
       targetRetires = 16,
-      maxCycles = 100,
+      maxCycles = 140,
     ) { c =>
       c.io.debug_regs(1).expect(7.U)
       c.io.debug_regs(2).expect(1.U)

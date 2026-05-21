@@ -5,49 +5,49 @@ import chisel3.util._
 import mycpu.common._
 
 case class CacheParams(
-    addrBits: Int = XLEN,
-    dataBits: Int = XLEN,
+    addrWidth: Int = XLEN,
+    dataWidth: Int = XLEN,
     lineBytes: Int = 32,
     sets: Int = 128,
     ways: Int = 2,
     replacement: ReplacementPolicy.Type = ReplacementPolicy.LRU,
 ) {
-  require(addrBits > 0, "addrBits must be positive")
-  require(dataBits > 0 && dataBits % 8 == 0, "dataBits must be a positive byte-aligned width")
-  require(isPow2(lineBytes) && lineBytes >= dataBits / 8, "lineBytes must be a power of two and at least one data word")
+  require(addrWidth > 0, "addrWidth must be positive")
+  require(dataWidth > 0 && dataWidth % 8 == 0, "dataWidth must be a positive byte-aligned width")
+  require(isPow2(lineBytes) && lineBytes >= dataWidth / 8, "lineBytes must be a power of two and at least one data word")
   require(isPow2(sets) && sets > 0, "sets must be a positive power of two")
   require(isPow2(ways) && ways > 0, "ways must be a positive power of two")
 
-  val bytesPerWord: Int = dataBits / 8
-  val wordsPerLine: Int = lineBytes / bytesPerWord
-  val lineBits: Int = lineBytes * 8
-  val offsetBits: Int = log2Ceil(lineBytes)
-  val wordOffsetBits: Int = log2Ceil(wordsPerLine)
-  val indexBits: Int = log2Ceil(sets)
-  val tagBits: Int = addrBits - indexBits - offsetBits
-  val wayBits: Int = log2Ceil(ways).max(1)
+  val wordBytes: Int = dataWidth / 8
+  val wordsPerLine: Int = lineBytes / wordBytes
+  val lineWidth: Int = lineBytes * 8
+  val offsetWidth: Int = log2Ceil(lineBytes)
+  val wordOffsetWidth: Int = log2Ceil(wordsPerLine)
+  val indexWidth: Int = log2Ceil(sets)
+  val tagWidth: Int = addrWidth - indexWidth - offsetWidth
+  val wayWidth: Int = log2Ceil(ways).max(1)
   val capacityBytes: Int = lineBytes * sets * ways
 
-  require(tagBits > 0, "addrBits must leave room for a non-empty tag")
+  require(tagWidth > 0, "addrWidth must leave room for a non-empty tag")
   require(
     replacement != ReplacementPolicy.LRU || ways == 1 || ways == 2,
     "exact LRU currently supports direct-mapped or 2-way caches",
   )
 
   def lineBase(addr: UInt): UInt =
-    Cat(addr(addrBits - 1, offsetBits), 0.U(offsetBits.W))
+    Cat(addr(addrWidth - 1, offsetWidth), 0.U(offsetWidth.W))
 
   def tag(addr: UInt): UInt =
-    addr(addrBits - 1, indexBits + offsetBits)
+    addr(addrWidth - 1, indexWidth + offsetWidth)
 
   def index(addr: UInt): UInt =
-    if (indexBits == 0) 0.U else addr(indexBits + offsetBits - 1, offsetBits)
+    if (indexWidth == 0) 0.U else addr(indexWidth + offsetWidth - 1, offsetWidth)
 
   def wordOffset(addr: UInt): UInt =
-    if (wordOffsetBits == 0) 0.U else addr(offsetBits - 1, log2Ceil(bytesPerWord))
+    if (wordOffsetWidth == 0) 0.U else addr(offsetWidth - 1, log2Ceil(wordBytes))
 
   def wordFromLine(line: UInt, wordOffset: UInt): UInt =
-    line.asTypeOf(Vec(wordsPerLine, UInt(dataBits.W)))(wordOffset)
+    line.asTypeOf(Vec(wordsPerLine, UInt(dataWidth.W)))(wordOffset)
 
   private def isPow2(x: Int): Boolean =
     x > 0 && (x & (x - 1)) == 0
@@ -58,6 +58,12 @@ object CacheConfigs {
     lineBytes = 32,
     sets = 128,
     ways = 2,
+    replacement = ReplacementPolicy.LRU,
+  )
+  val SimpICache: CacheParams = CacheParams(
+    lineBytes = 4,
+    sets = 32,
+    ways = 1,
     replacement = ReplacementPolicy.LRU,
   )
 }

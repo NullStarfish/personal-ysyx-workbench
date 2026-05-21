@@ -1,0 +1,23 @@
+[tasks]
+bmc
+cover
+
+[options]
+bmc: mode bmc
+cover: mode cover
+depth 16
+wait on
+
+[engines]
+smtbmc boolector
+
+[script]
+read_verilog -formal -sv CacheSet.sv
+read_verilog -formal -sv ICache.sv
+read_verilog -formal -sv ICacheFormalHarness.sv
+prep -top ICacheFormalHarness
+
+[files]
+src/formal/icache/generated/CacheSet.sv
+src/formal/icache/generated/ICache.sv
+src/formal/icache/generated/ICacheFormalHarness.sv

@@ -119,15 +119,21 @@ private:
 
 class CacheTraceModel {
 public:
-  void traceICache(bool hit, bool miss);
-  void traceDCache(bool hit, bool miss);
+  void traceICache(bool hit, bool miss, uint32_t latency);
+  void traceDCache(bool hit, bool miss, uint32_t latency);
   void printStats() const;
 
 private:
   long long icacheHits = 0;
   long long icacheMisses = 0;
+  long long icacheAccessCycles = 0;
+  long long icacheMissCycles = 0;
+  long long icacheMaxLatency = 0;
   long long dcacheHits = 0;
   long long dcacheMisses = 0;
+  long long dcacheAccessCycles = 0;
+  long long dcacheMissCycles = 0;
+  long long dcacheMaxLatency = 0;
 };
 
 class PipelineModel {

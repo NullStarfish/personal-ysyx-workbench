@@ -56,6 +56,7 @@ class ICacheSpec extends AnyFlatSpec {
         c.io.memReply.valid.poke(false.B)
       }
 
+      c.clock.step()
       c.io.cpuReply.valid.expect(true.B)
       c.io.cpuReply.bits.pc.expect("h104".U)
       c.io.cpuReply.bits.inst.expect("h00200113".U)
@@ -65,17 +66,18 @@ class ICacheSpec extends AnyFlatSpec {
       c.io.cpuReq.valid.poke(true.B)
       c.io.cpuReq.bits.pc.poke("h108".U)
       c.io.cpuReq.ready.expect(true.B)
+      c.io.cpuReply.valid.expect(false.B)
       c.clock.step()
-
       c.io.cpuReq.valid.poke(false.B)
       c.io.cpuReply.valid.expect(true.B)
       c.io.cpuReply.bits.pc.expect("h108".U)
       c.io.cpuReply.bits.inst.expect("h00300193".U)
       c.io.cpuReply.bits.hit.expect(true.B)
+      c.clock.step()
     }
   }
 
-  it should "buffer multiple CPU requests while a miss is refilling" in {
+  it should "not accept another CPU request while a miss is refilling" in {
     simulate(new ICache(params)) { c =>
       init(c)
 
@@ -86,9 +88,9 @@ class ICacheSpec extends AnyFlatSpec {
       c.clock.step()
 
       c.io.cpuReq.bits.pc.poke("h108".U)
-      c.io.cpuReq.ready.expect(true.B)
-      c.clock.step()
+      c.io.cpuReq.ready.expect(false.B)
       c.io.cpuReq.valid.poke(false.B)
+      c.clock.step()
 
       val refillWords = Seq(
         "h00100093",
@@ -110,15 +112,22 @@ class ICacheSpec extends AnyFlatSpec {
         c.io.memReply.valid.poke(false.B)
       }
 
+      c.clock.step()
       c.io.cpuReply.valid.expect(true.B)
       c.io.cpuReply.bits.pc.expect("h104".U)
       c.io.cpuReply.bits.inst.expect("h00200113".U)
       c.clock.step()
 
+      c.io.cpuReq.valid.poke(true.B)
+      c.io.cpuReq.bits.pc.poke("h108".U)
+      c.io.cpuReq.ready.expect(true.B)
+      c.io.cpuReply.valid.expect(false.B)
       c.clock.step()
+      c.io.cpuReq.valid.poke(false.B)
       c.io.cpuReply.valid.expect(true.B)
       c.io.cpuReply.bits.pc.expect("h108".U)
       c.io.cpuReply.bits.inst.expect("h00300193".U)
+      c.clock.step()
     }
   }
 

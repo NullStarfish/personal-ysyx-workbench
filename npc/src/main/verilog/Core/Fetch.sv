@@ -57,7 +57,7 @@ module Fetch(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/g
     .clock            (clock),
     .reset            (reset),
     .io_enq_ready     (_fetchReply_io_enq_ready),
-    .io_enq_valid     (io_reply_valid & _reqPc_io_deq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:45:21, :69:45
+    .io_enq_valid     (io_reply_valid & _reqPc_io_deq_valid & ~io_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:45:21, :58:45, :69:{45,67}
     .io_enq_bits_pc   (_reqPc_io_deq_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/frontend/Fetch.scala:45:21
     .io_enq_bits_inst (io_reply_bits),
     .io_deq_ready     (io_out_ready),

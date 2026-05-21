@@ -141,8 +141,10 @@ C_SRCS   := $(C_SRCS_BASE)
 INC_DIRS_BASE := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
                  $(CSRC_DIR)/trace $(CSRC_DIR)/log
 
-VERILATOR_INC_DIRS := /usr/share/verilator/include \
-                      /usr/share/verilator/include/vltstd
+VERILATOR ?= verilator
+VERILATOR_ROOT := $(shell $(VERILATOR) -V 2>/dev/null | sed -n 's/^[[:space:]]*VERILATOR_ROOT[[:space:]]*=[[:space:]]*//p' | tail -n 1)
+VERILATOR_INC_DIRS := $(VERILATOR_ROOT)/include \
+                      $(VERILATOR_ROOT)/include/vltstd
 VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
 
 ifeq ($(BOARD),1)
@@ -265,9 +267,10 @@ $(TARGET): $(ALL_OBJS) $(VERILATED_LIB) $(NVBOARD_ARCHIVE) | check_config
 
 # [关键修改] Verilator 编译规则
 # 添加了 $(VERILATOR_INCFLAGS) 以包含 gen 和 verification 目录
-$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC) | $(BUILD_DIR) 
+$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC) Makefile | $(BUILD_DIR)
 	@echo "### Running Verilator... ###"
-	verilator --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
+	$(RM) -r $(OBJ_DIR)
+	$(VERILATOR) --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INCFLAGS) \
 		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
 	@echo "### Compiling Verilated library... ###"

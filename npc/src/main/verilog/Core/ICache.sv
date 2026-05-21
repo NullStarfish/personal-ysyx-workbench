@@ -17,232 +17,101 @@ module ICache(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
   input         io_redirect_valid	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:10:14
 );
 
-  wire        _LRUReplacement_io_victimResp_way;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/Replacement.scala:61:15
-  wire        _cacheSet_io_lookupResp_hit;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-  wire        _cacheSet_io_lookupResp_way;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-  wire [31:0] _cacheSet_io_lookupResp_word;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-  wire        _replyQ_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:24:22
-  wire        _reqQ_io_enq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20
-  wire        _reqQ_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20
-  wire [31:0] _reqQ_io_deq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20
-  reg  [1:0]  state;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-  reg  [31:0] reqReg_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-  reg         abortRefill;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28
-  reg  [2:0]  refillBeat;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27
-  reg  [31:0] refillLine_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg  [31:0] refillLine_7;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-  reg         refillVictimWay;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:21:28
-  wire        io_memReq_valid_0 = state == 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :47:28
-  wire        cacheSet_io_lookup_valid = state == 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37
-  wire        reqQ_io_deq_ready =
-    state == 2'h0 & _replyQ_io_enq_ready & ~io_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :24:22, :35:60, :68:{30,45,68}
-  wire        replyQ_io_enq_valid =
-    cacheSet_io_lookup_valid & _cacheSet_io_lookupResp_hit;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24, :42:23, :51:37, :74:32, :75:38
-  wire        _GEN = _replyQ_io_enq_ready & replyQ_io_enq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:24:22, :42:23, :74:32, :75:38, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-  wire        _GEN_0 = (&state) & io_memReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :49:30, :101:35, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-  wire        _GEN_1 = refillBeat == 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_2 = refillBeat == 3'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_3 = refillBeat == 3'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_4 = refillBeat == 3'h3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_5 = refillBeat == 3'h4;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_6 = refillBeat == 3'h5;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_7 = refillBeat == 3'h6;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :106:30
-  wire        _GEN_8 = ~_GEN_0 | abortRefill | ~(&refillBeat);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :19:27, :20:23, :33:31, :61:31, :101:{35,56}, :102:23, :107:24, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        io_memReply_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:106:35, :149:22, :150:23
+  wire        _cacheSet_io_lookupResp_hit;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:28:24
+  reg  [31:0] reqReg_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19
+  reg         reqValid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25
+  reg         state;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22
+  wire [29:0] lookupReq_pc = reqValid ? reqReg_pc[31:2] : io_cpuReq_bits_pc[31:2];	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:10:14, :12:19, :13:25, :21:19
+  reg  [31:0] refillLine_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:54:23
+  reg         memReqDone;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:75:27
+  reg         dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:76:29
+  reg  [31:0] accessLatency;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30
+  reg         accessMiss;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27
+  wire        io_cpuReq_ready_0 =
+    ~state & ~reqValid & ~reset & ~io_redirect_valid & ~dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25, :18:22, :32:19, :76:29, :86:{15,33}, :87:{21,24,34,37,51,54,73,76}
+  wire        cacheSet_io_lookup_valid =
+    ~state & (reqValid | io_cpuReq_valid) & ~reset & ~io_redirect_valid & ~dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25, :18:22, :34:28, :76:29, :80:31, :86:{15,33}, :87:{54,76}, :89:{30,46,49,63,85}
+  wire        io_cpuReply_valid_0 = state & _cacheSet_io_lookupResp_hit;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :40:21, :106:35, :107:38
+  wire        io_memReq_valid_0 =
+    state & ~_cacheSet_io_lookupResp_hit & reqValid & ~memReqDone & ~io_redirect_valid
+    & ~dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25, :18:22, :28:24, :60:19, :75:27, :76:29, :106:35, :107:38, :109:30, :117:18, :118:{23,35,38,50,53,72,75}
+  wire        _GEN = io_memReply_ready_0 & io_memReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:106:35, :149:22, :150:23, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        _GEN_0 = ~state | _cacheSet_io_lookupResp_hit | ~_GEN;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :54:23, :106:35, :107:38, :125:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  assign io_memReply_ready_0 =
+    dropMemReply
+      ? ~reset
+      : state & ~_cacheSet_io_lookupResp_hit & reqValid & ~io_redirect_valid
+        & ~dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25, :18:22, :28:24, :62:21, :76:29, :106:35, :107:38, :109:30, :117:18, :118:{53,75}, :119:{25,37,59}, :149:22, :150:{23,26}
+  wire        _trace_io_miss_T = io_cpuReply_ready & io_cpuReply_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:40:21, :106:35, :107:38, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        _GEN_1 = ~state & cacheSet_io_lookup_valid | state;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :34:28, :86:{15,33}, :89:{30,46,63,85}, :101:36, :102:13
+  wire        _GEN_2 = io_cpuReply_ready & io_cpuReply_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:40:21, :106:35, :107:38, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        _GEN_3 = state & _cacheSet_io_lookupResp_hit & _GEN_2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :86:33, :106:35, :107:38, :109:30, :111:18, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+  wire        _GEN_4 = io_redirect_valid & memReqDone;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:75:27, :106:35, :156:27, :162:22, :163:18
+  wire        _GEN_5 = ~state & io_cpuReq_ready_0 & io_cpuReq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :18:22, :32:19, :86:{15,33}, :87:{21,34,51,73}, :94:26, :95:14, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
   always @(posedge clock) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7
-    automatic logic _GEN_9;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    automatic logic _GEN_10;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :74:32, :75:38
-    _GEN_9 = reqQ_io_deq_ready & _reqQ_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20, :68:{45,68}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    _GEN_10 = ~cacheSet_io_lookup_valid | _cacheSet_io_lookupResp_hit;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :25:24, :51:37, :74:32, :75:38
+    if (_GEN_5)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :86:33, :94:26, :95:14, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      reqReg_pc <= io_cpuReq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19
+    if (_GEN_0) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:54:23, :106:35, :107:38, :125:30
+    end
+    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:54:23, :106:35, :107:38, :125:30
+      refillLine_0 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:54:23
     if (reset) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7
-      state <= 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-      abortRefill <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28
-      refillBeat <= 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27
+      reqValid <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25
+      state <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22
+      memReqDone <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:75:27
+      dropMemReply <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:76:29
+      accessLatency <= 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30
+      accessMiss <= 1'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27
     end
     else begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7
-      automatic logic       _GEN_11;	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      automatic logic       _GEN_12 = ~(_GEN_0 & abortRefill) & abortRefill;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :101:{35,56}, :102:23, :103:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      automatic logic [1:0] _GEN_13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:102:23, :104:13, :107:24
-      automatic logic       _GEN_14;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:125:19
-      automatic logic       _GEN_15;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:125:19
-      _GEN_11 = io_memReq_ready & io_memReq_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:47:28, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      _GEN_13 = abortRefill ? 2'h0 : (&refillBeat) ? 2'h1 : 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :18:28, :19:27, :33:31, :51:37, :102:23, :104:13, :107:24, :116:15, :119:15
-      _GEN_14 = state == 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37, :125:19
-      _GEN_15 = state == 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :125:19
-      if (io_redirect_valid) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:10:14
-        if (_GEN_14)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:125:19
-          state <= 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-        else if (_GEN_15)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:125:19
-          state <= {2{_GEN_11}};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :130:30, :132:17, :134:17, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        else if (_GEN_0)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:101:35, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-          state <= _GEN_13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :102:23, :104:13, :107:24
-        else if (_GEN_11)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-          state <= 2'h3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-        else if (cacheSet_io_lookup_valid) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:51:37
-          if (_cacheSet_io_lookupResp_hit) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-            if (_GEN)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-              state <= 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-            else if (_GEN_9)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-              state <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37
-          end
-          else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-            state <= 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-        end
-        else if (_GEN_9)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-          state <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37
-      end
-      else if (_GEN_0)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:101:35, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        state <= _GEN_13;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :102:23, :104:13, :107:24
-      else if (_GEN_11)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        state <= 2'h3;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-      else if (cacheSet_io_lookup_valid) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:51:37
-        if (_cacheSet_io_lookupResp_hit) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-          if (_GEN)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-            state <= 2'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-          else if (_GEN_9)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-            state <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37
-        end
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-          state <= 2'h2;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22
-      end
-      else if (_GEN_9)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        state <= 2'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :51:37
-      abortRefill <=
-        ~io_redirect_valid | _GEN_14
-          ? _GEN_12
-          : _GEN_15 ? _GEN_11 | _GEN_12 : (&state) | _GEN_12;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:16:22, :18:28, :101:56, :102:23, :103:19, :124:27, :125:19, :130:30, :131:23, :138:21, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      if (~_GEN_0 | abortRefill | (&refillBeat)) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :19:27, :20:23, :33:31, :74:32, :101:{35,56}, :102:23, :107:24, :118:20, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-        if (_GEN_10) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :74:32, :75:38
-        end
-        else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :74:32, :75:38
-          refillBeat <= 3'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27
-      end
-      else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:74:32, :101:56, :102:23, :107:24, :118:20
-        refillBeat <= refillBeat + 3'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :118:34
+      reqValid <= ~(io_redirect_valid | _GEN_3) & (_GEN_5 | reqValid);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :13:25, :86:33, :94:26, :95:14, :96:16, :106:35, :107:38, :109:30, :111:18, :156:27, :157:14, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      state <=
+        ~io_redirect_valid
+        & (state
+             ? (_cacheSet_io_lookupResp_hit ? ~_GEN_2 & _GEN_1 : ~_GEN & _GEN_1)
+             : _GEN_1);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :54:23, :86:33, :101:36, :102:13, :106:35, :107:38, :109:30, :114:15, :125:30, :128:26, :156:27, :159:16, :161:11, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      memReqDone <=
+        ~_GEN_4
+        & (~state | _cacheSet_io_lookupResp_hit
+             ? memReqDone
+             : ~_GEN & (io_memReq_ready & io_memReq_valid_0 | memReqDone));	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :54:23, :60:19, :75:27, :106:35, :107:38, :118:{23,35,50,72}, :121:28, :122:20, :125:30, :127:20, :156:27, :162:22, :163:18, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      dropMemReply <= _GEN_4 | ~(dropMemReply & _GEN) & dropMemReply;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:76:29, :106:35, :149:22, :151:28, :152:20, :156:27, :162:22, :163:18, :164:20, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+      if (io_redirect_valid | _GEN_3 | _GEN_5)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :82:18, :86:33, :94:26, :95:14, :97:21, :106:35, :107:38, :109:30, :111:18, :112:23, :156:27, :158:19, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+        accessLatency <= 32'h0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30
+      else if (reqValid)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25
+        accessLatency <= accessLatency + 32'h1;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30, :83:36
+      accessMiss <=
+        ~io_redirect_valid
+        & (state
+             ? ~_cacheSet_io_lookupResp_hit | ~(_GEN_2 | _GEN_5) & accessMiss
+             : ~_GEN_5 & accessMiss);	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :18:22, :28:24, :78:27, :86:33, :94:26, :95:14, :98:18, :106:35, :107:38, :109:30, :113:20, :117:18, :156:27, :159:16, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
     end
-    if (_GEN_9)	// src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-      reqReg_pc <= _reqQ_io_deq_bits_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19, :23:20
-    if (~_GEN_0 | abortRefill | ~_GEN_1) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_0 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_2) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_1 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_3) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_2 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_4) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_3 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_5) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_4 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_6) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_5 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~_GEN_7) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_6 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (~_GEN_0 | abortRefill | ~(&refillBeat)) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :19:27, :20:23, :101:{35,56}, :102:23, :106:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23, :101:56, :102:23, :106:30
-      refillLine_7 <= io_memReply_bits_data;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:20:23
-    if (_GEN_10) begin	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :21:28, :74:32, :75:38
-    end
-    else	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:21:28, :74:32, :75:38
-      refillVictimWay <= _LRUReplacement_io_victimResp_way;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:21:28, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/Replacement.scala:61:15
   end // always @(posedge)
-  Queue8_ICacheCpuReq reqQ (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20
-    .clock          (clock),
-    .reset          (reset),
-    .io_enq_ready   (_reqQ_io_enq_ready),
-    .io_enq_valid   (io_cpuReq_valid & ~reset & ~io_redirect_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:35:{40,43,57,60}
-    .io_enq_bits_pc (io_cpuReq_bits_pc),
-    .io_deq_ready   (reqQ_io_deq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:68:{45,68}
-    .io_deq_valid   (_reqQ_io_deq_valid),
-    .io_deq_bits_pc (_reqQ_io_deq_bits_pc),
-    .io_flush       (io_redirect_valid)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:23:20
-  Queue8_ICacheCpuReply replyQ (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:24:22
-    .clock            (clock),
-    .reset            (reset),
-    .io_enq_ready     (_replyQ_io_enq_ready),
-    .io_enq_valid     (replyQ_io_enq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:42:23, :74:32, :75:38
-    .io_enq_bits_pc   (reqReg_pc),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_enq_bits_inst (_cacheSet_io_lookupResp_word),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-    .io_enq_bits_hit  (_cacheSet_io_lookupResp_hit),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-    .io_deq_ready     (io_cpuReply_ready),
-    .io_deq_valid     (io_cpuReply_valid),
-    .io_deq_bits_inst (io_cpuReply_bits_inst),
-    .io_flush         (io_redirect_valid)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:24:22
-  CacheSet cacheSet (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-    .clock                     (clock),
-    .reset                     (reset),
-    .io_lookup_valid           (cacheSet_io_lookup_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:51:37
-    .io_lookup_bits_index      (reqReg_pc[11:5]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:38, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_lookup_bits_tag        (reqReg_pc[31:12]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:41:9, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_lookup_bits_wordOffset (reqReg_pc[4:2]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:47:43, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_lookupResp_hit         (_cacheSet_io_lookupResp_hit),
-    .io_lookupResp_way         (_cacheSet_io_lookupResp_way),
-    .io_lookupResp_word        (_cacheSet_io_lookupResp_word),
-    .io_write_valid            (_GEN_0 & ~abortRefill & (&refillBeat)),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :19:27, :33:31, :56:27, :101:{35,56}, :102:23, :107:24, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .io_write_bits_index       (reqReg_pc[11:5]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:38, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_write_bits_way         (refillVictimWay),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:21:28
-    .io_write_bits_meta_tag    (reqReg_pc[31:12]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:41:9, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_write_bits_data
-      (_GEN_8
-         ? {refillLine_7,
-            refillLine_6,
-            refillLine_5,
-            refillLine_4,
-            refillLine_3,
-            refillLine_2,
-            refillLine_1,
-            refillLine_0}
-         : {(&refillBeat) ? io_memReply_bits_data : refillLine_7,
-            _GEN_7 ? io_memReply_bits_data : refillLine_6,
-            _GEN_6 ? io_memReply_bits_data : refillLine_5,
-            _GEN_5 ? io_memReply_bits_data : refillLine_4,
-            _GEN_4 ? io_memReply_bits_data : refillLine_3,
-            _GEN_3 ? io_memReply_bits_data : refillLine_2,
-            _GEN_2 ? io_memReply_bits_data : refillLine_1,
-            _GEN_1 ? io_memReply_bits_data : refillLine_0})	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:19:27, :20:23, :61:{31,45}, :101:56, :102:23, :106:30, :107:24, :109:23, :110:35, :113:54
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24
-  LRUReplacement LRUReplacement (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/Replacement.scala:61:15
-    .clock             (clock),
-    .reset             (reset),
-    .io_touch_valid
-      (_GEN_0 & ~abortRefill & (&refillBeat) | cacheSet_io_lookup_valid
-       & _cacheSet_io_lookupResp_hit & _GEN),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:28, :19:27, :25:24, :33:31, :51:37, :56:27, :64:27, :74:32, :75:38, :77:32, :101:{35,56}, :102:23, :107:24, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .io_touch_bits_set (reqReg_pc[11:5]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:38, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_touch_bits_way (_GEN_8 ? _cacheSet_io_lookupResp_way : refillVictimWay),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:21:28, :25:24, :61:31, :74:32, :101:56, :102:23, :107:24
-    .io_victimReq_set  (reqReg_pc[11:5]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:38, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:17:19
-    .io_victimResp_way (_LRUReplacement_io_victimResp_way)
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/Replacement.scala:61:15
-  ICacheTrace trace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:90:23
-    .clk   (clock),
-    .reset (reset),
-    .hit
-      (cacheSet_io_lookup_valid & _cacheSet_io_lookupResp_hit & _replyQ_io_enq_ready
-       & replyQ_io_enq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:24:22, :25:24, :42:23, :51:37, :74:32, :75:38, :93:{44,74}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .miss  (cacheSet_io_lookup_valid & ~_cacheSet_io_lookupResp_hit)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:25:24, :51:37, :94:{45,48}
-  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:90:23
-  assign io_cpuReq_ready = _reqQ_io_enq_ready & ~reset & ~io_redirect_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :23:20, :35:60, :38:{40,43,57}
-  assign io_memReq_valid = io_memReq_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :47:28
-  assign io_memReq_bits_addr = {reqReg_pc[31:5], 5'h0} + {27'h0, refillBeat, 2'h0};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:38:13, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :16:22, :17:19, :19:27, :32:32
-  assign io_memReply_ready = &state;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :16:22, :49:30
+  CacheSet cacheSet (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:28:24
+    .clock                  (clock),
+    .reset                  (reset),
+    .io_lookup_valid        (cacheSet_io_lookup_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:34:28, :86:33, :89:{30,46,63,85}
+    .io_lookup_bits_index   (state ? reqReg_pc[6:2] : lookupReq_pc[4:0]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:39, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :18:22, :21:19, :35:33, :86:33, :90:35
+    .io_lookup_bits_tag     (state ? reqReg_pc[31:7] : lookupReq_pc[29:5]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:41:9, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19, :18:22, :21:19, :36:31, :86:33, :91:33
+    .io_lookupResp_hit      (_cacheSet_io_lookupResp_hit),
+    .io_lookupResp_word     (io_cpuReply_bits_inst),
+    .io_write_valid         (state & ~_cacheSet_io_lookupResp_hit & _GEN),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:18:22, :28:24, :68:27, :106:35, :107:38, :109:30, :117:18, :125:30, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .io_write_bits_index    (reqReg_pc[6:2]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:44:39, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19
+    .io_write_bits_meta_tag (reqReg_pc[31:7]),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:41:9, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:12:19
+    .io_write_bits_data     (_GEN_0 ? refillLine_0 : io_memReply_bits_data)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:54:23, :106:35, :107:38, :125:30
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:28:24
+  ICacheTrace trace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:170:23
+    .clk     (clock),
+    .reset   (reset),
+    .hit     (_trace_io_miss_T & ~accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :173:{38,41}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .miss    (_trace_io_miss_T & accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :174:39, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .latency (accessLatency + 32'h1)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30, :175:39
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:170:23
+  assign io_cpuReq_ready = io_cpuReq_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :32:19, :86:33, :87:{21,34,51,73}
+  assign io_cpuReply_valid = io_cpuReply_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :40:21, :106:35, :107:38
+  assign io_memReq_valid = io_memReq_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :60:19, :106:35, :107:38, :118:{23,35,50,72}
+  assign io_memReq_bits_addr = {reqReg_pc[31:2], 2'h0};	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/CacheParams.scala:38:{8,13}, home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :12:19
+  assign io_memReply_ready = io_memReply_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :106:35, :149:22, :150:23
 endmodule
 

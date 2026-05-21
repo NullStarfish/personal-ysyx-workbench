@@ -289,6 +289,30 @@ object cache extends NpcScalaModule {
   }
 }
 
+object cacheformal extends NpcScalaModule {
+  override def millSourcePath = os.pwd
+
+  def mainClass = Some("mycpu.cache.GenICacheFormal")
+
+  def sources = T.sources()
+
+  def generatedSources = T.input {
+    val root = mill.api.WorkspaceRoot.workspaceRoot
+    val roots = Seq(
+      root / "src/main/scala/mycpu/common",
+      root / "src/main/scala/mycpu/cache",
+    )
+    val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
+    val dest = T.dest / "src"
+    for (file <- files) {
+      val out = dest / file.relativeTo(root)
+      Files.createDirectories(out.toNIO.getParent)
+      os.copy(file, out)
+    }
+    Seq(PathRef(dest))
+  }
+}
+
 object execute extends NpcScalaModule {
   override def millSourcePath = os.pwd
 

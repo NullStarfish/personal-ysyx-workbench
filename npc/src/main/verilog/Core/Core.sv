@@ -21,6 +21,12 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
   input  [31:0] io_master_r_bits_data	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:19:14
 );
 
+  wire        _icacheOpt_io_cpuReq_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+  wire        _icacheOpt_io_cpuReply_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+  wire [31:0] _icacheOpt_io_cpuReply_bits_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+  wire        _icacheOpt_io_memReq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+  wire [31:0] _icacheOpt_io_memReq_bits_addr;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+  wire        _icacheOpt_io_memReply_ready;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
   wire        _memWb_io_deq_valid;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
   wire [31:0] _memWb_io_deq_bits_retireTrace_pc;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
   wire [31:0] _memWb_io_deq_bits_retireTrace_inst;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:36:21
@@ -232,12 +238,12 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
   Fetch fetch (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
     .clock             (clock),
     .reset             (reset),
-    .io_fetch_ready    (_memory_io_fetchReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_fetch_ready    (_icacheOpt_io_cpuReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
     .io_fetch_valid    (_fetch_io_fetch_valid),
     .io_fetch_bits     (_fetch_io_fetch_bits),
     .io_reply_ready    (_fetch_io_reply_ready),
-    .io_reply_valid    (_memory_io_fetchReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
-    .io_reply_bits     (_memory_io_fetchReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_reply_valid    (_icacheOpt_io_cpuReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+    .io_reply_bits     (_icacheOpt_io_cpuReply_bits_inst),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
     .io_out_ready      (_ifId_io_enq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:33:20
     .io_out_valid      (_fetch_io_out_valid),
     .io_out_bits_pc    (_fetch_io_out_bits_pc),
@@ -486,9 +492,9 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .clock                (clock),
     .reset                (reset),
     .io_fetchReq_ready    (_memory_io_fetchReq_ready),
-    .io_fetchReq_valid    (_fetch_io_fetch_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
-    .io_fetchReq_bits     (_fetch_io_fetch_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
-    .io_fetchReply_ready  (_fetch_io_reply_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
+    .io_fetchReq_valid    (_icacheOpt_io_memReq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+    .io_fetchReq_bits     (_icacheOpt_io_memReq_bits_addr),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+    .io_fetchReply_ready  (_icacheOpt_io_memReply_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
     .io_fetchReply_valid  (_memory_io_fetchReply_valid),
     .io_fetchReply_bits   (_memory_io_fetchReply_bits),
     .io_lsuReq_ready      (_memory_io_lsuReq_ready),
@@ -754,6 +760,23 @@ module Core(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/ge
     .io_gprs_30                         (_decode_io_debug_regs_30),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:22
     .io_gprs_31                         (_decode_io_debug_regs_31)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:27:22
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:37:66
+  ICache icacheOpt (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
+    .clock                 (clock),
+    .reset                 (reset),
+    .io_cpuReq_ready       (_icacheOpt_io_cpuReq_ready),
+    .io_cpuReq_valid       (_fetch_io_fetch_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
+    .io_cpuReq_bits_pc     (_fetch_io_fetch_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
+    .io_cpuReply_ready     (_fetch_io_reply_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:26:21
+    .io_cpuReply_valid     (_icacheOpt_io_cpuReply_valid),
+    .io_cpuReply_bits_inst (_icacheOpt_io_cpuReply_bits_inst),
+    .io_memReq_ready       (_memory_io_fetchReq_ready),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_memReq_valid       (_icacheOpt_io_memReq_valid),
+    .io_memReq_bits_addr   (_icacheOpt_io_memReq_bits_addr),
+    .io_memReply_ready     (_icacheOpt_io_memReply_ready),
+    .io_memReply_valid     (_memory_io_fetchReply_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_memReply_bits_data (_memory_io_fetchReply_bits),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:31:22
+    .io_redirect_valid     (_hazard_io_ctrl_flush)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:32:22
+  );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:38:49
   FlushTrace flushTrace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/core/Core.scala:124:28
     .clk   (clock),
     .reset (reset),

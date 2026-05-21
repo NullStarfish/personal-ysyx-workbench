@@ -35,7 +35,7 @@ class Core(
   val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
   val memWb = Module(new FlushableStage(new MemoryPacket))
   val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
-  val icacheOpt = if (ENABLE_ICACHE) Some(Module(new ICache(params = CacheConfigs.CourseCache8KiB2Way32B, enableDpi = enableDpi))) else None
+  val icacheOpt = if (ENABLE_ICACHE) Some(Module(new ICache(params = CacheConfigs.SimpICache, enableDpi = enableDpi))) else None
 
   icacheOpt match {
     case Some(icache) =>

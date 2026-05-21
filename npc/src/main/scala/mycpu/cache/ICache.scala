@@ -9,136 +9,173 @@ class ICache(
 ) extends Module {
   val io = IO(new ICacheIO(params))
 
+  val reqReg = Reg(chiselTypeOf(io.cpuReq.bits))
+  val reqValid = RegInit(false.B)
+
   object State extends ChiselEnum {
-    val Idle, Lookup, RefillReq, RefillResp = Value
+    val Lookup, Response = Value
   }
+  val state = RegInit(State.Lookup)
 
-  val state = RegInit(State.Idle)
-  val reqReg = Reg(new ICacheCpuReq(params))
-  val abortRefill = RegInit(false.B)
-  val refillBeat = RegInit(0.U(params.wordOffsetBits.W))
-  val refillLine = Reg(Vec(params.wordsPerLine, UInt(params.dataBits.W)))
-  val refillVictimWay = Reg(UInt(params.wayBits.W))
+  val lookupReq = Wire(chiselTypeOf(io.cpuReq.bits))
+  lookupReq := Mux(reqValid, reqReg, io.cpuReq.bits)
+  val cpuReq = reqReg
 
-  val reqQ = Module(new Queue(new ICacheCpuReq(params), entries = 8, flow = true, hasFlush = true))
-  val replyQ = Module(new Queue(new ICacheCpuReply(params), entries = 8, flow = true, hasFlush = true))
+  val reqTag = params.tag(cpuReq.pc)
+  val reqIndex = params.index(cpuReq.pc)
+  val reqWordOffset = params.wordOffset(cpuReq.pc)
+  val reqLineBase = params.lineBase(cpuReq.pc)
   val cacheSet = Module(new CacheSet(params))
   val replacement = Replacement(params)
+  
 
-  val reqTag = params.tag(reqReg.pc)
-  val reqIndex = params.index(reqReg.pc)
-  val reqWordOffset = params.wordOffset(reqReg.pc)
-  val reqLineBase = params.lineBase(reqReg.pc)
-  val refillAddr = reqLineBase + (refillBeat << log2Ceil(params.bytesPerWord)).asUInt
-  val refillLast = refillBeat === (params.wordsPerLine - 1).U
+  io.cpuReq.ready := false.B
 
-  reqQ.io.enq.valid := io.cpuReq.valid && !reset.asBool && !io.redirect.valid
-  reqQ.io.enq.bits := io.cpuReq.bits
-  reqQ.io.flush.get := io.redirect.valid
-  io.cpuReq.ready := reqQ.io.enq.ready && !reset.asBool && !io.redirect.valid
-
-  io.cpuReply <> replyQ.io.deq
-  replyQ.io.flush.get := io.redirect.valid
-  replyQ.io.enq.valid := false.B
-  replyQ.io.enq.bits.pc := reqReg.pc
-  replyQ.io.enq.bits.inst := cacheSet.io.lookupResp.word
-  replyQ.io.enq.bits.hit := cacheSet.io.lookupResp.hit
-
-  io.memReq.valid := state === State.RefillReq
-  io.memReq.bits.addr := refillAddr
-  io.memReply.ready := state === State.RefillResp
-
-  cacheSet.io.lookup.valid := state === State.Lookup
+  cacheSet.io.lookup.valid := false.B
   cacheSet.io.lookup.bits.index := reqIndex
   cacheSet.io.lookup.bits.tag := reqTag
   cacheSet.io.lookup.bits.wordOffset := reqWordOffset
 
-  cacheSet.io.write.valid := false.B
-  cacheSet.io.write.bits.index := reqIndex
-  cacheSet.io.write.bits.way := refillVictimWay
-  cacheSet.io.write.bits.meta.valid := true.B
-  cacheSet.io.write.bits.meta.tag := reqTag
-  cacheSet.io.write.bits.data := refillLine.asUInt
+
+  io.cpuReply.valid := false.B
+  io.cpuReply.bits.pc := cpuReq.pc
+  io.cpuReply.bits.inst := cacheSet.io.lookupResp.word
+  io.cpuReply.bits.hit := cacheSet.io.lookupResp.hit
+
+
 
   replacement.victimReq.set := reqIndex
   replacement.touch.valid := false.B
   replacement.touch.bits.set := reqIndex
   replacement.touch.bits.way := cacheSet.io.lookupResp.way
 
-  reqQ.io.deq.ready := state === State.Idle && replyQ.io.enq.ready && !io.redirect.valid
-  when(reqQ.io.deq.fire) {
-    reqReg := reqQ.io.deq.bits
-    state := State.Lookup
+
+  val refillBeat = RegInit(0.U(params.wordOffsetWidth.W))
+  val refillLine = Reg(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
+
+  val refillAddr = reqLineBase + (refillBeat << log2Ceil(params.wordBytes)).asUInt
+  val refillLast = refillBeat === (params.wordsPerLine - 1).U
+
+
+  io.memReq.valid := false.B
+  io.memReq.bits.addr := refillAddr
+  io.memReply.ready := false.B
+
+
+
+
+
+  cacheSet.io.write.valid := false.B
+  cacheSet.io.write.bits.index := reqIndex
+  cacheSet.io.write.bits.way := replacement.victimResp.way
+  cacheSet.io.write.bits.valid := true.B
+  cacheSet.io.write.bits.meta.tag := reqTag
+  cacheSet.io.write.bits.data := refillLine.asUInt
+
+  val memReqDone = RegInit(false.B)
+  val dropMemReply = RegInit(false.B)
+  val accessLatency = RegInit(0.U(32.W))
+  val accessMiss = RegInit(false.B)
+
+  val hasLookupReq = reqValid || io.cpuReq.valid
+
+  when(reqValid) {
+    accessLatency := accessLatency + 1.U
   }
 
-  when(state === State.Lookup) {
-    when(cacheSet.io.lookupResp.hit) {
-      replyQ.io.enq.valid := true.B
-      when(replyQ.io.enq.fire) {
-        replacement.touch.valid := true.B
-        replacement.touch.bits.way := cacheSet.io.lookupResp.way
-        state := State.Idle
-      }
-    }.otherwise {
-      refillBeat := 0.U
-      refillVictimWay := replacement.victimResp.way
-      state := State.RefillReq
+  when (state === State.Lookup) {
+    io.cpuReq.ready := !reqValid && !reset.asBool && !io.redirect.valid && !dropMemReply
+
+    cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !io.redirect.valid && !dropMemReply
+    cacheSet.io.lookup.bits.index := params.index(lookupReq.pc)
+    cacheSet.io.lookup.bits.tag := params.tag(lookupReq.pc)
+    cacheSet.io.lookup.bits.wordOffset := params.wordOffset(lookupReq.pc)
+
+    when(io.cpuReq.fire) {
+      reqReg := io.cpuReq.bits
+      reqValid := true.B
+      accessLatency := 0.U
+      accessMiss := false.B
+    }
+
+    when(cacheSet.io.lookup.valid) {
+      state := State.Response
     }
   }
+
+  when (state === State.Response) {
+    when(cacheSet.io.lookupResp.hit) {
+      io.cpuReply.valid := true.B
+      when(io.cpuReply.fire) {
+        replacement.touch.valid := true.B
+        reqValid := false.B
+        accessLatency := 0.U
+        accessMiss := false.B
+        state := State.Lookup
+      }
+    }.otherwise {
+      accessMiss := true.B
+      io.memReq.valid := reqValid && !memReqDone && !io.redirect.valid && !dropMemReply
+      io.memReply.ready := reqValid && !io.redirect.valid && !dropMemReply
+
+      when(io.memReq.fire) {
+        memReqDone := true.B
+      }
+
+      when(io.memReply.fire) {
+        refillLine(refillBeat) := io.memReply.bits.data
+        memReqDone := false.B
+        when(refillLast) {
+          val completedLine = Wire(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
+          completedLine := refillLine
+          completedLine(refillBeat) := io.memReply.bits.data
+
+          cacheSet.io.write.valid := true.B
+          cacheSet.io.write.bits.data := completedLine.asUInt
+          replacement.touch.valid := true.B
+          replacement.touch.bits.way := replacement.victimResp.way
+          refillBeat := 0.U
+
+
+          state := State.Lookup
+
+        }.otherwise {
+          refillBeat := refillBeat + 1.U
+        }
+      }
+    }
+  }
+
+  when(dropMemReply) {
+    io.memReply.ready := !reset.asBool
+    when(io.memReply.fire) {
+      dropMemReply := false.B
+    }
+  }
+
+  when(io.redirect.valid) {
+    reqValid := false.B
+    accessLatency := 0.U
+    accessMiss := false.B
+    refillBeat := 0.U
+    state := State.Lookup
+    when(memReqDone) {
+      memReqDone := false.B
+      dropMemReply := true.B
+    }
+  }
+
 
   if (enableDpi) {
     val trace = Module(new ICacheTrace)
     trace.io.clk := clock
     trace.io.reset := reset.asBool
-    trace.io.hit := state === State.Lookup && cacheSet.io.lookupResp.hit && replyQ.io.enq.fire
-    trace.io.miss := state === State.Lookup && !cacheSet.io.lookupResp.hit
+    trace.io.hit := io.cpuReply.fire && !accessMiss
+    trace.io.miss := io.cpuReply.fire && accessMiss
+    trace.io.latency := accessLatency + 1.U
   }
 
-  when(state === State.RefillReq && io.memReq.fire) {
-    state := State.RefillResp
-  }
 
-  when(state === State.RefillResp && io.memReply.fire) {
-    when(abortRefill) {
-      abortRefill := false.B
-      state := State.Idle
-    }.otherwise {
-      refillLine(refillBeat) := io.memReply.bits.data
-      when(refillLast) {
-        val completedLine = Wire(Vec(params.wordsPerLine, UInt(params.dataBits.W)))
-        completedLine := refillLine
-        completedLine(refillBeat) := io.memReply.bits.data
-
-        cacheSet.io.write.valid := true.B
-        cacheSet.io.write.bits.data := completedLine.asUInt
-        replacement.touch.valid := true.B
-        replacement.touch.bits.way := refillVictimWay
-        state := State.Lookup
-      }.otherwise {
-        refillBeat := refillBeat + 1.U
-        state := State.RefillReq
-      }
-    }
-  }
-
-  when(io.redirect.valid) {
-    switch(state) {
-      is(State.Lookup) {
-        state := State.Idle
-      }
-      is(State.RefillReq) {
-        when(io.memReq.fire) {
-          abortRefill := true.B
-          state := State.RefillResp
-        }.otherwise {
-          state := State.Idle
-        }
-      }
-      is(State.RefillResp) {
-        abortRefill := true.B
-      }
-    }
-  }
 }
 
 final class ICacheTrace extends BlackBox with HasBlackBoxInline {
@@ -147,6 +184,7 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
     val reset = Input(Bool())
     val hit = Input(Bool())
     val miss = Input(Bool())
+    val latency = Input(UInt(32.W))
   })
   setInline(
     "ICacheTrace.sv",
@@ -154,16 +192,18 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
       |    input logic clk,
       |    input logic reset,
       |    input logic hit,
-      |    input logic miss
+      |    input logic miss,
+      |    input logic [31:0] latency
       |);
       | import "DPI-C" function void icache_trace(
       |   input bit hit,
-      |   input bit miss
+      |   input bit miss,
+      |   input int latency
       |);
       |
       |always_ff @(posedge clk) begin
       | if(!reset && (hit || miss)) begin
-      |   icache_trace(hit, miss);
+      |   icache_trace(hit, miss, latency);
       | end
       |end
       |

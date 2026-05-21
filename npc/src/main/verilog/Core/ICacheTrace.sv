@@ -3,16 +3,18 @@ module ICacheTrace(
     input logic clk,
     input logic reset,
     input logic hit,
-    input logic miss
+    input logic miss,
+    input logic [31:0] latency
 );
  import "DPI-C" function void icache_trace(
    input bit hit,
-   input bit miss
+   input bit miss,
+   input int latency
 );
 
 always_ff @(posedge clk) begin
  if(!reset && (hit || miss)) begin
-   icache_trace(hit, miss);
+   icache_trace(hit, miss, latency);
  end
 end
 

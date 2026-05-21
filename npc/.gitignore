@@ -16,6 +16,8 @@
 !*.json
 !*.sbt
 !*.mill
+!*.py
+!*.sby
 !.mill-version
 !.gitignore
 !Kconfig
