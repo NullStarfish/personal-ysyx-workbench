@@ -104,9 +104,12 @@ module ICache(	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/
   ICacheTrace trace (	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:170:23
     .clk     (clock),
     .reset   (reset),
-    .hit     (_trace_io_miss_T & ~accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :173:{38,41}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .miss    (_trace_io_miss_T & accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :174:39, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
-    .latency (accessLatency + 32'h1)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30, :175:39
+    .req     (io_cpuReq_ready_0 & io_cpuReq_valid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:32:19, :86:33, :87:{21,34,51,73}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .reqPc   (io_cpuReq_bits_pc),
+    .flush   (io_redirect_valid & reqValid),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:13:25, :175:41
+    .hit     (_trace_io_miss_T & ~accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :176:{38,41}, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .miss    (_trace_io_miss_T & accessMiss),	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:78:27, :177:39, src/main/scala/chisel3/util/ReadyValidIO.scala:48:35
+    .latency (accessLatency + 32'h1)	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:77:30, :178:39
   );	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:170:23
   assign io_cpuReq_ready = io_cpuReq_ready_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :32:19, :86:33, :87:{21,34,51,73}
   assign io_cpuReply_valid = io_cpuReply_valid_0;	// home/nullstarfish/personal-ysyx-workbench/npc/out/coreverilog/generatedSources.dest/src/src/main/scala/mycpu/cache/ICache.scala:6:7, :40:21, :106:35, :107:38

@@ -1,7 +1,8 @@
-#include "Pipeline/Pipeline.h"
+#include "Pipeline/Fetch.h"
 
 #include <cstdio>
 
+#include "Pipeline/Pipeline.h"
 #include "svdpi.h"
 
 FetchStage::FetchStage() : PipelineStage("Fetch") {}

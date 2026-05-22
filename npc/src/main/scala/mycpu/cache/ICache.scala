@@ -170,6 +170,9 @@ class ICache(
     val trace = Module(new ICacheTrace)
     trace.io.clk := clock
     trace.io.reset := reset.asBool
+    trace.io.req := io.cpuReq.fire
+    trace.io.reqPc := io.cpuReq.bits.pc
+    trace.io.flush := io.redirect.valid && reqValid
     trace.io.hit := io.cpuReply.fire && !accessMiss
     trace.io.miss := io.cpuReply.fire && accessMiss
     trace.io.latency := accessLatency + 1.U
@@ -182,6 +185,9 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
     val clk = Input(Clock())
     val reset = Input(Bool())
+    val req = Input(Bool())
+    val reqPc = Input(UInt(32.W))
+    val flush = Input(Bool())
     val hit = Input(Bool())
     val miss = Input(Bool())
     val latency = Input(UInt(32.W))
@@ -191,9 +197,18 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
     """module ICacheTrace(
       |    input logic clk,
       |    input logic reset,
+      |    input logic req,
+      |    input logic [31:0] reqPc,
+      |    input logic flush,
       |    input logic hit,
       |    input logic miss,
       |    input logic [31:0] latency
+      |);
+      | import "DPI-C" function void icache_req_trace(
+      |   input int pc
+      |);
+      | import "DPI-C" function void icache_ref_flush(
+      |   input bit flush
       |);
       | import "DPI-C" function void icache_trace(
       |   input bit hit,
@@ -202,8 +217,16 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
       |);
       |
       |always_ff @(posedge clk) begin
-      | if(!reset && (hit || miss)) begin
-      |   icache_trace(hit, miss, latency);
+      | if(!reset) begin
+      |   if(req) begin
+      |     icache_req_trace(reqPc);
+      |   end
+      |   if(flush) begin
+      |     icache_ref_flush(flush);
+      |   end
+      |   if(hit || miss) begin
+      |     icache_trace(hit, miss, latency);
+      |   end
       | end
       |end
       |

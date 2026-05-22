@@ -1,7 +1,8 @@
-#include "Pipeline/Pipeline.h"
+#include "Pipeline/Hazard.h"
 
 #include <cstdio>
 
+#include "Pipeline/Pipeline.h"
 #include "svdpi.h"
 
 void HazardTraceModel::trace(bool loadUseStall, bool redirectFlush) {

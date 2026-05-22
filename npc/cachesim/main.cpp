@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -15,7 +16,11 @@ void printUsage(const char *prog) {
   std::fprintf(stderr,
                "Usage: %s [--capacity BYTES] [--ways N] [--tag-bits N] [--index-bits N] [--offset-bits N] [--trace] [addr-file]\n"
                "\n"
-               "Address input accepts decimal or 0x-prefixed hex values, one per line.\n"
+               "Address input accepts one request per line. Supported forms include:\n"
+               "  0xa0000000\n"
+               "  pc 0xa0000000\n"
+               "  fetch,0xa0000000\n"
+               "Comments start with '#'.\n"
                "If addr-file is omitted, addresses are read from stdin.\n",
                prog);
 }
@@ -38,15 +43,42 @@ bool parseU32(const char *text, uint32_t *out) {
   return true;
 }
 
-bool parseAddr(const std::string &text, uint32_t *out) {
+bool parseAddrToken(const std::string &text, uint32_t *out) {
   char *end = nullptr;
   errno = 0;
   unsigned long value = std::strtoul(text.c_str(), &end, 0);
   if (errno != 0 || end == text.c_str()) return false;
-  while (*end == ' ' || *end == '\t' || *end == '\r' || *end == '\n') end++;
+  while (*end == ' ' || *end == '\t' || *end == '\r' || *end == '\n' || *end == ',') end++;
   if (*end != '\0') return false;
   *out = static_cast<uint32_t>(value);
   return true;
+}
+
+bool parseAddr(const std::string &line, uint32_t *out) {
+  std::string clean = line;
+  const std::size_t comment = clean.find('#');
+  if (comment != std::string::npos) {
+    clean.resize(comment);
+  }
+
+  for (char &ch : clean) {
+    if (ch == ',' || ch == ':' || ch == '=') ch = ' ';
+  }
+
+  std::size_t pos = 0;
+  while (pos < clean.size()) {
+    while (pos < clean.size() && std::isspace(static_cast<unsigned char>(clean[pos]))) pos++;
+    const std::size_t begin = pos;
+    while (pos < clean.size() && !std::isspace(static_cast<unsigned char>(clean[pos]))) pos++;
+    if (begin == pos) break;
+
+    uint32_t addr = 0;
+    if (parseAddrToken(clean.substr(begin, pos - begin), &addr)) {
+      *out = addr;
+      return true;
+    }
+  }
+  return false;
 }
 
 } // namespace

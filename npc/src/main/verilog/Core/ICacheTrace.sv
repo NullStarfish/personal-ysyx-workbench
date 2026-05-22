@@ -2,9 +2,18 @@
 module ICacheTrace(
     input logic clk,
     input logic reset,
+    input logic req,
+    input logic [31:0] reqPc,
+    input logic flush,
     input logic hit,
     input logic miss,
     input logic [31:0] latency
+);
+ import "DPI-C" function void icache_req_trace(
+   input int pc
+);
+ import "DPI-C" function void icache_ref_flush(
+   input bit flush
 );
  import "DPI-C" function void icache_trace(
    input bit hit,
@@ -13,8 +22,16 @@ module ICacheTrace(
 );
 
 always_ff @(posedge clk) begin
- if(!reset && (hit || miss)) begin
-   icache_trace(hit, miss, latency);
+ if(!reset) begin
+   if(req) begin
+     icache_req_trace(reqPc);
+   end
+   if(flush) begin
+     icache_ref_flush(flush);
+   end
+   if(hit || miss) begin
+     icache_trace(hit, miss, latency);
+   end
  end
 end
 

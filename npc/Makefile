@@ -139,7 +139,7 @@ C_SRCS   := $(C_SRCS_BASE)
 # =============================================================================
 # --- Include Directories (C++) ---
 INC_DIRS_BASE := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
-                 $(CSRC_DIR)/trace $(CSRC_DIR)/log
+                 $(CSRC_DIR)/trace $(CSRC_DIR)/log $(NPC_HOME)/cachesim
 
 VERILATOR ?= verilator
 VERILATOR_ROOT := $(shell $(VERILATOR) -V 2>/dev/null | sed -n 's/^[[:space:]]*VERILATOR_ROOT[[:space:]]*=[[:space:]]*//p' | tail -n 1)
@@ -215,8 +215,9 @@ endif
 # =============================================================================
 CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(filter $(CSRC_DIR)/%.cpp,$(CXX_SRCS)))
 C_OBJS := $(patsubst $(CSRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(C_SRCS))
+CACHESIM_OBJS := $(BUILD_DIR)/cachesim/cache_sim.o
 AUTO_BIND_OBJ := $(if $(filter $(SRC_AUTO_BIND),$(CXX_SRCS)),$(BUILD_DIR)/auto_bind.o)
-ALL_OBJS := $(CXX_OBJS) $(C_OBJS) $(AUTO_BIND_OBJ)
+ALL_OBJS := $(CXX_OBJS) $(C_OBJS) $(AUTO_BIND_OBJ) $(CACHESIM_OBJS)
 VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
 
 # =============================================================================
@@ -282,6 +283,11 @@ $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp | $(BUILD_DIR)
+	@mkdir -p $(@D)
+	@echo "### Compiling C++: $< ###"
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/cachesim/%.o: $(NPC_HOME)/cachesim/%.cpp | $(BUILD_DIR)
 	@mkdir -p $(@D)
 	@echo "### Compiling C++: $< ###"
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

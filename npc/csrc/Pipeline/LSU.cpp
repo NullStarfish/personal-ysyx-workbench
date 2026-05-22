@@ -1,7 +1,8 @@
-#include "Pipeline/Pipeline.h"
+#include "Pipeline/LSU.h"
 
 #include <cstdio>
 
+#include "Pipeline/Pipeline.h"
 #include "svdpi.h"
 
 LSUStage::LSUStage() : PipelineStage("LSU") {}
