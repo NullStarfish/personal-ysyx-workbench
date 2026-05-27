@@ -38,6 +38,8 @@ class Cache {
 public:
   explicit Cache(CacheConfig config);
 
+  AccessResult probe(uint32_t addr) const;
+  AccessResult commit(uint32_t addr, bool hit);
   AccessResult access(uint32_t addr);
   void reset();
 

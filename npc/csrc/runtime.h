@@ -37,6 +37,7 @@ public:
   ~Runtime();
 
   void initVerilator(int argc, char *argv[]);
+  void shutdown();
   void stepOneClk();
   void resetCpu(int n);
   void syncAfterLoad();

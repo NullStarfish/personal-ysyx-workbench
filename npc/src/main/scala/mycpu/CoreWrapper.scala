@@ -191,7 +191,7 @@ class myCore(
 object GenCore extends App {
   ChiselStage.emitSystemVerilogFile(
     new myCore,
-    args = Array("--target-dir", "src/main/verilog/Core"),
+    args = Array("--target-dir", "build/rtl/Core"),
     firtoolOpts = Array(
       "--disable-all-randomization",
       "--lowering-options=disallowLocalVariables",
@@ -202,7 +202,7 @@ object GenCore extends App {
 object GenCoreSta extends App {
   ChiselStage.emitSystemVerilogFile(
     new myCore(enableDpi = false, enableTracer = false),
-    args = Array("--target-dir", "src/main/verilog/CoreSta"),
+    args = Array("--target-dir", "build/rtl/CoreSta"),
     firtoolOpts = Array(
       "--disable-all-randomization",
       "--strip-debug-info",

@@ -1,339 +1,107 @@
-# =============================================================================
-# Project Configuration
-# =============================================================================
 SHELL := /bin/bash
-export NPC_HOME ?= $(shell pwd)
-export NEMU_HOME ?= $(shell realpath $(NPC_HOME)/../nemu)
-export SOC_HOME ?= $(shell realpath $(NPC_HOME)/../ysyxSoC)
-export NVBOARD_HOME ?= $(shell realpath $(NPC_HOME)/../../nvboard)
+.DEFAULT_GOAL := all
 
-BOARD ?= 0
+# Project locations and build selection.
+export NPC_HOME ?= $(abspath $(CURDIR))
+export NEMU_HOME ?= $(abspath $(NPC_HOME)/../nemu)
+export SOC_HOME ?= $(abspath $(NPC_HOME)/../ysyxSoC)
+export NVBOARD_HOME ?= $(abspath $(NPC_HOME)/../../nvboard)
 
+TARGET := $(NPC_HOME)/npc
+BUILD_DIR := $(NPC_HOME)/build
+CSRC_DIR := $(NPC_HOME)/csrc
+CACHESIM_DIR := $(NPC_HOME)/cachesim
+TOOLS_DIR := $(CSRC_DIR)/tools
 
-TARGET := npc
 SIM_TARGET ?= npc
+BOARD ?= 0
+DEBUG ?= 1
+IMG ?= ./dummy-riscv32e-ysyxsoc.bin
+SIM_BUILD_TAG := $(SIM_TARGET)$(if $(filter 1,$(BOARD)),-board,)
+SIM_BUILD_DIR := $(BUILD_DIR)/sim/$(SIM_BUILD_TAG)
+SIM_EXEC := $(SIM_BUILD_DIR)/bin/npc
+VERILATOR_OBJ_DIR := $(SIM_BUILD_DIR)/obj_dir
+
+# Components publish their linker inputs through these variables.
+CSRC_LIBS :=
+CACHESIM_LIBS :=
+NVBOARD_LIBS :=
+VERILATOR_LIBS :=
+
 ifeq ($(SIM_TARGET),npc)
 TOP_MODULE := NpcTop
-else
+else ifeq ($(SIM_TARGET),ysyxsoc)
 TOP_MODULE := ysyxSoCFull
+else
+$(error Unsupported SIM_TARGET '$(SIM_TARGET)'; use npc or ysyxsoc)
 endif
-IMG ?= ./dummy-riscv32e-ysyxsoc.bin
 
-# Include Kconfig generated configuration and parent Makefile if they exist.
 -include .config
 -include ../Makefile
 
-# =============================================================================
-# Directories and Source Files
-# =============================================================================
-VSRC_DIR := $(NPC_HOME)/src/main/verilog/Core
-VPERIP_DIR := $(SOC_HOME)/perip
-VSOC_DIR := $(SOC_HOME)/build
-VSRC_SEARCH_DIRS := $(VSRC_DIR)
-ifeq ($(SIM_TARGET),ysyxsoc)
-VSRC_SEARCH_DIRS += $(VPERIP_DIR) $(VSOC_DIR)
-endif
+include $(NPC_HOME)/mk/config.mk
+include $(NPC_HOME)/mk/toolchain.mk
+include $(NPC_HOME)/mk/chisel.mk
+include $(NPC_HOME)/mk/verilog.mk
+include $(NPC_HOME)/csrc/sources.mk
+include $(NPC_HOME)/cachesim/sources.mk
+include $(NPC_HOME)/mk/nvboard.mk
 
-# [新增] 定义生成目录路径
-GEN_DIR  := $(VSRC_DIR)
-CSRC_DIR := $(NPC_HOME)/csrc
-BUILD_DIR := $(NPC_HOME)/build
-OBJ_DIR := $(BUILD_DIR)/obj_dir
-TOOLS_DIR := $(NPC_HOME)/csrc/tools
+.PHONY: all npc menuconfig run rundiff gdb-diff clean compdb perf
 
+all: npc
+npc: $(SIM_EXEC)
+	$(call git_commit, "sim RTL")
+	@ln -sfn $(SIM_EXEC) $(TARGET)
 
+# Compatibility entry points for explicit Chisel RTL generation.
+scala local_scala: $(CHISEL_RTL_STAMP)
 
-NXDC_FILES = csrc/constr/cons.nxdc
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $(NXDC_FILES) $(SRC_AUTO_BIND)
-
-# --- Verilog/SystemVerilog Sources ---
-DEBUG=1
-# 定义一个存储 DEBUG 状态的文件
-DEBUG_FLAG_FILE := $(BUILD_DIR)/.debug_flag
-BOARD_FLAG_FILE := $(BUILD_DIR)/.board_flag
-
-$(DEBUG_FLAG_FILE): FORCE
-	@mkdir -p $(dir $@)
-	@# 将当前的 DEBUG 变量写入临时比较
-	@echo "$(DEBUG)" | cmp -s - $@ || echo "$(DEBUG)" > $@
-
-$(BOARD_FLAG_FILE): FORCE
-	@mkdir -p $(dir $@)
-	@# 切换 BOARD 配置时强制重新编译 C/C++ 目标，避免混用旧对象文件
-	@echo "$(BOARD)" | cmp -s - $@ || echo "$(BOARD)" > $@
-
-
-
-# 4. Generated Verification Sources & Layers
-#    (Must cover gen/verification, gen/verification/assert, etc.)
-VSRC_VERI := $(shell find $(GEN_DIR)/verification -name "*.sv")
-MYCORE_VERI := $(shell find $(GEN_DIR)/verification -name "layers-myCore*.sv")
-NPCTOP_VERI := $(shell find $(GEN_DIR)/verification -name "layers-NpcTop*.sv")
-ifeq ($(SIM_TARGET),npc)
-VSRC_VERI := $(filter-out $(MYCORE_VERI), $(VSRC_VERI))
-else
-VSRC_VERI := $(filter-out $(NPCTOP_VERI), $(VSRC_VERI))
-endif
-
-# 5. Main Source Files (Top.sv, generated modules, handwritten files)
-#    We use find on VSRC_DIR but filter out what we already found to avoid duplicates.
-#    Also explicitly look in GEN_DIR to ensure Top.sv is found.
-VSRC_ALL_RAW := $(shell find $(VSRC_SEARCH_DIRS) \( -name "*.v" -o -name "*.sv" \))
-ifeq ($(SIM_TARGET),npc)
-VSRC_ALL_RAW := $(filter-out $(MYCORE_VERI), $(VSRC_ALL_RAW))
-else
-VSRC_ALL_RAW := $(filter-out %/NpcTop.sv %/NpcVirtualAxiRam.sv $(NPCTOP_VERI), $(VSRC_ALL_RAW))
-endif
-
-ENABLE_ICACHE_FROM_SCALA := $(shell grep -q 'val ENABLE_ICACHE *= *true' $(NPC_HOME)/src/main/scala/mycpu/common/Config.scala && echo 1 || echo 0)
-ifeq ($(ENABLE_ICACHE_FROM_SCALA),0)
-VSRC_ALL_RAW := $(filter-out \
-	%/CacheSet.sv \
-	%/ICache.sv \
-	%/ICacheTrace.sv \
-	%/LRUReplacement.sv \
-	%/Queue8_ICacheCpuReq.sv \
-	%/Queue8_ICacheCpuReply.sv, \
-	$(VSRC_ALL_RAW))
-endif
-VSRC_OTHERS  := $(filter-out  $(VSRC_VERI), $(VSRC_ALL_RAW))
-
-# 6. Final Source List (Order matters: Packages -> Interfaces -> Others)
-VSRC := $(VSRC_VERI) $(VSRC_OTHERS)
-
-
-SCALASRC := $(shell find ./src -name "*.scala" )
-
-# --- Verilog Include Paths (Critical Fix) ---
-# Add generated directories to include paths so Verilator can resolve `include "layers-..."`
-VERILOG_INC_DIRS := $(VSRC_DIR)/include \
-                    $(GEN_DIR) \
-                    $(GEN_DIR)/verification \
-                    $(GEN_DIR)/verification/assert \
-                    $(GEN_DIR)/verification/assume \
-                    $(GEN_DIR)/verification/cover \
-					$(SOC_HOME)/perip/uart16550/rtl \
-					$(SOC_HOME)/perip/spi/rtl
-
-# Format them for Verilator (+incdir+path)
-VERILATOR_INCFLAGS := $(addprefix +incdir+, $(VERILOG_INC_DIRS))
-
-# --- C/C++ Sources ---
-CXX_SRCS_BASE := $(shell find $(CSRC_DIR) -name "*.cpp")
-C_SRCS_BASE   := $(shell find $(CSRC_DIR) -name "*.c")
-C_SRCS_BASE   := $(filter-out %/disasm.c, $(C_SRCS_BASE))
-CXX_SRCS_BASE := $(filter-out %/dpi/dpi_tracer_smoke_main.cpp, $(CXX_SRCS_BASE))
-ifeq ($(SIM_TARGET),npc)
-  CXX_SRCS_BASE := $(filter-out $(CSRC_DIR)/mem.cpp, $(CXX_SRCS_BASE))
-else
-  CXX_SRCS_BASE := $(filter-out $(CSRC_DIR)/npc/%.cpp, $(CXX_SRCS_BASE))
-endif
-
-CXX_SRCS := $(CXX_SRCS_BASE)
-C_SRCS   := $(C_SRCS_BASE)
-
-# =============================================================================
-# Compilation and Linking Flags
-# =============================================================================
-# --- Include Directories (C++) ---
-INC_DIRS_BASE := $(CSRC_DIR) $(CSRC_DIR)/tools $(CSRC_DIR)/sdb $(CSRC_DIR)/difftest \
-                 $(CSRC_DIR)/trace $(CSRC_DIR)/log $(NPC_HOME)/cachesim
-
-VERILATOR ?= verilator
-VERILATOR_ROOT := $(shell $(VERILATOR) -V 2>/dev/null | sed -n 's/^[[:space:]]*VERILATOR_ROOT[[:space:]]*=[[:space:]]*//p' | tail -n 1)
-VERILATOR_INC_DIRS := $(VERILATOR_ROOT)/include \
-                      $(VERILATOR_ROOT)/include/vltstd
-VERILATOR_OBJ_DIR  := $(BUILD_DIR)/obj_dir
-
-ifeq ($(BOARD),1)
-  INC_DIRS_BASE += $(NVBOARD_HOME)/usr/include
-  CXX_SRCS += $(SRC_AUTO_BIND)
-endif
-
-INC_DIRS  := $(VERILATOR_OBJ_DIR) $(INC_DIRS_BASE) $(VERILATOR_INC_DIRS)
-INCFLAGS := $(addprefix -I, $(INC_DIRS))
-
-# --- Compiler Flags ---
-COMMON_FLAGS := -g -Wall -pthread
-CC := gcc
-CXX := g++
-
-CFLAGS   := $(INCFLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
-CXXFLAGS := $(INCFLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
-ifeq ($(SIM_TARGET),npc)
-  CFLAGS += -DCONFIG_NPC_VIRTUAL_SOC
-  CXXFLAGS += -DCONFIG_NPC_VIRTUAL_SOC
-endif
-
-# --- Linker Flags ---
-LDFLAGS := -lreadline -pthread -ldl
-
-NVBOARD_ARCHIVE :=
-ifeq ($(BOARD),1)
-  CFLAGS += -DCONFIG_BOARD
-  CXXFLAGS += -DCONFIG_BOARD
-  include $(NVBOARD_HOME)/scripts/nvboard.mk
-endif
-
-# --- Kconfig Conditional Flags ---
-ifeq ($(strip $(CONFIG_TRACE)),y)
-    CFLAGS   += -DCONFIG_TRACE
-    CXXFLAGS += -DCONFIG_TRACE
-endif
-ifeq ($(strip $(CONFIG_ITRACE)),y)
-    CFLAGS   += -DCONFIG_ITRACE
-    CXXFLAGS += -DCONFIG_ITRACE
-    include $(TOOLS_DIR)/disasm.mk
-    C_SRCS   += $(CSRC_DIR)/tools/disasm.c
-endif
-ifeq ($(strip $(CONFIG_FTRACE)),y)
-    CFLAGS   += -DCONFIG_FTRACE
-    CXXFLAGS += -DCONFIG_FTRACE
-    LDFLAGS  += -lelf
-endif
-ifeq ($(strip $(CONFIG_MTRACE)),y)
-    CFLAGS   += -DCONFIG_MTRACE
-    CXXFLAGS += -DCONFIG_MTRACE
-endif
-ifeq ($(strip $(CONFIG_DTRACE)),y)
-    CFLAGS   += -DCONFIG_DTRACE
-    CXXFLAGS += -DCONFIG_DTRACE
-endif
-ifeq ($(strip $(CONFIG_DIFFTEST)),y)
-    CFLAGS   += -DCONFIG_DIFFTEST
-    CXXFLAGS += -DCONFIG_DIFFTEST
-endif
-ifeq ($(strip $(CONFIG_WATCHPOINT)),y)
-    CFLAGS   += -DCONFIG_WATCHPOINT
-    CXXFLAGS += -DCONFIG_WATCHPOINT
-endif
-
-# =============================================================================
-# Object File Mapping
-# =============================================================================
-CXX_OBJS := $(patsubst $(CSRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(filter $(CSRC_DIR)/%.cpp,$(CXX_SRCS)))
-C_OBJS := $(patsubst $(CSRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(C_SRCS))
-CACHESIM_OBJS := $(BUILD_DIR)/cachesim/cache_sim.o
-AUTO_BIND_OBJ := $(if $(filter $(SRC_AUTO_BIND),$(CXX_SRCS)),$(BUILD_DIR)/auto_bind.o)
-ALL_OBJS := $(CXX_OBJS) $(C_OBJS) $(AUTO_BIND_OBJ) $(CACHESIM_OBJS)
-VERILATED_LIB := $(BUILD_DIR)/obj_dir/V$(TOP_MODULE)__ALL.a
-
-# =============================================================================
-# Makefile Rules
-# =============================================================================
-.PHONY: all npc  ysyxsoc_scala local_scala run rundiff gdb-diff clean menuconfig check_config FORCE perf
-
-$(ALL_OBJS): .config
-$(ALL_OBJS): $(BOARD_FLAG_FILE)
-$(CXX_OBJS): $(VERILATED_LIB)
-
-all: npc 
-npc: $(TARGET)  
-
-ysyxsoc_scala:
-	@echo -e "\033[31mhello\033[0m\n"
-	$(MAKE) -C ../ysyxSoC verilog
-
-local_scala:
-	@echo -e "\033[31m SCALA!!! \033[0m\n"
-	mill coreverilog.run
-
-ifeq ($(SIM_TARGET),npc)
-scala: local_scala
-else
-scala: ysyxsoc_scala local_scala
-endif
-
-
-check_config:
-	@if [ ! -f .config ]; then \
-		echo "ERROR: Configuration file .config is missing."; \
-		echo "Please run 'make menuconfig' first."; \
-		exit 1; \
-	fi
-
-$(TARGET): $(ALL_OBJS) $(VERILATED_LIB) $(NVBOARD_ARCHIVE) | check_config
-	@echo "### Linking executable: $(TARGET) ###"
-	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJS) $(VERILATED_LIB) $(NVBOARD_ARCHIVE) \
-		$(firstword $(VERILATOR_INC_DIRS))/verilated.cpp \
-		$(firstword $(VERILATOR_INC_DIRS))/verilated_dpi.cpp \
-		$(firstword $(VERILATOR_INC_DIRS))/verilated_threads.cpp \
-		$(LDFLAGS)
-
-
-
-
-
-# [关键修改] Verilator 编译规则
-# 添加了 $(VERILATOR_INCFLAGS) 以包含 gen 和 verification 目录
-$(VERILATED_LIB): scala $(DEBUG_FLAG_FILE) $(VSRC) Makefile | $(BUILD_DIR)
-	@echo "### Running Verilator... ###"
-	$(RM) -r $(OBJ_DIR)
-	$(VERILATOR) --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
-		$(VERILATOR_INCFLAGS) \
-		-Mdir $(OBJ_DIR) -Wno-WIDTHEXPAND $(VSRC)
-	@echo "### Compiling Verilated library... ###"
-	$(MAKE) -C $(OBJ_DIR) -f V$(TOP_MODULE).mk
-
-$(BUILD_DIR)/%.o: $(CSRC_DIR)/%.c | $(BUILD_DIR)
+$(SIM_EXEC): $(CSRC_LIBS) $(CACHESIM_LIBS) $(NVBOARD_LIBS) $(VERILATOR_LIBS) $(BUILD_MODE_FILE) | check_config
+	$(call build_banner,Linking executable: $@)
 	@mkdir -p $(@D)
-	@echo "### Compiling C: $< ###"
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-$(BUILD_DIR)/%.o: $(CSRC_DIR)/%.cpp | $(BUILD_DIR)
-	@mkdir -p $(@D)
-	@echo "### Compiling C++: $< ###"
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(BUILD_DIR)/cachesim/%.o: $(NPC_HOME)/cachesim/%.cpp | $(BUILD_DIR)
-	@mkdir -p $(@D)
-	@echo "### Compiling C++: $< ###"
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(BUILD_DIR)/auto_bind.o: $(SRC_AUTO_BIND) | $(BUILD_DIR)
-	@mkdir -p $(@D)
-	@echo "### Compiling C++: $< ###"
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $(CSRC_LIBS) $(CACHESIM_LIBS) $(NVBOARD_LIBS) $(VERILATOR_LIBS) $(LDLIBS)
 
 $(BUILD_DIR):
 	@mkdir -p $@
 
-# =============================================================================
-# User-facing Targets
-# =============================================================================
-
-rundiff: CFLAGS += -DCONFIG_DIFFTEST
-rundiff: CXXFLAGS += -DCONFIG_DIFFTEST
-
-gdb-diff: CFLAGS += -DCONFIG_DIFFTEST
-gdb-diff: CXXFLAGS += -DCONFIG_DIFFTEST
+$(SIM_BUILD_DIR):
+	@mkdir -p $@
 
 menuconfig:
 	@echo "### Launching Kconfig menu... ###"
 	kconfig-mconf Kconfig
 	@echo "### Configuration saved to .config ###"
 
-run:
-	$(call git_commit, "sim RTL")
-	$(MAKE) npc
+# Generate the Verilated model first, outside Bear, then capture only the
+# simulation runtime compilation database.
+compdb: $(VERILATOR_LIBS)
+	$(MAKE) --no-print-directory compdb-clean SIM_TARGET=$(SIM_TARGET) BOARD=$(BOARD)
+	bear --output $(NPC_HOME)/compile_commands.json -- $(MAKE) --no-print-directory npc SIM_TARGET=$(SIM_TARGET) BOARD=$(BOARD)
+
+.PHONY: compdb-clean
+compdb-clean::
+	$(RM) $(SIM_EXEC) $(TARGET)
+
+run: npc
 	@echo "### Starting NPC Simulation (config from menuconfig) ###"
-	./$(TARGET) -l log.txt  $(IMG)
+	./npc -l log.txt $(IMG)
 
+rundiff: CFLAGS += -DCONFIG_DIFFTEST
+rundiff: CXXFLAGS += -DCONFIG_DIFFTEST
 rundiff: npc
-	$(call git_commit, "sim RTL")
 	@echo "### Starting NPC Simulation (WITH difftest) ###"
-	./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
+	./npc --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
+gdb-diff: CFLAGS += -DCONFIG_DIFFTEST
+gdb-diff: CXXFLAGS += -DCONFIG_DIFFTEST
 gdb-diff: npc
-	$(call git_commit, "sim RTL")
 	@echo "### Starting NPC Simulation with GDB (WITH difftest) ###"
-	gdb --args ./$(TARGET) --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
+	gdb --args ./npc --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so -l log.txt $(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 
-perf: 
+perf:
 	./yosys-sta.sh
-	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench/ ARCH=riscv32e-ysyxsoc ARGS=-b run mainargs=train
+	$(MAKE) -C $(NPC_HOME)/../am-kernels/benchmarks/microbench/ ARCH=riscv32e-ysyxsoc ARGS=-b run mainargs=train

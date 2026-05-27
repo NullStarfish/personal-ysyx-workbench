@@ -13,7 +13,7 @@ public:
 
   void traceICacheReq(uint32_t pc);
   void flushICacheRef();
-  void traceICache(bool hit, bool miss, uint32_t latency);
+  void traceICache(bool hit, bool miss, uint32_t resultPc, bool selectedValid, uint32_t storedTag, uint32_t latency);
   void traceDCache(bool hit, bool miss, uint32_t latency);
   void printStats() const;
 

@@ -26,12 +26,17 @@ static uint32_t envU32(const char *name, uint32_t fallback) {
   return static_cast<uint32_t>(value);
 }
 
+static bool traceICacheRefEnabled() {
+  static const bool enabled = std::getenv("NPC_TRACE_ICACHE_REF") != nullptr;
+  return enabled;
+}
+
 static cachesim::CacheConfig refConfig() {
   cachesim::CacheConfig config;
-  config.capacityBytes = envU32("NPC_CACHESIM_CAPACITY", 8192);
-  config.ways = envUnsigned("NPC_CACHESIM_WAYS", 2);
-  config.offsetBits = envUnsigned("NPC_CACHESIM_OFFSET_BITS", 5);
-  config.indexBits = envUnsigned("NPC_CACHESIM_INDEX_BITS", 7);
+  config.capacityBytes = envU32("NPC_CACHESIM_CAPACITY", 128);
+  config.ways = envUnsigned("NPC_CACHESIM_WAYS", 1);
+  config.offsetBits = envUnsigned("NPC_CACHESIM_OFFSET_BITS", 2);
+  config.indexBits = envUnsigned("NPC_CACHESIM_INDEX_BITS", 5);
   config.tagBits = envUnsigned("NPC_CACHESIM_TAG_BITS", 0);
   return config;
 }
@@ -41,16 +46,24 @@ CacheTraceModel::CacheTraceModel()
       icacheRef_(icacheRefConfig_) {}
 
 void CacheTraceModel::traceICacheReq(uint32_t pc) {
-  const cachesim::AccessResult result = icacheRef_.access(pc);
+  const cachesim::AccessResult result = icacheRef_.probe(pc);
   icacheExpected_.push_back({pc, result.hit});
+  if (traceICacheRefEnabled()) {
+    std::fprintf(stderr,
+                 "[cachesim-ref] req pc=0x%08x expected=%s pending=%zu\n",
+                 pc, result.hit ? "hit" : "miss", icacheExpected_.size());
+  }
 }
 
 void CacheTraceModel::flushICacheRef() {
+  if (traceICacheRefEnabled()) {
+    std::fprintf(stderr, "[cachesim-ref] flush pending=%zu\n", icacheExpected_.size());
+  }
   icacheFlushDropCount += static_cast<long long>(icacheExpected_.size());
   icacheExpected_.clear();
 }
 
-void CacheTraceModel::traceICache(bool hit, bool miss, uint32_t latency) {
+void CacheTraceModel::traceICache(bool hit, bool miss, uint32_t resultPc, bool selectedValid, uint32_t storedTag, uint32_t latency) {
   if (hit) icacheHits++;
   if (miss) {
     icacheMisses++;
@@ -65,20 +78,37 @@ void CacheTraceModel::traceICache(bool hit, bool miss, uint32_t latency) {
     if (icacheExpected_.empty()) {
       icacheUnexpectedCount++;
       std::fprintf(stderr,
-                   "[cachesim] unexpected icache result: rtl=%s latency=%u\n",
-                   hit ? "hit" : "miss",
+                   "[cachesim] unexpected icache result: pc=0x%08x rtl=%s latency=%u\n",
+                   resultPc, hit ? "hit" : "miss",
                    latency);
     } else {
       const RefAccess expected = icacheExpected_.front();
       icacheExpected_.pop_front();
+      if (traceICacheRefEnabled()) {
+        std::fprintf(stderr,
+                     "[cachesim-ref] result expectedPc=0x%08x rtlPc=0x%08x ref=%s rtl=%s valid=%u tag=0x%08x latency=%u pending=%zu\n",
+                     expected.pc,
+                     resultPc,
+                     expected.hit ? "hit" : "miss",
+                     hit ? "hit" : "miss",
+                     selectedValid ? 1u : 0u,
+                     storedTag,
+                     latency,
+                     icacheExpected_.size());
+      }
+      // Keep the reference aligned with the cache action RTL actually performed.
+      icacheRef_.commit(expected.pc, hit);
       icacheCompareCount++;
       if (expected.hit != hit) {
         icacheMismatchCount++;
         std::fprintf(stderr,
-                     "[cachesim] icache mismatch pc=0x%08x ref=%s rtl=%s latency=%u\n",
+                     "[cachesim] icache mismatch expectedPc=0x%08x rtlPc=0x%08x ref=%s rtl=%s valid=%u tag=0x%08x latency=%u\n",
                      expected.pc,
+                     resultPc,
                      expected.hit ? "hit" : "miss",
                      hit ? "hit" : "miss",
+                     selectedValid ? 1u : 0u,
+                     storedTag,
                      latency);
       }
     }
@@ -144,8 +174,9 @@ extern "C" void icache_ref_flush(svBit flush) {
   }
 }
 
-extern "C" void icache_trace(svBit hit, svBit miss, int latency) {
-  pipeline.cache.traceICache(hit != 0, miss != 0, static_cast<uint32_t>(latency));
+extern "C" void icache_trace(svBit hit, svBit miss, int resultPc, svBit selectedValid, int storedTag, int latency) {
+  pipeline.cache.traceICache(hit != 0, miss != 0, static_cast<uint32_t>(resultPc), selectedValid != 0,
+                             static_cast<uint32_t>(storedTag), static_cast<uint32_t>(latency));
 }
 
 extern "C" void dcache_trace(svBit hit, svBit miss, int latency) {

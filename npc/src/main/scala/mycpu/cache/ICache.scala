@@ -11,6 +11,10 @@ class ICache(
 
   val reqReg = Reg(chiselTypeOf(io.cpuReq.bits))
   val reqValid = RegInit(false.B)
+  val responseResolved = RegInit(false.B)
+  val responseHit = RegInit(false.B)
+  val responseInst = Reg(UInt(params.dataWidth.W))
+  val responseWay = Reg(UInt(params.wayWidth.W))
 
   object State extends ChiselEnum {
     val Lookup, Response = Value
@@ -39,15 +43,15 @@ class ICache(
 
   io.cpuReply.valid := false.B
   io.cpuReply.bits.pc := cpuReq.pc
-  io.cpuReply.bits.inst := cacheSet.io.lookupResp.word
-  io.cpuReply.bits.hit := cacheSet.io.lookupResp.hit
+  io.cpuReply.bits.inst := responseInst
+  io.cpuReply.bits.hit := responseHit
 
 
 
   replacement.victimReq.set := reqIndex
   replacement.touch.valid := false.B
   replacement.touch.bits.set := reqIndex
-  replacement.touch.bits.way := cacheSet.io.lookupResp.way
+  replacement.touch.bits.way := responseWay
 
 
   val refillBeat = RegInit(0.U(params.wordOffsetWidth.W))
@@ -100,15 +104,22 @@ class ICache(
 
     when(cacheSet.io.lookup.valid) {
       state := State.Response
+      responseResolved := false.B
     }
   }
 
   when (state === State.Response) {
-    when(cacheSet.io.lookupResp.hit) {
-      io.cpuReply.valid := true.B
+    when(!responseResolved) {
+      responseResolved := true.B
+      responseHit := cacheSet.io.lookupResp.hit
+      responseInst := cacheSet.io.lookupResp.word
+      responseWay := cacheSet.io.lookupResp.way
+    }.elsewhen(responseHit) {
+      io.cpuReply.valid := !io.redirect.valid
       when(io.cpuReply.fire) {
         replacement.touch.valid := true.B
         reqValid := false.B
+        responseResolved := false.B
         accessLatency := 0.U
         accessMiss := false.B
         state := State.Lookup
@@ -138,6 +149,7 @@ class ICache(
 
 
           state := State.Lookup
+          responseResolved := false.B
 
         }.otherwise {
           refillBeat := refillBeat + 1.U
@@ -158,6 +170,7 @@ class ICache(
     accessLatency := 0.U
     accessMiss := false.B
     refillBeat := 0.U
+    responseResolved := false.B
     state := State.Lookup
     when(memReqDone) {
       memReqDone := false.B
@@ -174,7 +187,11 @@ class ICache(
     trace.io.reqPc := io.cpuReq.bits.pc
     trace.io.flush := io.redirect.valid && reqValid
     trace.io.hit := io.cpuReply.fire && !accessMiss
-    trace.io.miss := io.cpuReply.fire && accessMiss
+    // A completed refill changes cache state even if a later redirect discards its CPU reply.
+    trace.io.miss := cacheSet.io.write.valid
+    trace.io.resultPc := cpuReq.pc
+    trace.io.selectedValid := cacheSet.io.lookupResp.selectedValid
+    trace.io.storedTag := cacheSet.io.lookupResp.storedTag
     trace.io.latency := accessLatency + 1.U
   }
 
@@ -190,6 +207,9 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
     val flush = Input(Bool())
     val hit = Input(Bool())
     val miss = Input(Bool())
+    val resultPc = Input(UInt(32.W))
+    val selectedValid = Input(Bool())
+    val storedTag = Input(UInt(32.W))
     val latency = Input(UInt(32.W))
   })
   setInline(
@@ -202,6 +222,9 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
       |    input logic flush,
       |    input logic hit,
       |    input logic miss,
+      |    input logic [31:0] resultPc,
+      |    input logic selectedValid,
+      |    input logic [31:0] storedTag,
       |    input logic [31:0] latency
       |);
       | import "DPI-C" function void icache_req_trace(
@@ -213,6 +236,9 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
       | import "DPI-C" function void icache_trace(
       |   input bit hit,
       |   input bit miss,
+      |   input int resultPc,
+      |   input bit selectedValid,
+      |   input int storedTag,
       |   input int latency
       |);
       |
@@ -225,7 +251,7 @@ final class ICacheTrace extends BlackBox with HasBlackBoxInline {
       |     icache_ref_flush(flush);
       |   end
       |   if(hit || miss) begin
-      |     icache_trace(hit, miss, latency);
+      |     icache_trace(hit, miss, resultPc, selectedValid, storedTag, latency);
       |   end
       | end
       |end

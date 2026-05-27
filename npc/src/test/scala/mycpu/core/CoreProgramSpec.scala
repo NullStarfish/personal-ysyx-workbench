@@ -114,7 +114,7 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
       c.reset.poke(false.B)
 
       var pending: List[ReadTxn] = Nil
-      stepUntilRetireCount(c, targetRetires = 9, maxCycles = 80, {
+      stepUntilRetireCount(c, targetRetires = 9, maxCycles = 160, {
         pending = serviceReadBus(c, memory, pending)
       })
 

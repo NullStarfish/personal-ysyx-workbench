@@ -65,29 +65,48 @@ Cache::Cache(CacheConfig config) : config_(config) {
   }
 }
 
-AccessResult Cache::access(uint32_t addr) {
+AccessResult Cache::probe(uint32_t addr) const {
   AccessResult result;
   result.tag = tagOf(addr);
   result.index = indexOf(addr);
   result.offset = offsetOf(addr);
 
-  stats_.accessCount++;
-  time_++;
-
-  std::vector<Line> &set = sets_.at(result.index);
+  const std::vector<Line> &set = sets_.at(result.index);
   for (unsigned way = 0; way < set.size(); way++) {
-    Line &line = set[way];
+    const Line &line = set[way];
     if (line.valid && line.tag == result.tag) {
-      line.lastUsed = time_;
       result.hit = true;
       result.way = way;
-      stats_.hitCount++;
       return result;
     }
   }
 
-  stats_.missCount++;
+  return result;
+}
 
+AccessResult Cache::commit(uint32_t addr, bool hit) {
+  AccessResult result = probe(addr);
+
+  stats_.accessCount++;
+  time_++;
+
+  std::vector<Line> &set = sets_.at(result.index);
+  if (hit) {
+    result.hit = true;
+    stats_.hitCount++;
+    for (unsigned way = 0; way < set.size(); way++) {
+      Line &line = set[way];
+      if (line.valid && line.tag == result.tag) {
+        line.lastUsed = time_;
+        result.way = way;
+        return result;
+      }
+    }
+    return result;
+  }
+
+  result.hit = false;
+  stats_.missCount++;
   unsigned victimWay = 0;
   uint64_t oldestUse = std::numeric_limits<uint64_t>::max();
   for (unsigned way = 0; way < set.size(); way++) {
@@ -112,6 +131,11 @@ AccessResult Cache::access(uint32_t addr) {
   victim.lastUsed = time_;
 
   return result;
+}
+
+AccessResult Cache::access(uint32_t addr) {
+  const AccessResult result = probe(addr);
+  return commit(addr, result.hit);
 }
 
 void Cache::reset() {

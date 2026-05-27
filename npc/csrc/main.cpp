@@ -29,5 +29,7 @@ int main(int argc, char **argv) {
   signal(SIGINT, handle_sigint);
   sdb_mainloop();
   cpu.printStats();
-  return runtime.isExitStatusBad();
+  const int exitStatus = runtime.isExitStatusBad();
+  runtime.shutdown();
+  return exitStatus;
 }

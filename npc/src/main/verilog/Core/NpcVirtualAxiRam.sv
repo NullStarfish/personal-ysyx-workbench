@@ -1,6 +1,6 @@
 module NpcVirtualAxiRam #(
-  parameter int unsigned READ_LATENCY = 100,
-  parameter int unsigned WRITE_LATENCY = 100,
+  parameter int unsigned READ_LATENCY = 1,
+  parameter int unsigned WRITE_LATENCY = 1,
   parameter int unsigned READ_DEPTH = 16,
   parameter int unsigned WRITE_DEPTH = 16
 ) (
@@ -34,8 +34,15 @@ module NpcVirtualAxiRam #(
   output logic        r_last,
   output logic [3:0]  r_id
 );
-  import "DPI-C" function int  npc_pmem_read(input int raddr);
-  import "DPI-C" function void npc_pmem_write(input int waddr, input int wdata, input byte wmask);
+  import "DPI-C" function void sdram_read_halfword_chip(input int chip, input int addr, output shortint data);
+  import "DPI-C" function void sdram_write_halfword_chip(input int chip, input int addr, input shortint data, input byte mask);
+  import "DPI-C" function void clint_mtime_read(output longint mtime);
+  import "DPI-C" function void difftest_skip_ref_cpp();
+
+  localparam logic [31:0] SDRAM_BASE = 32'ha0000000;
+  localparam logic [31:0] SDRAM_END  = 32'ha2000000;
+  localparam logic [31:0] UART_BASE  = 32'h10000000;
+  localparam logic [31:0] RTC_BASE   = 32'h02000000;
 
   localparam int unsigned READ_CNT_W = (READ_DEPTH <= 1) ? 1 : $clog2(READ_DEPTH + 1);
   localparam int unsigned READ_PTR_W = (READ_DEPTH <= 1) ? 1 : $clog2(READ_DEPTH);
@@ -120,6 +127,77 @@ module NpcVirtualAxiRam #(
     end
   endfunction
 
+  function automatic int sdram_halfaddr(input logic [31:0] addr);
+    logic [31:0] offset;
+    begin
+      offset = (addr & 32'hfffffffc) - SDRAM_BASE;
+      sdram_halfaddr = (((offset >> 11) & 32'h3) << 22) |
+                       (((offset >> 13) & 32'h7ff) << 9) |
+                       ((offset >> 2) & 32'h1ff);
+    end
+  endfunction
+
+  function automatic [31:0] virtual_read(input logic [31:0] addr);
+    shortint lower;
+    shortint upper;
+    longint mtime;
+    int rank;
+    int halfaddr;
+    logic [31:0] aligned;
+    begin
+      virtual_read = 32'b0;
+      lower = 16'b0;
+      upper = 16'b0;
+      mtime = 64'b0;
+      aligned = addr & 32'hfffffffc;
+      if (aligned >= SDRAM_BASE && aligned < SDRAM_END) begin
+        rank = (aligned - SDRAM_BASE) >> 24;
+        halfaddr = sdram_halfaddr(aligned);
+        sdram_read_halfword_chip(rank * 2, halfaddr, lower);
+        sdram_read_halfword_chip(rank * 2 + 1, halfaddr, upper);
+        virtual_read = {upper, lower};
+      end else if (aligned == RTC_BASE || aligned == RTC_BASE + 32'd4) begin
+        clint_mtime_read(mtime);
+        virtual_read = (aligned == RTC_BASE) ? mtime[31:0] : mtime[63:32];
+        difftest_skip_ref_cpp();
+      end else if (aligned == UART_BASE + 32'd4) begin
+        // UART LSR: transmitter holding register is always ready.
+        virtual_read = 32'h00002000;
+        difftest_skip_ref_cpp();
+      end
+    end
+  endfunction
+
+  task automatic virtual_write(
+    input logic [31:0] addr,
+    input logic [31:0] data,
+    input logic [3:0] strb
+  );
+    int rank;
+    int halfaddr;
+    logic [31:0] aligned;
+    begin
+      aligned = addr & 32'hfffffffc;
+      if (aligned >= SDRAM_BASE && aligned < SDRAM_END) begin
+        rank = (aligned - SDRAM_BASE) >> 24;
+        halfaddr = sdram_halfaddr(aligned);
+        sdram_write_halfword_chip(rank * 2, halfaddr, data[15:0], {6'b0, strb[1:0]});
+        sdram_write_halfword_chip(rank * 2 + 1, halfaddr, data[31:16], {6'b0, strb[3:2]});
+      end else if (aligned == UART_BASE) begin
+        if (strb[addr[1:0]]) begin
+          case (addr[1:0])
+            2'd0: $write("%c", data[7:0]);
+            2'd1: $write("%c", data[15:8]);
+            2'd2: $write("%c", data[23:16]);
+            default: $write("%c", data[31:24]);
+          endcase
+          $fflush();
+          difftest_skip_ref_cpp();
+        end
+      end
+    end
+  endtask
+
   integer i;
 
   always_ff @(posedge clock) begin
@@ -160,7 +238,7 @@ module NpcVirtualAxiRam #(
       end
 
       if (ar_fire) begin
-        read_data_q[read_tail] <= npc_pmem_read(ar_addr);
+        read_data_q[read_tail] <= virtual_read(ar_addr);
         read_id_q[read_tail] <= ar_id;
         read_timer_q[read_tail] <= read_delay_value();
         read_tail <= next_read_ptr(read_tail);
@@ -201,9 +279,9 @@ module NpcVirtualAxiRam #(
       end
 
       if (write_enq) begin
-        npc_pmem_write(aw_fire ? aw_addr : aw_addr_reg,
-                       w_fire ? w_data : w_data_reg,
-                       w_fire ? {4'b0, w_strb} : {4'b0, w_strb_reg});
+        virtual_write(aw_fire ? aw_addr : aw_addr_reg,
+                      w_fire ? w_data : w_data_reg,
+                      w_fire ? w_strb : w_strb_reg);
         write_id_q[write_tail] <= aw_fire ? aw_id : aw_id_reg;
         write_timer_q[write_tail] <= write_delay_value();
         write_tail <= next_write_ptr(write_tail);

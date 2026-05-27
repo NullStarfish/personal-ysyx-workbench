@@ -41,9 +41,25 @@ void Runtime::initVerilator(int argc, char *argv[]) {
 
 #if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   printf("nvboard initing...\n");
+#ifdef NVBOARD_RESOURCE_HOME
+  if (getenv("NVBOARD_HOME") == nullptr) {
+    setenv("NVBOARD_HOME", NVBOARD_RESOURCE_HOME, 0);
+  }
+#endif
   nvboard_bind_all_pins(top);
   nvboard_init();
 #endif
+}
+
+void Runtime::shutdown() {
+#if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
+  nvboard_quit();
+#endif
+  if (top != nullptr) {
+    top->final();
+    delete top;
+    top = nullptr;
+  }
 }
 
 uint64_t Runtime::getTimeInternal() const {
