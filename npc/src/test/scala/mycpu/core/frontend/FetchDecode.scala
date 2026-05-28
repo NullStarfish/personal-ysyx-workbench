@@ -25,6 +25,7 @@ class FetchDecodeHarness extends Module {
 
   io.fetchReq <> fetch.io.fetch
   fetch.io.reply <> io.reply
+  fetch.io.replyHit := false.B
   fetch.io.redirect := io.redirect
 
   ifId.io.enq <> fetch.io.out

@@ -34,13 +34,13 @@ module NpcVirtualAxiRam #(
   output logic        r_last,
   output logic [3:0]  r_id
 );
-  import "DPI-C" function void sdram_read_halfword_chip(input int chip, input int addr, output shortint data);
-  import "DPI-C" function void sdram_write_halfword_chip(input int chip, input int addr, input shortint data, input byte mask);
+  import "DPI-C" function int pmemread(input int raddr);
+  import "DPI-C" function void pmemwrite(input int waddr, input int wdata, input byte wmask);
   import "DPI-C" function void clint_mtime_read(output longint mtime);
   import "DPI-C" function void difftest_skip_ref_cpp();
 
-  localparam logic [31:0] SDRAM_BASE = 32'ha0000000;
-  localparam logic [31:0] SDRAM_END  = 32'ha2000000;
+  localparam logic [31:0] PMEM_BASE  = 32'ha0000000;
+  localparam logic [31:0] PMEM_END   = 32'ha8000000;
   localparam logic [31:0] UART_BASE  = 32'h10000000;
   localparam logic [31:0] RTC_BASE   = 32'h02000000;
 
@@ -127,35 +127,15 @@ module NpcVirtualAxiRam #(
     end
   endfunction
 
-  function automatic int sdram_halfaddr(input logic [31:0] addr);
-    logic [31:0] offset;
-    begin
-      offset = (addr & 32'hfffffffc) - SDRAM_BASE;
-      sdram_halfaddr = (((offset >> 11) & 32'h3) << 22) |
-                       (((offset >> 13) & 32'h7ff) << 9) |
-                       ((offset >> 2) & 32'h1ff);
-    end
-  endfunction
-
   function automatic [31:0] virtual_read(input logic [31:0] addr);
-    shortint lower;
-    shortint upper;
     longint mtime;
-    int rank;
-    int halfaddr;
     logic [31:0] aligned;
     begin
       virtual_read = 32'b0;
-      lower = 16'b0;
-      upper = 16'b0;
       mtime = 64'b0;
       aligned = addr & 32'hfffffffc;
-      if (aligned >= SDRAM_BASE && aligned < SDRAM_END) begin
-        rank = (aligned - SDRAM_BASE) >> 24;
-        halfaddr = sdram_halfaddr(aligned);
-        sdram_read_halfword_chip(rank * 2, halfaddr, lower);
-        sdram_read_halfword_chip(rank * 2 + 1, halfaddr, upper);
-        virtual_read = {upper, lower};
+      if (aligned >= PMEM_BASE && aligned < PMEM_END) begin
+        virtual_read = pmemread(aligned);
       end else if (aligned == RTC_BASE || aligned == RTC_BASE + 32'd4) begin
         clint_mtime_read(mtime);
         virtual_read = (aligned == RTC_BASE) ? mtime[31:0] : mtime[63:32];
@@ -173,16 +153,11 @@ module NpcVirtualAxiRam #(
     input logic [31:0] data,
     input logic [3:0] strb
   );
-    int rank;
-    int halfaddr;
     logic [31:0] aligned;
     begin
       aligned = addr & 32'hfffffffc;
-      if (aligned >= SDRAM_BASE && aligned < SDRAM_END) begin
-        rank = (aligned - SDRAM_BASE) >> 24;
-        halfaddr = sdram_halfaddr(aligned);
-        sdram_write_halfword_chip(rank * 2, halfaddr, data[15:0], {6'b0, strb[1:0]});
-        sdram_write_halfword_chip(rank * 2 + 1, halfaddr, data[31:16], {6'b0, strb[3:2]});
+      if (aligned >= PMEM_BASE && aligned < PMEM_END) begin
+        pmemwrite(aligned, data, {4'b0, strb});
       end else if (aligned == UART_BASE) begin
         if (strb[addr[1:0]]) begin
           case (addr[1:0])

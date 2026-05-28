@@ -41,6 +41,20 @@ if TRACE
         help
           Logs interactions with memory-mapped devices like the serial
           port or timer. Less verbose than full mtrace.
+    
+
+    config PCTRACE
+        bool "Enable PC fetch Trace"
+        default n
+
+    config CACHESIM_DIFFTEST
+        bool "Enable ICache comparison against cachesim"
+        default n
+        help
+          Compare retired instruction fetch hit/miss results against the
+          software cache model. This is intended for cache debugging and
+          adds simulation overhead.
+        
 
 endif # TRACE
 

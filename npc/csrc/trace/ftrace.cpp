@@ -73,6 +73,10 @@ void log_func_ret(uint32_t pc) {
 }
 
 void init_ftrace(const char *elfFile) {
+  ftraceEnabled = false;
+  stackTop = 0;
+  indentLevel = 0;
+
   if (elfFile == nullptr) {
     return;
   }
@@ -83,8 +87,7 @@ void init_ftrace(const char *elfFile) {
     return;
   }
 
-  ftraceEnabled = true;
-  printf("Ftrace enabled. Reading symbols from '%s'.\n", elfFile);
+  printf("Loading ftrace symbols from '%s'.\n", elfFile);
 
   fseek(fp, 0, SEEK_END);
   long fileSize = ftell(fp);
@@ -153,6 +156,8 @@ void init_ftrace(const char *elfFile) {
       funcIndex++;
     }
   }
+  ftraceEnabled = true;
+  printf("Ftrace enabled.\n");
   free(elfData);
 }
 
@@ -164,8 +169,10 @@ void trace_func_call(uint32_t pc, uint32_t inst) {
   uint32_t opcode = inst & 0x7f;
   uint32_t rd = (inst >> 7) & 0x1f;
   uint32_t rs1 = (inst >> 15) & 0x1f;
+  bool rdIsLink = rd == 1 || rd == 5;
+  bool rs1IsLink = rs1 == 1 || rs1 == 5;
 
-  if (opcode == 0b1101111) {
+  if (opcode == 0b1101111 && rdIsLink) {
     uint32_t imm20 = (inst >> 31) & 0x1;
     uint32_t imm10_1 = (inst >> 21) & 0x3ff;
     uint32_t imm11 = (inst >> 20) & 0x1;
@@ -176,12 +183,19 @@ void trace_func_call(uint32_t pc, uint32_t inst) {
   } else if (opcode == 0b1100111) {
     int32_t immI = (int32_t)inst >> 20;
     uint32_t target = (cpu.regRead(rs1) + immI) & ~1u;
-    if (rd == 0 && rs1 == 1 && immI == 0) {
+    if (!rdIsLink && rs1IsLink) {
       log_func_ret(pc);
-    } else {
+    } else if (rdIsLink) {
+      if (rs1IsLink && rd != rs1) {
+        log_func_ret(pc);
+      }
       log_func_call(pc, target);
     }
   }
+}
+
+bool ftrace_ready() {
+  return ftraceEnabled;
 }
 
 void print_ftrace_stack() {
@@ -189,6 +203,10 @@ void print_ftrace_stack() {
     return;
   }
   printf("\nFunction Call Stack Trace:\n");
+  if (stackTop == 0) {
+    printf("  <empty>\n");
+    return;
+  }
   for (int i = 0; i < stackTop; i++) {
     printf("  at 0x%08x: called %s@0x%08x\n", callStack[i].pc, callStack[i].targetFuncName,
            callStack[i].targetFuncAddr);

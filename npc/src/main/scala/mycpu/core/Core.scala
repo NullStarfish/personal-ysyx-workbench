@@ -45,6 +45,7 @@ class Core(
 
     fetch.io.reply.valid := icache.io.cpuReply.valid
     fetch.io.reply.bits := icache.io.cpuReply.bits.inst
+    fetch.io.replyHit := icache.io.cpuReply.bits.hit
     icache.io.cpuReply.ready := fetch.io.reply.ready
 
     memory.io.fetchReq.valid := icache.io.memReq.valid
@@ -60,6 +61,7 @@ class Core(
     case None =>
     memory.io.fetchReq <> fetch.io.fetch
     fetch.io.reply <> memory.io.fetchReply
+    fetch.io.replyHit := false.B
   }
 
   memory.io.lsuReq <> lsu.io.req
@@ -108,7 +110,7 @@ class Core(
   hazard.io.raw.lsuLoad.addr := lsu.io.pendingLoad.addr
   hazard.io.raw.lsuToMemWbFire := lsu.io.pendingLoad.valid && lsu.io.out.fire
 
-  val executeRedirect = execute.io.out.fire && execute.io.out.bits.ifRedct.redirect.valid
+  val executeRedirect = execute.io.out.valid && execute.io.out.bits.ifRedct.redirect.valid
   hazard.io.ctrl.redirect := executeRedirect
   val redirectFlush = hazard.io.flush
   val loadUseStall = hazard.io.stall

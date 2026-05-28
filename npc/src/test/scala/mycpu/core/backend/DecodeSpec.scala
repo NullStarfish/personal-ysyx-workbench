@@ -21,6 +21,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00500093".U)
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -44,6 +45,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h0040a103".U)
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.io.out.ready.poke(true.B)
       c.io.regWrite.wen.poke(false.B)
@@ -91,6 +93,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00208023".U)
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -123,6 +126,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h00208463".U)
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -151,6 +155,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h305110f3".U) // csrrw x1, mtvec, x2
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 
@@ -184,6 +189,7 @@ class DecodeSpec extends AnyFlatSpec {
       c.io.in.valid.poke(true.B)
       c.io.in.bits.pc.poke(START_ADDR.U)
       c.io.in.bits.inst.poke("h305110f3".U) // csrrw x1, mtvec, x2
+      c.io.in.bits.icacheHit.poke(false.B)
       c.io.in.bits.isException.poke(false.B)
       c.clock.step()
 

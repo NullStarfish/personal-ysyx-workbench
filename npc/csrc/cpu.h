@@ -51,6 +51,7 @@ public:
     uint32_t dnpc = 0;
     uint32_t inst = 0;
     uint32_t instType = arith;
+    bool icacheHit = false;
     uint32_t gpr[32] = {};
     bool regWen = false;
     uint32_t regAddr = 0;
@@ -84,6 +85,7 @@ private:
   void traceAndDifftest();
 
   riscv32_CPU_state archState{};
+  bool retireICacheHitValue = false;
   uint32_t retirePcValue = 0;
   uint32_t retireInstValue = 0;
   bool hasCommitted = false;

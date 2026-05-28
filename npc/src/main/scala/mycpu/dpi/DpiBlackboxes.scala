@@ -93,6 +93,7 @@ final class SimStateDPI extends BlackBox with HasBlackBoxInline {
     val mcause = Input(UInt(32.W))
     val inst = Input(UInt(32.W))
     val instType = Input(UInt(2.W))
+    val icacheHit = Input(Bool())
   })
 
   setInline(
@@ -112,7 +113,8 @@ final class SimStateDPI extends BlackBox with HasBlackBoxInline {
       |    input logic [31:0]   mstatus,
       |    input logic [31:0]   mcause,
       |    input logic [31:0]   inst,
-      |    input logic [2:0]    instType
+      |    input logic [2:0]    instType,
+      |    input logic          icacheHit
       |);
       |    import "DPI-C" function void dpi_update_state(
       |        input int pc,
@@ -126,12 +128,13 @@ final class SimStateDPI extends BlackBox with HasBlackBoxInline {
       |        input int mstatus,
       |        input int mcause,
       |        input int inst,
-      |        input int instType
+      |        input int instType,
+      |        input int icacheHit
       |    );
       |
       |    always_ff @(posedge clk) begin
       |        if (!reset && valid) begin
-      |            dpi_update_state(pc, dnpc, reg_wen, reg_addr, reg_data, regs_flat, mtvec, mepc, mstatus, mcause, inst, instType);
+      |            dpi_update_state(pc, dnpc, reg_wen, reg_addr, reg_data, regs_flat, mtvec, mepc, mstatus, mcause, inst, instType, icacheHit);
       |        end
       |    end
       |endmodule

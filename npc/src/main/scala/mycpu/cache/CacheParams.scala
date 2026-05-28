@@ -61,9 +61,9 @@ object CacheConfigs {
     replacement = ReplacementPolicy.LRU,
   )
   val SimpICache: CacheParams = CacheParams(
-    lineBytes = 4,
+    lineBytes = 32,
     sets = 32,
-    ways = 1,
+    ways = 2,
     replacement = ReplacementPolicy.LRU,
   )
 }

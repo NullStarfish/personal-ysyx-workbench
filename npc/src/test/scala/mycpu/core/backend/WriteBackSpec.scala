@@ -42,6 +42,7 @@ class WriteBackSpec extends AnyFlatSpec {
       c.io.in.bits.wbCtrl.rd.poke(2.U)
       c.io.in.bits.retireTrace.get.pc.poke("ha0000000".U)
       c.io.in.bits.retireTrace.get.inst.poke("h00000013".U)
+      c.io.in.bits.retireTrace.get.icacheHit.poke(true.B)
 
       c.io.regWrite.regWrite.wen.expect(true.B)
       c.io.regWrite.regWrite.rd.expect(2.U)
@@ -49,6 +50,7 @@ class WriteBackSpec extends AnyFlatSpec {
       c.io.retireTrace.get.valid.expect(true.B)
       c.io.retireTrace.get.bits.pc.expect("ha0000000".U)
       c.io.retireTrace.get.bits.inst.expect("h00000013".U)
+      c.io.retireTrace.get.bits.icacheHit.expect(true.B)
       c.io.retireTrace.get.bits.regWrite.wen.expect(true.B)
       c.io.retireTrace.get.bits.regWrite.rd.expect(2.U)
       c.io.retireTrace.get.bits.regWrite.wdata.expect("h12345678".U)

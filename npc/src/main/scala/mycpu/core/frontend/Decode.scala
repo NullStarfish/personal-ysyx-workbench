@@ -283,6 +283,7 @@ class Decode(
     io.out.bits.retireTrace.get.pc := io.in.bits.pc
     io.out.bits.retireTrace.get.inst := io.in.bits.inst
     io.out.bits.retireTrace.get.dnpc := io.in.bits.pc + 4.U
+    io.out.bits.retireTrace.get.icacheHit := io.in.bits.icacheHit
     io.out.bits.retireTrace.get.regWrite.wen := io.regWrite.regWrite.wen
     io.out.bits.retireTrace.get.regWrite.rd := io.regWrite.regWrite.rd
     io.out.bits.retireTrace.get.regWrite.wdata := io.regWrite.regWrite.wdata

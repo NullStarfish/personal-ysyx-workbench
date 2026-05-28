@@ -16,4 +16,5 @@ final class SimStateBundle extends Bundle {
   val mcause = UInt(32.W)
   val inst = UInt(32.W)
   val instType = UInt(2.W)
+  val icacheHit = Bool()
 }

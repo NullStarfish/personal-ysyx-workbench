@@ -16,7 +16,7 @@ trait FetchRedirect {
 class FetchPacket extends Bundle {
   val pc = XLenU
   val inst = UInt(32.W)
+  val icacheHit = Bool()
   val isException = Bool()
 }
-
 

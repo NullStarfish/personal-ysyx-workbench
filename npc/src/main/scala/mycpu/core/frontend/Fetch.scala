@@ -15,6 +15,7 @@ class Fetch(
     //val axi = new AXI4LiteBundle(XLEN, XLEN)
     val fetch = Decoupled(UInt(32.W))
     val reply = Flipped(Decoupled(UInt(32.W)))
+    val replyHit = Input(Bool())
 
     val out = Decoupled(new FetchPacket)
     val redirect = Input(Valid(UInt(XLEN.W)))
@@ -40,7 +41,7 @@ class Fetch(
   
 
   val fetchReq = Module(new Queue(XLenU, entries = 3, hasFlush = true))
-  val fetchReply = Module(new Queue(new Bundle{val pc = XLenU; val inst = XLenU}, entries = 3, hasFlush = true))
+  val fetchReply = Module(new Queue(new Bundle{val pc = XLenU; val inst = XLenU; val icacheHit = Bool()}, entries = 3, hasFlush = true))
   val pc = RegInit(START_ADDR.U(XLEN.W))
   val reqPc = Module(new Queue(XLenU, entries = 3, hasFlush = true))
 
@@ -86,6 +87,7 @@ class Fetch(
 
   fetchReply.io.enq.bits.pc := reqPc.io.deq.bits
   fetchReply.io.enq.bits.inst := io.reply.bits
+  fetchReply.io.enq.bits.icacheHit := io.replyHit
 
 
   fetchReq.io.flush.get := frontFlush
@@ -106,6 +108,7 @@ class Fetch(
   fetchReply.io.deq.ready := io.out.ready
   io.out.bits.pc := outPc
   io.out.bits.inst := outInst
+  io.out.bits.icacheHit := fetchReply.io.deq.bits.icacheHit
   
   
 

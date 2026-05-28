@@ -11,6 +11,7 @@
 #include "mem.h"
 #include "runtime.h"
 #include "sim.h"
+#include "trace/ftrace.h"
 
 #ifdef CONFIG_BOARD
 #include <nvboard.h>
@@ -122,6 +123,20 @@ int cmd_d(char *args) {
   return 0;
 }
 
+int cmd_bt(char *args) {
+  (void)args;
+#ifdef CONFIG_FTRACE
+  if (!ftrace_ready()) {
+    printf("Backtrace unavailable: start NPC with --ftrace=FILE using an ELF with symbols.\n");
+    return 0;
+  }
+  print_ftrace_stack();
+#else
+  printf("Backtrace unavailable: rebuild with CONFIG_FTRACE=y and start NPC with --ftrace=FILE.\n");
+#endif
+  return 0;
+}
+
 struct CommandEntry {
   const char *name;
   const char *description;
@@ -138,6 +153,7 @@ CommandEntry commandTable[] = {
     {"p", "Evaluate expression: p EXPR", cmd_p},
     {"w", "Set a watchpoint: w EXPR", cmd_w},
     {"d", "Delete a watchpoint: d N", cmd_d},
+    {"bt", "Print the current function call stack from ftrace", cmd_bt},
 };
 
 constexpr size_t kCommandCount = sizeof(commandTable) / sizeof(commandTable[0]);

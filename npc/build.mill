@@ -420,6 +420,7 @@ object writeback extends NpcScalaModule {
       root / "src/main/scala/mycpu/common/Consts.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",

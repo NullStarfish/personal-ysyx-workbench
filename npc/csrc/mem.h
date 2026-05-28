@@ -7,8 +7,13 @@
 class Mem {
 public:
   static constexpr long long kTargetSimFreq = 1000000;
+#ifdef CONFIG_NPC_VIRTUAL_SOC
+  static constexpr long kPmemSize = 0x08000000;
+  static constexpr long kPmemBase = 0xa0000000L;
+#else
   static constexpr long kPmemSize = 0x70000000;
   static constexpr long kPmemBase = 0x30000000L;
+#endif
   static constexpr uint32_t kProgramBase = 0xa0000000u;
   static constexpr uint32_t kPsramBase = 0x80000000u;
   static constexpr uint32_t kPsramSize = 0x01000000u;

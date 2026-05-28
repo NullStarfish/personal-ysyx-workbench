@@ -14,6 +14,7 @@ class TracerSpec extends AnyFlatSpec {
     c.io.retireTrace.bits.regWrite.rd.poke(0.U)
     c.io.retireTrace.bits.regWrite.wdata.poke(0.U)
     c.io.retireTrace.bits.instType.poke(0.U)
+    c.io.retireTrace.bits.icacheHit.poke(false.B)
     c.io.retireTrace.bits.csrs.mtvec.poke(0.U)
     c.io.retireTrace.bits.csrs.mepc.poke(0.U)
     c.io.retireTrace.bits.csrs.mstatus.poke(0.U)
@@ -37,6 +38,7 @@ class TracerSpec extends AnyFlatSpec {
       c.io.retireTrace.bits.regWrite.wen.poke(true.B)
       c.io.retireTrace.bits.regWrite.rd.poke(1.U)
       c.io.retireTrace.bits.regWrite.wdata.poke("h12345678".U)
+      c.io.retireTrace.bits.icacheHit.poke(true.B)
       c.io.gprs(1).poke("h12345678".U)
       c.io.gprs(10).poke("ha0001170".U)
       c.io.retireTrace.bits.csrs.mtvec.poke("h100".U)
@@ -57,6 +59,7 @@ class TracerSpec extends AnyFlatSpec {
       c.io.simState.mepc.expect("h200".U)
       c.io.simState.mstatus.expect("h300".U)
       c.io.simState.mcause.expect("h400".U)
+      c.io.simState.icacheHit.expect(true.B)
     }
   }
 }

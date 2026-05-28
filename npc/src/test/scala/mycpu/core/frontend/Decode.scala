@@ -65,6 +65,7 @@ class DecodeSim extends AnyFlatSpec {
     c.io.in.valid.poke(false.B)
     c.io.in.bits.pc.poke(0.U)
     c.io.in.bits.inst.poke(0.U)
+    c.io.in.bits.icacheHit.poke(false.B)
     c.io.in.bits.isException.poke(false.B)
     c.io.out.ready.poke(false.B)
     c.io.regWrite.regWrite.wen.poke(false.B)
@@ -88,6 +89,7 @@ class DecodeSim extends AnyFlatSpec {
     c.io.in.valid.poke(true.B)
     c.io.in.bits.pc.poke(at.U)
     c.io.in.bits.inst.poke(inst.U)
+    c.io.in.bits.icacheHit.poke(false.B)
     c.io.in.bits.isException.poke(false.B)
     c.io.out.ready.poke(true.B)
   }

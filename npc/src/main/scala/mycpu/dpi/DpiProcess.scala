@@ -43,6 +43,8 @@ final class DpiProcess(
   simStateMod.io.mstatus := simStateReg.mstatus
   simStateMod.io.mcause := simStateReg.mcause
   simStateMod.io.inst := simStateReg.inst
+  simStateMod.io.instType := simStateReg.instType
+  simStateMod.io.icacheHit := simStateReg.icacheHit
 
   val api: DpiApiDecl = new DpiApiDecl {
     override def difftestSkip(): HwInline[Unit] = HwInline.atomic(s"${name}_difftest_skip") { _ =>

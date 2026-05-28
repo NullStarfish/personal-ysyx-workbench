@@ -44,7 +44,6 @@ class ICache(
   io.cpuReply.valid := false.B
   io.cpuReply.bits.pc := cpuReq.pc
   io.cpuReply.bits.inst := responseInst
-  io.cpuReply.bits.hit := responseHit
 
 
 
@@ -80,6 +79,8 @@ class ICache(
   val dropMemReply = RegInit(false.B)
   val accessLatency = RegInit(0.U(32.W))
   val accessMiss = RegInit(false.B)
+
+  io.cpuReply.bits.hit := responseHit && !accessMiss
 
   val hasLookupReq = reqValid || io.cpuReq.valid
 
@@ -180,83 +181,17 @@ class ICache(
 
 
   if (enableDpi) {
-    val trace = Module(new ICacheTrace)
-    trace.io.clk := clock
-    trace.io.reset := reset.asBool
-    trace.io.req := io.cpuReq.fire
-    trace.io.reqPc := io.cpuReq.bits.pc
-    trace.io.flush := io.redirect.valid && reqValid
-    trace.io.hit := io.cpuReply.fire && !accessMiss
+    val hit = io.cpuReply.fire && !accessMiss
     // A completed refill changes cache state even if a later redirect discards its CPU reply.
-    trace.io.miss := cacheSet.io.write.valid
-    trace.io.resultPc := cpuReq.pc
-    trace.io.selectedValid := cacheSet.io.lookupResp.selectedValid
-    trace.io.storedTag := cacheSet.io.lookupResp.storedTag
-    trace.io.latency := accessLatency + 1.U
+    val miss = cacheSet.io.write.valid
+
+    val accessTrace = Module(new ICacheAccessTrace)
+    accessTrace.io.clk := clock
+    accessTrace.io.reset := reset.asBool
+    accessTrace.io.hit := hit
+    accessTrace.io.miss := miss
+    accessTrace.io.latency := accessLatency + 1.U
   }
 
 
-}
-
-final class ICacheTrace extends BlackBox with HasBlackBoxInline {
-  val io = IO(new Bundle {
-    val clk = Input(Clock())
-    val reset = Input(Bool())
-    val req = Input(Bool())
-    val reqPc = Input(UInt(32.W))
-    val flush = Input(Bool())
-    val hit = Input(Bool())
-    val miss = Input(Bool())
-    val resultPc = Input(UInt(32.W))
-    val selectedValid = Input(Bool())
-    val storedTag = Input(UInt(32.W))
-    val latency = Input(UInt(32.W))
-  })
-  setInline(
-    "ICacheTrace.sv",
-    """module ICacheTrace(
-      |    input logic clk,
-      |    input logic reset,
-      |    input logic req,
-      |    input logic [31:0] reqPc,
-      |    input logic flush,
-      |    input logic hit,
-      |    input logic miss,
-      |    input logic [31:0] resultPc,
-      |    input logic selectedValid,
-      |    input logic [31:0] storedTag,
-      |    input logic [31:0] latency
-      |);
-      | import "DPI-C" function void icache_req_trace(
-      |   input int pc
-      |);
-      | import "DPI-C" function void icache_ref_flush(
-      |   input bit flush
-      |);
-      | import "DPI-C" function void icache_trace(
-      |   input bit hit,
-      |   input bit miss,
-      |   input int resultPc,
-      |   input bit selectedValid,
-      |   input int storedTag,
-      |   input int latency
-      |);
-      |
-      |always_ff @(posedge clk) begin
-      | if(!reset) begin
-      |   if(req) begin
-      |     icache_req_trace(reqPc);
-      |   end
-      |   if(flush) begin
-      |     icache_ref_flush(flush);
-      |   end
-      |   if(hit || miss) begin
-      |     icache_trace(hit, miss, resultPc, selectedValid, storedTag, latency);
-      |   end
-      | end
-      |end
-      |
-      |endmodule
-      |""".stripMargin
-  )
 }

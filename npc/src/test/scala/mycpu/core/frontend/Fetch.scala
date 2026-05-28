@@ -12,6 +12,7 @@ class FetchSim extends AnyFlatSpec {
     c.io.fetch.ready.poke(false.B)
     c.io.reply.valid.poke(false.B)
     c.io.reply.bits.poke(0.U)
+    c.io.replyHit.poke(false.B)
     c.io.out.ready.poke(false.B)
     c.io.redirect.valid.poke(false.B)
     c.io.redirect.bits.poke(0.U)
@@ -38,10 +39,11 @@ class FetchSim extends AnyFlatSpec {
     c.io.fetch.ready.poke(false.B)
   }
 
-  private def sendReply(c: Fetch, inst: BigInt): Unit = {
+  private def sendReply(c: Fetch, inst: BigInt, icacheHit: Boolean = false): Unit = {
     var cycles = 0
     c.io.reply.valid.poke(true.B)
     c.io.reply.bits.poke(inst.U)
+    c.io.replyHit.poke(icacheHit.B)
     while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
       c.clock.step()
       cycles += 1
@@ -51,7 +53,7 @@ class FetchSim extends AnyFlatSpec {
     c.io.reply.valid.poke(false.B)
   }
 
-  private def expectOut(c: Fetch, expectedPc: BigInt, expectedInst: BigInt): Unit = {
+  private def expectOut(c: Fetch, expectedPc: BigInt, expectedInst: BigInt, expectedHit: Boolean = false): Unit = {
     var cycles = 0
     c.io.out.ready.poke(true.B)
     while (c.io.out.valid.peek().litValue == 0 && cycles < maxWait) {
@@ -61,6 +63,7 @@ class FetchSim extends AnyFlatSpec {
     assert(cycles < maxWait, s"Fetch did not emit packet for 0x${expectedPc.toString(16)}")
     c.io.out.bits.pc.expect(expectedPc.U)
     c.io.out.bits.inst.expect(expectedInst.U)
+    c.io.out.bits.icacheHit.expect(expectedHit.B)
     c.io.out.bits.isException.expect(false.B)
     c.clock.step()
     c.io.out.ready.poke(false.B)
@@ -81,8 +84,8 @@ class FetchSim extends AnyFlatSpec {
       resetDut(c)
 
       acceptFetch(c, START_ADDR)
-      sendReply(c, BigInt("00112233", 16))
-      expectOut(c, START_ADDR, BigInt("00112233", 16))
+      sendReply(c, BigInt("00112233", 16), icacheHit = true)
+      expectOut(c, START_ADDR, BigInt("00112233", 16), expectedHit = true)
 
       acceptFetch(c, START_ADDR + 4)
       sendReply(c, BigInt("00000013", 16))

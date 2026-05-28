@@ -30,21 +30,27 @@ Mem::Mem() {
   activeMem = this;
   pmem = static_cast<uint8_t *>(malloc(kPmemSize));
   psramMem = static_cast<uint8_t *>(malloc(kPsramSize));
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   for (int i = 0; i < 4; ++i) {
     sdramMem[i] = static_cast<uint16_t *>(malloc(sizeof(uint16_t) * kSdramHalfwords));
   }
+#endif
 
   assert(pmem != nullptr);
   assert(psramMem != nullptr);
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   for (int i = 0; i < 4; ++i) {
     assert(sdramMem[i] != nullptr);
   }
+#endif
 
   memset(pmem, 0, kPmemSize);
   memset(psramMem, 0, kPsramSize);
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   for (int i = 0; i < 4; ++i) {
     memset(sdramMem[i], 0, sizeof(uint16_t) * kSdramHalfwords);
   }
+#endif
 }
 
 Mem::~Mem() {
@@ -57,11 +63,13 @@ Mem::~Mem() {
   if (psramMem != nullptr) {
     free(psramMem);
   }
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   for (int i = 0; i < 4; ++i) {
     if (sdramMem[i] != nullptr) {
       free(sdramMem[i]);
     }
   }
+#endif
 }
 
 void Mem::flashRead(int32_t addr, int32_t *data) const {
@@ -119,6 +127,10 @@ uint32_t Mem::sdramLinearHalfaddrFromBus(uint32_t addr) {
 }
 
 void Mem::loadDataToRom(const uint8_t *data, size_t size) {
+#ifdef CONFIG_NPC_VIRTUAL_SOC
+  assert(size <= static_cast<size_t>(kPmemSize));
+  memcpy(pmem + (kProgramBase - kPmemBase), data, size);
+#else
   const uint32_t endAddr = kProgramBase + static_cast<uint32_t>(size);
   const uint32_t startRank = (kProgramBase - kSdramBase) >> 24;
   const uint32_t endRank = ((endAddr - 1) - kSdramBase) >> 24;
@@ -138,11 +150,13 @@ void Mem::loadDataToRom(const uint8_t *data, size_t size) {
     sdramMem[startRank * 2 + 0][halfaddr] = lower;
     sdramMem[startRank * 2 + 1][halfaddr] = upper;
   }
+#endif
 }
 
 void Mem::pmemReadChunk(uint32_t addr, uint8_t *buf, size_t n) const {
   if (buf == nullptr) return;
 
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   if (addr >= kSdramBase && static_cast<uint64_t>(addr - kSdramBase) + n <= (1ull << 25)) {
     for (size_t i = 0; i < n; ++i) {
       uint32_t cur = addr + static_cast<uint32_t>(i);
@@ -160,6 +174,7 @@ void Mem::pmemReadChunk(uint32_t addr, uint8_t *buf, size_t n) const {
     }
     return;
   }
+#endif
 
   if (addr >= kPsramBase && static_cast<uint64_t>(addr - kPsramBase) + n <= kPsramSize) {
     memcpy(buf, psramMem + (addr - kPsramBase), n);
@@ -176,6 +191,7 @@ int Mem::pmemRead(int raddr) const {
   long alignOffset = offset & ~0x3u;
   if (alignOffset < 0 || alignOffset + 4 > kPmemSize) return 0;
 
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   if (alignOffset + kPmemBase == RTC_ADDR || alignOffset + kPmemBase == RTC_UP_ADDR) {
     if (alignOffset + kPmemBase == RTC_ADDR) {
       time_t timep;
@@ -194,6 +210,7 @@ int Mem::pmemRead(int raddr) const {
       *rtcUsHighAddr = static_cast<uint32_t>(us >> 32);
     }
   }
+#endif
 
   return *reinterpret_cast<uint32_t *>(pmem + alignOffset);
 }
@@ -230,19 +247,23 @@ extern "C" void pmemread_chunk(uint32_t addr, uint8_t *buf, size_t n) {
 }
 
 extern "C" int pmemread(int raddr) {
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   unsigned int aligned = static_cast<unsigned int>(raddr) & ~0x3u;
   if (aligned == RTC_ADDR || aligned == RTC_UP_ADDR || aligned == RTC_ADDR + 4 || aligned == RTC_UP_ADDR + 4) {
     difftestskip_ref_if_enabled();
   }
+#endif
   return require_mem().pmemRead(raddr);
 }
 
 extern "C" void pmemwrite(int waddr, int wdata, char wmask) {
+#ifndef CONFIG_NPC_VIRTUAL_SOC
   if ((static_cast<unsigned int>(waddr) & ~0x3u) == SERIAL_PORT) {
     putchar(static_cast<char>(wdata));
     fflush(stdout);
     difftestskip_ref_if_enabled();
   }
+#endif
   require_mem().pmemWrite(waddr, wdata, wmask);
 }
 

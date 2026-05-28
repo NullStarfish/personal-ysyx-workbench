@@ -1,47 +1,40 @@
 #ifndef NPC_PIPELINE_CACHE_H
 #define NPC_PIPELINE_CACHE_H
 
-#include <cstddef>
 #include <cstdint>
-#include <deque>
 
 #include "cache_sim.h"
+
+class CacheAccessStats {
+public:
+  void record(bool hit, bool miss, uint32_t latency);
+
+  long long hits() const { return hits_; }
+  long long misses() const { return misses_; }
+  void printLatency(const char *name) const;
+
+private:
+  long long hits_ = 0;
+  long long misses_ = 0;
+  long long accessCycles_ = 0;
+  long long missCycles_ = 0;
+  long long maxLatency_ = 0;
+};
 
 class CacheTraceModel {
 public:
   CacheTraceModel();
 
-  void traceICacheReq(uint32_t pc);
-  void flushICacheRef();
-  void traceICache(bool hit, bool miss, uint32_t resultPc, bool selectedValid, uint32_t storedTag, uint32_t latency);
-  void traceDCache(bool hit, bool miss, uint32_t latency);
+  void traceICacheAccess(bool hit, bool miss, uint32_t latency);
+  void compareICacheRetire(uint32_t pc, bool hit);
+  void traceDCacheAccess(bool hit, bool miss, uint32_t latency);
   void printStats() const;
 
 private:
-  struct RefAccess {
-    uint32_t pc = 0;
-    bool hit = false;
-  };
-
-  cachesim::CacheConfig icacheRefConfig_;
-  cachesim::Cache icacheRef_;
-  std::deque<RefAccess> icacheExpected_;
-
-  long long icacheHits = 0;
-  long long icacheMisses = 0;
-  long long icacheAccessCycles = 0;
-  long long icacheMissCycles = 0;
-  long long icacheMaxLatency = 0;
-  long long icacheCompareCount = 0;
-  long long icacheMismatchCount = 0;
-  long long icacheUnexpectedCount = 0;
-  long long icacheFlushDropCount = 0;
-
-  long long dcacheHits = 0;
-  long long dcacheMisses = 0;
-  long long dcacheAccessCycles = 0;
-  long long dcacheMissCycles = 0;
-  long long dcacheMaxLatency = 0;
+  CacheAccessStats icacheStats_;
+  CacheAccessStats dcacheStats_;
+  cachesim::Cache icacheReference_;
+  long long icacheMismatches_ = 0;
 };
 
 #endif

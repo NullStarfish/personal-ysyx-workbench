@@ -136,6 +136,8 @@ wire [ 31:0]  ram_read_data_w;
 wire          ram_ack_w;
 
 wire          ram_req_w = (ram_wr_w != 4'b0) | ram_rd_w;
+wire          ram_write_req_w = (ram_wr_w != 4'b0);
+wire          ram_read_req_w  = ram_rd_w;
 
 assign inport_ack_o       = ram_ack_w;
 assign inport_read_data_o = ram_read_data_w;
@@ -617,37 +619,57 @@ begin
     //-----------------------------------------
     STATE_READ :
     begin
-        command_q   <= CMD_READ;
-        addr_q      <= addr_col_w;
-        bank_q      <= addr_bank_w;
-        rank_q      <= addr_rank_w;
-        rank_broadcast_q <= 1'b0;
+        if (ram_read_req_w)
+        begin
+            command_q   <= CMD_READ;
+            addr_q      <= addr_col_w;
+            bank_q      <= addr_bank_w;
+            rank_q      <= addr_rank_w;
+            rank_broadcast_q <= 1'b0;
 
-        // Disable auto precharge (auto close of row)
-        addr_q[AUTO_PRECHARGE]  <= 1'b0;
+            // Disable auto precharge (auto close of row)
+            addr_q[AUTO_PRECHARGE]  <= 1'b0;
 
-        // Read mask (all bytes in burst)
-        dqm_q       <= {SDRAM_DQM_W{1'b0}};
+            // Read mask (all bytes in burst)
+            dqm_q       <= {SDRAM_DQM_W{1'b0}};
+        end
+        else
+        begin
+            command_q    <= CMD_NOP;
+            addr_q       <= {SDRAM_ROW_W{1'b0}};
+            bank_q       <= {SDRAM_BANK_W{1'b0}};
+            data_rd_en_q <= 1'b1;
+        end
     end
     //-----------------------------------------
     // STATE_WRITE0
     //-----------------------------------------
     STATE_WRITE0 :
     begin
-        command_q       <= CMD_WRITE;
-        addr_q          <= addr_col_w;
-        bank_q          <= addr_bank_w;
-        data_q          <= ram_write_data_w;
-        rank_q          <= addr_rank_w;
-        rank_broadcast_q <= 1'b0;
+        if (ram_write_req_w)
+        begin
+            command_q       <= CMD_WRITE;
+            addr_q          <= addr_col_w;
+            bank_q          <= addr_bank_w;
+            data_q          <= ram_write_data_w;
+            rank_q          <= addr_rank_w;
+            rank_broadcast_q <= 1'b0;
 
-        // Disable auto precharge (auto close of row)
-        addr_q[AUTO_PRECHARGE]  <= 1'b0;
+            // Disable auto precharge (auto close of row)
+            addr_q[AUTO_PRECHARGE]  <= 1'b0;
 
-        // Write mask
-        dqm_q           <= ~ram_wr_w;
+            // Write mask
+            dqm_q           <= ~ram_wr_w;
 
-        data_rd_en_q    <= 1'b0;
+            data_rd_en_q    <= 1'b0;
+        end
+        else
+        begin
+            command_q    <= CMD_NOP;
+            addr_q       <= {SDRAM_ROW_W{1'b0}};
+            bank_q       <= {SDRAM_BANK_W{1'b0}};
+            data_rd_en_q <= 1'b1;
+        end
     end
     //-----------------------------------------
     // STATE_WRITE1
@@ -671,7 +693,7 @@ always @ (posedge clk_i or posedge rst_i)
 if (rst_i)
     rd_q    <= {(SDRAM_READ_LATENCY+2){1'b0}};
 else
-    rd_q    <= {rd_q[SDRAM_READ_LATENCY:0], (state_q == STATE_READ)};
+    rd_q    <= {rd_q[SDRAM_READ_LATENCY:0], (state_q == STATE_READ && ram_read_req_w)};
 
 //-----------------------------------------------------------------
 // Data Buffer
@@ -698,7 +720,7 @@ if (rst_i)
     ack_q   <= 1'b0;
 else
 begin
-    if (state_q == STATE_WRITE0)
+    if (state_q == STATE_WRITE0 && ram_write_req_w)
         ack_q <= 1'b1;
     else if (rd_q[SDRAM_READ_LATENCY+1])
         ack_q <= 1'b1;
@@ -708,8 +730,9 @@ end
 
 assign ram_ack_w = ack_q;
 
-// Accept command in READ or WRITE0 states
-assign ram_accept_w = (state_q == STATE_READ || state_q == STATE_WRITE0);
+// Accept only the request type that the SDRAM command state can actually issue.
+assign ram_accept_w = (state_q == STATE_READ   && ram_read_req_w) ||
+                      (state_q == STATE_WRITE0 && ram_write_req_w);
 
 //-----------------------------------------------------------------
 // SDRAM I/O

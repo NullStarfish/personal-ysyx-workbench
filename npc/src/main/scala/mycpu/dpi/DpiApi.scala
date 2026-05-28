@@ -35,5 +35,6 @@ object DpiApi {
     m.io.mcause := state.mcause
     m.io.inst := state.inst
     m.io.instType := state.instType
+    m.io.icacheHit := state.icacheHit
   }
 }

@@ -10,6 +10,9 @@ void init_ftrace(const char *elf_file);
 // This is the main trace function, called after each instruction execution.
 void trace_func_call(uint32_t pc, uint32_t inst);
 
+// True after a valid ELF symbol table has been loaded for tracing.
+bool ftrace_ready();
+
 // Prints the function call stack, useful for debugging failures.
 void print_ftrace_stack();
 

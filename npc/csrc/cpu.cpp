@@ -17,6 +17,7 @@
 #include "sdb/sdb.h"
 #include "trace/ftrace.h"
 #include "trace/itrace.h"
+#include "log.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -34,6 +35,7 @@ void CPU::init() {
   archState = {};
   archState.pc = kResetPc;
   archState.csrs.mstatus = 0x1800;
+  retireICacheHitValue = false;
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
@@ -68,6 +70,10 @@ void CPU::execOnce() {
 }
 
 void CPU::traceAndDifftest() {
+#ifdef CONFIG_CACHESIM_DIFFTEST
+  pipeline.cache.compareICacheRetire(retirePcValue, retireICacheHitValue);
+#endif
+
 #ifdef CONFIG_ITRACE
   log_and_trace(retirePcValue, retireInstValue);
 #endif
@@ -91,12 +97,14 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
 
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
+  retireICacheHitValue = snapshot.icacheHit;
   archState.pc = snapshot.dnpc;
   archState.csrs = snapshot.csrs;
   memcpy(archState.gpr, snapshot.gpr, sizeof(archState.gpr));
   if (snapshot.regWen && snapshot.regAddr != 0) {
     archState.gpr[snapshot.regAddr & 0x1f] = snapshot.regData;
   }
+  pcTraceWrite("pc: %x\n", snapshot.pc);
 
   hasCommitted = true;
 }
@@ -195,6 +203,9 @@ void CPU::printStats() const {
 
 void CPU::handleSigint() {
   printf("\n\nCaught Ctrl+C (SIGINT). Terminating simulation...\n");
+#ifdef CONFIG_FTRACE
+  print_ftrace_stack();
+#endif
   printStats();
   exit(0);
 }
@@ -205,7 +216,7 @@ void CPU::handleSigint() {
 
 
 extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal *gprs,
-                                 int mtvec, int mepc, int mstatus, int mcause, int inst, int instType) {
+                                 int mtvec, int mepc, int mstatus, int mcause, int inst, int instType, int icacheHit) {
   CPU::RetireSnapshot snapshot;
   snapshot.pc = static_cast<uint32_t>(pc);
   snapshot.dnpc = static_cast<uint32_t>(dnpc);
@@ -221,6 +232,7 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
   snapshot.csrs.mstatus = static_cast<uint32_t>(mstatus);
   snapshot.csrs.mcause = static_cast<uint32_t>(mcause);
   snapshot.instType = static_cast<uint32_t>(instType);
+  snapshot.icacheHit = icacheHit != 0;
   cpu.commitRetire(snapshot);
 }
 

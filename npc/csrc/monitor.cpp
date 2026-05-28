@@ -26,6 +26,7 @@ namespace {
 char *logFile = nullptr;
 char *elfFile = nullptr;
 char *diffSoFile = nullptr;
+char *pcTraceFile = nullptr;
 
 long load_program(const char *filename) {
   if (filename == nullptr) {
@@ -55,16 +56,19 @@ void parse_args(int argc, char *argv[]) {
       {"diff", required_argument, nullptr, 'd'},
       {"ftrace", required_argument, nullptr, 'f'},
       {"help", no_argument, nullptr, 'h'},
+      {"pc-trace", required_argument, nullptr, 'p'},
       {0, 0, nullptr, 0},
   };
 
   int opt = 0;
-  while ((opt = getopt_long(argc, argv, "-bl:d:f:h", table, nullptr)) != -1) {
+  while ((opt = getopt_long(argc, argv, "-bl:d:f:h:p:", table, nullptr)) != -1) {
     switch (opt) {
       case 'b': sdb_set_batch_mode(); break;
       case 'l': logFile = optarg; break;
       case 'd': diffSoFile = optarg; break;
       case 'f': elfFile = optarg; break;
+      case 'h': printf("pass img file or opts to the executable\n");  exit(0); break;
+      case 'p': pcTraceFile = optarg; break;
       case 1:
         if (img_file == nullptr) {
           img_file = optarg;
@@ -85,7 +89,8 @@ void welcome() {
 
 void init_monitor(int argc, char *argv[]) {
   parse_args(argc, argv);
-  init_log(logFile);
+  init_log(logFile, true);
+  init_log(pcTraceFile, false);
 
 #ifdef CONFIG_FTRACE
   printf("FTRACE is ON\n");

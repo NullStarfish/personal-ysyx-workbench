@@ -43,6 +43,19 @@ module sdram_top_axi(
   inout  [31:0] sdram_dq
 );
 
+  always@(posedge clock) begin
+    if (in_awvalid && in_awready) begin
+      $display("begin to write: addr: %x", in_awaddr);
+    end
+
+    if (in_arvalid && in_arready) begin
+      $display("begin to read: addr: %x", in_araddr);
+    end
+
+  end
+
+
+
   wire sdram_dout_en;
   wire [31:0] sdram_dout;
   assign sdram_dq = sdram_dout_en ? sdram_dout : 32'bz;
