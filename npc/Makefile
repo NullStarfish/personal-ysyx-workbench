@@ -30,10 +30,10 @@ VERILATOR_LIBS :=
 
 ifeq ($(SIM_TARGET),npc)
 TOP_MODULE := NpcTop
-else ifeq ($(SIM_TARGET),ysyxsoc)
+else ifneq ($(filter ysyxsoc ysyxsoc-bootloader,$(SIM_TARGET)),)
 TOP_MODULE := ysyxSoCFull
 else
-$(error Unsupported SIM_TARGET '$(SIM_TARGET)'; use npc or ysyxsoc)
+$(error Unsupported SIM_TARGET '$(SIM_TARGET)'; use npc, ysyxsoc, or ysyxsoc-bootloader)
 endif
 
 -include .config

@@ -23,11 +23,14 @@ private:
   using RefInit = void (*)(int port);
 
   void remember(const riscv32_CPU_state &dut);
+  bool armAtSdram();
   bool isMemoryInstruction(uint32_t inst, uint32_t *addr, uint32_t *len) const;
   bool shouldSkipRefForInst(uint32_t inst) const;
   void checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &ref);
 
   bool isSkipRef = false;
+  bool refReady = false;
+  long imageSize = 0;
   riscv32_CPU_state lastDutState{};
   bool hasLastDutState = false;
   RefMemcpy refMemcpy = nullptr;

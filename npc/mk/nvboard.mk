@@ -1,8 +1,8 @@
 # Optional NVBoard archive.  Generated binding consumes the Verilated top type.
 
 ifeq ($(BOARD),1)
-ifneq ($(SIM_TARGET),ysyxsoc)
-$(error BOARD=1 requires SIM_TARGET=ysyxsoc)
+ifeq ($(filter ysyxsoc ysyxsoc-bootloader,$(SIM_TARGET)),)
+$(error BOARD=1 requires SIM_TARGET=ysyxsoc or ysyxsoc-bootloader)
 endif
 
 NVBOARD_SRC_DIR := $(NVBOARD_HOME)/src

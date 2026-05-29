@@ -3,6 +3,9 @@
 #include <cstdio>
 
 #include "svdpi.h"
+#include "cpu.h"
+
+extern CPU cpu;
 
 PipelineModel pipeline;
 
@@ -99,8 +102,10 @@ Inst PipelineModel::retire(uint32_t pc, uint32_t instVal, uint32_t instType) {
 void PipelineModel::flush(uint32_t pc, uint32_t instVal) {
   (void)pc;
   (void)instVal;
+
   fetch.clear();
   decode.clear();
+  
 }
 
 void PipelineModel::printStats(long long totalCycles) const {

@@ -191,7 +191,7 @@ class myCore(
 object GenCore extends App {
   ChiselStage.emitSystemVerilogFile(
     new myCore,
-    args = Array("--target-dir", "build/rtl/Core"),
+    args = Array("--target-dir", sys.env.getOrElse("NPC_RTL_DIR", "build/rtl/Core")),
     firtoolOpts = Array(
       "--disable-all-randomization",
       "--lowering-options=disallowLocalVariables",

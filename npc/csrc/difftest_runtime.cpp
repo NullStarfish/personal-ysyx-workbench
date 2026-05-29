@@ -83,18 +83,11 @@ void Difftest::init(char *refSoFile, long imgSize) {
     exit(1);
   }
 
-  printf("Differential testing: ON\n");
-  difftestis_enabled = true;
+  printf("Differential testing: armed, waiting for SDRAM PC\n");
+  difftestis_enabled = false;
+  refReady = true;
+  imageSize = imgSize;
   refInit(0);
-
-  uint8_t *guestMem = static_cast<uint8_t *>(malloc(imgSize));
-  mem.pmemReadChunk(kImageBase, guestMem, imgSize);
-  refMemcpy(kImageBase, guestMem, imgSize, DIFFTEST_TO_REF);
-  free(guestMem);
-
-  lastDutState = cpu.dutState();
-  hasLastDutState = true;
-  refRegcpy(&lastDutState, DIFFTEST_TO_REF);
 #else
   (void)refSoFile;
   (void)imgSize;
@@ -103,6 +96,10 @@ void Difftest::init(char *refSoFile, long imgSize) {
 
 void Difftest::step() {
 #ifdef CONFIG_DIFFTEST
+  if (refReady && !difftestis_enabled) {
+    if (!armAtSdram()) return;
+    return;
+  }
   if (!difftestis_enabled) return;
 
   riscv32_CPU_state dut = cpu.dutState();
@@ -129,6 +126,25 @@ void Difftest::step() {
   refRegcpy(&ref, DIFFTEST_TO_REF);
   remember(dut);
 #endif
+}
+
+bool Difftest::armAtSdram() {
+  uint32_t retirePc = cpu.retirePc();
+  if (retirePc < kImageBase || retirePc >= kImageBase + kDifftestMemSize) {
+    return false;
+  }
+
+  uint8_t *guestMem = static_cast<uint8_t *>(malloc(imageSize));
+  mem.pmemReadChunk(kImageBase, guestMem, imageSize);
+  refMemcpy(kImageBase, guestMem, imageSize, DIFFTEST_TO_REF);
+  free(guestMem);
+
+  lastDutState = cpu.dutState();
+  hasLastDutState = true;
+  refRegcpy(&lastDutState, DIFFTEST_TO_REF);
+  difftestis_enabled = true;
+  printf("Differential testing: ON from SDRAM PC 0x%08x\n", retirePc);
+  return true;
 }
 
 void Difftest::remember(const riscv32_CPU_state &dut) {
@@ -238,4 +254,3 @@ extern "C" void difftest_skip_ref_cpp() {
 void difftestskip_ref() {
   difftestskip_ref_if_enabled();
 }
-

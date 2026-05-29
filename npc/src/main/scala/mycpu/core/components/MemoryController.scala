@@ -33,6 +33,28 @@ class MemoryReadArbiter extends Module {
   val lsuRespValid = RegInit(false.B)
   val lsuRespData = Reg(UInt(XLEN.W))
 
+
+  val enableTrace = true
+  if (enableTrace) {
+    when (io.fetchReq.valid) {
+      printf("[Read ARB] fetch req\n")
+    }
+    when (io.lsuReq.valid) {
+      printf("[Read ARB] LSU req\n")
+    }
+    when (io.fetchReq.valid || io.lsuReq.valid) {
+      printf("Current Owner: %d\n", owner.asUInt)
+    }
+
+    when (io.fetchReply.fire) {
+      printf("Fetch reply fire, data: %x\n", io.fetchReply.bits)
+    }
+    when (io.lsuReply.fire) {
+      printf("LSU reply fire, data: %x\n", io.lsuReply.bits)
+    }
+    
+  }
+
   val canGrantLsu = io.lsuReq.valid && !lsuRespValid
   val canGrantFetch = io.fetchReq.valid && !fetchRespValid
   val grantLsu = canGrantLsu
@@ -167,4 +189,8 @@ class MemoryController extends Module {
   when(writeReplyValid && io.lsuReply.ready && !lsuReadReply.valid) {
     writeState := WriteState.Idle
   }
+  
+
+
+  
 }

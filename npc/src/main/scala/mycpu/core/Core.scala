@@ -23,6 +23,15 @@ class Core(
     val simState = Output(new SimStateBundle)
   })
 
+
+
+  val enableTrace = true
+  if (enableTrace) {
+    when (io.master.r.fire) {
+      printf("[TOP] read fire. data: %x\n", io.master.r.bits.data)
+    }
+  }
+
   val fetch = Module(new Fetch(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
@@ -127,7 +136,7 @@ class Core(
     flushTrace.io.clk := clock
     flushTrace.io.reset := reset.asBool
     flushTrace.io.flush := redirectFlush
-    flushTrace.io.pc := execute.io.out.bits.retireTrace.get.pc
+    flushTrace.io.pc := execute.io.out.bits.retireTrace.get.dnpc
     flushTrace.io.inst := execute.io.out.bits.retireTrace.get.inst
 
     val pipelineTrace = Module(new PipelineTrace)
@@ -157,7 +166,7 @@ class Core(
   }
 
   ifId.io.flush := redirectFlush
-  idEx.io.flush := redirectFlush
+  idEx.io.flush := false.B
   exMem.io.flush := false.B
   memWb.io.flush := false.B
 

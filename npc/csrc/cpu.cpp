@@ -27,8 +27,12 @@
 #define IMAGE_BASE_ADDR 0xa0000000u
 #endif
 
+#ifndef CONFIG_RESET_PC
+#define CONFIG_RESET_PC 0x30000000u
+#endif
+
 namespace {
-constexpr uint32_t kResetPc = 0xa0000000u;
+constexpr uint32_t kResetPc = CONFIG_RESET_PC;
 }
 
 void CPU::init() {

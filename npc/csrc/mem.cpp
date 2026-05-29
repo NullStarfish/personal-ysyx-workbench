@@ -10,6 +10,10 @@
 #include "device.h"
 #include "difftest_runtime.h"
 
+#ifndef CONFIG_RESET_PC
+#define CONFIG_RESET_PC 0x30000000u
+#endif
+
 namespace {
 Mem *activeMem = nullptr;
 }
@@ -126,29 +130,46 @@ uint32_t Mem::sdramLinearHalfaddrFromBus(uint32_t addr) {
   return (bank << 22) | (row << 9) | col;
 }
 
+uint8_t Mem::readSdramByte(uint32_t addr) const {
+  uint32_t offset = addr - kSdramBase;
+  uint32_t rank = offset >> 24;
+  uint32_t halfaddr = sdramLinearHalfaddrFromBus(addr);
+  uint32_t chip = rank * 2 + ((addr >> 1) & 0x1u);
+  uint32_t shift = (addr & 0x1u) * 8u;
+  assert(chip < 4);
+  return static_cast<uint8_t>((sdramMem[chip][halfaddr] >> shift) & 0xffu);
+}
+
+void Mem::writeSdramByte(uint32_t addr, uint8_t data) {
+  uint32_t offset = addr - kSdramBase;
+  uint32_t rank = offset >> 24;
+  uint32_t halfaddr = sdramLinearHalfaddrFromBus(addr);
+  uint32_t chip = rank * 2 + ((addr >> 1) & 0x1u);
+  uint32_t shift = (addr & 0x1u) * 8u;
+  assert(chip < 4);
+  uint16_t old = sdramMem[chip][halfaddr];
+  uint16_t next = (old & ~(0xffu << shift)) | (static_cast<uint16_t>(data) << shift);
+  sdramMem[chip][halfaddr] = next;
+}
+
+void Mem::loadDataToSdram(const uint8_t *data, size_t size) {
+  assert(size <= static_cast<size_t>(kSdramSize));
+  for (size_t i = 0; i < size; ++i) {
+    writeSdramByte(kSdramBase + static_cast<uint32_t>(i), data[i]);
+  }
+}
+
 void Mem::loadDataToRom(const uint8_t *data, size_t size) {
 #ifdef CONFIG_NPC_VIRTUAL_SOC
   assert(size <= static_cast<size_t>(kPmemSize));
   memcpy(pmem + (kProgramBase - kPmemBase), data, size);
 #else
-  const uint32_t endAddr = kProgramBase + static_cast<uint32_t>(size);
-  const uint32_t startRank = (kProgramBase - kSdramBase) >> 24;
-  const uint32_t endRank = ((endAddr - 1) - kSdramBase) >> 24;
-  assert(startRank == endRank);
-  assert(startRank < 2);
-
-  for (size_t off = 0; off < size; off += 4) {
-    uint32_t addr = kProgramBase + static_cast<uint32_t>(off);
-    uint32_t halfaddr = sdramLinearHalfaddrFromBus(addr);
-    assert(halfaddr < kSdramHalfwords);
-    uint16_t lower = 0;
-    uint16_t upper = 0;
-    if (off + 0 < size) lower |= static_cast<uint16_t>(data[off + 0]);
-    if (off + 1 < size) lower |= static_cast<uint16_t>(data[off + 1]) << 8;
-    if (off + 2 < size) upper |= static_cast<uint16_t>(data[off + 2]);
-    if (off + 3 < size) upper |= static_cast<uint16_t>(data[off + 3]) << 8;
-    sdramMem[startRank * 2 + 0][halfaddr] = lower;
-    sdramMem[startRank * 2 + 1][halfaddr] = upper;
+  if (CONFIG_RESET_PC >= kSdramBase && CONFIG_RESET_PC < kSdramBase + kSdramSize) {
+    loadDataToSdram(data, size);
+  } else {
+    assert(size <= static_cast<size_t>(kFlashSize));
+    assert(static_cast<uint64_t>(kFlashBase - kPmemBase) + size <= static_cast<uint64_t>(kPmemSize));
+    memcpy(pmem + (kFlashBase - kPmemBase), data, size);
   }
 #endif
 }
@@ -159,18 +180,7 @@ void Mem::pmemReadChunk(uint32_t addr, uint8_t *buf, size_t n) const {
 #ifndef CONFIG_NPC_VIRTUAL_SOC
   if (addr >= kSdramBase && static_cast<uint64_t>(addr - kSdramBase) + n <= (1ull << 25)) {
     for (size_t i = 0; i < n; ++i) {
-      uint32_t cur = addr + static_cast<uint32_t>(i);
-      uint32_t rank = (cur - kSdramBase) >> 24;
-      uint32_t halfaddr = sdramLinearHalfaddrFromBus(cur);
-      assert(rank < 2);
-      uint16_t lower = sdramMem[rank * 2 + 0][halfaddr];
-      uint16_t upper = sdramMem[rank * 2 + 1][halfaddr];
-      switch (cur & 0x3u) {
-        case 0: buf[i] = lower & 0xffu; break;
-        case 1: buf[i] = (lower >> 8) & 0xffu; break;
-        case 2: buf[i] = upper & 0xffu; break;
-        default: buf[i] = (upper >> 8) & 0xffu; break;
-      }
+      buf[i] = readSdramByte(addr + static_cast<uint32_t>(i));
     }
     return;
   }
@@ -187,6 +197,18 @@ void Mem::pmemReadChunk(uint32_t addr, uint8_t *buf, size_t n) const {
 }
 
 int Mem::pmemRead(int raddr) const {
+#ifndef CONFIG_NPC_VIRTUAL_SOC
+  uint32_t uaddr = static_cast<uint32_t>(raddr);
+  if (uaddr >= kSdramBase && static_cast<uint64_t>(uaddr - kSdramBase) + 4 <= kSdramSize) {
+    uint32_t alignAddr = uaddr & ~0x3u;
+    uint32_t data = static_cast<uint32_t>(readSdramByte(alignAddr + 0)) |
+                    static_cast<uint32_t>(readSdramByte(alignAddr + 1)) << 8 |
+                    static_cast<uint32_t>(readSdramByte(alignAddr + 2)) << 16 |
+                    static_cast<uint32_t>(readSdramByte(alignAddr + 3)) << 24;
+    return static_cast<int>(data);
+  }
+#endif
+
   long offset = static_cast<unsigned int>(raddr) - kPmemBase;
   long alignOffset = offset & ~0x3u;
   if (alignOffset < 0 || alignOffset + 4 > kPmemSize) return 0;
@@ -216,6 +238,19 @@ int Mem::pmemRead(int raddr) const {
 }
 
 void Mem::pmemWrite(int waddr, int wdata, char wmask) {
+#ifndef CONFIG_NPC_VIRTUAL_SOC
+  uint32_t uaddr = static_cast<uint32_t>(waddr);
+  if (uaddr >= kSdramBase && static_cast<uint64_t>(uaddr - kSdramBase) + 4 <= kSdramSize) {
+    uint32_t alignAddr = uaddr & ~0x3u;
+    for (int i = 0; i < 4; ++i) {
+      if (wmask & (1 << i)) {
+        writeSdramByte(alignAddr + static_cast<uint32_t>(i), static_cast<uint8_t>(wdata >> (i * 8)));
+      }
+    }
+    return;
+  }
+#endif
+
   long offset = static_cast<unsigned int>(waddr) - kPmemBase;
   long alignOffset = offset & ~0x3u;
   if (alignOffset < 0 || alignOffset + 4 > kPmemSize) return;

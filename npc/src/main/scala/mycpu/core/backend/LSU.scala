@@ -115,6 +115,27 @@ class LSU(
     }
   }
 
+
+  val enableTrace = true
+  if (enableTrace) {
+    when (io.req.fire) {
+      printf("[LSU] req addr: %x\n", io.req.bits.addr)
+      when (io.req.bits.write) {
+        printf("[LSU] req write data: %x\n", io.req.bits.data)
+      } .otherwise {
+        printf("[LSU] req read\n")
+      }
+      
+    }
+
+    when (io.reply.fire) {
+      printf("[LSU] reply\n")
+      printf("[LSU] reply data: %x\n", io.reply.bits)
+    }
+  }
+
+
+
   if (enableDpi) {
     val lsuTrace = Module(new LSUTrace)
     lsuTrace.io.clk := clock

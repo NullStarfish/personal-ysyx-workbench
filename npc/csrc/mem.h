@@ -15,9 +15,12 @@ public:
   static constexpr long kPmemBase = 0x30000000L;
 #endif
   static constexpr uint32_t kProgramBase = 0xa0000000u;
+  static constexpr uint32_t kFlashBase = 0x30000000u;
+  static constexpr uint32_t kFlashSize = 0x10000000u;
   static constexpr uint32_t kPsramBase = 0x80000000u;
   static constexpr uint32_t kPsramSize = 0x01000000u;
   static constexpr uint32_t kSdramBase = 0xa0000000u;
+  static constexpr uint32_t kSdramSize = 0x02000000u;
   static constexpr uint32_t kSdramHalfwords = 0x01000000u;
 
   Mem();
@@ -36,6 +39,9 @@ public:
 
 private:
   static uint32_t sdramLinearHalfaddrFromBus(uint32_t addr);
+  uint8_t readSdramByte(uint32_t addr) const;
+  void writeSdramByte(uint32_t addr, uint8_t data);
+  void loadDataToSdram(const uint8_t *data, size_t size);
 
   uint8_t *pmem = nullptr;
   uint8_t *psramMem = nullptr;

@@ -8,7 +8,7 @@ VERILOG_HAND_SRCS += $(VERILOG_HAND_DIR)/NpcTop.sv $(VERILOG_HAND_DIR)/NpcVirtua
 endif
 
 SOC_RTL_SRCS :=
-ifeq ($(SIM_TARGET),ysyxsoc)
+ifneq ($(filter ysyxsoc ysyxsoc-bootloader,$(SIM_TARGET)),)
 SOC_TOP_RTL := $(SOC_HOME)/build/ysyxSoCFull.v
 SOC_CHISEL_SRCS := $(shell find $(SOC_HOME)/src -name '*.scala')
 SOC_RTL_SRCS := $(shell find $(SOC_HOME)/perip \( -name '*.v' -o -name '*.sv' \)) $(SOC_TOP_RTL)

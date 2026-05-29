@@ -175,6 +175,9 @@ class sdramChipCore(chipId: Int) extends RawModule {
       } .otherwise {
         outEnReg := true.B
         outDataReg := readPort.io.rdata
+//////////////////////////////
+        printf("[sdram] id: %d, output: %x\n",chipId.U, readPort.io.rdata)
+
         when(readRemain === 1.U) {
           readActive := false.B
         } .otherwise {

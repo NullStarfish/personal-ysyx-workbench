@@ -52,6 +52,10 @@ module sdram_top_axi(
       $display("begin to read: addr: %x", in_araddr);
     end
 
+
+    if (in_rvalid && in_rready) begin
+      $display("read fire: data: %x", in_rdata);
+    end
   end
 
 
@@ -63,7 +67,7 @@ module sdram_top_axi(
     .SDRAM_MHZ(100),
     .SDRAM_ADDR_W(24),
     .SDRAM_COL_W(9),
-    .SDRAM_READ_LATENCY(2)
+    .SDRAM_READ_LATENCY(3)
   ) u_sdram_axi(
     .clk_i(clock),
     .rst_i(reset),

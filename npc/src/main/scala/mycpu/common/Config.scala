@@ -6,7 +6,7 @@ import chisel3._
 package object common {
   // === 全局配置 ===
   val XLEN = 32
-  val START_ADDR = 0xa0000000L
+  val START_ADDR = java.lang.Long.decode(sys.env.getOrElse("NPC_START_ADDR", "0x30000000")).longValue
   val AXI_ID_WIDTH = 3
   val ENABLE_TRACER = true
   val ENABLE_TRACE_FIELDS = true
