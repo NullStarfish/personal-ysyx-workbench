@@ -43,17 +43,17 @@ module sdram_top_axi(
   inout  [31:0] sdram_dq
 );
 
+  localparam ENABLE_SDRAM_AXI_TRACE = 0;
   always@(posedge clock) begin
-    if (in_awvalid && in_awready) begin
+    if (ENABLE_SDRAM_AXI_TRACE && in_awvalid && in_awready) begin
       $display("begin to write: addr: %x", in_awaddr);
     end
 
-    if (in_arvalid && in_arready) begin
+    if (ENABLE_SDRAM_AXI_TRACE && in_arvalid && in_arready) begin
       $display("begin to read: addr: %x", in_araddr);
     end
 
-
-    if (in_rvalid && in_rready) begin
+    if (ENABLE_SDRAM_AXI_TRACE && in_rvalid && in_rready) begin
       $display("read fire: data: %x", in_rdata);
     end
   end
@@ -67,7 +67,7 @@ module sdram_top_axi(
     .SDRAM_MHZ(100),
     .SDRAM_ADDR_W(24),
     .SDRAM_COL_W(9),
-    .SDRAM_READ_LATENCY(3)
+    .SDRAM_READ_LATENCY(2)
   ) u_sdram_axi(
     .clk_i(clock),
     .rst_i(reset),

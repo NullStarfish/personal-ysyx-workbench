@@ -34,7 +34,7 @@ class MemoryReadArbiter extends Module {
   val lsuRespData = Reg(UInt(XLEN.W))
 
 
-  val enableTrace = true
+  val enableTrace = false
   if (enableTrace) {
     when (io.fetchReq.valid) {
       printf("[Read ARB] fetch req\n")

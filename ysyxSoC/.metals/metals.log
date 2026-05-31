@@ -5891,3 +5891,8 @@ WARNING: Unmatched cancel notification for request id 974
 2026.05.29 23:04:13 INFO  time: compiled ysyxsoc in 1.79s[0m
 May 29, 2026 11:09:13 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
 WARNING: Unmatched cancel notification for request id 1113
+2026.05.30 00:32:49 INFO  Shutting down server[0m
+2026.05.30 00:32:49 INFO  Memory monitor stopped[0m
+2026.05.30 00:32:49 INFO  shutting down Metals[0m
+2026.05.30 00:32:49 INFO  Shut down connection with build server.[0m
+2026.05.30 00:32:49 INFO  Exiting server[0m

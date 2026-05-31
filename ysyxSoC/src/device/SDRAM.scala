@@ -141,7 +141,7 @@ class sdramChipCore(chipId: Int) extends RawModule {
     outData := outDataReg
 
 
-    val enable_trace = true
+    val enable_trace = false
     if (enable_trace) {
       val halfAddr = linearHalfAddr(io.ba, openRow(io.ba), io.a(ColWidth - 1, 0))
 
@@ -175,8 +175,9 @@ class sdramChipCore(chipId: Int) extends RawModule {
       } .otherwise {
         outEnReg := true.B
         outDataReg := readPort.io.rdata
-//////////////////////////////
-        printf("[sdram] id: %d, output: %x\n",chipId.U, readPort.io.rdata)
+        if (enable_trace) {
+          printf("[sdram] id: %d, output: %x\n", chipId.U, readPort.io.rdata)
+        }
 
         when(readRemain === 1.U) {
           readActive := false.B

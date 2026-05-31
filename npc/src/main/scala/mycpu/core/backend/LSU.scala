@@ -116,7 +116,7 @@ class LSU(
   }
 
 
-  val enableTrace = true
+  val enableTrace = false
   if (enableTrace) {
     when (io.req.fire) {
       printf("[LSU] req addr: %x\n", io.req.bits.addr)

@@ -25,7 +25,7 @@ class Core(
 
 
 
-  val enableTrace = true
+  val enableTrace = false
   if (enableTrace) {
     when (io.master.r.fire) {
       printf("[TOP] read fire. data: %x\n", io.master.r.bits.data)

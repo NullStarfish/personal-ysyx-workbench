@@ -189,6 +189,9 @@ wire [SDRAM_ROW_W-1:0]  addr_row_w  = {{2{1'b0}}, ram_addr_w[23:13]};
 wire [SDRAM_BANK_W-1:0] addr_bank_w = ram_addr_w[12:11];
 wire                    addr_rank_w = ram_addr_w[24];
 wire [SDRAM_BANK_W:0]   addr_slot_w = {addr_rank_w, addr_bank_w};
+wire                    addr_row_hit_w = row_open_q[addr_slot_w] && addr_row_w == active_row_q[addr_slot_w];
+wire                    ram_read_issue_w = state_q == STATE_READ && ram_read_req_w && addr_row_hit_w;
+wire                    ram_write_issue_w = state_q == STATE_WRITE0 && ram_write_req_w && addr_row_hit_w;
 
 //-----------------------------------------------------------------
 // SDRAM State Machine
@@ -619,7 +622,7 @@ begin
     //-----------------------------------------
     STATE_READ :
     begin
-        if (ram_read_req_w)
+        if (ram_read_req_w && addr_row_hit_w)
         begin
             command_q   <= CMD_READ;
             addr_q      <= addr_col_w;
@@ -646,7 +649,7 @@ begin
     //-----------------------------------------
     STATE_WRITE0 :
     begin
-        if (ram_write_req_w)
+        if (ram_write_req_w && addr_row_hit_w)
         begin
             command_q       <= CMD_WRITE;
             addr_q          <= addr_col_w;
@@ -693,7 +696,7 @@ always @ (posedge clk_i or posedge rst_i)
 if (rst_i)
     rd_q    <= {(SDRAM_READ_LATENCY+2){1'b0}};
 else
-    rd_q    <= {rd_q[SDRAM_READ_LATENCY:0], (state_q == STATE_READ && ram_read_req_w)};
+    rd_q    <= {rd_q[SDRAM_READ_LATENCY:0], ram_read_issue_w};
 
 //-----------------------------------------------------------------
 // Data Buffer
@@ -720,7 +723,7 @@ if (rst_i)
     ack_q   <= 1'b0;
 else
 begin
-    if (state_q == STATE_WRITE0 && ram_write_req_w)
+    if (ram_write_issue_w)
         ack_q <= 1'b1;
     else if (rd_q[SDRAM_READ_LATENCY+1])
         ack_q <= 1'b1;
@@ -731,8 +734,7 @@ end
 assign ram_ack_w = ack_q;
 
 // Accept only the request type that the SDRAM command state can actually issue.
-assign ram_accept_w = (state_q == STATE_READ   && ram_read_req_w) ||
-                      (state_q == STATE_WRITE0 && ram_write_req_w);
+assign ram_accept_w = ram_read_issue_w || ram_write_issue_w;
 
 //-----------------------------------------------------------------
 // SDRAM I/O
