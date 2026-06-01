@@ -28,6 +28,7 @@ class SysBundle extends Bundle {
   val ecall = Bool()
   val ebreak = Bool()
   val mret = Bool()
+  val fencei = Bool()
 }
 
 
@@ -106,6 +107,8 @@ class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bu
       def bits = ExecutePacket.this.rhs
     }
   }
+
+  val fencei = Bool()
 
   val forward = new Bundle with ForwardSource {
     def valid = ExecutePacket.this.wbCtrl.wen && !ExecutePacket.this.memCtrl.en && (ExecutePacket.this.wbCtrl.rd =/= 0.U)

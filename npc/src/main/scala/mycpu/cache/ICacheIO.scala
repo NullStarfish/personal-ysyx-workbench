@@ -31,5 +31,6 @@ class ICacheIO(params: CacheParams = CacheParams()) extends Bundle {
   val memReply = Flipped(Decoupled(new ICacheMemReply(params)))
 
   val redirect = Flipped(Valid(UInt(params.addrWidth.W)))
+  val flush = Input(Bool())
   val prefetch = Flipped(Valid(new ICachePrefetchReq(params)))
 }

@@ -80,6 +80,7 @@ class Decode(
   val isEcall = WireDefault(false.B)
   val isMret = WireDefault(false.B)
   val isEbreak = WireDefault(false.B)
+  val isFenceI = WireDefault(false.B)
 
   val instType = TraceVal(WireDefault(InstType.arith))
 
@@ -234,6 +235,12 @@ class Decode(
         }
       }
     }
+    is("b0001111".U) { // misc-mem
+      instType.foreach(_ := InstType.sys)
+      when(inst === Instructions.FENCEI.value.U) {
+        isFenceI := true.B
+      }
+    }
   }
 
   val rs1Valid =
@@ -271,6 +278,7 @@ class Decode(
   io.out.bits.execCtrl.sys.ecall := isEcall
   io.out.bits.execCtrl.sys.mret := isMret
   io.out.bits.execCtrl.sys.ebreak := isEbreak
+  io.out.bits.execCtrl.sys.fencei := isFenceI
 
   io.out.bits.wbCtrl.wen := regWen
 

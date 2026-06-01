@@ -123,6 +123,7 @@ class Core(
   hazard.io.raw.lsuToMemWbFire := lsu.io.pendingLoad.valid && lsu.io.out.fire
 
   val executeRedirect = execute.io.out.valid && execute.io.out.bits.ifRedct.redirect.valid
+  val executeFenceI = execute.io.out.valid && execute.io.out.bits.fencei
   hazard.io.ctrl.redirect := executeRedirect
   val redirectFlush = hazard.io.flush
   val loadUseStall = hazard.io.stall
@@ -132,6 +133,7 @@ class Core(
   icacheOpt.foreach { icache =>
     icache.io.redirect.valid := redirectFlush
     icache.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
+    icache.io.flush := executeFenceI
   }
 
   if (enableDpi && enableTraceFields) {

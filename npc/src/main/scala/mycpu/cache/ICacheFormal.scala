@@ -28,10 +28,12 @@ class ICacheFormalHarness extends Module {
 
   dut.io.redirect.valid := io.redirect.valid
   dut.io.redirect.bits := io.redirect.bits
+  dut.io.flush := io.flush
   dut.io.prefetch.valid := io.prefetch.valid
   dut.io.prefetch.bits := io.prefetch.bits
 
   assume(!io.redirect.valid)
+  assume(!io.flush)
   assume(!io.prefetch.valid)
 
   val active = RegInit(false.B)

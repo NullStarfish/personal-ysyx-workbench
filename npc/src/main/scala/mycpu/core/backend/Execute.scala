@@ -80,9 +80,12 @@ class Execute(
   val indirectTarget = (execData.rs1 + execData.imm) & ~1.U(XLEN.W)
   val branchTakenNow = isBranch && branchTaken(ctrl.branchType)
   val jumpRedirectTarget = Mux(ctrl.isJalr, indirectTarget, jumpDirectTarget)
-  val sysRedirectTarget = Mux(ctrl.sys.mret, csr.io.epc, csr.io.evec)
+  val sysRedirectTarget = MuxCase(csr.io.evec, Seq(
+    ctrl.sys.mret -> csr.io.epc,
+    ctrl.sys.fencei -> pcPlus4,
+  ))
 
-  val hasSysRedirect = ctrl.sys.ecall || ctrl.sys.mret
+  val hasSysRedirect = ctrl.sys.ecall || ctrl.sys.mret || ctrl.sys.fencei
   val hasJumpRedirect = ctrl.isJump
   val hasBranchRedirect = branchTakenNow
 
@@ -104,6 +107,7 @@ class Execute(
     ctrl.isJump -> jumpRedirectTarget,
     ctrl.sys.ecall -> csr.io.evec,
     ctrl.sys.mret -> csr.io.epc,
+    ctrl.sys.fencei -> pcPlus4,
   ))
 
   io.out.bits.lhs := Mux(data.memCtrl.write, execData.rs2, result)
@@ -118,6 +122,7 @@ class Execute(
   io.out.bits.memCtrl.subop := data.memCtrl.subop
 
   io.out.bits.ifRedct.redirect.valid := redirectValid
+  io.out.bits.fencei := ctrl.sys.fencei
 
   if (enableTraceFields) {
     io.out.bits.retireTrace.get := io.in.bits.retireTrace.get

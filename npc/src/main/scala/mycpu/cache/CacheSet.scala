@@ -30,6 +30,7 @@ class CacheSetIO(params: CacheParams) extends Bundle {
   val lookup = Flipped(Valid(new CacheSetLookupReq(params)))
   val lookupResp = Output(new CacheSetLookupResp(params))
   val write = Flipped(Valid(new CacheSetWriteReq(params)))
+  val flush = Input(Bool())
 }
 
 class CacheSet(params: CacheParams) extends Module {
@@ -78,7 +79,13 @@ class CacheSet(params: CacheParams) extends Module {
   io.lookupResp.line := hitData
   io.lookupResp.word := params.wordFromLine(hitData, lookupReq.wordOffset)
 
-  when(io.write.valid) {
+  when(io.flush) {
+    for (set <- 0 until params.sets) {
+      for (way <- 0 until params.ways) {
+        validBits(set)(way) := false.B
+      }
+    }
+  }.elsewhen(io.write.valid) {
     lines.write(lineAddr(io.write.bits.index, io.write.bits.way), io.write.bits.data)
     if (params.ways == 1) {
       tags(io.write.bits.index)(0) := io.write.bits.meta.tag

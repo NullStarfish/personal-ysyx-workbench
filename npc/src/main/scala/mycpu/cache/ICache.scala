@@ -31,10 +31,12 @@ class ICache(
   val reqLineBase = params.lineBase(cpuReq.pc)
   val cacheSet = Module(new CacheSet(params))
   val replacement = Replacement(params)
+  val frontFlush = io.redirect.valid || io.flush
   
 
   io.cpuReq.ready := false.B
 
+  cacheSet.io.flush := io.flush
   cacheSet.io.lookup.valid := false.B
   cacheSet.io.lookup.bits.index := reqIndex
   cacheSet.io.lookup.bits.tag := reqTag
@@ -92,9 +94,9 @@ class ICache(
   }
 
   when (state === State.Lookup) {
-    io.cpuReq.ready := !reqValid && !reset.asBool && !io.redirect.valid && !dropMemReply
+    io.cpuReq.ready := !reqValid && !reset.asBool && !frontFlush && !dropMemReply
 
-    cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !io.redirect.valid && !dropMemReply
+    cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !frontFlush && !dropMemReply
     cacheSet.io.lookup.bits.index := params.index(lookupReq.pc)
     cacheSet.io.lookup.bits.tag := params.tag(lookupReq.pc)
     cacheSet.io.lookup.bits.wordOffset := params.wordOffset(lookupReq.pc)
@@ -119,7 +121,7 @@ class ICache(
       responseInst := cacheSet.io.lookupResp.word
       responseWay := cacheSet.io.lookupResp.way
     }.elsewhen(responseHit) {
-      io.cpuReply.valid := !io.redirect.valid
+      io.cpuReply.valid := !frontFlush
       when(io.cpuReply.fire) {
         replacement.touch.valid := true.B
         reqValid := false.B
@@ -130,8 +132,8 @@ class ICache(
       }
     }.otherwise {
       accessMiss := true.B
-      io.memReq.valid := reqValid && !memReqDone && !io.redirect.valid && !dropMemReply
-      io.memReply.ready := reqValid && !io.redirect.valid && !dropMemReply
+      io.memReq.valid := reqValid && !memReqDone && !frontFlush && !dropMemReply
+      io.memReply.ready := reqValid && !frontFlush && !dropMemReply
 
       when(io.memReq.fire) {
         memReqDone := true.B
@@ -174,7 +176,7 @@ class ICache(
     }
   }
 
-  when(io.redirect.valid) {
+  when(frontFlush) {
     reqValid := false.B
     accessLatency := 0.U
     accessMiss := false.B
