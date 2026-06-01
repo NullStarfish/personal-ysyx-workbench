@@ -43,7 +43,9 @@ void CPU::init() {
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
+#ifdef CONFIG_PERF_STATS
   pipeline.reset();
+#endif
 }
 
 void CPU::exec(uint64_t n) {
@@ -52,29 +54,43 @@ void CPU::exec(uint64_t n) {
     return;
   }
   runtime.setRunning();
+#ifdef CONFIG_RETIRE_TRACE
   for (; n > 0; n--) {
     execOnce();
     if (!runtime.isRunning()) break;
   }
+#else
+  for (; n > 0 && runtime.isRunning(); n--) {
+    runtime.stepOneClk();
+    cycleCountValue++;
+  }
+#endif
   if (runtime.isRunning()) {
     runtime.setStop();
   }
 }
 
 void CPU::execOnce() {
+#ifdef CONFIG_RETIRE_TRACE
   hasCommitted = false;
   while (!hasCommitted && runtime.isRunning()) {
     runtime.stepOneClk();
     cycleCountValue++;
+#ifdef CONFIG_PERF_STATS
     pipeline.tick();
+#endif
   }
   if (!runtime.isRunning()) return;
 
   traceAndDifftest();
+#else
+  runtime.stepOneClk();
+  cycleCountValue++;
+#endif
 }
 
 void CPU::traceAndDifftest() {
-#ifdef CONFIG_CACHESIM_DIFFTEST
+#if defined(CONFIG_CACHESIM_DIFFTEST) && defined(CONFIG_PERF_STATS)
   pipeline.cache.compareICacheRetire(retirePcValue, retireICacheHitValue);
 #endif
 
@@ -97,7 +113,10 @@ void CPU::traceAndDifftest() {
 }
 
 void CPU::commitRetire(const RetireSnapshot &snapshot) {
+#ifdef CONFIG_RETIRE_TRACE
+#ifdef CONFIG_PERF_STATS
   pipeline.retire(snapshot.pc, snapshot.inst, snapshot.instType);
+#endif
 
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
@@ -108,9 +127,14 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
   if (snapshot.regWen && snapshot.regAddr != 0) {
     archState.gpr[snapshot.regAddr & 0x1f] = snapshot.regData;
   }
+#ifdef CONFIG_PCTRACE
   pcTraceWrite("pc: %x\n", snapshot.pc);
+#endif
 
   hasCommitted = true;
+#else
+  (void)snapshot;
+#endif
 }
 
 uint32_t CPU::pc() const { return archState.pc; }
@@ -193,9 +217,12 @@ void CPU::copyDutState(riscv32_CPU_state *dut) const {
 long long CPU::cycleCount() const { return cycleCountValue; }
 
 void CPU::printStats() const {
+#ifdef CONFIG_PERF_STATS
   const long long retired = pipeline.retiredInstructions();
+#endif
   printf("\nExecution Statistics:\n");
   printf("  Total Cycles:       %lld\n", cycleCountValue);
+#ifdef CONFIG_PERF_STATS
   printf("  Total Instructions: %lld\n", retired);
   pipeline.printStats(cycleCountValue);
   if (cycleCountValue > 0) {
@@ -203,6 +230,9 @@ void CPU::printStats() const {
   } else {
     printf("  Average IPC:        N/A (cycles = 0)\n");
   }
+#else
+  printf("  Retire trace:       OFF\n");
+#endif
 }
 
 void CPU::handleSigint() {
@@ -221,6 +251,7 @@ void CPU::handleSigint() {
 
 extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal *gprs,
                                  int mtvec, int mepc, int mstatus, int mcause, int inst, int instType, int icacheHit) {
+#ifdef CONFIG_RETIRE_TRACE
   CPU::RetireSnapshot snapshot;
   snapshot.pc = static_cast<uint32_t>(pc);
   snapshot.dnpc = static_cast<uint32_t>(dnpc);
@@ -238,11 +269,31 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
   snapshot.instType = static_cast<uint32_t>(instType);
   snapshot.icacheHit = icacheHit != 0;
   cpu.commitRetire(snapshot);
+#else
+  (void)pc;
+  (void)dnpc;
+  (void)reg_wen;
+  (void)reg_addr;
+  (void)reg_data;
+  (void)gprs;
+  (void)mtvec;
+  (void)mepc;
+  (void)mstatus;
+  (void)mcause;
+  (void)inst;
+  (void)instType;
+  (void)icacheHit;
+#endif
 }
 
 extern "C" void ebreak() {
+#ifdef CONFIG_RETIRE_TRACE
   uint32_t a0Val = cpu.regRead(10);
   if (a0Val == 0) runtime.setEnd(a0Val);
   else runtime.setAbort(a0Val);
   printf("ebreak: state: %d, a0: %d\n", runtime.state().state, a0Val);
+#else
+  runtime.setEnd(0);
+  printf("ebreak: state: %d\n", runtime.state().state);
+#endif
 }

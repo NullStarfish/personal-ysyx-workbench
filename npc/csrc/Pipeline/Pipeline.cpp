@@ -136,6 +136,7 @@ extern "C" void pipeline_trace(svBit fetchOut, int fetchPc, int fetchInst,
                                 svBit executeOut, int executePc, int executeInst,
                                 svBit lsuOut, int lsuPc, int lsuInst,
                                 svBit retire, int retirePc, int retireInst) {
+#ifdef CONFIG_PIPELINE_TRACE
   (void)retire;
   (void)retirePc;
   (void)retireInst;
@@ -143,10 +144,23 @@ extern "C" void pipeline_trace(svBit fetchOut, int fetchPc, int fetchInst,
   if (executeOut) pipeline.executeOut(static_cast<uint32_t>(executePc), static_cast<uint32_t>(executeInst));
   if (decodeOut) pipeline.decodeOut(static_cast<uint32_t>(decodePc), static_cast<uint32_t>(decodeInst));
   if (fetchOut) pipeline.fetchOut(static_cast<uint32_t>(fetchPc), static_cast<uint32_t>(fetchInst));
+#else
+  (void)fetchOut; (void)fetchPc; (void)fetchInst;
+  (void)decodeOut; (void)decodePc; (void)decodeInst;
+  (void)executeOut; (void)executePc; (void)executeInst;
+  (void)lsuOut; (void)lsuPc; (void)lsuInst;
+  (void)retire; (void)retirePc; (void)retireInst;
+#endif
 }
 
 extern "C" void flush_trace(svBit flush, int pc, int inst) {
+#ifdef CONFIG_FLUSH_TRACE
   if (flush) {
     pipeline.flush(static_cast<uint32_t>(pc), static_cast<uint32_t>(inst));
   }
+#else
+  (void)flush;
+  (void)pc;
+  (void)inst;
+#endif
 }

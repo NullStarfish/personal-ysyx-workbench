@@ -24,13 +24,17 @@ CPPFLAGS = $(addprefix -I,$(INCLUDE_DIRS)) $(CONFIG_CPPFLAGS) $(NVBOARD_CPPFLAGS
 COMMON_FLAGS = -g -Wall -pthread
 CFLAGS = $(CPPFLAGS) $(COMMON_FLAGS) -std=c11 -D_POSIX_C_SOURCE=200809L
 CXXFLAGS = $(CPPFLAGS) $(COMMON_FLAGS) -std=c++17 -Wno-deprecated-declarations
-LDLIBS = -lreadline -pthread -ldl $(NVBOARD_LDLIBS)
+LDLIBS = -pthread -ldl $(NVBOARD_LDLIBS)
+
+ifeq ($(strip $(CONFIG_INTERACTIVE_SDB)),y)
+LDLIBS += -lreadline
+endif
 
 ifeq ($(strip $(CONFIG_FTRACE)),y)
 LDLIBS += -lelf
 endif
 
-ifeq ($(strip $(CONFIG_ITRACE)),y)
+ifeq ($(strip $(CONFIG_DISASM)),y)
 CAPSTONE_HOME := $(NEMU_HOME)/tools/capstone
 CAPSTONE_REPO := $(CAPSTONE_HOME)/repo
 LIBCAPSTONE := $(CAPSTONE_REPO)/libcapstone.so.5

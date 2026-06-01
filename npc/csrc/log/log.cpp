@@ -32,7 +32,9 @@ void log_write(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(logFile, fmt, args);
   va_end(args);
+#ifdef CONFIG_LOG_FLUSH_EACH_WRITE
   fflush(logFile);
+#endif
 } 
 
 void pcTraceWrite(const char *fmt, ...) {
@@ -43,5 +45,7 @@ void pcTraceWrite(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(pcTraceFile, fmt, args);
   va_end(args);
+#ifdef CONFIG_LOG_FLUSH_EACH_WRITE
   fflush(pcTraceFile);
+#endif
 } 

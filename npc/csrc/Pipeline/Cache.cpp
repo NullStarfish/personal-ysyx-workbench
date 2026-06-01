@@ -98,9 +98,21 @@ void CacheTraceModel::printStats() const {
 }
 
 extern "C" void icache_access_trace(svBit hit, svBit miss, int latency) {
+#ifdef CONFIG_CACHE_TRACE
   pipeline.cache.traceICacheAccess(hit != 0, miss != 0, static_cast<uint32_t>(latency));
+#else
+  (void)hit;
+  (void)miss;
+  (void)latency;
+#endif
 }
 
 extern "C" void dcache_trace(svBit hit, svBit miss, int latency) {
+#ifdef CONFIG_CACHE_TRACE
   pipeline.cache.traceDCacheAccess(hit != 0, miss != 0, static_cast<uint32_t>(latency));
+#else
+  (void)hit;
+  (void)miss;
+  (void)latency;
+#endif
 }

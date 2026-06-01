@@ -125,8 +125,12 @@ void Runtime::setDpiScope() {}
 
 void Runtime::assertFailMsg() const {
   cpu.isa_reg_display();
+#ifdef CONFIG_ITRACE
   print_iring_buffer();
+#endif
+#ifdef CONFIG_FTRACE
   print_ftrace_stack();
+#endif
 }
 
 void Runtime::setRunning() { npcState.state = NPC_RUNNING; }

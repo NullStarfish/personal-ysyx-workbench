@@ -26,13 +26,20 @@ CSRC_CPP_SRCS := \
 	$(CSRC_DIR)/Pipeline/PipelineStage.cpp \
 	$(CSRC_DIR)/difftest_runtime.cpp \
 	$(CSRC_DIR)/cpu.cpp \
-	$(CSRC_DIR)/sdb/watchpoint.cpp \
-	$(CSRC_DIR)/sdb/expr.cpp \
-	$(CSRC_DIR)/sdb/sdb.cpp \
 	$(CSRC_DIR)/mem.cpp
 
+ifeq ($(strip $(CONFIG_INTERACTIVE_SDB)),y)
+CSRC_CPP_SRCS += \
+	$(CSRC_DIR)/sdb/watchpoint.cpp \
+	$(CSRC_DIR)/sdb/expr.cpp \
+	$(CSRC_DIR)/sdb/sdb.cpp
+else
+CSRC_CPP_SRCS += \
+	$(CSRC_DIR)/sdb/sdb_stub.cpp
+endif
+
 CSRC_C_SRCS :=
-ifeq ($(strip $(CONFIG_ITRACE)),y)
+ifeq ($(strip $(CONFIG_DISASM)),y)
 CSRC_C_SRCS += $(CSRC_DIR)/tools/disasm.c
 endif
 
@@ -56,7 +63,7 @@ $(CSRC_BUILD_DIR)/%.o: $(CSRC_DIR)/%.c $(BUILD_MODE_FILE) | $(SIM_BUILD_DIR)
 # runtime.h selects the Verilated top class and therefore needs its header.
 $(CSRC_BUILD_DIR)/runtime.o: $(VERILATOR_MODEL_LIB)
 
-ifeq ($(strip $(CONFIG_ITRACE)),y)
+ifeq ($(strip $(CONFIG_DISASM)),y)
 $(CSRC_C_OBJS): $(LIBCAPSTONE)
 endif
 

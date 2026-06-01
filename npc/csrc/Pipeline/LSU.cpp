@@ -49,9 +49,18 @@ void LSUStage::printStats(long long totalCycles) const {
 }
 
 extern "C" void lsu_trace(int latency, svBit write) {
+#ifdef CONFIG_LSU_TRACE
   pipeline.lsu.trace(static_cast<uint32_t>(latency), write != 0);
+#else
+  (void)latency;
+  (void)write;
+#endif
 }
 
 extern "C" void lsu_backpressure_trace(svBit blocked) {
+#ifdef CONFIG_LSU_TRACE
   pipeline.lsu.traceBackpressure(blocked != 0);
+#else
+  (void)blocked;
+#endif
 }

@@ -18,5 +18,10 @@ void HazardTraceModel::printStats(long long totalCycles) const {
 }
 
 extern "C" void hazard_trace(svBit loadUseStall, svBit redirectFlush) {
+#ifdef CONFIG_HAZARD_TRACE
   pipeline.hazard.trace(loadUseStall != 0, redirectFlush != 0);
+#else
+  (void)loadUseStall;
+  (void)redirectFlush;
+#endif
 }

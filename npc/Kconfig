@@ -1,8 +1,17 @@
 mainmenu "RISC-V CPU Simulator (NPC) Configuration"
 
+config FAST_SIM
+    bool "Prefer minimal high-speed simulation defaults"
+    default n
+    help
+      Use this as a reminder/profile knob for a lean simulator setup. Disable
+      trace, difftest, watchpoints, interactive SDB, and retire tracing for the
+      fastest run loop.
+
 config TRACE
     bool "Enable Tracing Features (Master Switch)"
-    default y
+    default y if !FAST_SIM
+    default n if FAST_SIM
     help
       Enable this to turn on all tracing sub-features. This is the
       master switch for itrace, ftrace, and other potential traces.
@@ -11,8 +20,17 @@ config TRACE
 
 if TRACE
 
+    config DISASM
+        bool "Enable instruction disassembler"
+        default y if ITRACE
+        help
+          Link Capstone and enable disassembly helpers. This is normally only
+          useful with itrace.
+
     config ITRACE
         bool "Enable Instruction Trace (itrace)"
+        depends on RETIRE_TRACE
+        select DISASM
         default y
         help
           Logs every instruction executed by the CPU, including its disassembly.
@@ -21,6 +39,7 @@ if TRACE
 
     config FTRACE
         bool "Enable Function Trace (ftrace)"
+        depends on RETIRE_TRACE
         default y
         help
           Tracks function calls and returns using symbols from an ELF file.
@@ -45,10 +64,54 @@ if TRACE
 
     config PCTRACE
         bool "Enable PC fetch Trace"
+        depends on RETIRE_TRACE
         default n
+
+    config PERF_STATS
+        bool "Enable pipeline/cache performance statistics"
+        default y
+        help
+          Maintain C++ pipeline, fetch, LSU, hazard, and cache statistics.
+          Disable this for a lean run loop.
+
+    config PIPELINE_TRACE
+        bool "Enable pipeline stage DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config FETCH_TRACE
+        bool "Enable fetch unit DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config LSU_TRACE
+        bool "Enable LSU DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config CACHE_TRACE
+        bool "Enable cache access DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config HAZARD_TRACE
+        bool "Enable hazard DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config EXECUTE_TRACE
+        bool "Enable execute unit DPI trace model"
+        depends on PERF_STATS
+        default y
+
+    config FLUSH_TRACE
+        bool "Enable flush DPI trace model"
+        depends on PERF_STATS
+        default y
 
     config CACHESIM_DIFFTEST
         bool "Enable ICache comparison against cachesim"
+        depends on PERF_STATS && RETIRE_TRACE
         default n
         help
           Compare retired instruction fetch hit/miss results against the
@@ -58,16 +121,41 @@ if TRACE
 
 endif # TRACE
 
+config RETIRE_TRACE
+    bool "Enable retire-state DPI tracking"
+    default y if TRACE && !FAST_SIM
+    default n if FAST_SIM
+    help
+      Maintain architectural state from the retire DPI callback. Difftest,
+      instruction-level stepping, watchpoints, itrace, ftrace, and checking
+      ebreak's a0 value need this. Disable for the minimal clk/memory/ebreak
+      simulation path.
+
 config DIFFTEST
     bool "Enable Differential Testing"
+    depends on RETIRE_TRACE
     default n
     help
       Compare the execution of the DUT (this simulator) against
       a reference implementation (e.g., NEMU) on every step. This is
       a powerful verification tool but requires the reference to be built.
 
+config INTERACTIVE_SDB
+    bool "Enable interactive SDB monitor"
+    default y if !FAST_SIM
+    default n if FAST_SIM
+    help
+      Enable readline-based commands such as si, info, x, p, watchpoints, and
+      backtrace. Disable for batch-only high-speed runs.
 
+config LOG_FLUSH_EACH_WRITE
+    bool "Flush log files after every write"
+    default y
+    help
+      Useful when debugging crashes, but expensive with verbose traces.
 
 config WATCHPOINT
     bool "Enable Watchpoints"
-    default y
+    depends on INTERACTIVE_SDB && RETIRE_TRACE
+    default y if !FAST_SIM
+    default n if FAST_SIM

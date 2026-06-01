@@ -49,13 +49,27 @@ void FetchStage::printStats(long long totalCycles) const {
 }
 
 extern "C" void fetch_trace(svBit gotInst, int pc, int inst, int memLatency, int waitLatency) {
+#ifdef CONFIG_FETCH_TRACE
   pipeline.fetch.trace(gotInst != 0,
                        static_cast<uint32_t>(pc),
                        static_cast<uint32_t>(inst),
                        static_cast<uint32_t>(memLatency),
                        static_cast<uint32_t>(waitLatency));
+#else
+  (void)gotInst;
+  (void)pc;
+  (void)inst;
+  (void)memLatency;
+  (void)waitLatency;
+#endif
 }
 
 extern "C" void fetch_unit_trace(svBit reqBlocked, svBit outBlocked, svBit flush) {
+#ifdef CONFIG_FETCH_TRACE
   pipeline.fetch.traceUnit(reqBlocked != 0, outBlocked != 0, flush != 0);
+#else
+  (void)reqBlocked;
+  (void)outBlocked;
+  (void)flush;
+#endif
 }

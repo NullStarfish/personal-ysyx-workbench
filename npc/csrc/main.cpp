@@ -7,9 +7,12 @@
 #include "verilated.h"
 
 #include "monitor.h"
-#include "readline/readline.h"
 #include "sdb/sdb.h"
 #include "sim.h"
+
+#ifdef CONFIG_INTERACTIVE_SDB
+#include "readline/readline.h"
+#endif
 
 Runtime runtime;
 Mem mem;
@@ -25,7 +28,9 @@ void handle_sigint(int) {
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   init_monitor(argc, argv);
+#ifdef CONFIG_INTERACTIVE_SDB
   rl_catch_signals = 0;
+#endif
   signal(SIGINT, handle_sigint);
   sdb_mainloop();
   cpu.printStats();

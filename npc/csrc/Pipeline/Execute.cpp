@@ -16,5 +16,9 @@ void ExecuteStage::printUnitStats() const {
 }
 
 extern "C" void execute_trace(svBit finished) {
+#ifdef CONFIG_EXECUTE_TRACE
   pipeline.execute.trace(finished != 0);
+#else
+  (void)finished;
+#endif
 }

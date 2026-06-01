@@ -60,7 +60,7 @@ scala local_scala: $(CHISEL_RTL_STAMP)
 $(SIM_EXEC): $(CSRC_LIBS) $(CACHESIM_LIBS) $(NVBOARD_LIBS) $(VERILATOR_LIBS) $(BUILD_MODE_FILE) | check_config
 	$(call build_banner,Linking executable: $@)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -o $@ $(CSRC_LIBS) $(CACHESIM_LIBS) $(NVBOARD_LIBS) $(VERILATOR_LIBS) $(LDLIBS)
+	$(CXX) $(CXXFLAGS) -o $@ -Wl,--start-group $(CSRC_LIBS) $(CACHESIM_LIBS) $(NVBOARD_LIBS) $(VERILATOR_LIBS) -Wl,--end-group $(LDLIBS)
 
 $(BUILD_DIR):
 	@mkdir -p $@
