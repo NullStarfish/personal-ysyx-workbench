@@ -1,4 +1,4 @@
-package mycpu.core.components
+package mycpu.memory
 
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
@@ -10,7 +10,9 @@ class MemoryReadArbiterSpec extends AnyFlatSpec {
     c.clock.step()
     c.reset.poke(false.B)
     c.io.fetchReq.valid.poke(false.B)
-    c.io.fetchReq.bits.poke(0.U)
+    c.io.fetchReq.bits.addr.poke(0.U)
+    c.io.fetchReq.bits.size.poke(2.U)
+    c.io.fetchReq.bits.beats.poke(1.U)
     c.io.fetchReply.ready.poke(false.B)
     c.io.lsuReq.valid.poke(false.B)
     c.io.lsuReq.bits.addr.poke(0.U)
@@ -21,14 +23,17 @@ class MemoryReadArbiterSpec extends AnyFlatSpec {
     c.io.lsuReply.ready.poke(false.B)
     c.io.outReq.ready.poke(false.B)
     c.io.inReply.valid.poke(false.B)
-    c.io.inReply.bits.poke(0.U)
+    c.io.inReply.bits.data.poke(0.U)
+    c.io.inReply.bits.last.poke(true.B)
   }
 
   "MemoryReadArbiter" should "prefer LSU reads over fetch reads and route the reply back" in {
     simulate(new MemoryReadArbiter) { c =>
       init(c)
       c.io.fetchReq.valid.poke(true.B)
-      c.io.fetchReq.bits.poke("h1000".U)
+      c.io.fetchReq.bits.addr.poke("h1000".U)
+      c.io.fetchReq.bits.size.poke(2.U)
+      c.io.fetchReq.bits.beats.poke(1.U)
       c.io.lsuReq.valid.poke(true.B)
       c.io.lsuReq.bits.addr.poke("h2003".U)
       c.io.lsuReq.bits.size.poke(0.U)
@@ -37,6 +42,7 @@ class MemoryReadArbiterSpec extends AnyFlatSpec {
       c.io.outReq.valid.expect(true.B)
       c.io.outReq.bits.addr.expect("h2003".U)
       c.io.outReq.bits.size.expect(0.U)
+      c.io.outReq.bits.beats.expect(1.U)
       c.io.lsuReq.ready.expect(true.B)
       c.io.fetchReq.ready.expect(false.B)
       c.clock.step()
@@ -46,7 +52,8 @@ class MemoryReadArbiterSpec extends AnyFlatSpec {
       c.io.outReq.ready.poke(false.B)
       c.io.lsuReply.ready.poke(true.B)
       c.io.inReply.valid.poke(true.B)
-      c.io.inReply.bits.poke("hfeedbeef".U)
+      c.io.inReply.bits.data.poke("hfeedbeef".U)
+      c.io.inReply.bits.last.poke(true.B)
 
       c.io.inReply.ready.expect(true.B)
       c.io.lsuReply.valid.expect(false.B)
@@ -67,7 +74,9 @@ class MemoryControllerSpec extends AnyFlatSpec {
     c.clock.step()
     c.reset.poke(false.B)
     c.io.fetchReq.valid.poke(false.B)
-    c.io.fetchReq.bits.poke(0.U)
+    c.io.fetchReq.bits.addr.poke(0.U)
+    c.io.fetchReq.bits.size.poke(2.U)
+    c.io.fetchReq.bits.beats.poke(1.U)
     c.io.fetchReply.ready.poke(false.B)
     c.io.lsuReq.valid.poke(false.B)
     c.io.lsuReq.bits.addr.poke(0.U)
@@ -93,7 +102,9 @@ class MemoryControllerSpec extends AnyFlatSpec {
     simulate(new MemoryController) { c =>
       init(c)
       c.io.fetchReq.valid.poke(true.B)
-      c.io.fetchReq.bits.poke("ha0000000".U)
+      c.io.fetchReq.bits.addr.poke("ha0000000".U)
+      c.io.fetchReq.bits.size.poke(2.U)
+      c.io.fetchReq.bits.beats.poke(1.U)
       c.io.axi.ar.ready.poke(true.B)
 
       c.io.axi.ar.valid.expect(true.B)

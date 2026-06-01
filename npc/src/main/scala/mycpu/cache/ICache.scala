@@ -54,14 +54,17 @@ class ICache(
 
 
   val refillBeat = RegInit(0.U(params.wordOffsetWidth.W))
+  val dropBeat = RegInit(0.U(params.wordOffsetWidth.W))
   val refillLine = Reg(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
 
-  val refillAddr = reqLineBase + (refillBeat << log2Ceil(params.wordBytes)).asUInt
   val refillLast = refillBeat === (params.wordsPerLine - 1).U
+  val dropLast = dropBeat === (params.wordsPerLine - 1).U
 
 
   io.memReq.valid := false.B
-  io.memReq.bits.addr := refillAddr
+  io.memReq.bits.addr := reqLineBase
+  io.memReq.bits.size := 2.U
+  io.memReq.bits.beats := params.wordsPerLine.U
   io.memReply.ready := false.B
 
 
@@ -136,7 +139,6 @@ class ICache(
 
       when(io.memReply.fire) {
         refillLine(refillBeat) := io.memReply.bits.data
-        memReqDone := false.B
         when(refillLast) {
           val completedLine = Wire(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
           completedLine := refillLine
@@ -151,6 +153,7 @@ class ICache(
 
           state := State.Lookup
           responseResolved := false.B
+          memReqDone := false.B
 
         }.otherwise {
           refillBeat := refillBeat + 1.U
@@ -162,7 +165,12 @@ class ICache(
   when(dropMemReply) {
     io.memReply.ready := !reset.asBool
     when(io.memReply.fire) {
-      dropMemReply := false.B
+      when(dropLast) {
+        dropMemReply := false.B
+        dropBeat := 0.U
+      }.otherwise {
+        dropBeat := dropBeat + 1.U
+      }
     }
   }
 
@@ -176,6 +184,7 @@ class ICache(
     when(memReqDone) {
       memReqDone := false.B
       dropMemReply := true.B
+      dropBeat := refillBeat
     }
   }
 

@@ -4,7 +4,7 @@ VERILOG_HAND_DIR := $(NPC_HOME)/src/main/verilog/Core
 
 VERILOG_HAND_SRCS :=
 ifeq ($(SIM_TARGET),npc)
-VERILOG_HAND_SRCS += $(VERILOG_HAND_DIR)/NpcTop.sv $(VERILOG_HAND_DIR)/NpcVirtualAxiRam.sv
+VERILOG_HAND_SRCS += $(VERILOG_HAND_DIR)/NpcTop.sv
 endif
 
 SOC_RTL_SRCS :=

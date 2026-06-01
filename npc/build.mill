@@ -222,11 +222,12 @@ object memctrl extends NpcScalaModule {
       root / "src/main/scala/mycpu/common/Consts.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
-      root / "src/main/scala/mycpu/core/components/MemoryController.scala",
+      root / "src/main/scala/mycpu/memory/MemoryController.scala",
       root / "src/main/scala/mycpu/utils/AXI4Defs.scala",
     )
     val dest = T.dest / "src"
@@ -243,7 +244,7 @@ object memctrl extends NpcScalaModule {
 
     def generatedSources = T.input {
       val root = mill.api.WorkspaceRoot.workspaceRoot
-      val file = root / "src/test/scala/mycpu/core/components/MemoryControllerSpec.scala"
+      val file = root / "src/test/scala/mycpu/memory/MemoryControllerSpec.scala"
       val dest = T.dest / "src"
       val out = dest / file.relativeTo(root)
       Files.createDirectories(out.toNIO.getParent)
@@ -263,6 +264,7 @@ object cache extends NpcScalaModule {
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
+      root / "src/main/scala/mycpu/memory",
     )
     val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
     val dest = T.dest / "src"
@@ -301,6 +303,7 @@ object cacheformal extends NpcScalaModule {
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
+      root / "src/main/scala/mycpu/memory",
     )
     val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
     val dest = T.dest / "src"
@@ -504,6 +507,7 @@ object coreprogram extends NpcScalaModule {
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
       root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/memory",
       root / "src/main/scala/mycpu/utils",
     )
     val files =
@@ -560,6 +564,7 @@ object coreverilog extends NpcScalaModule {
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
       root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/memory",
       root / "src/main/scala/mycpu/utils",
     )
     val files =
@@ -595,6 +600,7 @@ object corestaverilog extends NpcScalaModule {
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
       root / "src/main/scala/mycpu/core",
+      root / "src/main/scala/mycpu/memory",
       root / "src/main/scala/mycpu/utils",
     )
     val files =

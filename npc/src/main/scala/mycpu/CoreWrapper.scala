@@ -5,6 +5,7 @@ import chisel3.util._
 
 import mycpu.core.Core
 import mycpu.common._
+import mycpu.memory.NpcVirtualAxiRam
 import mycpu.utils._
 import mycpu.utils.AXI4Parameters
 import _root_.circt.stage.ChiselStage
@@ -189,13 +190,22 @@ class myCore(
 // 3. 生成 Verilog 的 Object
 // ==============================================================================
 object GenCore extends App {
+  val targetDir = sys.env.getOrElse("NPC_RTL_DIR", "build/rtl/Core")
+  val firtoolOpts = Array(
+    "--disable-all-randomization",
+    "--lowering-options=disallowLocalVariables",
+  )
+
   ChiselStage.emitSystemVerilogFile(
     new myCore,
-    args = Array("--target-dir", sys.env.getOrElse("NPC_RTL_DIR", "build/rtl/Core")),
-    firtoolOpts = Array(
-      "--disable-all-randomization",
-      "--lowering-options=disallowLocalVariables",
-    )
+    args = Array("--target-dir", targetDir),
+    firtoolOpts = firtoolOpts,
+  )
+
+  ChiselStage.emitSystemVerilogFile(
+    new NpcVirtualAxiRam,
+    args = Array("--target-dir", targetDir),
+    firtoolOpts = firtoolOpts,
   )
 }
 

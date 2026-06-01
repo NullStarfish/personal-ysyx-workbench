@@ -50,11 +50,18 @@ class ICacheFormalHarness extends Module {
   }
 
   val memOutstanding = RegInit(false.B)
+  val outstandingBeat = RegInit(0.U(params.wordOffsetWidth.W))
   when(dut.io.memReq.fire) {
     memOutstanding := true.B
+    outstandingBeat := 0.U
   }
   when(dut.io.memReply.fire) {
-    memOutstanding := false.B
+    when(outstandingBeat === (params.wordsPerLine - 1).U) {
+      memOutstanding := false.B
+      outstandingBeat := 0.U
+    }.otherwise {
+      outstandingBeat := outstandingBeat + 1.U
+    }
   }
 
   when(!memOutstanding) {
@@ -87,10 +94,10 @@ class ICacheFormalHarness extends Module {
       assert(active || dut.io.cpuReq.fire)
       assert(!memOutstanding)
       assert(dut.io.memReq.bits.addr(log2Ceil(params.wordBytes) - 1, 0) === 0.U)
+      assert(dut.io.memReq.bits.size === 2.U)
+      assert(dut.io.memReq.bits.beats === params.wordsPerLine.U)
 
-      val expectedAddr =
-        params.lineBase(currentPc) + (refillBeat << log2Ceil(params.wordBytes)).asUInt
-      assert(dut.io.memReq.bits.addr === expectedAddr)
+      assert(dut.io.memReq.bits.addr === params.lineBase(currentPc))
     }
 
     when(dut.io.memReply.fire) {

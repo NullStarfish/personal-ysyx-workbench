@@ -9,6 +9,7 @@ import mycpu.core.bundles._
 import mycpu.core.components._
 import mycpu.core.frontend.{Decode, Fetch}
 import mycpu.dpi.SimStateBundle
+import mycpu.memory._
 import mycpu.utils._
 
 class Core(
@@ -57,9 +58,7 @@ class Core(
     fetch.io.replyHit := icache.io.cpuReply.bits.hit
     icache.io.cpuReply.ready := fetch.io.reply.ready
 
-    memory.io.fetchReq.valid := icache.io.memReq.valid
-    memory.io.fetchReq.bits := icache.io.memReq.bits.addr
-    icache.io.memReq.ready := memory.io.fetchReq.ready
+    memory.io.fetchReq <> icache.io.memReq
 
     icache.io.memReply.valid := memory.io.fetchReply.valid
     icache.io.memReply.bits.data := memory.io.fetchReply.bits
@@ -68,7 +67,11 @@ class Core(
     icache.io.prefetch.bits.addr := 0.U
 
     case None =>
-    memory.io.fetchReq <> fetch.io.fetch
+    memory.io.fetchReq.valid := fetch.io.fetch.valid
+    memory.io.fetchReq.bits.addr := fetch.io.fetch.bits
+    memory.io.fetchReq.bits.size := 2.U
+    memory.io.fetchReq.bits.beats := 1.U
+    fetch.io.fetch.ready := memory.io.fetchReq.ready
     fetch.io.reply <> memory.io.fetchReply
     fetch.io.replyHit := false.B
   }

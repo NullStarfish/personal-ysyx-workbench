@@ -1,4 +1,4 @@
-package mycpu.core.components
+package mycpu.memory
 
 import chisel3._
 import chisel3.util._
@@ -9,18 +9,24 @@ import mycpu.utils._
 class MemoryReadReq extends Bundle {
   val addr = XLenU
   val size = UInt(3.W)
+  val beats = UInt(8.W)
+}
+
+class MemoryReadResp extends Bundle {
+  val data = XLenU
+  val last = Bool()
 }
 
 class MemoryReadArbiter extends Module {
   val io = IO(new Bundle {
-    val fetchReq = Flipped(Decoupled(UInt(XLEN.W)))
+    val fetchReq = Flipped(Decoupled(new MemoryReadReq))
     val fetchReply = Decoupled(UInt(XLEN.W))
 
     val lsuReq = Flipped(Decoupled(new LsuReq))
     val lsuReply = Decoupled(UInt(XLEN.W))
 
     val outReq = Decoupled(new MemoryReadReq)
-    val inReply = Flipped(Decoupled(UInt(XLEN.W)))
+    val inReply = Flipped(Decoupled(new MemoryReadResp))
   })
 
   object Owner extends ChiselEnum {
@@ -33,26 +39,24 @@ class MemoryReadArbiter extends Module {
   val lsuRespValid = RegInit(false.B)
   val lsuRespData = Reg(UInt(XLEN.W))
 
-
   val enableTrace = false
   if (enableTrace) {
-    when (io.fetchReq.valid) {
+    when(io.fetchReq.valid) {
       printf("[Read ARB] fetch req\n")
     }
-    when (io.lsuReq.valid) {
+    when(io.lsuReq.valid) {
       printf("[Read ARB] LSU req\n")
     }
-    when (io.fetchReq.valid || io.lsuReq.valid) {
+    when(io.fetchReq.valid || io.lsuReq.valid) {
       printf("Current Owner: %d\n", owner.asUInt)
     }
 
-    when (io.fetchReply.fire) {
+    when(io.fetchReply.fire) {
       printf("Fetch reply fire, data: %x\n", io.fetchReply.bits)
     }
-    when (io.lsuReply.fire) {
+    when(io.lsuReply.fire) {
       printf("LSU reply fire, data: %x\n", io.lsuReply.bits)
     }
-    
   }
 
   val canGrantLsu = io.lsuReq.valid && !lsuRespValid
@@ -61,8 +65,9 @@ class MemoryReadArbiter extends Module {
   val hasReq = canGrantLsu || canGrantFetch
 
   io.outReq.valid := owner === Owner.None && hasReq
-  io.outReq.bits.addr := Mux(grantLsu, io.lsuReq.bits.addr, io.fetchReq.bits)
-  io.outReq.bits.size := Mux(grantLsu, io.lsuReq.bits.size, 2.U)
+  io.outReq.bits.addr := Mux(grantLsu, io.lsuReq.bits.addr, io.fetchReq.bits.addr)
+  io.outReq.bits.size := Mux(grantLsu, io.lsuReq.bits.size, io.fetchReq.bits.size)
+  io.outReq.bits.beats := Mux(grantLsu, 1.U, io.fetchReq.bits.beats)
 
   io.lsuReq.ready := owner === Owner.None && grantLsu && io.outReq.ready
   io.fetchReq.ready := owner === Owner.None && !grantLsu && canGrantFetch && io.outReq.ready
@@ -80,12 +85,14 @@ class MemoryReadArbiter extends Module {
   when(io.inReply.fire) {
     when(owner === Owner.Fetch) {
       fetchRespValid := true.B
-      fetchRespData := io.inReply.bits
+      fetchRespData := io.inReply.bits.data
     }.elsewhen(owner === Owner.LSU) {
       lsuRespValid := true.B
-      lsuRespData := io.inReply.bits
+      lsuRespData := io.inReply.bits.data
     }
-    owner := Owner.None
+    when(io.inReply.bits.last) {
+      owner := Owner.None
+    }
   }
 
   when(io.fetchReply.fire) {
@@ -99,7 +106,7 @@ class MemoryReadArbiter extends Module {
 
 class MemoryController extends Module {
   val io = IO(new Bundle {
-    val fetchReq = Flipped(Decoupled(UInt(XLEN.W)))
+    val fetchReq = Flipped(Decoupled(new MemoryReadReq))
     val fetchReply = Decoupled(UInt(XLEN.W))
 
     val lsuReq = Flipped(Decoupled(new LsuReq))
@@ -112,12 +119,12 @@ class MemoryController extends Module {
     val Idle, WaitResp = Value
   }
 
-  private def setAddr(a: AXI4BundleA, addr: UInt, size: UInt): Unit = {
+  private def setAddr(a: AXI4BundleA, addr: UInt, size: UInt, beats: UInt = 1.U): Unit = {
     a.id := 0.U
     a.addr := addr
-    a.len := 0.U
+    a.len := beats - 1.U
     a.size := size
-    a.burst := 0.U
+    a.burst := Mux(beats === 1.U, AXI4Parameters.BURST_FIXED, AXI4Parameters.BURST_INCR)
     a.lock := false.B
     a.cache := AXI4Parameters.CACHE_DEVICE_NOBUF
     a.prot := 0.U
@@ -144,11 +151,12 @@ class MemoryController extends Module {
   val writeActive = writeState === WriteState.Idle && io.lsuReq.valid && io.lsuReq.bits.write
 
   io.axi.ar.valid := readArb.io.outReq.valid
-  setAddr(io.axi.ar.bits, readArb.io.outReq.bits.addr, readArb.io.outReq.bits.size)
+  setAddr(io.axi.ar.bits, readArb.io.outReq.bits.addr, readArb.io.outReq.bits.size, readArb.io.outReq.bits.beats)
   readArb.io.outReq.ready := io.axi.ar.ready
 
   readArb.io.inReply.valid := io.axi.r.valid
-  readArb.io.inReply.bits := io.axi.r.bits.data
+  readArb.io.inReply.bits.data := io.axi.r.bits.data
+  readArb.io.inReply.bits.last := io.axi.r.bits.last
   io.axi.r.ready := readArb.io.inReply.ready
 
   val writeDone = Wire(Bool())
@@ -189,8 +197,4 @@ class MemoryController extends Module {
   when(writeReplyValid && io.lsuReply.ready && !lsuReadReply.valid) {
     writeState := WriteState.Idle
   }
-  
-
-
-  
 }
