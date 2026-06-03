@@ -493,8 +493,6 @@ object tracer extends NpcScalaModule {
 object coreprogram extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
-  def moduleDeps = Seq(hwos)
-
   def sources = T.sources()
 
   def generatedSources = T.input {
@@ -548,8 +546,6 @@ object coreprogram extends NpcScalaModule {
 object coreverilog extends NpcScalaModule {
   override def millSourcePath = os.pwd
 
-  def moduleDeps = Seq(hwos)
-
   def mainClass = Some("mycpu.GenCore")
 
   def sources = T.sources()
@@ -583,8 +579,6 @@ object coreverilog extends NpcScalaModule {
 
 object corestaverilog extends NpcScalaModule {
   override def millSourcePath = os.pwd
-
-  def moduleDeps = Seq(hwos)
 
   def mainClass = Some("mycpu.GenCoreSta")
 
