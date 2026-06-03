@@ -32,14 +32,10 @@ trait NpcScalaTestDeps extends mill.scalalib.TestModule.ScalaTest {
   def testFramework = "org.scalatest.tools.Framework"
 }
 
-object hwos extends NpcScalaModule {
-  override def millSourcePath = os.pwd / "HwOS"
-}
+
 
 object npc extends NpcScalaModule {
   override def millSourcePath = os.pwd
-
-  def moduleDeps = Seq(hwos)
 
   object test extends ScalaTests with NpcScalaTestDeps
 }
