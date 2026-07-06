@@ -18,13 +18,13 @@ class ICacheFormalHarness extends Module {
   io.cpuReply.bits := dut.io.cpuReply.bits
   dut.io.cpuReply.ready := io.cpuReply.ready
 
-  io.memReq.valid := dut.io.memReq.valid
-  io.memReq.bits := dut.io.memReq.bits
-  dut.io.memReq.ready := io.memReq.ready
+  io.mem.a.valid := dut.io.mem.a.valid
+  io.mem.a.bits := dut.io.mem.a.bits
+  dut.io.mem.a.ready := io.mem.a.ready
 
-  dut.io.memReply.valid := io.memReply.valid
-  dut.io.memReply.bits := io.memReply.bits
-  io.memReply.ready := dut.io.memReply.ready
+  dut.io.mem.r.valid := io.mem.r.valid
+  dut.io.mem.r.bits := io.mem.r.bits
+  io.mem.r.ready := dut.io.mem.r.ready
 
   dut.io.redirect.valid := io.redirect.valid
   dut.io.redirect.bits := io.redirect.bits
@@ -38,10 +38,10 @@ class ICacheFormalHarness extends Module {
 
   val active = RegInit(false.B)
   val activePc = Reg(UInt(params.addrWidth.W))
-  val currentPc = Mux(active, activePc, io.cpuReq.bits.pc)
+  val currentPc = Mux(active, activePc, io.cpuReq.bits)
 
   when(dut.io.cpuReq.fire) {
-    activePc := dut.io.cpuReq.bits.pc
+    activePc := dut.io.cpuReq.bits
   }
   when(dut.io.cpuReq.fire && !dut.io.cpuReply.fire) {
     active := true.B
@@ -53,12 +53,12 @@ class ICacheFormalHarness extends Module {
 
   val memOutstanding = RegInit(false.B)
   val outstandingBeat = RegInit(0.U(params.wordOffsetWidth.W))
-  when(dut.io.memReq.fire) {
+  when(dut.io.mem.a.fire) {
     memOutstanding := true.B
     outstandingBeat := 0.U
   }
-  when(dut.io.memReply.fire) {
-    when(outstandingBeat === (params.wordsPerLine - 1).U) {
+  when(dut.io.mem.r.fire) {
+    when(dut.io.mem.r.bits.last) {
       memOutstanding := false.B
       outstandingBeat := 0.U
     }.otherwise {
@@ -67,12 +67,12 @@ class ICacheFormalHarness extends Module {
   }
 
   when(!memOutstanding) {
-    assume(!io.memReply.valid)
+    assume(!io.mem.r.valid)
   }
 
   val refillBeat = RegInit(0.U(params.wordOffsetWidth.W))
-  when(dut.io.memReply.fire) {
-    when(refillBeat === (params.wordsPerLine - 1).U) {
+  when(dut.io.mem.r.fire) {
+    when(dut.io.mem.r.bits.last) {
       refillBeat := 0.U
     }.otherwise {
       refillBeat := refillBeat + 1.U
@@ -88,28 +88,30 @@ class ICacheFormalHarness extends Module {
 
     when(dut.io.cpuReply.valid) {
       assert(dut.io.cpuReply.bits.hit)
-      assert(dut.io.cpuReply.bits.pc === currentPc)
       assert(active || io.cpuReq.valid)
     }
 
-    when(dut.io.memReq.valid) {
+    when(dut.io.mem.a.valid) {
       assert(active || dut.io.cpuReq.fire)
       assert(!memOutstanding)
-      assert(dut.io.memReq.bits.addr(log2Ceil(params.wordBytes) - 1, 0) === 0.U)
-      assert(dut.io.memReq.bits.size === 2.U)
-      assert(dut.io.memReq.bits.beats === params.wordsPerLine.U)
+      assert(dut.io.mem.a.bits.addr(log2Ceil(params.wordBytes) - 1, 0) === 0.U)
+      assert(dut.io.mem.a.bits.size === 2.U)
+      assert(dut.io.mem.a.bits.len === (params.wordsPerLine - 1).U)
 
-      assert(dut.io.memReq.bits.addr === params.lineBase(currentPc))
+      assert(dut.io.mem.a.bits.addr === params.lineBase(currentPc))
     }
 
-    when(dut.io.memReply.fire) {
+    when(dut.io.mem.r.fire) {
       assert(memOutstanding)
       assert(active)
+      when(dut.io.mem.r.bits.last) {
+        assert(outstandingBeat === (params.wordsPerLine - 1).U)
+      }
     }
 
     cover(dut.io.cpuReply.fire)
-    cover(dut.io.memReq.fire)
-    cover(dut.io.memReply.fire && refillBeat === (params.wordsPerLine - 1).U)
+    cover(dut.io.mem.a.fire)
+    cover(dut.io.mem.r.fire && dut.io.mem.r.bits.last)
   }
 }
 

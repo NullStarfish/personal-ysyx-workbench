@@ -11,15 +11,18 @@ class ICacheSpec extends AnyFlatSpec {
   private def init(c: ICache): Unit = {
     c.reset.poke(true.B)
     c.io.cpuReq.valid.poke(false.B)
-    c.io.cpuReq.bits.pc.poke(0.U)
+    c.io.cpuReq.bits.poke(0.U)
     c.io.cpuReply.ready.poke(false.B)
-    c.io.memReq.ready.poke(false.B)
-    c.io.memReply.valid.poke(false.B)
-    c.io.memReply.bits.data.poke(0.U)
+    c.io.mem.a.ready.poke(false.B)
+    c.io.mem.r.valid.poke(false.B)
+    c.io.mem.r.bits.data.poke(0.U)
+    c.io.mem.r.bits.resp.poke(0.U)
+    c.io.mem.r.bits.last.poke(false.B)
+    c.io.mem.r.bits.id.poke(0.U)
     c.io.redirect.valid.poke(false.B)
     c.io.redirect.bits.poke(0.U)
     c.io.prefetch.valid.poke(false.B)
-    c.io.prefetch.bits.addr.poke(0.U)
+    c.io.prefetch.bits.poke(0.U)
     c.clock.step()
     c.reset.poke(false.B)
   }
@@ -34,15 +37,15 @@ class ICacheSpec extends AnyFlatSpec {
   }
 
   private def expectMemReq(c: ICache, addr: BigInt): Unit = {
-    waitFor(c, c.io.memReq.valid.peek().litValue == 1, "memory request")
-    c.io.memReq.bits.addr.expect(addr.U)
-    c.io.memReq.bits.size.expect(2.U)
-    c.io.memReq.bits.beats.expect(params.wordsPerLine.U)
+    waitFor(c, c.io.mem.a.valid.peek().litValue == 1, "memory request")
+    c.io.mem.a.bits.addr.expect(addr.U)
+    c.io.mem.a.bits.size.expect(2.U)
+    c.io.mem.a.bits.len.expect((params.wordsPerLine - 1).U)
+    c.io.mem.a.bits.write.expect(false.B)
   }
 
-  private def expectReply(c: ICache, pc: BigInt, inst: BigInt, hit: Boolean): Unit = {
+  private def expectReply(c: ICache, inst: BigInt, hit: Boolean): Unit = {
     waitFor(c, c.io.cpuReply.valid.peek().litValue == 1, "CPU reply")
-    c.io.cpuReply.bits.pc.expect(pc.U)
     c.io.cpuReply.bits.inst.expect(inst.U)
     c.io.cpuReply.bits.hit.expect(hit.B)
     c.clock.step()
@@ -54,7 +57,7 @@ class ICacheSpec extends AnyFlatSpec {
 
       c.io.cpuReply.ready.poke(true.B)
       c.io.cpuReq.valid.poke(true.B)
-      c.io.cpuReq.bits.pc.poke("h104".U)
+      c.io.cpuReq.bits.poke("h104".U)
       c.io.cpuReq.ready.expect(true.B)
       c.clock.step()
 
@@ -69,26 +72,27 @@ class ICacheSpec extends AnyFlatSpec {
       )
 
       expectMemReq(c, 0x100)
-      c.io.memReq.ready.poke(true.B)
+      c.io.mem.a.ready.poke(true.B)
       c.clock.step()
-      c.io.memReq.ready.poke(false.B)
+      c.io.mem.a.ready.poke(false.B)
 
-      for (word <- refillWords) {
-        c.io.memReply.valid.poke(true.B)
-        c.io.memReply.bits.data.poke(BigInt(word.drop(1), 16).U)
+      for ((word, index) <- refillWords.zipWithIndex) {
+        c.io.mem.r.valid.poke(true.B)
+        c.io.mem.r.bits.data.poke(BigInt(word.drop(1), 16).U)
+        c.io.mem.r.bits.last.poke((index == refillWords.size - 1).B)
         c.clock.step()
-        c.io.memReply.valid.poke(false.B)
+        c.io.mem.r.valid.poke(false.B)
       }
 
-      expectReply(c, 0x104, BigInt("00200113", 16), hit = false)
+      expectReply(c, BigInt("00200113", 16), hit = false)
 
       c.io.cpuReq.valid.poke(true.B)
-      c.io.cpuReq.bits.pc.poke("h108".U)
+      c.io.cpuReq.bits.poke("h108".U)
       c.io.cpuReq.ready.expect(true.B)
       c.io.cpuReply.valid.expect(false.B)
       c.clock.step()
       c.io.cpuReq.valid.poke(false.B)
-      expectReply(c, 0x108, BigInt("00300193", 16), hit = true)
+      expectReply(c, BigInt("00300193", 16), hit = true)
     }
   }
 
@@ -98,11 +102,11 @@ class ICacheSpec extends AnyFlatSpec {
 
       c.io.cpuReply.ready.poke(true.B)
       c.io.cpuReq.valid.poke(true.B)
-      c.io.cpuReq.bits.pc.poke("h104".U)
+      c.io.cpuReq.bits.poke("h104".U)
       c.io.cpuReq.ready.expect(true.B)
       c.clock.step()
 
-      c.io.cpuReq.bits.pc.poke("h108".U)
+      c.io.cpuReq.bits.poke("h108".U)
       c.io.cpuReq.ready.expect(false.B)
       c.io.cpuReq.valid.poke(false.B)
       c.clock.step()
@@ -115,26 +119,27 @@ class ICacheSpec extends AnyFlatSpec {
       )
 
       expectMemReq(c, 0x100)
-      c.io.memReq.ready.poke(true.B)
+      c.io.mem.a.ready.poke(true.B)
       c.clock.step()
-      c.io.memReq.ready.poke(false.B)
+      c.io.mem.a.ready.poke(false.B)
 
-      for (word <- refillWords) {
-        c.io.memReply.valid.poke(true.B)
-        c.io.memReply.bits.data.poke(BigInt(word.drop(1), 16).U)
+      for ((word, index) <- refillWords.zipWithIndex) {
+        c.io.mem.r.valid.poke(true.B)
+        c.io.mem.r.bits.data.poke(BigInt(word.drop(1), 16).U)
+        c.io.mem.r.bits.last.poke((index == refillWords.size - 1).B)
         c.clock.step()
-        c.io.memReply.valid.poke(false.B)
+        c.io.mem.r.valid.poke(false.B)
       }
 
-      expectReply(c, 0x104, BigInt("00200113", 16), hit = false)
+      expectReply(c, BigInt("00200113", 16), hit = false)
 
       c.io.cpuReq.valid.poke(true.B)
-      c.io.cpuReq.bits.pc.poke("h108".U)
+      c.io.cpuReq.bits.poke("h108".U)
       c.io.cpuReq.ready.expect(true.B)
       c.io.cpuReply.valid.expect(false.B)
       c.clock.step()
       c.io.cpuReq.valid.poke(false.B)
-      expectReply(c, 0x108, BigInt("00300193", 16), hit = true)
+      expectReply(c, BigInt("00300193", 16), hit = true)
     }
   }
 
@@ -143,7 +148,7 @@ class ICacheSpec extends AnyFlatSpec {
       init(c)
 
       c.io.cpuReq.valid.poke(true.B)
-      c.io.cpuReq.bits.pc.poke("h104".U)
+      c.io.cpuReq.bits.poke("h104".U)
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke("h200".U)
       c.io.cpuReq.ready.expect(false.B)

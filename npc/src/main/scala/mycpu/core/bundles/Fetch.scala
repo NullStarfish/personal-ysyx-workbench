@@ -4,12 +4,9 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 
-
-
 trait FetchRedirect {
   def redirect : ValidUIntView
 }
-
 
 
 

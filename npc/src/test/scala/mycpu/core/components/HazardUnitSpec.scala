@@ -17,7 +17,6 @@ class HazardUnitSpec extends AnyFlatSpec {
     c.io.raw.exMemLoad.addr.poke(0.U)
     c.io.raw.lsuLoad.valid.poke(false.B)
     c.io.raw.lsuLoad.addr.poke(0.U)
-    c.io.raw.lsuToMemWbFire.poke(false.B)
     c.io.ctrl.redirect.poke(false.B)
   }
 
@@ -46,20 +45,19 @@ class HazardUnitSpec extends AnyFlatSpec {
     }
   }
 
-  it should "release an LSU dependency when the result fires into MEM/WB" in {
+  it should "keep an LSU dependency stalled while the load is pending" in {
     simulate(new HazardUnit) { c =>
       init(c)
       c.io.raw.decode.rs2.valid.poke(true.B)
       c.io.raw.decode.rs2.addr.poke(4.U)
       c.io.raw.lsuLoad.valid.poke(true.B)
       c.io.raw.lsuLoad.addr.poke(4.U)
-      c.io.raw.lsuToMemWbFire.poke(true.B)
 
-      c.io.raw.loadUseStall.expect(false.B)
+      c.io.raw.loadUseStall.expect(true.B)
     }
   }
 
-  it should "keep stalling an EX/MEM load dependency even when an older LSU load fires" in {
+  it should "keep stalling an EX/MEM load dependency alongside an older LSU load" in {
     simulate(new HazardUnit) { c =>
       init(c)
       c.io.raw.decode.rs1.valid.poke(true.B)
@@ -68,7 +66,6 @@ class HazardUnitSpec extends AnyFlatSpec {
       c.io.raw.exMemLoad.addr.poke(5.U)
       c.io.raw.lsuLoad.valid.poke(true.B)
       c.io.raw.lsuLoad.addr.poke(4.U)
-      c.io.raw.lsuToMemWbFire.poke(true.B)
 
       c.io.raw.loadUseStall.expect(true.B)
     }

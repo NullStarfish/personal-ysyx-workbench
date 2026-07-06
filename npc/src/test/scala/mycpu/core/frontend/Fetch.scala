@@ -3,16 +3,17 @@ package mycpu.core.frontend
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import mycpu.common._
+import mycpu.memory.FetchResp
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FetchSim extends AnyFlatSpec {
   private val maxWait = 20
 
   private def init(c: Fetch): Unit = {
-    c.io.fetch.ready.poke(false.B)
-    c.io.reply.valid.poke(false.B)
-    c.io.reply.bits.poke(0.U)
-    c.io.replyHit.poke(false.B)
+    c.io.instReq.ready.poke(false.B)
+    c.io.instResp.valid.poke(false.B)
+    c.io.instResp.bits.inst.poke(0.U)
+    c.io.instResp.bits.hit.poke(false.B)
     c.io.out.ready.poke(false.B)
     c.io.redirect.valid.poke(false.B)
     c.io.redirect.bits.poke(0.U)
@@ -27,30 +28,30 @@ class FetchSim extends AnyFlatSpec {
 
   private def acceptFetch(c: Fetch, expectedPc: BigInt): Unit = {
     var cycles = 0
-    c.io.fetch.ready.poke(false.B)
-    while (c.io.fetch.valid.peek().litValue == 0 && cycles < maxWait) {
+    c.io.instReq.ready.poke(false.B)
+    while (c.io.instReq.valid.peek().litValue == 0 && cycles < maxWait) {
       c.clock.step()
       cycles += 1
     }
     assert(cycles < maxWait, s"Fetch did not present request for 0x${expectedPc.toString(16)}")
-    c.io.fetch.bits.expect(expectedPc.U)
-    c.io.fetch.ready.poke(true.B)
+    c.io.instReq.bits.expect(expectedPc.U)
+    c.io.instReq.ready.poke(true.B)
     c.clock.step()
-    c.io.fetch.ready.poke(false.B)
+    c.io.instReq.ready.poke(false.B)
   }
 
   private def sendReply(c: Fetch, inst: BigInt, icacheHit: Boolean = false): Unit = {
     var cycles = 0
-    c.io.reply.valid.poke(true.B)
-    c.io.reply.bits.poke(inst.U)
-    c.io.replyHit.poke(icacheHit.B)
-    while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
+    c.io.instResp.valid.poke(true.B)
+    c.io.instResp.bits.inst.poke(inst.U)
+    c.io.instResp.bits.hit.poke(icacheHit.B)
+    while (c.io.instResp.ready.peek().litValue == 0 && cycles < maxWait) {
       c.clock.step()
       cycles += 1
     }
     assert(cycles < maxWait, s"Fetch did not accept reply 0x${inst.toString(16)}")
     c.clock.step()
-    c.io.reply.valid.poke(false.B)
+    c.io.instResp.valid.poke(false.B)
   }
 
   private def expectOut(c: Fetch, expectedPc: BigInt, expectedInst: BigInt, expectedHit: Boolean = false): Unit = {
@@ -73,7 +74,7 @@ class FetchSim extends AnyFlatSpec {
     simulate(new Fetch) { c =>
       resetDut(c)
 
-      c.io.fetch.ready.poke(false.B)
+      c.io.instReq.ready.poke(false.B)
       c.clock.step(3)
       acceptFetch(c, START_ADDR)
     }
@@ -103,17 +104,17 @@ class FetchSim extends AnyFlatSpec {
 
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke(target.U)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke("hdeadbeef".U)
+      c.io.instResp.valid.poke(true.B)
+      c.io.instResp.bits.inst.poke("hdeadbeef".U)
       c.io.out.ready.poke(true.B)
       c.clock.step()
 
       c.io.redirect.valid.poke(false.B)
-      c.io.reply.valid.poke(true.B)
-      c.io.reply.bits.poke("hdeadbeef".U)
+      c.io.instResp.valid.poke(true.B)
+      c.io.instResp.bits.inst.poke("hdeadbeef".U)
       c.io.out.valid.expect(false.B)
       c.clock.step()
-      c.io.reply.valid.poke(false.B)
+      c.io.instResp.valid.poke(false.B)
 
       acceptFetch(c, target)
       sendReply(c, BigInt("00112233", 16))

@@ -14,7 +14,7 @@ class Decode(
     val in = Flipped(Decoupled(new FetchPacket))
     val out = Decoupled(new DecodePacket)
     val regWrite = Flipped(new WriteBackIO())
-    val forwards = Input(Vec(4, new ForwardPacket))
+    val forwards = Input(Vec(2, new ForwardPacket))
     val debug_regs = Output(Vec(32, UInt(XLEN.W)))
   })
 

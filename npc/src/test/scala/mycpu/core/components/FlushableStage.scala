@@ -10,7 +10,8 @@ class FlushableStageSim extends AnyFlatSpec {
     c.io.enq.bits.poke(0.U)
     c.io.deq.ready.poke(false.B)
     c.io.flush.poke(false.B)
-    c.io.stall.poke(false.B)
+    c.io.blockEnq.poke(false.B)
+    c.io.blockDeq.poke(false.B)
   }
 
   private def resetDut(c: FlushableStage[UInt]): Unit = {
@@ -76,7 +77,7 @@ class FlushableStageSim extends AnyFlatSpec {
     }
   }
 
-  it should "block upstream while stalled without hiding queued data" in {
+  it should "block enqueue while leaving dequeue visible" in {
     simulate(new FlushableStage(UInt(8.W))) { c =>
       resetDut(c)
 
@@ -85,7 +86,7 @@ class FlushableStageSim extends AnyFlatSpec {
       c.clock.step()
 
       c.io.enq.valid.poke(false.B)
-      c.io.stall.poke(true.B)
+      c.io.blockEnq.poke(true.B)
       c.io.deq.ready.poke(false.B)
 
       c.io.enq.ready.expect(false.B)
@@ -93,14 +94,14 @@ class FlushableStageSim extends AnyFlatSpec {
       c.io.deq.bits.expect("h7c".U)
       c.clock.step()
 
-      c.io.stall.poke(false.B)
+      c.io.blockEnq.poke(false.B)
       c.io.deq.ready.poke(false.B)
       c.io.deq.valid.expect(true.B)
       c.io.deq.bits.expect("h7c".U)
     }
   }
 
-  it should "allow downstream to consume a queued element while stalled" in {
+  it should "block dequeue consumption without hiding queued data" in {
     simulate(new FlushableStage(UInt(8.W))) { c =>
       resetDut(c)
 
@@ -109,17 +110,17 @@ class FlushableStageSim extends AnyFlatSpec {
       c.clock.step()
 
       c.io.enq.valid.poke(false.B)
-      c.io.stall.poke(true.B)
+      c.io.blockDeq.poke(true.B)
       c.io.deq.ready.poke(true.B)
 
-      c.io.enq.ready.expect(false.B)
       c.io.deq.valid.expect(true.B)
       c.io.deq.bits.expect("h3d".U)
       c.clock.step()
 
-      c.io.stall.poke(false.B)
+      c.io.blockDeq.poke(false.B)
       c.io.deq.ready.poke(false.B)
-      c.io.deq.valid.expect(false.B)
+      c.io.deq.valid.expect(true.B)
+      c.io.deq.bits.expect("h3d".U)
     }
   }
 
@@ -132,11 +133,13 @@ class FlushableStageSim extends AnyFlatSpec {
       c.clock.step()
 
       c.io.enq.valid.poke(false.B)
-      c.io.stall.poke(true.B)
+      c.io.blockEnq.poke(true.B)
+      c.io.blockDeq.poke(true.B)
       c.io.flush.poke(true.B)
       c.clock.step()
 
-      c.io.stall.poke(false.B)
+      c.io.blockEnq.poke(false.B)
+      c.io.blockDeq.poke(false.B)
       c.io.flush.poke(false.B)
       c.io.deq.valid.expect(false.B)
     }

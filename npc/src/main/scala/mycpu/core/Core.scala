@@ -49,35 +49,32 @@ class Core(
 
   icacheOpt match {
     case Some(icache) =>
-    icache.io.cpuReq.valid := fetch.io.fetch.valid
-    icache.io.cpuReq.bits.pc := fetch.io.fetch.bits
-    fetch.io.fetch.ready := icache.io.cpuReq.ready
+    icache.io.cpuReq.valid := fetch.io.instReq.valid
+    icache.io.cpuReq.bits := fetch.io.instReq.bits
+    fetch.io.instReq.ready := icache.io.cpuReq.ready
 
-    fetch.io.reply.valid := icache.io.cpuReply.valid
-    fetch.io.reply.bits := icache.io.cpuReply.bits.inst
-    fetch.io.replyHit := icache.io.cpuReply.bits.hit
-    icache.io.cpuReply.ready := fetch.io.reply.ready
+    fetch.io.instResp <> icache.io.cpuReply
 
-    memory.io.fetchReq <> icache.io.memReq
+    memory.io.icache <> icache.io.mem
 
-    icache.io.memReply.valid := memory.io.fetchReply.valid
-    icache.io.memReply.bits.data := memory.io.fetchReply.bits
-    memory.io.fetchReply.ready := icache.io.memReply.ready
     icache.io.prefetch.valid := false.B
-    icache.io.prefetch.bits.addr := 0.U
+    icache.io.prefetch.bits := 0.U
 
     case None =>
-    memory.io.fetchReq.valid := fetch.io.fetch.valid
-    memory.io.fetchReq.bits.addr := fetch.io.fetch.bits
-    memory.io.fetchReq.bits.size := 2.U
-    memory.io.fetchReq.bits.beats := 1.U
-    fetch.io.fetch.ready := memory.io.fetchReq.ready
-    fetch.io.reply <> memory.io.fetchReply
-    fetch.io.replyHit := false.B
+    memory.io.icache.a.valid := fetch.io.instReq.valid
+    memory.io.icache.a.bits.addr := fetch.io.instReq.bits
+    memory.io.icache.a.bits.size := 2.U
+    memory.io.icache.a.bits.len := 0.U
+    memory.io.icache.a.bits.write := false.B
+    memory.io.icache.a.bits.id := 0.U
+    fetch.io.instReq.ready := memory.io.icache.a.ready
+    fetch.io.instResp.valid := memory.io.icache.r.valid
+    fetch.io.instResp.bits.inst := memory.io.icache.r.bits.data
+    fetch.io.instResp.bits.hit := false.B
+    memory.io.icache.r.ready := fetch.io.instResp.ready
   }
 
-  memory.io.lsuReq <> lsu.io.req
-  lsu.io.reply <> memory.io.lsuReply
+  memory.io.lsu <> lsu.io.mem
   io.master <> memory.io.axi
 
   writeBack.io.in <> memWb.io.deq
@@ -106,8 +103,6 @@ class Core(
 
   connectForward(decode.io.forwards(0), execute.io.out.valid, execute.io.out.bits.forward)
   connectForward(decode.io.forwards(1), exMem.io.deq.valid, exMem.io.deq.bits.forward)
-  connectForward(decode.io.forwards(2), lsu.io.out.valid, lsu.io.out.bits.forward)
-  connectForward(decode.io.forwards(3), memWb.io.deq.valid, memWb.io.deq.bits.forward)
 
   hazard.io.raw.decode.rs1.valid := decode.io.out.valid && decode.io.out.bits.rawRs1.valid
   hazard.io.raw.decode.rs1.addr := decode.io.out.bits.rawRs1.addr
@@ -120,7 +115,6 @@ class Core(
   hazard.io.raw.exMemLoad.addr := exMem.io.deq.bits.wbCtrl.rd
   hazard.io.raw.lsuLoad.valid := lsu.io.pendingLoad.valid
   hazard.io.raw.lsuLoad.addr := lsu.io.pendingLoad.addr
-  hazard.io.raw.lsuToMemWbFire := lsu.io.pendingLoad.valid && lsu.io.out.fire
 
   val executeRedirect = execute.io.out.valid && execute.io.out.bits.ifRedct.redirect.valid
   val executeFenceI = execute.io.out.valid && execute.io.out.bits.fencei
@@ -175,10 +169,14 @@ class Core(
   exMem.io.flush := false.B
   memWb.io.flush := false.B
 
-  ifId.io.stall := false.B
-  idEx.io.stall := loadUseStall
-  exMem.io.stall := false.B
-  memWb.io.stall := false.B
+  ifId.io.blockEnq := false.B
+  ifId.io.blockDeq := loadUseStall
+  idEx.io.blockEnq := loadUseStall
+  idEx.io.blockDeq := false.B
+  exMem.io.blockEnq := false.B
+  exMem.io.blockDeq := false.B
+  memWb.io.blockEnq := false.B
+  memWb.io.blockDeq := false.B
 
   when(redirectFlush) {
     ifId.io.enq.valid := false.B

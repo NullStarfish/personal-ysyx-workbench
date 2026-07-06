@@ -40,16 +40,6 @@ trait MemOut {
   def forward: ForwardSource
 }
 
-class LsuReq extends Bundle {
-  val addr = XLenU
-  val data = XLenU
-  val strb = UInt(4.W)
-  val write = Bool()
-  val size = UInt(3.W)
-}
-
-
-
 class MemoryPacket extends Bundle with withRetireTrace with MemOut {
   val wbCtrl = new Bundle with WriteBackCtrl {
     val rd = UInt(5.W)

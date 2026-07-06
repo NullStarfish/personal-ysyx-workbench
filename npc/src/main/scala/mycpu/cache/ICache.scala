@@ -25,10 +25,14 @@ class ICache(
   lookupReq := Mux(reqValid, reqReg, io.cpuReq.bits)
   val cpuReq = reqReg
 
-  val reqTag = params.tag(cpuReq.pc)
-  val reqIndex = params.index(cpuReq.pc)
-  val reqWordOffset = params.wordOffset(cpuReq.pc)
-  val reqLineBase = params.lineBase(cpuReq.pc)
+  val reqTag = params.tag(cpuReq)
+  val reqIndex = params.index(cpuReq)
+  val reqWordOffset = params.wordOffset(cpuReq)
+  //lineBase是该行在物理地址中映射的起始地址
+  val reqLineBase = params.lineBase(cpuReq)
+
+
+
   val cacheSet = Module(new CacheSet(params))
   val replacement = Replacement(params)
   val frontFlush = io.redirect.valid || io.flush
@@ -44,7 +48,6 @@ class ICache(
 
 
   io.cpuReply.valid := false.B
-  io.cpuReply.bits.pc := cpuReq.pc
   io.cpuReply.bits.inst := responseInst
 
 
@@ -56,18 +59,16 @@ class ICache(
 
 
   val refillBeat = RegInit(0.U(params.wordOffsetWidth.W))
-  val dropBeat = RegInit(0.U(params.wordOffsetWidth.W))
   val refillLine = Reg(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
 
-  val refillLast = refillBeat === (params.wordsPerLine - 1).U
-  val dropLast = dropBeat === (params.wordsPerLine - 1).U
 
-
-  io.memReq.valid := false.B
-  io.memReq.bits.addr := reqLineBase
-  io.memReq.bits.size := 2.U
-  io.memReq.bits.beats := params.wordsPerLine.U
-  io.memReply.ready := false.B
+  io.mem.a.valid := false.B
+  io.mem.a.bits.addr := reqLineBase
+  io.mem.a.bits.size := 2.U
+  io.mem.a.bits.len := (params.wordsPerLine - 1).U
+  io.mem.a.bits.write := false.B
+  io.mem.a.bits.id := 0.U
+  io.mem.r.ready := false.B
 
 
 
@@ -97,9 +98,9 @@ class ICache(
     io.cpuReq.ready := !reqValid && !reset.asBool && !frontFlush && !dropMemReply
 
     cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !frontFlush && !dropMemReply
-    cacheSet.io.lookup.bits.index := params.index(lookupReq.pc)
-    cacheSet.io.lookup.bits.tag := params.tag(lookupReq.pc)
-    cacheSet.io.lookup.bits.wordOffset := params.wordOffset(lookupReq.pc)
+    cacheSet.io.lookup.bits.index := params.index(lookupReq)
+    cacheSet.io.lookup.bits.tag := params.tag(lookupReq)
+    cacheSet.io.lookup.bits.wordOffset := params.wordOffset(lookupReq)
 
     when(io.cpuReq.fire) {
       reqReg := io.cpuReq.bits
@@ -132,19 +133,19 @@ class ICache(
       }
     }.otherwise {
       accessMiss := true.B
-      io.memReq.valid := reqValid && !memReqDone && !frontFlush && !dropMemReply
-      io.memReply.ready := reqValid && !frontFlush && !dropMemReply
+      io.mem.a.valid := reqValid && !memReqDone && !frontFlush && !dropMemReply
+      io.mem.r.ready := reqValid && !frontFlush && !dropMemReply
 
-      when(io.memReq.fire) {
+      when(io.mem.a.fire) {
         memReqDone := true.B
       }
 
-      when(io.memReply.fire) {
-        refillLine(refillBeat) := io.memReply.bits.data
-        when(refillLast) {
+      when(io.mem.r.fire) {
+        refillLine(refillBeat) := io.mem.r.bits.data
+        when(io.mem.r.bits.last) {
           val completedLine = Wire(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
           completedLine := refillLine
-          completedLine(refillBeat) := io.memReply.bits.data
+          completedLine(refillBeat) := io.mem.r.bits.data
 
           cacheSet.io.write.valid := true.B
           cacheSet.io.write.bits.data := completedLine.asUInt
@@ -165,13 +166,10 @@ class ICache(
   }
 
   when(dropMemReply) {
-    io.memReply.ready := !reset.asBool
-    when(io.memReply.fire) {
-      when(dropLast) {
+    io.mem.r.ready := !reset.asBool
+    when(io.mem.r.fire) {
+      when(io.mem.r.bits.last) {
         dropMemReply := false.B
-        dropBeat := 0.U
-      }.otherwise {
-        dropBeat := dropBeat + 1.U
       }
     }
   }
@@ -186,7 +184,6 @@ class ICache(
     when(memReqDone) {
       memReqDone := false.B
       dropMemReply := true.B
-      dropBeat := refillBeat
     }
   }
 

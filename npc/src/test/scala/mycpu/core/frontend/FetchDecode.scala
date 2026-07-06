@@ -6,12 +6,13 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components.FlushableStage
+import mycpu.memory.FetchResp
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FetchDecodeHarness extends Module {
   val io = IO(new Bundle {
     val fetchReq = Decoupled(UInt(32.W))
-    val reply = Flipped(Decoupled(UInt(32.W)))
+    val reply = Flipped(Decoupled(new FetchResp))
     val redirect = Input(Valid(UInt(XLEN.W)))
     val flush = Input(Bool())
     val stageStall = Input(Bool())
@@ -23,14 +24,14 @@ class FetchDecodeHarness extends Module {
   val ifId = Module(new FlushableStage(new FetchPacket))
   val decode = Module(new Decode)
 
-  io.fetchReq <> fetch.io.fetch
-  fetch.io.reply <> io.reply
-  fetch.io.replyHit := false.B
+  io.fetchReq <> fetch.io.instReq
+  fetch.io.instResp <> io.reply
   fetch.io.redirect := io.redirect
 
   ifId.io.enq <> fetch.io.out
   ifId.io.flush := io.flush
-  ifId.io.stall := io.stageStall
+  ifId.io.blockEnq := false.B
+  ifId.io.blockDeq := io.stageStall
 
   decode.io.in <> ifId.io.deq
   decode.io.regWrite <> io.regWrite
@@ -80,7 +81,8 @@ class FetchDecodeSim extends AnyFlatSpec {
   private def init(c: FetchDecodeHarness): Unit = {
     c.io.fetchReq.ready.poke(false.B)
     c.io.reply.valid.poke(false.B)
-    c.io.reply.bits.poke(0.U)
+    c.io.reply.bits.inst.poke(0.U)
+    c.io.reply.bits.hit.poke(false.B)
     c.io.redirect.valid.poke(false.B)
     c.io.redirect.bits.poke(0.U)
     c.io.flush.poke(false.B)
@@ -115,7 +117,8 @@ class FetchDecodeSim extends AnyFlatSpec {
   private def returnInst(c: FetchDecodeHarness, inst: BigInt): Unit = {
     var cycles = 0
     c.io.reply.valid.poke(true.B)
-    c.io.reply.bits.poke(inst.U)
+    c.io.reply.bits.inst.poke(inst.U)
+    c.io.reply.bits.hit.poke(false.B)
     while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
       c.clock.step()
       cycles += 1
@@ -196,9 +199,10 @@ class FetchDecodeSim extends AnyFlatSpec {
     }
   }
 
-  it should "stall IF/ID enqueue without hiding the decoded output" in {
+  it should "stall IF/ID dequeue and hold the queued instruction" in {
     simulate(new FetchDecodeHarness) { c =>
       val inst0 = addi(rd = 4, rs1 = 0, imm = 1)
+      val inst1 = addi(rd = 5, rs1 = 0, imm = 2)
 
       resetDut(c)
 
@@ -207,17 +211,25 @@ class FetchDecodeSim extends AnyFlatSpec {
       waitOut(c, pc0)
 
       c.io.stageStall.poke(true.B)
-      c.io.out.ready.poke(false.B)
-      waitOut(c, pc0)
-
-      acceptFetch(c, pc1)
-      returnInst(c, addi(rd = 5, rs1 = 0, imm = 2))
-      waitOut(c, pc0)
+      c.io.out.ready.poke(true.B)
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(4.U)
+      c.clock.step()
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(4.U)
 
       c.io.stageStall.poke(false.B)
+      c.io.out.ready.poke(false.B)
+      waitOut(c, pc0)
+      c.io.out.bits.wbCtrl.rd.expect(4.U)
+
       c.io.out.ready.poke(true.B)
       c.clock.step()
+
+      acceptFetch(c, pc1)
+      returnInst(c, inst1)
       waitOut(c, pc1)
+      c.io.out.bits.wbCtrl.rd.expect(5.U)
     }
   }
 

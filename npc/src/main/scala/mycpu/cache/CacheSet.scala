@@ -33,11 +33,20 @@ class CacheSetIO(params: CacheParams) extends Bundle {
   val flush = Input(Bool())
 }
 
+
+/**
+  * 单纯的数据结构：
+  * 仅仅处理read，write，
+  * 返回数据和hit与否
+  * @param params
+  */
 class CacheSet(params: CacheParams) extends Module {
   val io = IO(new CacheSetIO(params))
+  
 
+  //Basic Stored Block Data
   val lines = SyncReadMem(params.sets * params.ways, UInt(params.lineWidth.W))
-  val tags = Reg(Vec(params.sets, Vec(params.ways, UInt(params.tagWidth.W))))
+  val tags = SyncReadMem(params.sets * params.ways, UInt(params.tagWidth.W))
   val validBits = RegInit(VecInit(Seq.fill(params.sets) {
     VecInit(Seq.fill(params.ways)(false.B))
   }))
@@ -45,40 +54,43 @@ class CacheSet(params: CacheParams) extends Module {
   private def lineAddr(index: UInt, way: UInt): UInt =
     index * params.ways.U + way
 
+  //look up request
   val lookupReq = RegEnable(io.lookup.bits, 0.U.asTypeOf(new CacheSetLookupReq(params)), io.lookup.valid)
   val lookupValid = RegNext(io.lookup.valid, false.B)
-  val lookupWayValid = RegEnable(validBits(io.lookup.bits.index), 0.U.asTypeOf(Vec(params.ways, Bool())), io.lookup.valid)
-  val lookupTags = RegEnable(tags(io.lookup.bits.index), 0.U.asTypeOf(Vec(params.ways, UInt(params.tagWidth.W))), io.lookup.valid)
-  val selectedData = Wire(Vec(params.ways, UInt(params.lineWidth.W)))
-
+  //the local state concerning the req
+  val selectedSetValid = RegEnable(validBits(io.lookup.bits.index), 0.U.asTypeOf(Vec(params.ways, Bool())), io.lookup.valid)
+  val selectedSetTags = Wire(Vec(params.ways, UInt(params.tagWidth.W)))
+  val selectedSetData = Wire(Vec(params.ways, UInt(params.lineWidth.W)))
   for (way <- 0 until params.ways) {
-    selectedData(way) := lines.read(lineAddr(io.lookup.bits.index, way.U), io.lookup.valid)
+    selectedSetTags(way) := tags.read(lineAddr(io.lookup.bits.index, way.U), io.lookup.valid)
+    selectedSetData(way) := lines.read(lineAddr(io.lookup.bits.index, way.U), io.lookup.valid)
   }
 
   val wayHits = Wire(Vec(params.ways, Bool()))
-
   for (way <- 0 until params.ways) {
     wayHits(way) := lookupValid &&
-      lookupWayValid(way) &&
-      lookupTags(way) === lookupReq.tag
+      selectedSetValid(way) &&
+      selectedSetTags(way) === lookupReq.tag
   }
 
   val hit = wayHits.asUInt.orR
   val hitWay = PriorityEncoder(wayHits)
   val hitData =
-    if (params.ways == 1) selectedData(0)
-    else selectedData(hitWay)
+    if (params.ways == 1) selectedSetData(0)
+    else selectedSetData(hitWay)
   val storedTag =
-    if (params.ways == 1) lookupTags(0)
-    else lookupTags(hitWay)
+    if (params.ways == 1) selectedSetTags(0)
+    else selectedSetTags(hitWay)
 
   io.lookupResp.hit := hit
   io.lookupResp.way := hitWay
-  io.lookupResp.selectedValid := lookupWayValid(hitWay)
+  io.lookupResp.selectedValid := selectedSetValid(hitWay)
   io.lookupResp.storedTag := storedTag
   io.lookupResp.line := hitData
   io.lookupResp.word := params.wordFromLine(hitData, lookupReq.wordOffset)
 
+
+//写就是单纯写，不考虑LRU
   when(io.flush) {
     for (set <- 0 until params.sets) {
       for (way <- 0 until params.ways) {
@@ -87,11 +99,10 @@ class CacheSet(params: CacheParams) extends Module {
     }
   }.elsewhen(io.write.valid) {
     lines.write(lineAddr(io.write.bits.index, io.write.bits.way), io.write.bits.data)
+    tags.write(lineAddr(io.write.bits.index, io.write.bits.way), io.write.bits.meta.tag)
     if (params.ways == 1) {
-      tags(io.write.bits.index)(0) := io.write.bits.meta.tag
       validBits(io.write.bits.index)(0) := io.write.bits.valid
     } else {
-      tags(io.write.bits.index)(io.write.bits.way) := io.write.bits.meta.tag
       validBits(io.write.bits.index)(io.write.bits.way) := io.write.bits.valid
     }
   }

@@ -53,8 +53,8 @@ object fetch extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
+      root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
-      root / "src/main/scala/mycpu/core/components/ReadyValidHelper.scala",
       root / "src/main/scala/mycpu/utils/Debug.scala",
     )
     val dest = T.dest / "src"
@@ -175,6 +175,7 @@ object hazard extends NpcScalaModule {
       root / "src/main/scala/mycpu/common/Consts.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
       root / "src/main/scala/mycpu/core/bundles/Hazard.scala",
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
@@ -223,6 +224,7 @@ object memctrl extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
       root / "src/main/scala/mycpu/memory/MemoryController.scala",
       root / "src/main/scala/mycpu/utils/AXI4Defs.scala",
     )
@@ -260,9 +262,10 @@ object cache extends NpcScalaModule {
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
-      root / "src/main/scala/mycpu/memory",
     )
-    val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
+    val files =
+      roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala")) ++
+        Seq(root / "src/main/scala/mycpu/memory/MemoryBundles.scala")
     val dest = T.dest / "src"
     for (file <- files) {
       val out = dest / file.relativeTo(root)
@@ -299,9 +302,10 @@ object cacheformal extends NpcScalaModule {
     val roots = Seq(
       root / "src/main/scala/mycpu/common",
       root / "src/main/scala/mycpu/cache",
-      root / "src/main/scala/mycpu/memory",
     )
-    val files = roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala"))
+    val files =
+      roots.flatMap(srcRoot => os.walk(srcRoot).filter(_.ext == "scala")) ++
+        Seq(root / "src/main/scala/mycpu/memory/MemoryBundles.scala")
     val dest = T.dest / "src"
     for (file <- files) {
       val out = dest / file.relativeTo(root)
@@ -374,6 +378,7 @@ object lsu extends NpcScalaModule {
       root / "src/main/scala/mycpu/common/Consts.scala",
       root / "src/main/scala/mycpu/core/bundles/Basics.scala",
       root / "src/main/scala/mycpu/core/bundles/Consts.scala",
+      root / "src/main/scala/mycpu/core/bundles/Debug.scala",
       root / "src/main/scala/mycpu/core/bundles/Decode.scala",
       root / "src/main/scala/mycpu/core/bundles/Execute.scala",
       root / "src/main/scala/mycpu/core/bundles/Fetch.scala",
@@ -381,6 +386,7 @@ object lsu extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Mem.scala",
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
+      root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
       root / "src/main/scala/mycpu/core/backend/LSU.scala",
     )
     val dest = T.dest / "src"
@@ -635,6 +641,7 @@ object fetchDecode extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/components/ImmGen.scala",
       root / "src/main/scala/mycpu/core/components/RegFile.scala",
       root / "src/main/scala/mycpu/utils/Debug.scala",
+      root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
       root / "src/main/scala/mycpu/core/frontend/Decode.scala",
     )

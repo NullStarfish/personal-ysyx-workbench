@@ -4,8 +4,8 @@ import chisel3._
 import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
+import mycpu.memory.FetchResp
 import mycpu.utils._
-import mycpu.core.components._
 
 class Fetch(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
@@ -13,9 +13,8 @@ class Fetch(
 ) extends Module {
   val io = IO(new Bundle {
     //val axi = new AXI4LiteBundle(XLEN, XLEN)
-    val fetch = Decoupled(UInt(32.W))
-    val reply = Flipped(Decoupled(UInt(32.W)))
-    val replyHit = Input(Bool())
+    val instReq = Decoupled(UInt(32.W))
+    val instResp = Flipped(Decoupled(new FetchResp))
 
     val out = Decoupled(new FetchPacket)
     val redirect = Input(Valid(UInt(XLEN.W)))
@@ -26,8 +25,8 @@ class Fetch(
 //流水级只知道valid-ready阻塞。flushablestage可以把valid reg数据valid翻译成backpressure valid
 
   io.out.valid := false.B
-  io.fetch.valid := false.B
-  io.reply.ready := false.B
+  io.instReq.valid := false.B
+  io.instResp.ready := false.B
 
 
 
@@ -58,36 +57,36 @@ class Fetch(
 
   fetchReq.io.enq.valid := !reset.asBool && !frontFlush
   fetchReq.io.enq.bits := pc
-  io.fetch.valid := fetchReq.io.deq.valid && reqPc.io.enq.ready && !frontFlush
-  io.fetch.bits := fetchReq.io.deq.bits
-  fetchReq.io.deq.ready := io.fetch.ready && reqPc.io.enq.ready && !frontFlush
+  io.instReq.valid := fetchReq.io.deq.valid && reqPc.io.enq.ready && !frontFlush
+  io.instReq.bits := fetchReq.io.deq.bits
+  fetchReq.io.deq.ready := io.instReq.ready && reqPc.io.enq.ready && !frontFlush
 
 
-  reqPc.io.enq.valid := io.fetch.fire && !frontFlush
+  reqPc.io.enq.valid := io.instReq.fire && !frontFlush
   reqPc.io.enq.bits := fetchReq.io.deq.bits
 
 
-  fetchReply.io.enq.valid := io.reply.valid && reqPc.io.deq.valid && !frontFlush
-  io.reply.ready := false.B
+  fetchReply.io.enq.valid := io.instResp.valid && reqPc.io.deq.valid && !frontFlush
+  io.instResp.ready := false.B
 
   when (!reset.asBool) {
     when (io.redirect.valid) {
-      io.reply.ready := true.B
+      io.instResp.ready := true.B
     } .otherwise {
       when (!reqPc.io.deq.valid) {
-        io.reply.ready := true.B
+        io.instResp.ready := true.B
       }.otherwise {
         //唯一不丢弃的路径
-        io.reply.ready := fetchReply.io.enq.ready
+        io.instResp.ready := fetchReply.io.enq.ready
       }
     }
   }
 
-  reqPc.io.deq.ready := io.reply.fire
+  reqPc.io.deq.ready := io.instResp.fire
 
   fetchReply.io.enq.bits.pc := reqPc.io.deq.bits
-  fetchReply.io.enq.bits.inst := io.reply.bits
-  fetchReply.io.enq.bits.icacheHit := io.replyHit
+  fetchReply.io.enq.bits.inst := io.instResp.bits.inst
+  fetchReply.io.enq.bits.icacheHit := io.instResp.bits.hit
 
 
   fetchReq.io.flush.get := frontFlush
@@ -116,22 +115,22 @@ class Fetch(
   io.out.bits.isException := false.B
 
 
-  // when (io.fetch.fire) {
+  // when (io.instReq.fire) {
   //   printf(p"fetch accept: $pc\n")
   // }
-  // when (io.reply.fire) {
-  //   printf(p"reply: ${io.reply.bits}\n")
+  // when (io.instResp.fire) {
+  //   printf(p"reply: ${io.instResp.bits.inst}\n")
   // }
 
   if (enableDpi) {
     val fetchTrace = Module(new FetchTrace)
     fetchTrace.io.clk := clock
     fetchTrace.io.reset := reset.asBool
-    fetchTrace.io.reqInst := io.fetch.fire
-    fetchTrace.io.gotReply := io.reply.fire
+    fetchTrace.io.reqInst := io.instReq.fire
+    fetchTrace.io.gotReply := io.instResp.fire
     fetchTrace.io.gotInst := io.out.fire
     fetchTrace.io.flush := frontFlush
-    fetchTrace.io.reqBlocked := io.fetch.valid && !io.fetch.ready
+    fetchTrace.io.reqBlocked := io.instReq.valid && !io.instReq.ready
     fetchTrace.io.outBlocked := io.out.valid && !io.out.ready
     fetchTrace.io.pc := io.out.bits.pc
     fetchTrace.io.inst := io.out.bits.inst
