@@ -9,12 +9,18 @@ class ICache(
 ) extends Module {
   val io = IO(new ICacheIO(params))
 
+  //cpu req. 打一拍
   val reqReg = Reg(chiselTypeOf(io.cpuReq.bits))
   val reqValid = RegInit(false.B)
+
+
+  //response reg
   val responseResolved = RegInit(false.B)
   val responseHit = RegInit(false.B)
   val responseInst = Reg(UInt(params.dataWidth.W))
   val responseWay = Reg(UInt(params.wayWidth.W))
+
+
 
   object State extends ChiselEnum {
     val Lookup, Response = Value
@@ -25,6 +31,8 @@ class ICache(
   lookupReq := Mux(reqValid, reqReg, io.cpuReq.bits)
   val cpuReq = reqReg
 
+
+//方便访问的变量
   val reqTag = params.tag(cpuReq)
   val reqIndex = params.index(cpuReq)
   val reqWordOffset = params.wordOffset(cpuReq)
@@ -35,12 +43,12 @@ class ICache(
 
   val cacheSet = Module(new CacheSet(params))
   val replacement = Replacement(params)
-  val frontFlush = io.redirect.valid || io.flush
+  val fencei = io.fencei
   
 
   io.cpuReq.ready := false.B
 
-  cacheSet.io.flush := io.flush
+  cacheSet.io.flush := fencei
   cacheSet.io.lookup.valid := false.B
   cacheSet.io.lookup.bits.index := reqIndex
   cacheSet.io.lookup.bits.tag := reqTag
@@ -95,9 +103,9 @@ class ICache(
   }
 
   when (state === State.Lookup) {
-    io.cpuReq.ready := !reqValid && !reset.asBool && !frontFlush && !dropMemReply
+    io.cpuReq.ready := !reqValid && !reset.asBool && !fencei && !dropMemReply
 
-    cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !frontFlush && !dropMemReply
+    cacheSet.io.lookup.valid := hasLookupReq && !reset.asBool && !fencei && !dropMemReply
     cacheSet.io.lookup.bits.index := params.index(lookupReq)
     cacheSet.io.lookup.bits.tag := params.tag(lookupReq)
     cacheSet.io.lookup.bits.wordOffset := params.wordOffset(lookupReq)
@@ -122,7 +130,7 @@ class ICache(
       responseInst := cacheSet.io.lookupResp.word
       responseWay := cacheSet.io.lookupResp.way
     }.elsewhen(responseHit) {
-      io.cpuReply.valid := !frontFlush
+      io.cpuReply.valid := !fencei
       when(io.cpuReply.fire) {
         replacement.touch.valid := true.B
         reqValid := false.B
@@ -133,8 +141,8 @@ class ICache(
       }
     }.otherwise {
       accessMiss := true.B
-      io.mem.a.valid := reqValid && !memReqDone && !frontFlush && !dropMemReply
-      io.mem.r.ready := reqValid && !frontFlush && !dropMemReply
+      io.mem.a.valid := reqValid && !memReqDone && !fencei && !dropMemReply
+      io.mem.r.ready := reqValid && !fencei && !dropMemReply
 
       when(io.mem.a.fire) {
         memReqDone := true.B
@@ -174,7 +182,7 @@ class ICache(
     }
   }
 
-  when(frontFlush) {
+  when(fencei) {
     reqValid := false.B
     accessLatency := 0.U
     accessMiss := false.B

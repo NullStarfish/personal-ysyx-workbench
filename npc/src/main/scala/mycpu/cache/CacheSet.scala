@@ -38,6 +38,7 @@ class CacheSetIO(params: CacheParams) extends Bundle {
   * 单纯的数据结构：
   * 仅仅处理read，write，
   * 返回数据和hit与否
+  * 延迟一拍：无需同步握手，一拍后一定返回结果
   * @param params
   */
 class CacheSet(params: CacheParams) extends Module {

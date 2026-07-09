@@ -19,8 +19,7 @@ class ICacheSpec extends AnyFlatSpec {
     c.io.mem.r.bits.resp.poke(0.U)
     c.io.mem.r.bits.last.poke(false.B)
     c.io.mem.r.bits.id.poke(0.U)
-    c.io.redirect.valid.poke(false.B)
-    c.io.redirect.bits.poke(0.U)
+    c.io.fencei.poke(false.B)
     c.io.prefetch.valid.poke(false.B)
     c.io.prefetch.bits.poke(0.U)
     c.clock.step()
@@ -143,18 +142,17 @@ class ICacheSpec extends AnyFlatSpec {
     }
   }
 
-  it should "not accept a CPU request during redirect flush" in {
+  it should "not accept a CPU request during fence.i invalidation" in {
     simulate(new ICache(params)) { c =>
       init(c)
 
       c.io.cpuReq.valid.poke(true.B)
       c.io.cpuReq.bits.poke("h104".U)
-      c.io.redirect.valid.poke(true.B)
-      c.io.redirect.bits.poke("h200".U)
+      c.io.fencei.poke(true.B)
       c.io.cpuReq.ready.expect(false.B)
       c.clock.step()
 
-      c.io.redirect.valid.poke(false.B)
+      c.io.fencei.poke(false.B)
       c.io.cpuReq.ready.expect(true.B)
     }
   }

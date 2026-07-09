@@ -11,7 +11,6 @@ class ICacheIO(params: CacheParams = CacheParams()) extends Bundle {
 
   val mem = new MemReadIO
 
-  val redirect = Flipped(Valid(UInt(params.addrWidth.W)))
-  val flush = Input(Bool())
+  val fencei = Input(Bool())
   val prefetch = Flipped(Valid(UInt(params.addrWidth.W)))
 }

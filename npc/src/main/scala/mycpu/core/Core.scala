@@ -125,9 +125,7 @@ class Core(
   fetch.io.redirect.valid := redirectFlush
   fetch.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
   icacheOpt.foreach { icache =>
-    icache.io.redirect.valid := redirectFlush
-    icache.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
-    icache.io.flush := executeFenceI
+    icache.io.fencei := executeFenceI
   }
 
   if (enableDpi && enableTraceFields) {
