@@ -17,3 +17,6 @@ class FetchPacket extends Bundle {
   val isException = Bool()
 }
 
+class IFPacket extends Bundle {
+  val pc = XLenU
+}

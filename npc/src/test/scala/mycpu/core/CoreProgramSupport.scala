@@ -7,7 +7,7 @@ import mycpu.common._
 import scala.collection.mutable
 
 trait CoreProgramSupport {
-  protected case class ReadTxn(addr: BigInt, delay: Int)
+  protected case class ReadTxn(addr: BigInt, delay: Int, last: Boolean)
   protected case class WriteResp(delay: Int)
 
   protected def initBus(c: Core): Unit = {
@@ -86,16 +86,20 @@ trait CoreProgramSupport {
     val nextPending =
       if (arValid) {
         c.io.master.ar.ready.poke(true.B)
-        pending :+ ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1)
+        val addr = c.io.master.ar.bits.addr.peek().litValue
+        val beats = c.io.master.ar.bits.len.peek().litValue.toInt + 1
+        pending ++ (0 until beats).map { beat =>
+          ReadTxn(addr + beat * 4, delay = if (beat == 0) 1 else 0, last = beat == beats - 1)
+        }
       } else pending
 
     nextPending match {
-      case ReadTxn(addr, 0) :: tail =>
+      case ReadTxn(addr, 0, last) :: tail =>
         c.io.master.r.valid.poke(true.B)
         c.io.master.r.bits.id.poke(0.U)
         c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.master.r.bits.resp.poke(0.U)
-        c.io.master.r.bits.last.poke(true.B)
+        c.io.master.r.bits.last.poke(last.B)
         if (c.io.master.r.ready.peek().litValue == 1) tail else nextPending
       case head :: tail =>
         head.copy(delay = head.delay - 1) :: tail
@@ -115,7 +119,11 @@ trait CoreProgramSupport {
     val nextRead =
       if (c.io.master.ar.valid.peek().litValue == 1) {
         c.io.master.ar.ready.poke(true.B)
-        pendingRead :+ ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = 1)
+        val addr = c.io.master.ar.bits.addr.peek().litValue
+        val beats = c.io.master.ar.bits.len.peek().litValue.toInt + 1
+        pendingRead ++ (0 until beats).map { beat =>
+          ReadTxn(addr + beat * 4, delay = if (beat == 0) 1 else 0, last = beat == beats - 1)
+        }
       } else pendingRead
 
     val nextWriteResp =
@@ -143,12 +151,12 @@ trait CoreProgramSupport {
       } else pendingWriteResp
 
     val servicedRead = nextRead match {
-      case ReadTxn(addr, 0) :: tail =>
+      case ReadTxn(addr, 0, last) :: tail =>
         c.io.master.r.valid.poke(true.B)
         c.io.master.r.bits.id.poke(0.U)
         c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.master.r.bits.resp.poke(0.U)
-        c.io.master.r.bits.last.poke(true.B)
+        c.io.master.r.bits.last.poke(last.B)
         if (c.io.master.r.ready.peek().litValue == 1) tail else nextRead
       case head :: tail =>
         head.copy(delay = head.delay - 1) :: tail

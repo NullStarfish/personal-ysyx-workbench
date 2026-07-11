@@ -7,10 +7,11 @@ import mycpu.common._
 import mycpu.core.backend._
 import mycpu.core.bundles._
 import mycpu.core.components._
-import mycpu.core.frontend.{Decode, Fetch}
+import mycpu.core.frontend.{Decode, Fetch, I$0Packet, I$0Stage, I$1Stage}
 import mycpu.dpi.SimStateBundle
 import mycpu.memory._
 import mycpu.utils._
+import mycpu.core.frontend.I$1Packet
 
 class Core(
     enableDpi: Boolean = false,
@@ -33,52 +34,60 @@ class Core(
     }
   }
 
+  val icacheParams = CacheConfigs.SimpICache
   val fetch = Module(new Fetch(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
+  val cacheSet = Module(new CacheSet(icacheParams))
+  val iCache0 = Module(new I$0Stage(icacheParams))
+  val iCache1 = Module(new I$1Stage(icacheParams))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val lsu = Module(new LSU(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
   val memory = Module(new MemoryController)
   val hazard = Module(new HazardUnit)
-  val ifId = Module(new FlushableStage(new FetchPacket))
+  val ifI0 = Module(new FlushableStage(new IFPacket))
+  val i0I1 = Module(new FlushableStage(new I$0Packet(icacheParams)))
+  val i1Id = Module(new FlushableStage(new I$1Packet))
   val idEx = Module(new FlushableStage(new DecodePacket))
   val exMem = Module(new FlushableStage(new ExecutePacket(enableTraceFields)))
   val memWb = Module(new FlushableStage(new MemoryPacket))
   val tracer = if (enableTracer && enableTraceFields) Some(Module(new Tracer(enableDpi = enableDpi))) else None
-  val icacheOpt = if (ENABLE_ICACHE) Some(Module(new ICache(params = CacheConfigs.SimpICache, enableDpi = enableDpi))) else None
+  require(ENABLE_ICACHE, "the pipelined frontend currently requires ICache")
 
-  icacheOpt match {
-    case Some(icache) =>
-    icache.io.cpuReq.valid := fetch.io.instReq.valid
-    icache.io.cpuReq.bits := fetch.io.instReq.bits
-    fetch.io.instReq.ready := icache.io.cpuReq.ready
+  // 两级前端流水寄存器由Core统一持有，stage本身只保留局部状态。
+  fetch.io.out <> ifI0.io.enq
+  cacheSet.io.lookup.valid := fetch.io.out.fire
+  cacheSet.io.lookup.bits.index := icacheParams.index(fetch.io.out.bits.pc)
+  cacheSet.io.lookup.bits.tag := icacheParams.tag(fetch.io.out.bits.pc)
+  cacheSet.io.lookup.bits.wordOffset := icacheParams.wordOffset(fetch.io.out.bits.pc)
 
-    fetch.io.instResp <> icache.io.cpuReply
+  iCache0.io.in <> ifI0.io.deq
+  iCache0.io.cacheSetResp := cacheSet.io.lookupResp
+  iCache0.io.out <> i0I1.io.enq
 
-    memory.io.icache <> icache.io.mem
+  iCache1.io.in <> i0I1.io.deq
+  cacheSet.io.write <> iCache1.io.cacheSetWrite
+  memory.io.icache <> iCache1.io.mem
+  iCache1.io.out <> i1Id.io.enq
 
-    icache.io.prefetch.valid := false.B
-    icache.io.prefetch.bits := 0.U
+  assert(iCache1.io.out.fire === i1Id.io.enq.fire, "I$1 and I$1/ID must agree on output transfer")
 
-    case None =>
-    memory.io.icache.a.valid := fetch.io.instReq.valid
-    memory.io.icache.a.bits.addr := fetch.io.instReq.bits
-    memory.io.icache.a.bits.size := 2.U
-    memory.io.icache.a.bits.len := 0.U
-    memory.io.icache.a.bits.write := false.B
-    memory.io.icache.a.bits.id := 0.U
-    fetch.io.instReq.ready := memory.io.icache.a.ready
-    fetch.io.instResp.valid := memory.io.icache.r.valid
-    fetch.io.instResp.bits.inst := memory.io.icache.r.bits.data
-    fetch.io.instResp.bits.hit := false.B
-    memory.io.icache.r.ready := fetch.io.instResp.ready
-  }
+  // Decode保持看到当前指令的valid；load-use只阻止真正deq，避免hazard组合环。
+  decode.io.in <> i1Id.io.deq
+  decode.io.out <> idEx.io.enq
+  decode.io.regWrite <> writeBack.io.regWrite
+
+  execute.io.in <> idEx.io.deq
+  execute.io.out <> exMem.io.enq
+
+  lsu.io.in <> exMem.io.deq
+  lsu.io.out <> memWb.io.enq
+
 
   memory.io.lsu <> lsu.io.mem
   io.master <> memory.io.axi
 
   writeBack.io.in <> memWb.io.deq
-  decode.io.regWrite <> writeBack.io.regWrite
 
   io.debug_regs := decode.io.debug_regs
   io.debug_csrs.mtvec := execute.io.debug_csrs.mtvec
@@ -86,16 +95,7 @@ class Core(
   io.debug_csrs.mstatus := execute.io.debug_csrs.mstatus
   io.debug_csrs.mcause := execute.io.debug_csrs.mcause
 
-  fetch.io.out <> ifId.io.enq
-  decode.io.in <> ifId.io.deq
-  decode.io.out <> idEx.io.enq
-
-  execute.io.in <> idEx.io.deq
-  execute.io.out <> exMem.io.enq
-  lsu.io.in <> exMem.io.deq
-  lsu.io.out <> memWb.io.enq
-
-  private def connectForward(dst: ForwardPacket, srcValid: Bool, src: ForwardSource): Unit = {
+    private def connectForward(dst: ForwardPacket, srcValid: Bool, src: ForwardSource): Unit = {
     dst.valid := srcValid && src.valid
     dst.addr := src.addr
     dst.data := src.data
@@ -122,11 +122,23 @@ class Core(
   val redirectFlush = hazard.io.flush
   val loadUseStall = hazard.io.stall
 
+  fetch.io.block := iCache0.io.blockFetch
+  ifI0.io.blockEnq := iCache0.io.blockFetch
+  ifI0.io.blockDeq := false.B
+  i0I1.io.blockEnq := false.B
+  i0I1.io.blockDeq := false.B
+  i1Id.io.blockEnq := false.B
+  i1Id.io.blockDeq := false.B
+
   fetch.io.redirect.valid := redirectFlush
   fetch.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
-  icacheOpt.foreach { icache =>
-    icache.io.fencei := executeFenceI
-  }
+  iCache0.io.flush := redirectFlush
+  iCache1.io.flush := redirectFlush
+  iCache1.io.fencei := executeFenceI
+  cacheSet.io.flush := executeFenceI
+  ifI0.io.flush := redirectFlush
+  i0I1.io.flush := redirectFlush
+  i1Id.io.flush := redirectFlush
 
   if (enableDpi && enableTraceFields) {
     val flushTrace = Module(new FlushTrace)
@@ -139,9 +151,9 @@ class Core(
     val pipelineTrace = Module(new PipelineTrace)
     pipelineTrace.io.clk := clock
     pipelineTrace.io.reset := reset.asBool
-    pipelineTrace.io.fetchOut.valid := fetch.io.out.fire
-    pipelineTrace.io.fetchOut.bits.pc := fetch.io.out.bits.pc
-    pipelineTrace.io.fetchOut.bits.inst := fetch.io.out.bits.inst
+    pipelineTrace.io.fetchOut.valid := iCache1.io.out.fire
+    pipelineTrace.io.fetchOut.bits.pc := iCache1.io.out.bits.pc
+    pipelineTrace.io.fetchOut.bits.inst := iCache1.io.out.bits.inst
     pipelineTrace.io.decodeOut.valid := decode.io.out.fire
     pipelineTrace.io.decodeOut.bits.pc := decode.io.out.bits.retireTrace.get.pc
     pipelineTrace.io.decodeOut.bits.inst := decode.io.out.bits.retireTrace.get.inst
@@ -162,13 +174,10 @@ class Core(
     hazardTrace.io.redirectFlush := redirectFlush
   }
 
-  ifId.io.flush := redirectFlush
   idEx.io.flush := false.B
   exMem.io.flush := false.B
   memWb.io.flush := false.B
 
-  ifId.io.blockEnq := false.B
-  ifId.io.blockDeq := loadUseStall
   idEx.io.blockEnq := loadUseStall
   idEx.io.blockDeq := false.B
   exMem.io.blockEnq := false.B
@@ -177,7 +186,6 @@ class Core(
   memWb.io.blockDeq := false.B
 
   when(redirectFlush) {
-    ifId.io.enq.valid := false.B
     idEx.io.enq.valid := false.B
   }
 

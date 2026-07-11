@@ -18,16 +18,20 @@ class CoreHazardStressSpec extends AnyFlatSpec with CoreProgramSupport {
     val nextPending =
       if (arValid) {
         c.io.master.ar.ready.poke(true.B)
-        pending :+ ReadTxn(c.io.master.ar.bits.addr.peek().litValue, delay = responseDelay)
+        val addr = c.io.master.ar.bits.addr.peek().litValue
+        val beats = c.io.master.ar.bits.len.peek().litValue.toInt + 1
+        pending ++ (0 until beats).map { beat =>
+          ReadTxn(addr + beat * 4, delay = if (beat == 0) responseDelay else 0, last = beat == beats - 1)
+        }
       } else pending
 
     nextPending match {
-      case ReadTxn(addr, 0) :: tail =>
+      case ReadTxn(addr, 0, last) :: tail =>
         c.io.master.r.valid.poke(true.B)
         c.io.master.r.bits.id.poke(0.U)
         c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
         c.io.master.r.bits.resp.poke(0.U)
-        c.io.master.r.bits.last.poke(true.B)
+        c.io.master.r.bits.last.poke(last.B)
         if (c.io.master.r.ready.peek().litValue == 1) tail else nextPending
       case head :: tail =>
         head.copy(delay = head.delay - 1) :: tail

@@ -537,6 +537,7 @@ object coreprogram extends NpcScalaModule {
         root / "src/test/scala/mycpu/core/CoreProgramSpec.scala",
         root / "src/test/scala/mycpu/core/CoreHazardStressSpec.scala",
         root / "src/test/scala/mycpu/core/Rv32eEncoders.scala",
+        root / "src/test/scala/mycpu/core/frontend/I$StageSpec.scala",
       )
       val dest = T.dest / "src"
       for (file <- files) {
@@ -640,9 +641,14 @@ object fetchDecode extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/components/FlushableStage.scala",
       root / "src/main/scala/mycpu/core/components/ImmGen.scala",
       root / "src/main/scala/mycpu/core/components/RegFile.scala",
+      root / "src/main/scala/mycpu/cache/CacheLine.scala",
+      root / "src/main/scala/mycpu/cache/CacheParams.scala",
+      root / "src/main/scala/mycpu/cache/CacheSet.scala",
+      root / "src/main/scala/mycpu/cache/Replacement.scala",
       root / "src/main/scala/mycpu/utils/Debug.scala",
       root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
+      root / "src/main/scala/mycpu/core/frontend/I$Stage.scala",
       root / "src/main/scala/mycpu/core/frontend/Decode.scala",
     )
     val dest = T.dest / "src"

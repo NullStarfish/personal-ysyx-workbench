@@ -11,7 +11,7 @@ class Decode(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
 ) extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new FetchPacket))
+    val in = Flipped(Decoupled(new I$1Packet))
     val out = Decoupled(new DecodePacket)
     val regWrite = Flipped(new WriteBackIO())
     val forwards = Input(Vec(2, new ForwardPacket))
@@ -290,8 +290,8 @@ class Decode(
   if (enableTraceFields) {
     io.out.bits.retireTrace.get.pc := io.in.bits.pc
     io.out.bits.retireTrace.get.inst := io.in.bits.inst
+    io.out.bits.retireTrace.get.icacheHit := true.B
     io.out.bits.retireTrace.get.dnpc := io.in.bits.pc + 4.U
-    io.out.bits.retireTrace.get.icacheHit := io.in.bits.icacheHit
     io.out.bits.retireTrace.get.regWrite.wen := io.regWrite.regWrite.wen
     io.out.bits.retireTrace.get.regWrite.rd := io.regWrite.regWrite.rd
     io.out.bits.retireTrace.get.regWrite.wdata := io.regWrite.regWrite.wdata

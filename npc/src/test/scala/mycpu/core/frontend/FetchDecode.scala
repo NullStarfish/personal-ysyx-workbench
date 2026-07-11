@@ -3,37 +3,66 @@ package mycpu.core.frontend
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import chisel3.util._
+import mycpu.cache.{CacheConfigs, CacheSetLookupResp}
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components.FlushableStage
-import mycpu.memory.FetchResp
+import mycpu.memory.MemReadIO
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FetchDecodeHarness extends Module {
+  private val params = CacheConfigs.SimpICache
+
   val io = IO(new Bundle {
-    val fetchReq = Decoupled(UInt(32.W))
-    val reply = Flipped(Decoupled(new FetchResp))
+    val lookupPc = Valid(UInt(XLEN.W))
+    val cacheResp = Input(new CacheSetLookupResp(params))
     val redirect = Input(Valid(UInt(XLEN.W)))
     val flush = Input(Bool())
     val stageStall = Input(Bool())
+    val mem = new MemReadIO
     val out = Decoupled(new DecodePacket)
     val regWrite = Flipped(new WriteBackIO)
   })
 
   val fetch = Module(new Fetch)
-  val ifId = Module(new FlushableStage(new FetchPacket))
+  val iCache0 = Module(new I$0Stage(params))
+  val iCache1 = Module(new I$1Stage(params))
   val decode = Module(new Decode)
+  val ifI0 = Module(new FlushableStage(new IFPacket))
+  val i0I1 = Module(new FlushableStage(new I$0Packet(params)))
+  val i1Id = Module(new FlushableStage(new I$1Packet))
 
-  io.fetchReq <> fetch.io.instReq
-  fetch.io.instResp <> io.reply
+  val frontFlush = io.flush || io.redirect.valid
+
+  fetch.io.out <> ifI0.io.enq
+  iCache0.io.in <> ifI0.io.deq
+  iCache0.io.cacheSetResp := io.cacheResp
+  iCache0.io.flush := frontFlush
+
+  iCache0.io.out <> i0I1.io.enq
+  iCache1.io.in <> i0I1.io.deq
+  iCache1.io.flush := frontFlush
+  iCache1.io.fencei := false.B
+  io.mem <> iCache1.io.mem
+  iCache1.io.out <> i1Id.io.enq
+
+  fetch.io.block := iCache0.io.blockFetch
+  ifI0.io.blockEnq := iCache0.io.blockFetch
+  ifI0.io.blockDeq := false.B
+  ifI0.io.flush := frontFlush
+  i0I1.io.blockEnq := false.B
+  i0I1.io.blockDeq := false.B
+  i0I1.io.flush := frontFlush
+  i1Id.io.blockEnq := false.B
+  i1Id.io.blockDeq := io.stageStall
+  i1Id.io.flush := frontFlush
+
   fetch.io.redirect := io.redirect
+  io.lookupPc.valid := fetch.io.out.fire
+  io.lookupPc.bits := fetch.io.out.bits.pc
 
-  ifId.io.enq <> fetch.io.out
-  ifId.io.flush := io.flush
-  ifId.io.blockEnq := false.B
-  ifId.io.blockDeq := io.stageStall
+  decode.io.in <> i1Id.io.deq
 
-  decode.io.in <> ifId.io.deq
   decode.io.regWrite <> io.regWrite
   decode.io.forwards.foreach { forward =>
     forward.valid := false.B
@@ -44,49 +73,31 @@ class FetchDecodeHarness extends Module {
 }
 
 class FetchDecodeSim extends AnyFlatSpec {
-  private val maxWait = 30
   private val pc0 = BigInt(START_ADDR)
-  private val pc1 = pc0 + 4
-  private val pc2 = pc0 + 8
-  private val target = pc0 + 0x40
-
-  private def iType(imm: Int, rs1: Int, funct3: Int, rd: Int, opcode: Int): BigInt =
-    ((BigInt(imm) & 0xfff) << 20) |
-      (BigInt(rs1 & 0x1f) << 15) |
-      (BigInt(funct3 & 0x7) << 12) |
-      (BigInt(rd & 0x1f) << 7) |
-      BigInt(opcode & 0x7f)
-
-  private def bType(imm: Int, rs2: Int, rs1: Int, funct3: Int): BigInt = {
-    val value = imm & 0x1fff
-    (BigInt((value >> 12) & 0x1) << 31) |
-      (BigInt((value >> 5) & 0x3f) << 25) |
-      (BigInt(rs2 & 0x1f) << 20) |
-      (BigInt(rs1 & 0x1f) << 15) |
-      (BigInt(funct3 & 0x7) << 12) |
-      (BigInt((value >> 1) & 0xf) << 8) |
-      (BigInt((value >> 11) & 0x1) << 7) |
-      BigInt("1100011", 2)
-  }
 
   private def addi(rd: Int, rs1: Int, imm: Int): BigInt =
-    iType(imm, rs1, funct3 = 0, rd, opcode = BigInt("0010011", 2).toInt)
-
-  private def lw(rd: Int, rs1: Int, imm: Int): BigInt =
-    iType(imm, rs1, funct3 = 2, rd, opcode = BigInt("0000011", 2).toInt)
-
-  private def beq(rs1: Int, rs2: Int, imm: Int): BigInt =
-    bType(imm, rs2, rs1, funct3 = 0)
+    ((BigInt(imm) & 0xfff) << 20) |
+      (BigInt(rs1 & 0x1f) << 15) |
+      (BigInt(rd & 0x1f) << 7) |
+      BigInt("0010011", 2)
 
   private def init(c: FetchDecodeHarness): Unit = {
-    c.io.fetchReq.ready.poke(false.B)
-    c.io.reply.valid.poke(false.B)
-    c.io.reply.bits.inst.poke(0.U)
-    c.io.reply.bits.hit.poke(false.B)
+    c.io.cacheResp.hit.poke(true.B)
+    c.io.cacheResp.way.poke(0.U)
+    c.io.cacheResp.selectedValid.poke(true.B)
+    c.io.cacheResp.storedTag.poke(0.U)
+    c.io.cacheResp.line.poke(0.U)
+    c.io.cacheResp.word.poke(0.U)
     c.io.redirect.valid.poke(false.B)
     c.io.redirect.bits.poke(0.U)
     c.io.flush.poke(false.B)
     c.io.stageStall.poke(false.B)
+    c.io.mem.a.ready.poke(false.B)
+    c.io.mem.r.valid.poke(false.B)
+    c.io.mem.r.bits.data.poke(0.U)
+    c.io.mem.r.bits.resp.poke(0.U)
+    c.io.mem.r.bits.last.poke(false.B)
+    c.io.mem.r.bits.id.poke(0.U)
     c.io.out.ready.poke(false.B)
     c.io.regWrite.regWrite.wen.poke(false.B)
     c.io.regWrite.regWrite.rd.poke(0.U)
@@ -100,166 +111,87 @@ class FetchDecodeSim extends AnyFlatSpec {
     c.reset.poke(false.B)
   }
 
-  private def acceptFetch(c: FetchDecodeHarness, pc: BigInt): Unit = {
-    var cycles = 0
-    c.io.fetchReq.ready.poke(false.B)
-    while (c.io.fetchReq.valid.peek().litValue == 0 && cycles < maxWait) {
-      c.clock.step()
-      cycles += 1
-    }
-    assert(cycles < maxWait, s"FetchDecode did not present fetch request for 0x${pc.toString(16)}")
-    c.io.fetchReq.bits.expect(pc.U)
-    c.io.fetchReq.ready.poke(true.B)
-    c.clock.step()
-    c.io.fetchReq.ready.poke(false.B)
-  }
-
-  private def returnInst(c: FetchDecodeHarness, inst: BigInt): Unit = {
-    var cycles = 0
-    c.io.reply.valid.poke(true.B)
-    c.io.reply.bits.inst.poke(inst.U)
-    c.io.reply.bits.hit.poke(false.B)
-    while (c.io.reply.ready.peek().litValue == 0 && cycles < maxWait) {
-      c.clock.step()
-      cycles += 1
-    }
-    assert(cycles < maxWait, s"FetchDecode did not accept reply 0x${inst.toString(16)}")
-    c.clock.step()
-    c.io.reply.valid.poke(false.B)
-  }
-
-  private def waitOut(c: FetchDecodeHarness, pc: BigInt): Unit = {
-    var cycles = 0
-    while (c.io.out.valid.peek().litValue == 0 && cycles < maxWait) {
-      c.clock.step()
-      cycles += 1
-    }
-    assert(cycles < maxWait, s"FetchDecode did not emit decoded packet for 0x${pc.toString(16)}")
-    c.io.out.bits.execData.pc.expect(pc.U)
-  }
-
-  "Fetch + Decode" should "flow two sequential instructions through IF/ID" in {
+  "Fetch + I$ + Decode" should "flow back-to-back hit instructions" in {
     simulate(new FetchDecodeHarness) { c =>
       val inst0 = addi(rd = 1, rs1 = 0, imm = 5)
-      val inst1 = lw(rd = 2, rs1 = 1, imm = 8)
-
+      val inst1 = addi(rd = 2, rs1 = 1, imm = 8)
       resetDut(c)
       c.io.out.ready.poke(true.B)
 
-      acceptFetch(c, pc0)
-      returnInst(c, inst0)
+      c.io.lookupPc.valid.expect(true.B)
+      c.io.lookupPc.bits.expect(pc0.U)
+      c.clock.step()
 
-      waitOut(c, pc0)
+      c.io.cacheResp.word.poke(inst0.U)
+      c.io.lookupPc.valid.expect(true.B)
+      c.io.lookupPc.bits.expect((pc0 + 4).U)
+      c.clock.step()
+
+      c.io.cacheResp.word.poke(inst1.U)
+      c.clock.step()
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.execData.pc.expect(pc0.U)
       c.io.out.bits.execData.imm.expect(5.U)
-      c.io.out.bits.wbCtrl.wen.expect(true.B)
-      c.io.out.bits.wbCtrl.rd.expect(1.U)
-      c.io.out.bits.memCtrl.en.expect(false.B)
-      c.io.out.bits.retireTrace.get.instType.expect(InstType.arith)
+      c.clock.step()
 
-      acceptFetch(c, pc1)
-      returnInst(c, inst1)
-
-      waitOut(c, pc1)
-      c.io.out.bits.rs1.valid.expect(true.B)
-      c.io.out.bits.rs1.bits.addr.expect(1.U)
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.execData.pc.expect((pc0 + 4).U)
       c.io.out.bits.execData.imm.expect(8.U)
-      c.io.out.bits.wbCtrl.wen.expect(true.B)
-      c.io.out.bits.wbCtrl.rd.expect(2.U)
-      c.io.out.bits.memCtrl.en.expect(true.B)
-      c.io.out.bits.memCtrl.write.expect(false.B)
-      c.io.out.bits.memCtrl.subop.expect(SizeSubop.Word)
-      c.io.out.bits.retireTrace.get.instType.expect(InstType.mem)
     }
   }
 
-  it should "hold decoded output stable while downstream is not ready" in {
+  it should "keep the decoded head stable while the second response uses skid" in {
     simulate(new FetchDecodeHarness) { c =>
       val inst0 = addi(rd = 3, rs1 = 0, imm = 9)
       val inst1 = addi(rd = 4, rs1 = 0, imm = 10)
-
       resetDut(c)
 
-      acceptFetch(c, pc0)
-      c.io.out.ready.poke(false.B)
-      returnInst(c, inst0)
+      c.clock.step()
+      c.io.cacheResp.word.poke(inst0.U)
+      c.clock.step()
 
-      waitOut(c, pc0)
+      c.io.cacheResp.word.poke(inst1.U)
+      c.clock.step()
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(3.U)
+      c.clock.step()
 
-      acceptFetch(c, pc1)
-      returnInst(c, inst1)
-      waitOut(c, pc0)
-      c.io.out.bits.execData.pc.expect(pc0.U)
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.wbCtrl.rd.expect(3.U)
+      c.clock.step(2)
       c.io.out.bits.wbCtrl.rd.expect(3.U)
 
       c.io.out.ready.poke(true.B)
       c.clock.step()
-
-      waitOut(c, pc1)
+      c.io.out.valid.expect(true.B)
       c.io.out.bits.wbCtrl.rd.expect(4.U)
     }
   }
 
-  it should "stall IF/ID dequeue and hold the queued instruction" in {
+  it should "drop the old fixed-latency response and restart at redirect target" in {
     simulate(new FetchDecodeHarness) { c =>
-      val inst0 = addi(rd = 4, rs1 = 0, imm = 1)
-      val inst1 = addi(rd = 5, rs1 = 0, imm = 2)
-
+      val target = pc0 + 0x40
+      val targetInst = addi(rd = 5, rs1 = 0, imm = 12)
       resetDut(c)
-
-      acceptFetch(c, pc0)
-      returnInst(c, inst0)
-      waitOut(c, pc0)
-
-      c.io.stageStall.poke(true.B)
       c.io.out.ready.poke(true.B)
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.wbCtrl.rd.expect(4.U)
+
       c.clock.step()
-      c.io.out.valid.expect(true.B)
-      c.io.out.bits.wbCtrl.rd.expect(4.U)
-
-      c.io.stageStall.poke(false.B)
-      c.io.out.ready.poke(false.B)
-      waitOut(c, pc0)
-      c.io.out.bits.wbCtrl.rd.expect(4.U)
-
-      c.io.out.ready.poke(true.B)
-      c.clock.step()
-
-      acceptFetch(c, pc1)
-      returnInst(c, inst1)
-      waitOut(c, pc1)
-      c.io.out.bits.wbCtrl.rd.expect(5.U)
-    }
-  }
-
-  it should "flush the IF/ID stage and redirect fetch to the target" in {
-    simulate(new FetchDecodeHarness) { c =>
-      val wrongPath = addi(rd = 6, rs1 = 0, imm = 6)
-      val targetInst = beq(rs1 = 1, rs2 = 2, imm = 12)
-
-      resetDut(c)
-      c.io.out.ready.poke(false.B)
-
-      acceptFetch(c, pc0)
-      returnInst(c, wrongPath)
-      waitOut(c, pc0)
-
+      c.io.cacheResp.word.poke("hdeadbeef".U)
       c.io.redirect.valid.poke(true.B)
       c.io.redirect.bits.poke(target.U)
-      c.io.flush.poke(true.B)
       c.clock.step()
+
       c.io.redirect.valid.poke(false.B)
-      c.io.flush.poke(false.B)
+      c.io.lookupPc.valid.expect(true.B)
+      c.io.lookupPc.bits.expect(target.U)
+      c.clock.step()
 
-      c.io.out.valid.expect(false.B)
-      acceptFetch(c, target)
-
-      c.io.out.ready.poke(true.B)
-      returnInst(c, targetInst)
-      waitOut(c, target)
-      c.io.out.bits.execCtrl.branchType.expect(BranchType.Eq)
-      c.io.out.bits.retireTrace.get.instType.expect(InstType.redirect)
+      c.io.cacheResp.word.poke(targetInst.U)
+      c.clock.step()
+      c.clock.step()
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.execData.pc.expect(target.U)
+      c.io.out.bits.wbCtrl.rd.expect(5.U)
     }
   }
 }
