@@ -40,17 +40,17 @@ class MemoryReadArbiter extends Module {
       printf("LSU reply fire, data: %x\n", io.lsuR.bits.data)
     }
   }
-
+//下面四个全是input即时信号，没有reg打拍
   val canGrantLsu = io.lsuA.valid && !lsuRespValid
   val canGrantFetch = io.fetch.a.valid && !fetchRespValid
   val grantLsu = canGrantLsu
   val hasReq = canGrantLsu || canGrantFetch
 
-  io.outA.valid := owner === Owner.None && hasReq
-  io.outA.bits := Mux(grantLsu, io.lsuA.bits, io.fetch.a.bits)
-
   io.lsuA.ready := owner === Owner.None && grantLsu && io.outA.ready
   io.fetch.a.ready := owner === Owner.None && !grantLsu && canGrantFetch && io.outA.ready
+
+  io.outA.valid := owner === Owner.None && hasReq
+  io.outA.bits := Mux(grantLsu, io.lsuA.bits, io.fetch.a.bits)
 
   io.fetch.r.valid := fetchRespValid
   io.fetch.r.bits := fetchResp
@@ -91,9 +91,6 @@ class MemoryController extends Module {
     val axi = new AXI4Bundle(AXI_ID_WIDTH, XLEN, XLEN)
   })
 
-  object WriteState extends ChiselEnum {
-    val Idle, WaitResp = Value
-  }
 
   private def setAddr(a: AXI4BundleA, req: MemA): Unit = {
     a.id := req.id
@@ -108,22 +105,19 @@ class MemoryController extends Module {
   }
 
   val readArb = Module(new MemoryReadArbiter)
-  val writeState = RegInit(WriteState.Idle)
-  val awDone = RegInit(false.B)
-  val wDone = RegInit(false.B)
+
 
   io.axi.setAsMasterInit()
 
   readArb.io.fetch <> io.icache
 
-  readArb.io.lsuA.valid := io.lsu.a.valid && !io.lsu.a.bits.write && writeState === WriteState.Idle
+  readArb.io.lsuA.valid := io.lsu.a.valid && !io.lsu.a.bits.write 
   readArb.io.lsuA.bits := io.lsu.a.bits
 
-  val writeAActive = writeState === WriteState.Idle && io.lsu.a.valid && io.lsu.a.bits.write && !awDone
-  val writeWActive = writeState === WriteState.Idle && io.lsu.w.valid && !wDone
 
-  io.lsu.a.ready := Mux(io.lsu.a.bits.write, writeAActive && io.axi.aw.ready, readArb.io.lsuA.ready)
-  io.lsu.w.ready := writeWActive && io.axi.w.ready
+
+  io.lsu.a.ready := Mux(io.lsu.a.bits.write, io.axi.aw.ready, readArb.io.lsuA.ready)
+  io.lsu.w.ready := io.axi.w.ready
 
   io.axi.ar.valid := readArb.io.outA.valid
   setAddr(io.axi.ar.bits, readArb.io.outA.bits)
@@ -136,33 +130,19 @@ class MemoryController extends Module {
   readArb.io.inR.bits.id := io.axi.r.bits.id
   io.axi.r.ready := readArb.io.inR.ready
 
-  io.axi.aw.valid := writeAActive
+  io.axi.aw.valid := io.lsu.a.bits.write && io.lsu.a.valid
   setAddr(io.axi.aw.bits, io.lsu.a.bits)
-  io.axi.w.valid := writeWActive
+  io.axi.w.valid := io.lsu.w.valid
   io.axi.w.bits.data := io.lsu.w.bits.data
   io.axi.w.bits.strb := io.lsu.w.bits.strb
   io.axi.w.bits.last := io.lsu.w.bits.last
 
-  when(io.axi.aw.fire) {
-    awDone := true.B
-  }
-  when(io.axi.w.fire) {
-    wDone := true.B
-  }
-  when((awDone || io.axi.aw.fire) && (wDone || io.axi.w.fire)) {
-    awDone := false.B
-    wDone := false.B
-    writeState := WriteState.WaitResp
-  }
 
   io.lsu.r <> readArb.io.lsuR
 
-  io.lsu.b.valid := writeState === WriteState.WaitResp && io.axi.b.valid
+  io.lsu.b.valid := io.axi.b.valid
   io.lsu.b.bits.resp := io.axi.b.bits.resp
   io.lsu.b.bits.id := io.axi.b.bits.id
   io.axi.b.ready := io.lsu.b.ready && io.lsu.b.valid
 
-  when(io.lsu.b.fire) {
-    writeState := WriteState.Idle
-  }
 }

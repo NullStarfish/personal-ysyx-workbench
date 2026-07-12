@@ -18,43 +18,51 @@ class LSU(
   })
 
   object State extends ChiselEnum {
-    val Idle, SendWrite, WaitReply = Value
+    val Idle, SendAddr, SendWrite, WaitReply = Value
   }
-
   val state = RegInit(State.Idle)
+
   val reqReg = Reg(new ExecutePacket(enableTraceFields))
   val addrDone = RegInit(false.B)
   val writeDone = RegInit(false.B)
 
-  val reqView = Wire(new ExecutePacket(enableTraceFields))
-  reqView := reqReg
-  when(state === State.Idle) {
-    reqView := io.in.bits
+  private def formatStore(data: UInt, subop: SizeSubop.Type, addr: UInt): (UInt, UInt, UInt) = {
+    val addrOffset = addr(1, 0)
+    val writeData = WireDefault(data)
+    val writeStrb = WireDefault(0.U(4.W))
+    val size = WireDefault(2.U(3.W))
+
+    switch(subop) {
+      is(SizeSubop.Byte) {
+        writeData := data(7, 0) << (addrOffset << 3)
+        writeStrb := "b0001".U << addrOffset
+        size := 0.U
+      }
+      is(SizeSubop.Half) {
+        writeData := data(15, 0) << (addrOffset << 3)
+        writeStrb := "b0011".U << addrOffset
+        size := 1.U
+      }
+      is(SizeSubop.Word) {
+        writeData := data
+        writeStrb := "b1111".U
+        size := 2.U
+      }
+    }
+
+    (writeData, writeStrb, size)
   }
 
-  val addr = reqView.memData.addr
-  val addrOffset = addr(1, 0)
-  val writeData = WireDefault(reqView.memData.data)
-  val writeStrb = WireDefault(0.U(4.W))
-  val reqSize = WireDefault(2.U(3.W))
-
-  switch(reqView.memCtrl.subop) {
-    is(SizeSubop.Byte) {
-      writeData := reqView.memData.data(7, 0) << (addrOffset << 3)
-      writeStrb := "b0001".U << addrOffset
-      reqSize := 0.U
-    }
-    is(SizeSubop.Half) {
-      writeData := reqView.memData.data(15, 0) << (addrOffset << 3)
-      writeStrb := "b0011".U << addrOffset
-      reqSize := 1.U
-    }
-    is(SizeSubop.Word) {
-      writeData := reqView.memData.data
-      writeStrb := "b1111".U
-      reqSize := 2.U
-    }
-  }
+  val (inputWriteData, inputWriteStrb, inputSize) = formatStore(
+    io.in.bits.memData.data,
+    io.in.bits.memCtrl.subop,
+    io.in.bits.memData.addr,
+  )
+  val (reqWriteData, reqWriteStrb, reqSize) = formatStore(
+    reqReg.memData.data,
+    reqReg.memCtrl.subop,
+    reqReg.memData.addr,
+  )
 
   val shiftedReadData = io.mem.r.bits.data >> (reqReg.memData.addr(1, 0) << 3)
   val loadData = WireDefault(io.mem.r.bits.data)
@@ -70,49 +78,33 @@ class LSU(
     }
   }
 
-  val isInputMem = io.in.bits.memCtrl.en
-  val isInputPassThrough = !isInputMem
+
+  val isInputMem = io.in.bits.memCtrl.en && io.in.valid
+  val isInputPassThrough = !io.in.bits.memCtrl.en && io.in.valid
   val inputLoad = isInputMem && !io.in.bits.memCtrl.write
   val inputStore = isInputMem && io.in.bits.memCtrl.write
-  val reqViewIsLoad = reqView.memCtrl.en && !reqView.memCtrl.write
+
   val reqRegIsLoad = reqReg.memCtrl.en && !reqReg.memCtrl.write
+  val reqRegIsStore = reqReg.memCtrl.en && reqReg.memCtrl.write
   val notReset = !reset.asBool
+  val isIdle = state === State.Idle
+  val isSendAddr = state === State.SendAddr
+  val isSendWrite = state === State.SendWrite
+  val isWaitReply = state === State.WaitReply
 
-  io.in.ready := false.B
-  io.mem.a.valid := false.B
-  io.mem.a.bits.addr := addr
-  io.mem.a.bits.size := reqSize
-  io.mem.a.bits.len := 0.U
-  io.mem.a.bits.write := reqView.memCtrl.write
-  io.mem.a.bits.id := 0.U
-  io.mem.w.valid := false.B
-  io.mem.w.bits.data := writeData
-  io.mem.w.bits.strb := writeStrb
-  io.mem.w.bits.last := true.B
-  io.mem.r.ready := false.B
-  io.mem.b.ready := false.B
-  io.out.valid := false.B
-  io.pendingLoad.valid := notReset && state === State.WaitReply && reqRegIsLoad
-  io.pendingLoad.addr := reqReg.wbCtrl.rd
-
-  io.out.bits.wbData.wdata := Mux(reqViewIsLoad, loadData, reqView.wbData.wdata)
-  io.out.bits.wbCtrl := reqView.wbCtrl
-  if (enableTraceFields) {
-    io.out.bits.retireTrace.get := reqView.retireTrace.get
-    io.out.bits.retireTrace.get.regWrite.wdata := io.out.bits.wbData.wdata
-  }
-
+  // State transition logic
   switch(state) {
     is(State.Idle) {
-      io.mem.a.valid := notReset && io.in.valid && isInputMem
-      io.mem.w.valid := notReset && io.in.valid && inputStore
-      io.in.ready := notReset && Mux(
-        isInputPassThrough,
-        io.out.ready,
-        Mux(inputLoad, io.mem.a.ready, io.mem.a.ready || io.mem.w.ready),
-      )
-      io.out.valid := notReset && io.in.valid && isInputPassThrough
-
+      when (io.in.fire && isInputMem) {
+        reqReg := io.in.bits
+        when (io.mem.a.fire) {
+          state := Mux(inputLoad, State.WaitReply,
+            Mux(io.mem.w.fire, State.WaitReply, State.SendWrite))
+        }.otherwise {
+          state := State.SendAddr
+        }
+      }
+      /*
       when(io.in.fire && inputLoad) {
         reqReg := io.in.bits
         state := State.WaitReply
@@ -120,40 +112,79 @@ class LSU(
         reqReg := io.in.bits
         addrDone := io.mem.a.fire
         writeDone := io.mem.w.fire
+        state := Mux(io.mem.a.fire && io.mem.w.fire, State.WaitReply, State.SendWrite)
+
         when(io.mem.a.fire && io.mem.w.fire) {
           addrDone := false.B
           writeDone := false.B
-          state := State.WaitReply
-        }.otherwise {
-          state := State.SendWrite
         }
+      }
+      */
+    }
+    is(State.SendAddr) {
+      when (io.mem.a.fire) {
+          state := Mux(reqRegIsLoad, State.WaitReply,
+            Mux(io.mem.w.fire, State.WaitReply, State.SendWrite))
       }
     }
 
     is(State.SendWrite) {
-      io.mem.a.valid := notReset && !addrDone
-      io.mem.w.valid := notReset && !writeDone
-      when(io.mem.a.fire) {
-        addrDone := true.B
-      }
-      when(io.mem.w.fire) {
-        writeDone := true.B
-      }
-      when((addrDone || io.mem.a.fire) && (writeDone || io.mem.w.fire)) {
-        addrDone := false.B
-        writeDone := false.B
+      when (io.mem.w.fire) {
         state := State.WaitReply
       }
     }
 
     is(State.WaitReply) {
-      io.out.valid := notReset && Mux(reqRegIsLoad, io.mem.r.valid, io.mem.b.valid)
-      io.mem.r.ready := notReset && reqRegIsLoad && io.out.ready
-      io.mem.b.ready := notReset && !reqRegIsLoad && io.out.ready
       when(io.out.fire) {
         state := State.Idle
       }
     }
+  }
+
+  // Output logic
+  io.in.ready := notReset && isIdle && Mux(
+    isInputPassThrough,
+    io.out.ready,
+    true.B
+  )
+
+  io.mem.a.valid := notReset && (
+    (isIdle && isInputMem) ||
+    (isSendAddr)
+  )
+
+  io.mem.a.bits.addr := Mux(isIdle, io.in.bits.memData.addr, reqReg.memData.addr)
+  io.mem.a.bits.size := Mux(isIdle, inputSize, reqSize)
+  io.mem.a.bits.len := 0.U
+  io.mem.a.bits.write := Mux(isIdle, inputStore, reqRegIsStore)
+  io.mem.a.bits.id := 0.U
+
+  io.mem.w.valid := notReset && (
+    (isIdle && inputStore) ||
+      (isSendAddr && reqRegIsStore) ||
+        (isSendWrite)
+  )
+  io.mem.w.bits.data := Mux(isIdle, inputWriteData, reqWriteData)
+  io.mem.w.bits.strb := Mux(isIdle, inputWriteStrb, reqWriteStrb)
+  io.mem.w.bits.last := true.B
+
+  io.mem.r.ready := notReset && isWaitReply && reqRegIsLoad && io.out.ready
+  io.mem.b.ready := notReset && isWaitReply && reqRegIsStore && io.out.ready
+
+  io.out.valid := notReset && (
+    (isIdle && io.in.valid && isInputPassThrough) ||
+      (isWaitReply && Mux(reqRegIsLoad, io.mem.r.valid, io.mem.b.valid))
+  )
+  io.pendingLoad.valid := notReset && (isSendAddr || isWaitReply) && reqRegIsLoad
+  io.pendingLoad.addr := reqReg.wbCtrl.rd
+
+  io.out.bits.wbData.wdata := Mux(isIdle, io.in.bits.wbData.wdata,
+    Mux(reqRegIsLoad, loadData, 0.U))
+
+  io.out.bits.wbCtrl := Mux(isIdle, io.in.bits.wbCtrl, reqReg.wbCtrl)
+  if (enableTraceFields) {
+    io.out.bits.retireTrace.get := Mux(isIdle, io.in.bits.retireTrace.get, reqReg.retireTrace.get)
+    io.out.bits.retireTrace.get.regWrite.wdata := io.out.bits.wbData.wdata
   }
 
   val enableTrace = false

@@ -27,10 +27,11 @@ class HazardUnit extends Module {
       ((io.raw.decode.rs1.valid && (io.raw.decode.rs1.addr === rd)) ||
         (io.raw.decode.rs2.valid && (io.raw.decode.rs2.addr === rd)))
 
+  //我们的forward都在decode里面forward，因此必须禁止RAW数据包进入idEx
   io.raw.loadUseStall :=
     (io.raw.idExLoad.valid && hazardsWith(io.raw.idExLoad.addr)) ||
       (io.raw.exMemLoad.valid && hazardsWith(io.raw.exMemLoad.addr)) ||
       (io.raw.lsuLoad.valid && hazardsWith(io.raw.lsuLoad.addr))
 
-  io.ctrl.flush := io.ctrl.redirect
+  io.ctrl.flush := io.ctrl.redirect    
 }
