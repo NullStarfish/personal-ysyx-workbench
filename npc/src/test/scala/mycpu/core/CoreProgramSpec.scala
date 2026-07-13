@@ -176,6 +176,56 @@ class CoreProgramSpec extends AnyFlatSpec with CoreProgramSupport {
     }
   }
 
+  it should "commit ecall and redirect from writeback" in {
+    runReadOnlyProgram(
+      program = Seq(
+        BigInt("00000717", 16), // auipc a4, 0
+        BigInt("02070713", 16), // addi a4, a4, 0x20
+        BigInt("30571073", 16), // csrw mtvec, a4
+        BigInt("00000073", 16), // ecall
+        encodeOpImm(funct3 = 0, rd = 1, rs1 = 0, imm = 1), // wrong path
+        encodeOpImm(funct3 = 0, rd = 2, rs1 = 0, imm = 2), // wrong path
+        nop,
+        nop,
+        encodeOpImm(funct3 = 0, rd = 3, rs1 = 0, imm = 3), // handler
+        nop,
+      ),
+      targetRetires = 6,
+      maxCycles = 160,
+    ) { c =>
+      c.io.debug_regs(1).expect(0.U)
+      c.io.debug_regs(2).expect(0.U)
+      c.io.debug_regs(3).expect(3.U)
+      c.io.debug_csrs.mepc.expect((START_ADDR + 12L).U)
+      c.io.debug_csrs.mcause.expect(11.U)
+    }
+  }
+
+  it should "commit an illegal instruction exception precisely" in {
+    runReadOnlyProgram(
+      program = Seq(
+        BigInt("00000717", 16), // auipc a4, 0
+        BigInt("02070713", 16), // addi a4, a4, 0x20
+        BigInt("30571073", 16), // csrw mtvec, a4
+        BigInt("00001067", 16), // jalr with an illegal funct3
+        encodeOpImm(funct3 = 0, rd = 1, rs1 = 0, imm = 1), // wrong path
+        encodeOpImm(funct3 = 0, rd = 2, rs1 = 0, imm = 2), // wrong path
+        nop,
+        nop,
+        encodeOpImm(funct3 = 0, rd = 3, rs1 = 0, imm = 3), // handler
+        nop,
+      ),
+      targetRetires = 6,
+      maxCycles = 160,
+    ) { c =>
+      c.io.debug_regs(1).expect(0.U)
+      c.io.debug_regs(2).expect(0.U)
+      c.io.debug_regs(3).expect(3.U)
+      c.io.debug_csrs.mepc.expect((START_ADDR + 12L).U)
+      c.io.debug_csrs.mcause.expect(2.U)
+    }
+  }
+
   it should "execute jal and jalr" in {
     runReadOnlyProgram(
       program = Seq(

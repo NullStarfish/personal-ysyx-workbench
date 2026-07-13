@@ -182,6 +182,14 @@ class LSU(
     Mux(reqRegIsLoad, loadData, 0.U))
 
   io.out.bits.wbCtrl := Mux(isIdle, io.in.bits.wbCtrl, reqReg.wbCtrl)
+  io.out.bits.inst.pc := Mux(isIdle, io.in.bits.inst.pc, reqReg.inst.pc)
+  io.out.bits.inst.except.no := Mux(isIdle, io.in.bits.inst.except.no, reqReg.inst.except.no)
+  io.out.bits.inst.except.valid := Mux(isIdle, io.in.bits.inst.except.valid, reqReg.inst.except.valid)
+  io.out.bits.sys.ebreak := Mux(isIdle, io.in.bits.sys.ebreak, reqReg.sys.ebreak)
+  io.out.bits.sys.mret := Mux(isIdle, io.in.bits.sys.mret, reqReg.sys.mret)
+  io.out.bits.sys.fencei := Mux(isIdle, io.in.bits.sys.fencei, reqReg.sys.fencei)
+  io.out.bits.sys.csr.csrOp := Mux(isIdle, io.in.bits.sys.csr.csrOp, reqReg.sys.csr.csrOp)
+  io.out.bits.sys.csr.csrAddr := Mux(isIdle, io.in.bits.sys.csr.csrAddr, reqReg.sys.csr.csrAddr)
   if (enableTraceFields) {
     io.out.bits.retireTrace.get := Mux(isIdle, io.in.bits.retireTrace.get, reqReg.retireTrace.get)
     io.out.bits.retireTrace.get.regWrite.wdata := io.out.bits.wbData.wdata

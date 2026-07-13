@@ -3,7 +3,7 @@ package mycpu.core.components
 import chisel3._
 import chisel3.util._
 import mycpu.common._
-import mycpu.core.bundles.CsrDebugBundle
+import mycpu.core.bundles.{CsrDebugBundle, ExceptionBundle}
 
 class CSR extends Module {
   val io = IO(new Bundle {
@@ -14,8 +14,7 @@ class CSR extends Module {
     val rdata    = Output(UInt(XLEN.W))
 
     // 异常控制
-    val pc       = Input(UInt(XLEN.W)) // 当前指令 PC
-    val isEcall  = Input(Bool())
+    val except   = Input(new ExceptionBundle)
     val isMret   = Input(Bool())
     
     // 跳转目标
@@ -89,9 +88,9 @@ class CSR extends Module {
   val nextMepc = WireDefault(mepc)
   val nextMcause = WireDefault(mcause)
   
-  when (io.isEcall) {
-    nextMepc := io.pc
-    nextMcause := 11.U // Machine ECALL
+  when (io.except.valid) {
+    nextMepc := io.except.pc
+    nextMcause := io.except.no.asUInt
     nextMstatus := mstatus.bitSet(mstatusBit(MSTATUS_MPIE), mstatus(MSTATUS_MIE))
       .bitSet(mstatusBit(MSTATUS_MIE), false.B)
       .bitSet(mstatusBit(MSTATUS_MPP_LO), true.B)

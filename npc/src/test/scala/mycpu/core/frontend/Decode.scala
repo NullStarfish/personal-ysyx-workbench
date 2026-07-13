@@ -238,11 +238,11 @@ class DecodeSim extends AnyFlatSpec {
       c.io.out.bits.execCtrl.wbSel.expect(WBSel.Csr)
       c.io.out.bits.wbCtrl.wen.expect(true.B)
       c.io.out.bits.wbCtrl.rd.expect(10.U)
-      c.io.out.bits.execCtrl.sys.csrOp.expect(CSROp.S)
-      c.io.out.bits.execCtrl.sys.csrAddr.expect("h305".U)
-      c.io.out.bits.execCtrl.sys.ecall.expect(false.B)
-      c.io.out.bits.execCtrl.sys.mret.expect(false.B)
-      c.io.out.bits.execCtrl.sys.ebreak.expect(false.B)
+      c.io.out.bits.sys.csr.csrOp.expect(CSROp.S)
+      c.io.out.bits.sys.csr.csrAddr.expect("h305".U)
+      c.io.out.bits.inst.except.valid.expect(false.B)
+      c.io.out.bits.sys.mret.expect(false.B)
+      c.io.out.bits.sys.ebreak.expect(false.B)
       c.io.out.bits.retireTrace.get.instType.expect(InstType.sys)
     }
   }

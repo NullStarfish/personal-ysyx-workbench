@@ -22,14 +22,6 @@ object WBSel extends ChiselEnum {
 
 
 
-class SysBundle extends Bundle {
-  val csrOp = CSROp()
-  val csrAddr = UInt(12.W)
-  val ecall = Bool()
-  val ebreak = Bool()
-  val mret = Bool()
-  val fencei = Bool()
-}
 
 
 
@@ -60,12 +52,13 @@ trait ExecuteCtrl {
   def branchType : BranchType.Type
   def isJump : Bool
   def isJalr : Bool
-  def sys : SysBundle
 }
 
 
 
 trait ExecuteOut { 
+  def inst: InstInfo
+  def sys: SysInfo
   def wbData: WriteBackData
   def memData: MemData
   def memCtrl: MemCtrl
@@ -79,6 +72,24 @@ trait ExecuteOut {
 class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bundle with withRetireTrace with ExecuteOut {
   val lhs = XLenU
   val rhs = XLenU
+  val inst: Bundle with InstInfo = new Bundle with InstInfo {
+    val pc = XLenU
+    val except = new Bundle with ExceptionInfo {
+      def pc = ExecutePacket.this.inst.pc
+      val no = ExceptionNumber()
+      val valid = Bool()
+    }
+  }
+  val sys = new Bundle with SysInfo {
+    val ebreak = Bool()
+    val mret = Bool()
+    val fencei = Bool()
+    val csr = new Bundle with CsrInfo {
+      val csrOp = CSROp()
+      val csrAddr = UInt(12.W)
+      def wdata = ExecutePacket.this.lhs
+    }
+  }
 
   val wbCtrl = new Bundle with WriteBackCtrl {
     val wen = Bool()
@@ -108,10 +119,11 @@ class ExecutePacket(enableTraceFields: Boolean = ENABLE_TRACE_FIELDS) extends Bu
     }
   }
 
-  val fencei = Bool()
-
   val forward = new Bundle with ForwardSource {
-    def valid = ExecutePacket.this.wbCtrl.wen && !ExecutePacket.this.memCtrl.en && (ExecutePacket.this.wbCtrl.rd =/= 0.U)
+    def valid = ExecutePacket.this.wbCtrl.wen &&
+      !ExecutePacket.this.memCtrl.en &&
+      ExecutePacket.this.sys.csr.csrOp === CSROp.N &&
+      (ExecutePacket.this.wbCtrl.rd =/= 0.U)
     def addr = ExecutePacket.this.wbCtrl.rd
     def data = ExecutePacket.this.wbData.wdata
   }

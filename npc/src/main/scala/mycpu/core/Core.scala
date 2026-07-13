@@ -42,7 +42,8 @@ class Core(
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val lsu = Module(new LSU(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
-  val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields))
+  val writeBack = Module(new WriteBack(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
+  val csr = Module(new CSR)
   val memory = Module(new MemoryController)
   val hazard = Module(new HazardUnit)
   val ifI0 = Module(new FlushableStage(new IFPacket))
@@ -89,11 +90,21 @@ class Core(
 
   writeBack.io.in <> memWb.io.deq
 
+  csr.io.cmd := writeBack.io.csr.cmd
+  csr.io.addr := writeBack.io.csr.addr
+  csr.io.wdata := writeBack.io.csr.wdata
+  csr.io.except := writeBack.io.csr.except
+  csr.io.isMret := writeBack.io.csr.isMret
+  writeBack.io.csr.rdata := csr.io.rdata
+  writeBack.io.csr.evec := csr.io.evec
+  writeBack.io.csr.epc := csr.io.epc
+  writeBack.io.csr.retireCsrs := csr.io.retireCsrs
+
   io.debug_regs := decode.io.debug_regs
-  io.debug_csrs.mtvec := execute.io.debug_csrs.mtvec
-  io.debug_csrs.mepc := execute.io.debug_csrs.mepc
-  io.debug_csrs.mstatus := execute.io.debug_csrs.mstatus
-  io.debug_csrs.mcause := execute.io.debug_csrs.mcause
+  io.debug_csrs.mtvec := csr.io.debug_mtvec
+  io.debug_csrs.mepc := csr.io.debug_mepc
+  io.debug_csrs.mstatus := csr.io.debug_mstatus
+  io.debug_csrs.mcause := csr.io.debug_mcause
 
     private def connectForward(dst: ForwardPacket, srcValid: Bool, src: ForwardSource): Unit = {
     dst.valid := srcValid && src.valid
@@ -109,16 +120,23 @@ class Core(
   hazard.io.raw.decode.rs2.valid := decode.io.out.valid && decode.io.out.bits.rawRs2.valid
   hazard.io.raw.decode.rs2.addr := decode.io.out.bits.rawRs2.addr
 
-  hazard.io.raw.idExLoad.valid := idEx.io.deq.valid && idEx.io.deq.bits.memCtrl.en && !idEx.io.deq.bits.memCtrl.write
+  val idExLateWrite =
+    (idEx.io.deq.bits.memCtrl.en && !idEx.io.deq.bits.memCtrl.write) ||
+      idEx.io.deq.bits.sys.csr.csrOp =/= CSROp.N
+  val exMemLateWrite =
+    (exMem.io.deq.bits.memCtrl.en && !exMem.io.deq.bits.memCtrl.write) ||
+      exMem.io.deq.bits.sys.csr.csrOp =/= CSROp.N
+
+  hazard.io.raw.idExLoad.valid := idEx.io.deq.valid && idExLateWrite
   hazard.io.raw.idExLoad.addr := idEx.io.deq.bits.wbCtrl.rd
-  hazard.io.raw.exMemLoad.valid := exMem.io.deq.valid && exMem.io.deq.bits.memCtrl.en && !exMem.io.deq.bits.memCtrl.write
+  hazard.io.raw.exMemLoad.valid := exMem.io.deq.valid && exMemLateWrite
   hazard.io.raw.exMemLoad.addr := exMem.io.deq.bits.wbCtrl.rd
   hazard.io.raw.lsuLoad.valid := lsu.io.pendingLoad.valid
   hazard.io.raw.lsuLoad.addr := lsu.io.pendingLoad.addr
 
   val executeRedirect = execute.io.out.valid && execute.io.out.bits.ifRedct.redirect.valid
-  val executeFenceI = execute.io.out.valid && execute.io.out.bits.fencei
-  hazard.io.ctrl.redirect := executeRedirect
+  val writeBackRedirect = writeBack.io.redirect.valid
+  hazard.io.ctrl.redirect := executeRedirect || writeBackRedirect
   val redirectFlush = hazard.io.flush
   val loadUseStall = hazard.io.stall
 
@@ -131,11 +149,15 @@ class Core(
   i1Id.io.blockDeq := false.B
 
   fetch.io.redirect.valid := redirectFlush
-  fetch.io.redirect.bits := execute.io.out.bits.ifRedct.redirect.bits
+  fetch.io.redirect.bits := Mux(
+    writeBackRedirect,
+    writeBack.io.redirect.bits,
+    execute.io.out.bits.ifRedct.redirect.bits,
+  )
   iCache0.io.flush := redirectFlush
   iCache1.io.flush := redirectFlush
-  iCache1.io.fencei := executeFenceI
-  cacheSet.io.flush := executeFenceI
+  iCache1.io.fencei := writeBack.io.fencei
+  cacheSet.io.flush := writeBack.io.fencei
   ifI0.io.flush := redirectFlush
   i0I1.io.flush := redirectFlush
   i1Id.io.flush := redirectFlush
@@ -145,8 +167,8 @@ class Core(
     flushTrace.io.clk := clock
     flushTrace.io.reset := reset.asBool
     flushTrace.io.flush := redirectFlush
-    flushTrace.io.pc := execute.io.out.bits.retireTrace.get.dnpc
-    flushTrace.io.inst := execute.io.out.bits.retireTrace.get.inst
+    flushTrace.io.pc := Mux(writeBackRedirect, writeBack.io.retireTrace.get.bits.dnpc, execute.io.out.bits.retireTrace.get.dnpc)
+    flushTrace.io.inst := Mux(writeBackRedirect, writeBack.io.retireTrace.get.bits.inst, execute.io.out.bits.retireTrace.get.inst)
 
     val pipelineTrace = Module(new PipelineTrace)
     pipelineTrace.io.clk := clock
@@ -174,9 +196,9 @@ class Core(
     hazardTrace.io.redirectFlush := redirectFlush
   }
 
-  idEx.io.flush := false.B
-  exMem.io.flush := false.B
-  memWb.io.flush := false.B
+  idEx.io.flush := writeBackRedirect
+  exMem.io.flush := writeBackRedirect
+  memWb.io.flush := writeBackRedirect
 
   idEx.io.blockEnq := loadUseStall
   idEx.io.blockDeq := false.B
@@ -189,11 +211,15 @@ class Core(
     idEx.io.enq.valid := false.B
   }
 
+  when(writeBackRedirect) {
+    lsu.io.in.valid := false.B
+  }
+
   if (enableTracer && enableTraceFields) {
     val tracerMod = tracer.get
     tracerMod.io.retireTrace := writeBack.io.retireTrace.get
     tracerMod.io.gprs := decode.io.debug_regs
-    tracerMod.io.csrs := execute.io.debug_csrs
+    tracerMod.io.csrs := io.debug_csrs
     io.simState := tracerMod.io.simState
   } else {
     io.simState := 0.U.asTypeOf(new SimStateBundle)

@@ -16,3 +16,16 @@ trait WriteBackData {
 class WriteBackIO extends Bundle {
   val regWrite = new RegWriteMeta
 }
+
+class CsrWriteBackIO extends Bundle {
+  val cmd = Output(CSROp())
+  val addr = Output(UInt(12.W))
+  val wdata = Output(XLenU)
+  val except = Output(new ExceptionBundle)
+  val isMret = Output(Bool())
+
+  val rdata = Input(XLenU)
+  val evec = Input(XLenU)
+  val epc = Input(XLenU)
+  val retireCsrs = Input(new CsrDebugBundle)
+}

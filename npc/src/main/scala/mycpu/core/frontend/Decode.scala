@@ -77,10 +77,53 @@ class Decode(
   val memUnsigned = WireDefault(false.B)
   val csrAddr = WireDefault(inst(31, 20))
   val csrOp = WireDefault(CSROp.N)
-  val isEcall = WireDefault(false.B)
+  val exceptionValid = WireDefault(false.B)
+  val exceptionNo = WireDefault(ExceptionNumber.ECallM)
   val isMret = WireDefault(false.B)
   val isEbreak = WireDefault(false.B)
   val isFenceI = WireDefault(false.B)
+
+  val legalBranch = Seq("b000", "b001", "b100", "b101", "b110", "b111")
+    .map(funct3 === _.U).reduce(_ || _)
+  val legalLoad = Seq("b000", "b001", "b010", "b100", "b101")
+    .map(funct3 === _.U).reduce(_ || _)
+  val legalStore = Seq("b000", "b001", "b010")
+    .map(funct3 === _.U).reduce(_ || _)
+  val legalOpImm = MuxLookup(funct3, false.B)(Seq(
+    "b000".U -> true.B,
+    "b001".U -> (funct7 === "b0000000".U),
+    "b010".U -> true.B,
+    "b011".U -> true.B,
+    "b100".U -> true.B,
+    "b101".U -> (funct7 === "b0000000".U || funct7 === "b0100000".U),
+    "b110".U -> true.B,
+    "b111".U -> true.B,
+  ))
+  val legalOp = funct7 === "b0000000".U ||
+    (funct7 === "b0100000".U && (funct3 === "b000".U || funct3 === "b101".U))
+  val legalCsrFunct3 = Seq("b001", "b010", "b011", "b101", "b110", "b111")
+    .map(funct3 === _.U).reduce(_ || _)
+  val legalSystem = Mux(
+    funct3 === 0.U,
+    inst === Instructions.ECALL.value.U ||
+      inst === Instructions.EBREAK.value.U ||
+      inst === Instructions.MRET.value.U,
+    legalCsrFunct3,
+  )
+  val legalMiscMem = funct3 === "b000".U || inst === Instructions.FENCEI.value.U
+  val legalInst = MuxLookup(opcode, false.B)(Seq(
+    "b0110111".U -> true.B,
+    "b0010111".U -> true.B,
+    "b1101111".U -> true.B,
+    "b1100111".U -> (funct3 === 0.U),
+    "b1100011".U -> legalBranch,
+    "b0000011".U -> legalLoad,
+    "b0100011".U -> legalStore,
+    "b0010011".U -> legalOpImm,
+    "b0110011".U -> legalOp,
+    "b1110011".U -> legalSystem,
+    "b0001111".U -> legalMiscMem,
+  ))
 
   val instType = TraceVal(WireDefault(InstType.arith))
 
@@ -107,6 +150,13 @@ class Decode(
     is("b0100011".U) { immType := ImmType.S }
     is("b0110011".U) { immType := ImmType.Z }
   }
+
+  when(!legalInst) {
+    exceptionValid := true.B
+    exceptionNo := ExceptionNumber.IllegalInst
+  }
+
+  val hasException = exceptionValid
 
   switch(opcode) {
     is("b0110111".U) { // lui
@@ -214,7 +264,8 @@ class Decode(
     is("b1110011".U) { // csr/sys
       instType.foreach(_ := InstType.sys)
       when(inst === Instructions.ECALL.value.U) {
-        isEcall := true.B
+        exceptionValid := true.B
+        exceptionNo := ExceptionNumber.ECallM
       }.elsewhen(inst === Instructions.MRET.value.U) {
         isMret := true.B
       }.elsewhen(inst === Instructions.EBREAK.value.U) {
@@ -256,10 +307,10 @@ class Decode(
 
   io.out.bits.rs1.bits.addr := rs1Addr
   io.out.bits.rs1.bits.rdata := resolveRegValue(rs1Valid, rs1Addr, rs1Data)
-  io.out.bits.rs1.valid := rs1Valid
+  io.out.bits.rs1.valid := rs1Valid && !hasException
   io.out.bits.rs2.bits.addr := rs2Addr
   io.out.bits.rs2.bits.rdata := resolveRegValue(rs2Valid, rs2Addr, rs2Data)
-  io.out.bits.rs2.valid := rs2Valid
+  io.out.bits.rs2.valid := rs2Valid && !hasException
 
   io.out.bits.rd := rdAddr
 
@@ -273,16 +324,18 @@ class Decode(
   io.out.bits.execCtrl.branchType := branchType
   io.out.bits.execCtrl.isJump := isJump
   io.out.bits.execCtrl.isJalr := isJalr
-  io.out.bits.execCtrl.sys.csrOp := csrOp
-  io.out.bits.execCtrl.sys.csrAddr := csrAddr
-  io.out.bits.execCtrl.sys.ecall := isEcall
-  io.out.bits.execCtrl.sys.mret := isMret
-  io.out.bits.execCtrl.sys.ebreak := isEbreak
-  io.out.bits.execCtrl.sys.fencei := isFenceI
+  io.out.bits.sys.ebreak := isEbreak
+  io.out.bits.sys.mret := isMret
+  io.out.bits.sys.fencei := isFenceI
+  io.out.bits.inst.except.valid := hasException
+  io.out.bits.inst.except.no := exceptionNo
+  io.out.bits.sys.csr.csrOp := Mux(hasException, CSROp.N, csrOp)
+  io.out.bits.sys.csr.csrAddr := csrAddr
 
-  io.out.bits.wbCtrl.wen := regWen
+  io.out.bits.wbCtrl.wen := regWen && !hasException
 
-  io.out.bits.memCtrl.en := opcode === "b0000011".U || opcode === "b0100011".U
+  io.out.bits.memCtrl.en := !hasException &&
+    (opcode === "b0000011".U || opcode === "b0100011".U)
   io.out.bits.memCtrl.write := opcode === "b0100011".U
   io.out.bits.memCtrl.unsigned := memUnsigned
   io.out.bits.memCtrl.subop := subop

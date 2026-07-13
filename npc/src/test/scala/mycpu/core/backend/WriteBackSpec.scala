@@ -2,6 +2,7 @@ package mycpu.core.backend
 
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
+import mycpu.common._
 import mycpu.core.bundles._
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -11,6 +12,63 @@ class WriteBackSpec extends AnyFlatSpec {
     c.io.in.bits.wbData.wdata.poke(0.U)
     c.io.in.bits.wbCtrl.wen.poke(false.B)
     c.io.in.bits.wbCtrl.rd.poke(0.U)
+    c.io.in.bits.sys.ebreak.poke(false.B)
+    c.io.in.bits.sys.mret.poke(false.B)
+    c.io.in.bits.sys.fencei.poke(false.B)
+    c.io.in.bits.inst.except.valid.poke(false.B)
+    c.io.in.bits.inst.except.no.poke(ExceptionNumber.ECallM)
+    c.io.in.bits.inst.pc.poke(0.U)
+    c.io.in.bits.sys.csr.csrOp.poke(CSROp.N)
+    c.io.in.bits.sys.csr.csrAddr.poke(0.U)
+    c.io.csr.rdata.poke(0.U)
+    c.io.csr.evec.poke(0.U)
+    c.io.csr.epc.poke(0.U)
+    c.io.csr.retireCsrs.mtvec.poke(0.U)
+    c.io.csr.retireCsrs.mepc.poke(0.U)
+    c.io.csr.retireCsrs.mstatus.poke(0.U)
+    c.io.csr.retireCsrs.mcause.poke(0.U)
+  }
+
+  "WriteBack" should "commit CSR reads and writes at writeback" in {
+    simulate(new WriteBack) { c =>
+      init(c)
+
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.wbCtrl.wen.poke(true.B)
+      c.io.in.bits.wbCtrl.rd.poke(6.U)
+      c.io.in.bits.sys.csr.csrOp.poke(CSROp.W)
+      c.io.in.bits.sys.csr.csrAddr.poke("h305".U)
+      c.io.in.bits.wbData.wdata.poke("h81234567".U)
+      c.io.csr.rdata.poke("ha0000040".U)
+
+      c.io.csr.cmd.expect(CSROp.W)
+      c.io.csr.addr.expect("h305".U)
+      c.io.csr.wdata.expect("h81234567".U)
+      c.io.regWrite.regWrite.wen.expect(true.B)
+      c.io.regWrite.regWrite.wdata.expect("ha0000040".U)
+
+      c.io.in.valid.poke(false.B)
+      c.io.csr.cmd.expect(CSROp.N)
+      c.io.regWrite.regWrite.wen.expect(false.B)
+    }
+  }
+
+  it should "redirect system instructions from writeback" in {
+    simulate(new WriteBack) { c =>
+      init(c)
+
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.inst.except.valid.poke(true.B)
+      c.io.in.bits.inst.except.no.poke(ExceptionNumber.ECallM)
+      c.io.in.bits.inst.pc.poke("ha0000080".U)
+      c.io.csr.evec.poke("ha0000100".U)
+
+      c.io.csr.except.valid.expect(true.B)
+      c.io.csr.except.no.expect(ExceptionNumber.ECallM)
+      c.io.csr.except.pc.expect("ha0000080".U)
+      c.io.redirect.valid.expect(true.B)
+      c.io.redirect.bits.expect("ha0000100".U)
+    }
   }
 
   "WriteBack" should "drive register write only when wbCtrl.wen is set" in {

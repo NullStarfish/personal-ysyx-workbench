@@ -35,12 +35,23 @@ trait MemIn {
 }
 
 trait MemOut {
+  def inst: InstInfo
+  def sys: SysInfo
   def wbCtrl : WriteBackCtrl
   def wbData: WriteBackData
   def forward: ForwardSource
 }
 
 class MemoryPacket extends Bundle with withRetireTrace with MemOut {
+  val inst: Bundle with InstInfo = new Bundle with InstInfo {
+    val pc = XLenU
+    val except = new Bundle with ExceptionInfo {
+      def pc = MemoryPacket.this.inst.pc
+      val no = ExceptionNumber()
+      val valid = Bool()
+    }
+  }
+
   val wbCtrl = new Bundle with WriteBackCtrl {
     val rd = UInt(5.W)
     val wen = Bool()
@@ -48,6 +59,17 @@ class MemoryPacket extends Bundle with withRetireTrace with MemOut {
 
   val wbData = new Bundle with WriteBackData {
     val wdata = XLenU
+  }
+
+  val sys = new Bundle with SysInfo {
+    val ebreak = Bool()
+    val mret = Bool()
+    val fencei = Bool()
+    val csr = new Bundle with CsrInfo {
+      val csrOp = CSROp()
+      val csrAddr = UInt(12.W)
+      def wdata = MemoryPacket.this.wbData.wdata
+    }
   }
 
   val forward = new Bundle with ForwardSource {

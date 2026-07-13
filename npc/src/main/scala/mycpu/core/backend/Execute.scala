@@ -5,7 +5,6 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.core.components._
-import mycpu.dpi.SimEbreakDPI
 
 class Execute(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
@@ -14,16 +13,11 @@ class Execute(
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new DecodePacket))
     val out = Decoupled(new ExecutePacket(enableTraceFields))
-    val debug_csrs = Output(new Bundle {
-      val mtvec   = UInt(XLEN.W)
-      val mepc    = UInt(XLEN.W)
-      val mstatus = UInt(XLEN.W)
-      val mcause  = UInt(XLEN.W)
-    })
   })
 
   val data = io.in.bits
   val ctrl = data.execCtrl
+  val sys = data.sys
   val execData = data.execData
 
   val aluInA = Mux(ctrl.aluSrcA === ALUSrcA.Pc, execData.pc, execData.rs1)
@@ -34,27 +28,6 @@ class Execute(
   alu.io.a := aluInA
   alu.io.b := aluInB
   alu.io.op := ctrl.aluOp
-
-  val executeFire = io.in.valid && io.out.ready
-
-  val csr = Module(new CSR)
-  csr.io.cmd := Mux(executeFire, ctrl.sys.csrOp, CSROp.N)
-  csr.io.addr := ctrl.sys.csrAddr
-  csr.io.wdata := execData.rs1
-  csr.io.pc := execData.pc
-  csr.io.isEcall := ctrl.sys.ecall && executeFire
-  csr.io.isMret := ctrl.sys.mret && executeFire
-
-  if (enableDpi) {
-    val simEbreak = Module(new SimEbreakDPI)
-    simEbreak.io.valid := ctrl.sys.ebreak && executeFire
-    simEbreak.io.is_ebreak := 0.U
-  }
-
-  io.debug_csrs.mtvec := csr.io.debug_mtvec
-  io.debug_csrs.mepc := csr.io.debug_mepc
-  io.debug_csrs.mstatus := csr.io.debug_mstatus
-  io.debug_csrs.mcause := csr.io.debug_mcause
 
   val rs1 = execData.rs1
   val rs2 = execData.rs2
@@ -80,38 +53,34 @@ class Execute(
   val indirectTarget = (execData.rs1 + execData.imm) & ~1.U(XLEN.W)
   val branchTakenNow = isBranch && branchTaken(ctrl.branchType)
   val jumpRedirectTarget = Mux(ctrl.isJalr, indirectTarget, jumpDirectTarget)
-  val sysRedirectTarget = MuxCase(csr.io.evec, Seq(
-    ctrl.sys.mret -> csr.io.epc,
-    ctrl.sys.fencei -> pcPlus4,
-  ))
-
-  val hasSysRedirect = ctrl.sys.ecall || ctrl.sys.mret || ctrl.sys.fencei
   val hasJumpRedirect = ctrl.isJump
   val hasBranchRedirect = branchTakenNow
 
   val redirectTarget = MuxCase(0.U(XLEN.W), Seq(
     hasBranchRedirect -> branchDirectTarget,
-    hasSysRedirect -> sysRedirectTarget,
     hasJumpRedirect -> jumpRedirectTarget,
   ))
-  val redirectValid = hasBranchRedirect || hasJumpRedirect || hasSysRedirect
+  val redirectValid = !data.inst.except.valid && (hasBranchRedirect || hasJumpRedirect)
 
   val result = MuxLookup(ctrl.wbSel, alu.io.out)(Seq(
     WBSel.Alu -> alu.io.out,
-    WBSel.Csr -> csr.io.rdata,
+    WBSel.Csr -> 0.U,
     WBSel.PcPlus4 -> pcPlus4,
   ))
 
   val architecturalNextPc = MuxCase(pcPlus4, Seq(
     hasBranchRedirect -> branchDirectTarget,
     ctrl.isJump -> jumpRedirectTarget,
-    ctrl.sys.ecall -> csr.io.evec,
-    ctrl.sys.mret -> csr.io.epc,
-    ctrl.sys.fencei -> pcPlus4,
   ))
 
-  io.out.bits.lhs := Mux(data.memCtrl.write, execData.rs2, result)
+  io.out.bits.lhs := MuxCase(result, Seq(
+    data.memCtrl.write -> execData.rs2,
+    (sys.csr.csrOp =/= CSROp.N) -> sys.csr.wdata,
+  ))
   io.out.bits.rhs := Mux(data.memCtrl.en, alu.io.out, redirectTarget)
+  io.out.bits.inst.pc := data.inst.pc
+  io.out.bits.inst.except.no := data.inst.except.no
+  io.out.bits.inst.except.valid := data.inst.except.valid
 
   io.out.bits.wbCtrl.wen := data.wbCtrl.wen
   io.out.bits.wbCtrl.rd := data.wbCtrl.rd
@@ -121,8 +90,13 @@ class Execute(
   io.out.bits.memCtrl.unsigned := data.memCtrl.unsigned
   io.out.bits.memCtrl.subop := data.memCtrl.subop
 
+  io.out.bits.sys.ebreak := sys.ebreak
+  io.out.bits.sys.mret := sys.mret
+  io.out.bits.sys.fencei := sys.fencei
+  io.out.bits.sys.csr.csrOp := sys.csr.csrOp
+  io.out.bits.sys.csr.csrAddr := sys.csr.csrAddr
+
   io.out.bits.ifRedct.redirect.valid := redirectValid
-  io.out.bits.fencei := ctrl.sys.fencei
 
   if (enableTraceFields) {
     io.out.bits.retireTrace.get := io.in.bits.retireTrace.get
@@ -130,7 +104,6 @@ class Execute(
     io.out.bits.retireTrace.get.regWrite.wen := data.wbCtrl.wen
     io.out.bits.retireTrace.get.regWrite.rd := data.wbCtrl.rd
     io.out.bits.retireTrace.get.regWrite.wdata := result
-    io.out.bits.retireTrace.get.csrs := csr.io.retireCsrs
   }
   
 

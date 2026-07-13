@@ -9,6 +9,8 @@ class RegReadMeta extends Bundle {
 }
 
 trait DecodeOut {
+  def inst: InstInfo
+  def sys: SysInfo
   def execCtrl: ExecuteCtrl
   def execData: ExecuteData
   def memCtrl: MemCtrl
@@ -23,6 +25,26 @@ class DecodePacket extends Bundle with withRetireTrace with DecodeOut {
   val rs1 = Valid(new RegReadMeta)
   val rs2 = Valid(new RegReadMeta)
   val rd = UInt(5.W)
+
+  val inst: Bundle with InstInfo = new Bundle with InstInfo {
+    def pc = DecodePacket.this.execData.pc
+    val except = new Bundle with ExceptionInfo {
+      def pc = DecodePacket.this.execData.pc
+      val no = ExceptionNumber()
+      val valid = Bool()
+    }
+  }
+
+  val sys = new Bundle with SysInfo {
+    val ebreak = Bool()
+    val mret = Bool()
+    val fencei = Bool()
+    val csr = new Bundle with CsrInfo {
+      val csrOp = CSROp()
+      val csrAddr = UInt(12.W)
+      def wdata = DecodePacket.this.rs1.bits.rdata
+    }
+  }
 
 
   val rawRs1 = new Bundle with RAWRegInfo {
@@ -42,7 +64,6 @@ class DecodePacket extends Bundle with withRetireTrace with DecodeOut {
     val branchType = BranchType()
     val isJump = Bool()
     val isJalr = Bool()
-    val sys   = new SysBundle
   }
 
   val execData = new Bundle with ExecuteData {
