@@ -6,6 +6,7 @@ import mycpu.cache._
 import mycpu.common.XLenU
 import mycpu.core.bundles.{FetchPacket, IFPacket}
 import mycpu.memory.MemReadIO
+import mycpu.dpi.DpiApi
 
 class I$0Packet(params: CacheParams) extends Bundle {
   val pc = XLenU
@@ -57,7 +58,10 @@ class I$0Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
   io.blockFetch := io.out.valid && !io.out.ready
 }
 
-class I$1Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
+class I$1Stage(
+    params: CacheParams = CacheConfigs.SimpICache,
+    enableDpi: Boolean = false,
+) extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new I$0Packet(params)))
     val out = Decoupled(new I$1Packet)
@@ -80,20 +84,24 @@ class I$1Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
   val refillLine = Reg(Vec(params.wordsPerLine, UInt(params.dataWidth.W)))
   val refillBeat = RegInit(0.U(params.wordOffsetWidth.max(1).W))
 
-  // 流水线中可能留有refill完成前产生的同line miss，保留最近完成的line供I$1消化它们。
-  //不需要一个新的refillLineBuffer。我们只需要在state==Idle的时候，指示我们这个refillLine是否
-  //valid即可。
-  val refillBufferValid = RegInit(false.B)
-  val refillBufferBase = Reg(UInt(params.addrWidth.W))
-  val refillBufferWay = Reg(UInt(params.wayWidth.W))
+  // I$0 skid和I$0/I$1中最多会留下两条带旧CacheSet响应的指令。
+  // 保留最近完成的两条line，让这些指令可以在refill后直接命中。
+  private val refillBufferEntries = 2
+  val refillBufferValid = RegInit(VecInit(Seq.fill(refillBufferEntries)(false.B)))
+  val refillBufferBase = Reg(Vec(refillBufferEntries, UInt(params.addrWidth.W)))
+  val refillBufferWay = Reg(Vec(refillBufferEntries, UInt(params.wayWidth.W)))
+  val refillBufferLine = Reg(Vec(refillBufferEntries, UInt(params.lineWidth.W)))
 
   val replacement = Replacement(params)
 
   val inputValid = io.in.valid
   //两种hit，一种是直接hit，一种是命中我们的本地缓存了
   val inputDirectHit = inputValid && io.in.bits.icacheResp.hit
-  val inputRefillHit = inputValid && refillBufferValid &&
-    params.lineBase(io.in.bits.pc) === refillBufferBase
+  val refillBufferHits = VecInit((0 until refillBufferEntries).map { entry =>
+    refillBufferValid(entry) && params.lineBase(io.in.bits.pc) === refillBufferBase(entry)
+  })
+  val refillBufferHitIndex = OHToUInt(refillBufferHits)
+  val inputRefillHit = inputValid && refillBufferHits.asUInt.orR
 
   val inputHit = inputDirectHit || inputRefillHit
   val inputMiss = inputValid && !inputHit
@@ -172,7 +180,7 @@ class I$1Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
     Mux(
       inputDirectHit,
       io.in.bits.icacheResp.word,
-      params.wordFromLine(refillLine.asUInt, params.wordOffset(io.in.bits.pc)),
+      params.wordFromLine(refillBufferLine(refillBufferHitIndex), params.wordOffset(io.in.bits.pc)),
     ),
   )
 
@@ -207,7 +215,7 @@ class I$1Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
   replacement.touch.bits.set := Mux(hitRetired, params.index(io.in.bits.pc), params.index(missReq.pc))
   replacement.touch.bits.way := Mux(
     hitRetired,
-    Mux(inputDirectHit, io.in.bits.icacheResp.way, refillBufferWay),
+    Mux(inputDirectHit, io.in.bits.icacheResp.way, refillBufferWay(refillBufferHitIndex)),
     refillWay,
   )
 
@@ -228,10 +236,33 @@ class I$1Stage(params: CacheParams = CacheConfigs.SimpICache) extends Module {
   }
 
   when(io.fencei) {
-    refillBufferValid := false.B
+    refillBufferValid.foreach(_ := false.B)
   }.elsewhen(writeRefill) {
-    refillBufferValid := true.B
-    refillBufferBase := params.lineBase(missReq.pc)
-    refillBufferWay := refillWay
+    val completedBase = params.lineBase(missReq.pc)
+    val sameAsNewest = refillBufferValid(0) && refillBufferBase(0) === completedBase
+
+    when(!sameAsNewest) {
+      refillBufferValid(1) := refillBufferValid(0)
+      refillBufferBase(1) := refillBufferBase(0)
+      refillBufferWay(1) := refillBufferWay(0)
+      refillBufferLine(1) := refillBufferLine(0)
+    }
+
+    refillBufferValid(0) := true.B
+    refillBufferBase(0) := completedBase
+    refillBufferWay(0) := refillWay
+    refillBufferLine(0) := completedLine.asUInt
+  }
+
+  if (enableDpi) {
+    val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
+    val missRetired = state === State.Reply && io.out.fire
+    val accessActive = acceptMiss || state =/= State.Idle || hitRetired
+
+    counters.pushToSim("icache.accesses", hitRetired || missRetired)
+    counters.pushToSim("icache.hits", hitRetired)
+    counters.pushToSim("icache.misses", acceptMiss)
+    counters.pushToSim("icache.service_cycles", accessActive)
+    counters.pushToSim("icache.refill_beats", io.mem.r.fire)
   }
 }

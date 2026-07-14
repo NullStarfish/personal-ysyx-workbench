@@ -12,18 +12,10 @@ CSRC_CPP_SRCS := \
 	$(CSRC_DIR)/log/log.cpp \
 	$(CSRC_DIR)/main.cpp \
 	$(CSRC_DIR)/runtime.cpp \
+	$(CSRC_DIR)/sim_counter.cpp \
 	$(CSRC_DIR)/trace/itrace.cpp \
 	$(CSRC_DIR)/trace/ftrace.cpp \
 	$(CSRC_DIR)/monitor.cpp \
-	$(CSRC_DIR)/Pipeline/Fetch.cpp \
-	$(CSRC_DIR)/Pipeline/Execute.cpp \
-	$(CSRC_DIR)/Pipeline/Pipeline.cpp \
-	$(CSRC_DIR)/Pipeline/WriteBack.cpp \
-	$(CSRC_DIR)/Pipeline/Hazard.cpp \
-	$(CSRC_DIR)/Pipeline/Decode.cpp \
-	$(CSRC_DIR)/Pipeline/Cache.cpp \
-	$(CSRC_DIR)/Pipeline/LSU.cpp \
-	$(CSRC_DIR)/Pipeline/PipelineStage.cpp \
 	$(CSRC_DIR)/difftest_runtime.cpp \
 	$(CSRC_DIR)/cpu.cpp \
 	$(CSRC_DIR)/mem.cpp

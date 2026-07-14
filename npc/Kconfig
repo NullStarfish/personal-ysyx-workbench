@@ -67,58 +67,6 @@ if TRACE
         depends on RETIRE_TRACE
         default n
 
-    config PERF_STATS
-        bool "Enable pipeline/cache performance statistics"
-        default y
-        help
-          Maintain C++ pipeline, fetch, LSU, hazard, and cache statistics.
-          Disable this for a lean run loop.
-
-    config PIPELINE_TRACE
-        bool "Enable pipeline stage DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config FETCH_TRACE
-        bool "Enable fetch unit DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config LSU_TRACE
-        bool "Enable LSU DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config CACHE_TRACE
-        bool "Enable cache access DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config HAZARD_TRACE
-        bool "Enable hazard DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config EXECUTE_TRACE
-        bool "Enable execute unit DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config FLUSH_TRACE
-        bool "Enable flush DPI trace model"
-        depends on PERF_STATS
-        default y
-
-    config CACHESIM_DIFFTEST
-        bool "Enable ICache comparison against cachesim"
-        depends on PERF_STATS && RETIRE_TRACE
-        default n
-        help
-          Compare retired instruction fetch hit/miss results against the
-          software cache model. This is intended for cache debugging and
-          adds simulation overhead.
-        
-
 endif # TRACE
 
 config RETIRE_TRACE

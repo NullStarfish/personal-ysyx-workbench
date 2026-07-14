@@ -1,7 +1,77 @@
 package mycpu.dpi
 
 import chisel3._
+import chisel3.experimental.StringParam
 import chisel3.util.HasBlackBoxInline
+
+final class SimCounterPushDPI(name: String)
+    extends BlackBox(Map("NAME" -> StringParam(name)))
+    with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val reset = Input(Bool())
+    val valid = Input(Bool())
+    val delta = Input(UInt(64.W))
+  })
+
+  setInline(
+    "SimCounterPushDPI.sv",
+    """module SimCounterPushDPI #(
+      |    parameter string NAME = ""
+      |) (
+      |    input logic clock,
+      |    input logic reset,
+      |    input logic valid,
+      |    input logic [63:0] delta
+      |);
+      |    import "DPI-C" function int sim_counter_alloc(input string name);
+      |    import "DPI-C" function void sim_counter_add(input int id, input longint unsigned delta);
+      |
+      |    integer id;
+      |    initial id = sim_counter_alloc(NAME);
+      |
+      |    always_ff @(posedge clock) begin
+      |        if (!reset && valid) begin
+      |            sim_counter_add(id, delta);
+      |        end
+      |    end
+      |endmodule
+      |""".stripMargin,
+  )
+}
+
+final class SimCounterReadDPI(name: String)
+    extends BlackBox(Map("NAME" -> StringParam(name)))
+    with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val value = Output(UInt(64.W))
+  })
+
+  setInline(
+    "SimCounterReadDPI.sv",
+    """module SimCounterReadDPI #(
+      |    parameter string NAME = ""
+      |) (
+      |    input logic clock,
+      |    output logic [63:0] value
+      |);
+      |    import "DPI-C" function int sim_counter_alloc(input string name);
+      |    import "DPI-C" function longint unsigned sim_counter_read(input int id);
+      |
+      |    integer id;
+      |    initial begin
+      |        id = sim_counter_alloc(NAME);
+      |        value = 64'd0;
+      |    end
+      |
+      |    always_ff @(negedge clock) begin
+      |        value <= sim_counter_read(id);
+      |    end
+      |endmodule
+      |""".stripMargin,
+  )
+}
 
 final class DifftestSkipDPI extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {

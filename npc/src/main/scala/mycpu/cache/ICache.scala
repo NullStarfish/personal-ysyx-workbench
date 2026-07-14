@@ -2,6 +2,7 @@ package mycpu.cache
 
 import chisel3._
 import chisel3.util._
+import mycpu.dpi.DpiApi
 
 class ICache(
     params: CacheParams = CacheParams(),
@@ -200,13 +201,11 @@ class ICache(
     val hit = io.cpuReply.fire && !accessMiss
     // A completed refill changes cache state even if a later redirect discards its CPU reply.
     val miss = cacheSet.io.write.valid
-
-    val accessTrace = Module(new ICacheAccessTrace)
-    accessTrace.io.clk := clock
-    accessTrace.io.reset := reset.asBool
-    accessTrace.io.hit := hit
-    accessTrace.io.miss := miss
-    accessTrace.io.latency := accessLatency + 1.U
+    val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
+    counters.pushToSim("icache.accesses", hit || miss)
+    counters.pushToSim("icache.hits", hit)
+    counters.pushToSim("icache.misses", miss)
+    counters.pushToSim("icache.service_cycles", 1.U, reqValid)
   }
 
 

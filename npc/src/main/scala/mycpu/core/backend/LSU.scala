@@ -5,6 +5,7 @@ import chisel3.util._
 import mycpu.common._
 import mycpu.core.bundles._
 import mycpu.memory._
+import mycpu.dpi.DpiApi
 
 class LSU(
     enableTraceFields: Boolean = ENABLE_TRACE_FIELDS,
@@ -213,12 +214,11 @@ class LSU(
   }
 
   if (enableDpi) {
-    val lsuTrace = Module(new LSUTrace)
-    lsuTrace.io.clk := clock
-    lsuTrace.io.reset := reset.asBool
-    lsuTrace.io.reqReadData := io.mem.a.fire && !io.mem.a.bits.write
-    lsuTrace.io.reqWriteData := io.mem.w.fire
-    lsuTrace.io.gotData := (io.mem.r.fire || io.mem.b.fire) && reqReg.memCtrl.en
-    lsuTrace.io.blocked := io.in.valid && !io.in.ready
+    val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
+    counters.pushToSim("lsu.load_requests", io.mem.a.fire && !io.mem.a.bits.write)
+    counters.pushToSim("lsu.store_requests", io.mem.a.fire && io.mem.a.bits.write)
+    counters.pushToSim("lsu.load_replies", io.mem.r.fire && reqRegIsLoad)
+    counters.pushToSim("lsu.store_replies", io.mem.b.fire && reqRegIsStore)
+    counters.pushToSim("lsu.service_cycles", isInputMem && io.in.fire || state =/= State.Idle)
   }
 }

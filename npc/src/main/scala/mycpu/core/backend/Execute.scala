@@ -110,10 +110,4 @@ class Execute(
   io.out.valid := io.in.valid
   io.in.ready := io.out.ready
 
-  if (enableDpi) {
-    val executeTrace = Module(new ExecuteTrace)
-    executeTrace.io.clk := clock
-    executeTrace.io.reset := reset.asBool
-    executeTrace.io.finished := io.out.fire
-  }
 }

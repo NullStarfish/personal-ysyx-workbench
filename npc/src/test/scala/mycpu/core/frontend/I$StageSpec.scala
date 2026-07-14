@@ -160,6 +160,20 @@ class I$1StageSpec extends AnyFlatSpec {
     c.io.mem.a.ready.poke(false.B)
   }
 
+  private def completeRefill(c: I$1Stage, words: Seq[BigInt]): Unit = {
+    for ((word, beat) <- words.zipWithIndex) {
+      c.io.mem.r.valid.poke(true.B)
+      c.io.mem.r.bits.data.poke(word.U)
+      c.io.mem.r.bits.last.poke((beat == words.size - 1).B)
+      c.clock.step()
+    }
+    c.io.mem.r.valid.poke(false.B)
+    c.io.out.ready.poke(true.B)
+    c.io.out.valid.expect(true.B)
+    c.clock.step()
+    c.io.out.ready.poke(false.B)
+  }
+
   "I$1" should "refill the selected line and hold the miss response for Decode" in {
     simulate(new I$1Stage(params)) { c =>
       val pc = BigInt("104", 16)
@@ -204,6 +218,35 @@ class I$1StageSpec extends AnyFlatSpec {
       c.io.in.ready.expect(true.B)
       c.io.out.valid.expect(true.B)
       c.io.out.bits.inst.expect(words(2).U)
+      c.io.mem.a.valid.expect(false.B)
+    }
+  }
+
+  it should "retain the two most recently refilled lines" in {
+    simulate(new I$1Stage(params)) { c =>
+      val firstWords = Seq.tabulate(params.wordsPerLine)(beat => BigInt("10000000", 16) + beat)
+      val secondWords = Seq.tabulate(params.wordsPerLine)(beat => BigInt("20000000", 16) + beat)
+      resetDut(c)
+
+      acceptMiss(c, BigInt("104", 16))
+      completeRefill(c, firstWords)
+      acceptMiss(c, BigInt("114", 16))
+      completeRefill(c, secondWords)
+
+      // 两个packet都带着refill前产生的miss响应，不能再次访问memory。
+      c.io.out.ready.poke(true.B)
+      c.io.in.valid.poke(true.B)
+      c.io.in.bits.icacheResp.hit.poke(false.B)
+
+      c.io.in.bits.pc.poke("h108".U)
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.inst.expect(firstWords(2).U)
+      c.io.mem.a.valid.expect(false.B)
+      c.clock.step()
+
+      c.io.in.bits.pc.poke("h11c".U)
+      c.io.out.valid.expect(true.B)
+      c.io.out.bits.inst.expect(secondWords(3).U)
       c.io.mem.a.valid.expect(false.B)
     }
   }

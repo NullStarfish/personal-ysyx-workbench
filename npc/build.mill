@@ -390,6 +390,9 @@ object lsu extends NpcScalaModule {
       root / "src/main/scala/mycpu/core/bundles/Trace.scala",
       root / "src/main/scala/mycpu/core/bundles/WriteBack.scala",
       root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+      root / "src/main/scala/mycpu/dpi/DpiApi.scala",
       root / "src/main/scala/mycpu/core/backend/LSU.scala",
     )
     val dest = T.dest / "src"
@@ -655,6 +658,9 @@ object fetchDecode extends NpcScalaModule {
       root / "src/main/scala/mycpu/cache/Replacement.scala",
       root / "src/main/scala/mycpu/utils/Debug.scala",
       root / "src/main/scala/mycpu/memory/MemoryBundles.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBundles.scala",
+      root / "src/main/scala/mycpu/dpi/DpiBlackboxes.scala",
+      root / "src/main/scala/mycpu/dpi/DpiApi.scala",
       root / "src/main/scala/mycpu/core/frontend/Fetch.scala",
       root / "src/main/scala/mycpu/core/frontend/I$Stage.scala",
       root / "src/main/scala/mycpu/core/frontend/Decode.scala",

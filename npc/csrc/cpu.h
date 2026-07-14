@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pipeline/Pipeline.h"
 #include "runtime.h"
 #include "svdpi.h"
 

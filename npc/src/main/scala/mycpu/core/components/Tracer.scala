@@ -38,5 +38,11 @@ class Tracer(enableDpi: Boolean = false) extends Module {
 
   if (enableDpi) {
     DpiApi.simState(clock, reset.asBool, io.simState, localName = "core_sim_state")
+    val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
+    counters.pushToSim("retire.total", io.retireTrace.valid)
+    counters.pushToSim("retire.arith", io.retireTrace.valid && trace.instType === InstType.arith)
+    counters.pushToSim("retire.mem", io.retireTrace.valid && trace.instType === InstType.mem)
+    counters.pushToSim("retire.redirect", io.retireTrace.valid && trace.instType === InstType.redirect)
+    counters.pushToSim("retire.sys", io.retireTrace.valid && trace.instType === InstType.sys)
   }
 }

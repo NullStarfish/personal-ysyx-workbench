@@ -8,7 +8,7 @@ import mycpu.core.backend._
 import mycpu.core.bundles._
 import mycpu.core.components._
 import mycpu.core.frontend.{Decode, Fetch, I$0Packet, I$0Stage, I$1Stage}
-import mycpu.dpi.SimStateBundle
+import mycpu.dpi.{DpiApi, SimStateBundle}
 import mycpu.memory._
 import mycpu.utils._
 import mycpu.core.frontend.I$1Packet
@@ -38,7 +38,7 @@ class Core(
   val fetch = Module(new Fetch(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val cacheSet = Module(new CacheSet(icacheParams))
   val iCache0 = Module(new I$0Stage(icacheParams))
-  val iCache1 = Module(new I$1Stage(icacheParams))
+  val iCache1 = Module(new I$1Stage(icacheParams, enableDpi = enableDpi))
   val decode = Module(new Decode(enableTraceFields = enableTraceFields))
   val execute = Module(new Execute(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
   val lsu = Module(new LSU(enableTraceFields = enableTraceFields, enableDpi = enableDpi))
@@ -162,38 +162,28 @@ class Core(
   i0I1.io.flush := redirectFlush
   i1Id.io.flush := redirectFlush
 
-  if (enableDpi && enableTraceFields) {
-    val flushTrace = Module(new FlushTrace)
-    flushTrace.io.clk := clock
-    flushTrace.io.reset := reset.asBool
-    flushTrace.io.flush := redirectFlush
-    flushTrace.io.pc := Mux(writeBackRedirect, writeBack.io.retireTrace.get.bits.dnpc, execute.io.out.bits.retireTrace.get.dnpc)
-    flushTrace.io.inst := Mux(writeBackRedirect, writeBack.io.retireTrace.get.bits.inst, execute.io.out.bits.retireTrace.get.inst)
+  if (enableDpi) {
+    val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
+    counters.pushToSim("core.cycles", true.B)
+    counters.pushToSim("frontend.fetch_accepted", fetch.io.out.fire)
+    counters.pushToSim("frontend.icache_output", iCache1.io.out.fire)
+    counters.pushToSim("pipeline.decode_output", decode.io.out.fire)
+    counters.pushToSim("pipeline.execute_output", execute.io.out.fire)
+    counters.pushToSim("pipeline.lsu_output", lsu.io.out.fire)
+    counters.pushToSim("pipeline.if_i0_valid_cycles", ifI0.io.deq.valid)
+    counters.pushToSim("pipeline.i0_i1_valid_cycles", i0I1.io.deq.valid)
+    counters.pushToSim("pipeline.i1_id_valid_cycles", i1Id.io.deq.valid)
+    counters.pushToSim("pipeline.id_ex_valid_cycles", idEx.io.deq.valid)
+    counters.pushToSim("pipeline.ex_mem_valid_cycles", exMem.io.deq.valid)
+    counters.pushToSim("pipeline.mem_wb_valid_cycles", memWb.io.deq.valid)
+    counters.pushToSim("hazard.load_use_cycles", loadUseStall)
+    counters.pushToSim("frontend.flushes", redirectFlush)
+    counters.pushToSim("frontend.execute_redirects", executeRedirect)
+    counters.pushToSim("frontend.writeback_redirects", writeBackRedirect)
+    counters.pushToSim("lsu.backpressure_cycles", execute.io.out.valid && !lsu.io.in.ready)
 
-    val pipelineTrace = Module(new PipelineTrace)
-    pipelineTrace.io.clk := clock
-    pipelineTrace.io.reset := reset.asBool
-    pipelineTrace.io.fetchOut.valid := iCache1.io.out.fire
-    pipelineTrace.io.fetchOut.bits.pc := iCache1.io.out.bits.pc
-    pipelineTrace.io.fetchOut.bits.inst := iCache1.io.out.bits.inst
-    pipelineTrace.io.decodeOut.valid := decode.io.out.fire
-    pipelineTrace.io.decodeOut.bits.pc := decode.io.out.bits.retireTrace.get.pc
-    pipelineTrace.io.decodeOut.bits.inst := decode.io.out.bits.retireTrace.get.inst
-    pipelineTrace.io.executeOut.valid := execute.io.out.fire
-    pipelineTrace.io.executeOut.bits.pc := execute.io.out.bits.retireTrace.get.pc
-    pipelineTrace.io.executeOut.bits.inst := execute.io.out.bits.retireTrace.get.inst
-    pipelineTrace.io.lsuOut.valid := lsu.io.out.fire
-    pipelineTrace.io.lsuOut.bits.pc := lsu.io.out.bits.retireTrace.get.pc
-    pipelineTrace.io.lsuOut.bits.inst := lsu.io.out.bits.retireTrace.get.inst
-    pipelineTrace.io.retire.valid := writeBack.io.retireTrace.get.valid
-    pipelineTrace.io.retire.bits.pc := writeBack.io.retireTrace.get.bits.pc
-    pipelineTrace.io.retire.bits.inst := writeBack.io.retireTrace.get.bits.inst
-
-    val hazardTrace = Module(new HazardTrace)
-    hazardTrace.io.clk := clock
-    hazardTrace.io.reset := reset.asBool
-    hazardTrace.io.loadUseStall := loadUseStall
-    hazardTrace.io.redirectFlush := redirectFlush
+    // Keep one live read port as the common entry point for simulation-only RTL reports.
+    dontTouch(counters.readFromSim("retire.total"))
   }
 
   idEx.io.flush := writeBackRedirect

@@ -4,6 +4,35 @@ import chisel3._
 
 object DpiApi {
 
+  final class SimCounters(clock: Clock, reset: Bool, enabled: Boolean) {
+    def pushToSim(name: String, event: Bool): Unit =
+      pushToSim(name, 1.U, event)
+
+    def pushToSim(name: String, delta: UInt, valid: Bool): Unit = {
+      require(delta.getWidth <= 64, s"simulation counter '$name' delta exceeds 64 bits")
+      if (enabled) {
+        val counter = Module(new SimCounterPushDPI(name))
+        counter.io.clock := clock
+        counter.io.reset := reset
+        counter.io.valid := valid
+        counter.io.delta := delta.pad(64)
+      }
+    }
+
+    def readFromSim(name: String): UInt = {
+      if (enabled) {
+        val counter = Module(new SimCounterReadDPI(name))
+        counter.io.clock := clock
+        counter.io.value
+      } else {
+        0.U(64.W)
+      }
+    }
+  }
+
+  def counters(clock: Clock, reset: Bool, enabled: Boolean): SimCounters =
+    new SimCounters(clock, reset, enabled)
+
 
   def simEbreak(valid: Bool, isEbreak: UInt = 0.U(32.W), localName: String = "sim_ebreak"): Unit = {
     val m = Module(new SimEbreakDPI).suggestName(localName)

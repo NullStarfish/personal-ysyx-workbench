@@ -13,6 +13,7 @@
 #include "mem.h"
 #include "runtime.h"
 #include "sim.h"
+#include "sim_counter.h"
 
 #include "sdb/sdb.h"
 #include "trace/ftrace.h"
@@ -43,9 +44,7 @@ void CPU::init() {
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
-#ifdef CONFIG_PERF_STATS
-  pipeline.reset();
-#endif
+  simCounters.reset();
 }
 
 void CPU::exec(uint64_t n) {
@@ -76,9 +75,6 @@ void CPU::execOnce() {
   while (!hasCommitted && runtime.isRunning()) {
     runtime.stepOneClk();
     cycleCountValue++;
-#ifdef CONFIG_PERF_STATS
-    pipeline.tick();
-#endif
   }
   if (!runtime.isRunning()) return;
 
@@ -90,10 +86,6 @@ void CPU::execOnce() {
 }
 
 void CPU::traceAndDifftest() {
-#if defined(CONFIG_CACHESIM_DIFFTEST) && defined(CONFIG_PERF_STATS)
-  pipeline.cache.compareICacheRetire(retirePcValue, retireICacheHitValue);
-#endif
-
 #ifdef CONFIG_ITRACE
   log_and_trace(retirePcValue, retireInstValue);
 #endif
@@ -114,10 +106,6 @@ void CPU::traceAndDifftest() {
 
 void CPU::commitRetire(const RetireSnapshot &snapshot) {
 #ifdef CONFIG_RETIRE_TRACE
-#ifdef CONFIG_PERF_STATS
-  pipeline.retire(snapshot.pc, snapshot.inst, snapshot.instType);
-#endif
-
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
   retireICacheHitValue = snapshot.icacheHit;
@@ -217,22 +205,16 @@ void CPU::copyDutState(riscv32_CPU_state *dut) const {
 long long CPU::cycleCount() const { return cycleCountValue; }
 
 void CPU::printStats() const {
-#ifdef CONFIG_PERF_STATS
-  const long long retired = pipeline.retiredInstructions();
-#endif
+  const uint64_t retired = simCounters.read("retire.total");
   printf("\nExecution Statistics:\n");
   printf("  Total Cycles:       %lld\n", cycleCountValue);
-#ifdef CONFIG_PERF_STATS
-  printf("  Total Instructions: %lld\n", retired);
-  pipeline.printStats(cycleCountValue);
+  printf("  Total Instructions: %llu\n", static_cast<unsigned long long>(retired));
+  simCounters.dump();
   if (cycleCountValue > 0) {
     printf("  Average IPC:        %f\n", static_cast<double>(retired) / cycleCountValue);
   } else {
     printf("  Average IPC:        N/A (cycles = 0)\n");
   }
-#else
-  printf("  Retire trace:       OFF\n");
-#endif
 }
 
 void CPU::handleSigint() {
