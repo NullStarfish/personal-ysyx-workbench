@@ -202,10 +202,14 @@ class ICache(
     // A completed refill changes cache state even if a later redirect discards its CPU reply.
     val miss = cacheSet.io.write.valid
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
-    counters.pushToSim("icache.accesses", hit || miss)
-    counters.pushToSim("icache.hits", hit)
-    counters.pushToSim("icache.misses", miss)
-    counters.pushToSim("icache.service_cycles", 1.U, reqValid)
+    val icacheCounters = counters.tag("icache")
+    val accesses = icacheCounters.pushToSim("accesses", hit || miss)
+    val hits = icacheCounters.pushToSim("hits", hit)
+    val misses = icacheCounters.pushToSim("miss_outputs", miss)
+    val serviceCycles = icacheCounters.pushToSim("service_cycles", 1.U, reqValid)
+    icacheCounters.percentage("hit_rate", hits, accesses)
+    icacheCounters.percentage("miss_rate", misses, accesses)
+    icacheCounters.ratio("cycles_per_access", serviceCycles, accesses)
   }
 
 

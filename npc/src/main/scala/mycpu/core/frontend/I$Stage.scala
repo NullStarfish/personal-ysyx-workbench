@@ -258,11 +258,15 @@ class I$1Stage(
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
     val missRetired = state === State.Reply && io.out.fire
     val accessActive = acceptMiss || state =/= State.Idle || hitRetired
-
-    counters.pushToSim("icache.accesses", hitRetired || missRetired)
-    counters.pushToSim("icache.hits", hitRetired)
-    counters.pushToSim("icache.misses", acceptMiss)
-    counters.pushToSim("icache.service_cycles", accessActive)
-    counters.pushToSim("icache.refill_beats", io.mem.r.fire)
+    val icacheCounters = counters.tag("icache")
+    val accesses = icacheCounters.pushToSim("accesses", hitRetired || missRetired)
+    val hits = icacheCounters.pushToSim("hits", hitRetired)
+    val missOutputs = icacheCounters.pushToSim("miss_outputs", missRetired)
+    icacheCounters.pushToSim("lookup_misses", acceptMiss)
+    val serviceCycles = icacheCounters.pushToSim("service_cycles", accessActive)
+    icacheCounters.pushToSim("refill_beats", io.mem.r.fire)
+    icacheCounters.percentage("hit_rate", hits, accesses)
+    icacheCounters.percentage("miss_rate", missOutputs, accesses)
+    icacheCounters.ratio("cycles_per_access", serviceCycles, accesses)
   }
 }

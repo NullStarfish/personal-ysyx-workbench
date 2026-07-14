@@ -205,16 +205,11 @@ void CPU::copyDutState(riscv32_CPU_state *dut) const {
 long long CPU::cycleCount() const { return cycleCountValue; }
 
 void CPU::printStats() const {
-  const uint64_t retired = simCounters.read("retire.total");
+  const uint64_t retired = simCounters.read("inst", "total");
   printf("\nExecution Statistics:\n");
   printf("  Total Cycles:       %lld\n", cycleCountValue);
   printf("  Total Instructions: %llu\n", static_cast<unsigned long long>(retired));
   simCounters.dump();
-  if (cycleCountValue > 0) {
-    printf("  Average IPC:        %f\n", static_cast<double>(retired) / cycleCountValue);
-  } else {
-    printf("  Average IPC:        N/A (cycles = 0)\n");
-  }
 }
 
 void CPU::handleSigint() {

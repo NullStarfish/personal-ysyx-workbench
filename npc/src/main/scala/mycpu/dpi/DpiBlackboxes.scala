@@ -1,11 +1,11 @@
 package mycpu.dpi
 
 import chisel3._
-import chisel3.experimental.StringParam
+import chisel3.experimental.{IntParam, StringParam}
 import chisel3.util.HasBlackBoxInline
 
-final class SimCounterPushDPI(name: String)
-    extends BlackBox(Map("NAME" -> StringParam(name)))
+final class SimCounterPushDPI(tag: String, name: String)
+    extends BlackBox(Map("TAG" -> StringParam(tag), "NAME" -> StringParam(name)))
     with HasBlackBoxInline {
   val io = IO(new Bundle {
     val clock = Input(Clock())
@@ -17,6 +17,7 @@ final class SimCounterPushDPI(name: String)
   setInline(
     "SimCounterPushDPI.sv",
     """module SimCounterPushDPI #(
+      |    parameter string TAG = "",
       |    parameter string NAME = ""
       |) (
       |    input logic clock,
@@ -24,11 +25,11 @@ final class SimCounterPushDPI(name: String)
       |    input logic valid,
       |    input logic [63:0] delta
       |);
-      |    import "DPI-C" function int sim_counter_alloc(input string name);
+      |    import "DPI-C" function int sim_counter_alloc(input string tag, input string name);
       |    import "DPI-C" function void sim_counter_add(input int id, input longint unsigned delta);
       |
       |    integer id;
-      |    initial id = sim_counter_alloc(NAME);
+      |    initial id = sim_counter_alloc(TAG, NAME);
       |
       |    always_ff @(posedge clock) begin
       |        if (!reset && valid) begin
@@ -40,8 +41,8 @@ final class SimCounterPushDPI(name: String)
   )
 }
 
-final class SimCounterReadDPI(name: String)
-    extends BlackBox(Map("NAME" -> StringParam(name)))
+final class SimCounterReadDPI(tag: String, name: String)
+    extends BlackBox(Map("TAG" -> StringParam(tag), "NAME" -> StringParam(name)))
     with HasBlackBoxInline {
   val io = IO(new Bundle {
     val clock = Input(Clock())
@@ -51,22 +52,80 @@ final class SimCounterReadDPI(name: String)
   setInline(
     "SimCounterReadDPI.sv",
     """module SimCounterReadDPI #(
+      |    parameter string TAG = "",
       |    parameter string NAME = ""
       |) (
       |    input logic clock,
       |    output logic [63:0] value
       |);
-      |    import "DPI-C" function int sim_counter_alloc(input string name);
+      |    import "DPI-C" function int sim_counter_alloc(input string tag, input string name);
       |    import "DPI-C" function longint unsigned sim_counter_read(input int id);
       |
       |    integer id;
       |    initial begin
-      |        id = sim_counter_alloc(NAME);
+      |        id = sim_counter_alloc(TAG, NAME);
       |        value = 64'd0;
       |    end
       |
       |    always_ff @(negedge clock) begin
       |        value <= sim_counter_read(id);
+      |    end
+      |endmodule
+      |""".stripMargin,
+  )
+}
+
+final class SimCounterRatioDPI(
+    tag: String,
+    name: String,
+    numeratorTag: String,
+    numeratorName: String,
+    denominatorTag: String,
+    denominatorName: String,
+    percentage: Boolean,
+) extends BlackBox(Map(
+      "TAG" -> StringParam(tag),
+      "NAME" -> StringParam(name),
+      "NUMERATOR_TAG" -> StringParam(numeratorTag),
+      "NUMERATOR_NAME" -> StringParam(numeratorName),
+      "DENOMINATOR_TAG" -> StringParam(denominatorTag),
+      "DENOMINATOR_NAME" -> StringParam(denominatorName),
+      "PERCENTAGE" -> IntParam(if (percentage) 1 else 0),
+    ))
+    with HasBlackBoxInline {
+  val io = IO(new Bundle {})
+
+  setInline(
+    "SimCounterRatioDPI.sv",
+    """module SimCounterRatioDPI #(
+      |    parameter string TAG = "",
+      |    parameter string NAME = "",
+      |    parameter string NUMERATOR_TAG = "",
+      |    parameter string NUMERATOR_NAME = "",
+      |    parameter string DENOMINATOR_TAG = "",
+      |    parameter string DENOMINATOR_NAME = "",
+      |    parameter integer PERCENTAGE = 0
+      |) ();
+      |    import "DPI-C" function void sim_counter_register_ratio(
+      |        input string tag,
+      |        input string name,
+      |        input string numerator_tag,
+      |        input string numerator_name,
+      |        input string denominator_tag,
+      |        input string denominator_name,
+      |        input int percentage
+      |    );
+      |
+      |    initial begin
+      |        sim_counter_register_ratio(
+      |            TAG,
+      |            NAME,
+      |            NUMERATOR_TAG,
+      |            NUMERATOR_NAME,
+      |            DENOMINATOR_TAG,
+      |            DENOMINATOR_NAME,
+      |            PERCENTAGE
+      |        );
       |    end
       |endmodule
       |""".stripMargin,

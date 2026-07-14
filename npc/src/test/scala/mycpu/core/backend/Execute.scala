@@ -153,4 +153,28 @@ class ExecuteSim extends AnyFlatSpec {
       c.io.out.bits.ifRedct.redirect.bits.expect("h128".U)
     }
   }
+
+  it should "pulse redirect once for each output packet" in {
+    simulate(new Execute) { c =>
+      resetDut(c)
+      c.io.in.valid.poke(true.B)
+      c.io.out.ready.poke(false.B)
+      c.io.in.bits.execData.pc.poke(pc.U)
+      c.io.in.bits.execData.imm.poke(8.U)
+      c.io.in.bits.execCtrl.isJump.poke(true.B)
+
+      c.io.out.bits.ifRedct.redirect.valid.expect(true.B)
+      c.clock.step()
+      c.io.out.bits.ifRedct.redirect.valid.expect(false.B)
+      c.clock.step(2)
+      c.io.out.bits.ifRedct.redirect.valid.expect(false.B)
+
+      // 当前packet离开后，紧随其后的redirect仍应产生自己的pulse。
+      c.io.out.ready.poke(true.B)
+      c.clock.step()
+      c.io.in.bits.execData.pc.poke((pc + 8).U)
+      c.io.out.bits.ifRedct.redirect.valid.expect(true.B)
+      c.io.out.bits.ifRedct.redirect.bits.expect((pc + 16).U)
+    }
+  }
 }

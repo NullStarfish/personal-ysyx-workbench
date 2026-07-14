@@ -164,26 +164,63 @@ class Core(
 
   if (enableDpi) {
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
-    counters.pushToSim("core.cycles", true.B)
-    counters.pushToSim("frontend.fetch_accepted", fetch.io.out.fire)
-    counters.pushToSim("frontend.icache_output", iCache1.io.out.fire)
-    counters.pushToSim("pipeline.decode_output", decode.io.out.fire)
-    counters.pushToSim("pipeline.execute_output", execute.io.out.fire)
-    counters.pushToSim("pipeline.lsu_output", lsu.io.out.fire)
-    counters.pushToSim("pipeline.if_i0_valid_cycles", ifI0.io.deq.valid)
-    counters.pushToSim("pipeline.i0_i1_valid_cycles", i0I1.io.deq.valid)
-    counters.pushToSim("pipeline.i1_id_valid_cycles", i1Id.io.deq.valid)
-    counters.pushToSim("pipeline.id_ex_valid_cycles", idEx.io.deq.valid)
-    counters.pushToSim("pipeline.ex_mem_valid_cycles", exMem.io.deq.valid)
-    counters.pushToSim("pipeline.mem_wb_valid_cycles", memWb.io.deq.valid)
-    counters.pushToSim("hazard.load_use_cycles", loadUseStall)
-    counters.pushToSim("frontend.flushes", redirectFlush)
-    counters.pushToSim("frontend.execute_redirects", executeRedirect)
-    counters.pushToSim("frontend.writeback_redirects", writeBackRedirect)
-    counters.pushToSim("lsu.backpressure_cycles", execute.io.out.valid && !lsu.io.in.ready)
+    val coreCounters = counters.tag("core")
+    val coreCycles = coreCounters.pushToSim("cycles", true.B)
+    coreCounters.ratio("ipc", counters.ref("inst", "total"), coreCycles)
+
+    val frontendCounters = counters.tag("frontend")
+    frontendCounters.pushToSim("fetch_accepted", fetch.io.out.fire)
+    frontendCounters.pushToSim("icache_output", iCache1.io.out.fire)
+    val flushCycles = frontendCounters.pushToSim("flush_cycles", redirectFlush)
+    frontendCounters.pushToSim("execute_redirects", executeRedirect)
+    frontendCounters.pushToSim("writeback_redirects", writeBackRedirect)
+    frontendCounters.percentage("flush_rate", flushCycles, coreCycles)
+
+    val pipelineCounters = counters.tag("pipeline")
+    pipelineCounters.pushToSim("decode_output", decode.io.out.fire)
+    pipelineCounters.pushToSim("execute_output", execute.io.out.fire)
+    pipelineCounters.pushToSim("lsu_output", lsu.io.out.fire)
+    val ifI0Valid = pipelineCounters.pushToSim("if_i0_valid_cycles", ifI0.io.deq.valid)
+    val i0I1Valid = pipelineCounters.pushToSim("i0_i1_valid_cycles", i0I1.io.deq.valid)
+    val i1IdValid = pipelineCounters.pushToSim("i1_id_valid_cycles", i1Id.io.deq.valid)
+    val idExValid = pipelineCounters.pushToSim("id_ex_valid_cycles", idEx.io.deq.valid)
+    val exMemValid = pipelineCounters.pushToSim("ex_mem_valid_cycles", exMem.io.deq.valid)
+    val memWbValid = pipelineCounters.pushToSim("mem_wb_valid_cycles", memWb.io.deq.valid)
+    pipelineCounters.percentage("if_i0_occupancy", ifI0Valid, coreCycles)
+    pipelineCounters.percentage("i0_i1_occupancy", i0I1Valid, coreCycles)
+    pipelineCounters.percentage("i1_id_occupancy", i1IdValid, coreCycles)
+    pipelineCounters.percentage("id_ex_occupancy", idExValid, coreCycles)
+    pipelineCounters.percentage("ex_mem_occupancy", exMemValid, coreCycles)
+    pipelineCounters.percentage("mem_wb_occupancy", memWbValid, coreCycles)
+
+    val backpressureCounters = counters.tag("backpressure")
+    val loadUseCycles = backpressureCounters.pushToSim("load_use_cycles", loadUseStall)
+    backpressureCounters.percentage("load_use_rate", loadUseCycles, coreCycles)
+    backpressureCounters.ratio(
+      "load_use_cycles_per_load",
+      loadUseCycles,
+      counters.ref("lsu", "load_requests"),
+    )
+
+    def trackStageBackpressure(
+        name: String,
+        blocked: Bool,
+        validCycles: DpiApi.SimCounterRef,
+    ): Unit = {
+      val blockedCycles = backpressureCounters.pushToSim(s"${name}_cycles", blocked)
+      backpressureCounters.percentage(s"${name}_rate", blockedCycles, coreCycles)
+      backpressureCounters.percentage(s"${name}_blocked_share", blockedCycles, validCycles)
+    }
+
+    trackStageBackpressure("if_i0", ifI0.io.deq.valid && !ifI0.io.deq.ready, ifI0Valid)
+    trackStageBackpressure("i0_i1", i0I1.io.deq.valid && !i0I1.io.deq.ready, i0I1Valid)
+    trackStageBackpressure("i1_id", i1Id.io.deq.valid && !i1Id.io.deq.ready, i1IdValid)
+    trackStageBackpressure("id_ex", idEx.io.deq.valid && !idEx.io.deq.ready, idExValid)
+    trackStageBackpressure("ex_mem", exMem.io.deq.valid && !exMem.io.deq.ready, exMemValid)
+    trackStageBackpressure("mem_wb", memWb.io.deq.valid && !memWb.io.deq.ready, memWbValid)
 
     // Keep one live read port as the common entry point for simulation-only RTL reports.
-    dontTouch(counters.readFromSim("retire.total"))
+    dontTouch(counters.tag("inst").readFromSim("total"))
   }
 
   idEx.io.flush := writeBackRedirect

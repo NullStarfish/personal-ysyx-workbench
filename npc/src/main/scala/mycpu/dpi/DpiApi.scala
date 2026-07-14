@@ -4,28 +4,88 @@ import chisel3._
 
 object DpiApi {
 
-  final class SimCounters(clock: Clock, reset: Bool, enabled: Boolean) {
-    def pushToSim(name: String, event: Bool): Unit =
-      pushToSim(name, 1.U, event)
+  final case class SimCounterRef(tag: String, name: String)
 
-    def pushToSim(name: String, delta: UInt, valid: Bool): Unit = {
-      require(delta.getWidth <= 64, s"simulation counter '$name' delta exceeds 64 bits")
+  final class SimCounterGroup private[DpiApi] (owner: SimCounters, val tag: String) {
+    def ref(name: String): SimCounterRef = owner.ref(tag, name)
+
+    def pushToSim(name: String, event: Bool): SimCounterRef =
+      owner.pushToSim(tag, name, 1.U, event)
+
+    def pushToSim(name: String, delta: UInt, valid: Bool): SimCounterRef =
+      owner.pushToSim(tag, name, delta, valid)
+
+    def readFromSim(name: String): UInt = owner.readFromSim(tag, name)
+
+    def ratio(name: String, numerator: SimCounterRef, denominator: SimCounterRef): Unit =
+      owner.registerRatio(tag, name, numerator, denominator, percentage = false)
+
+    def percentage(name: String, numerator: SimCounterRef, denominator: SimCounterRef): Unit =
+      owner.registerRatio(tag, name, numerator, denominator, percentage = true)
+  }
+
+  final class SimCounters(clock: Clock, reset: Bool, enabled: Boolean) {
+    private def requireName(kind: String, value: String): Unit =
+      require(value.nonEmpty, s"simulation counter $kind must not be empty")
+
+    def tag(tag: String): SimCounterGroup = {
+      requireName("tag", tag)
+      new SimCounterGroup(this, tag)
+    }
+
+    def ref(tag: String, name: String): SimCounterRef = {
+      requireName("tag", tag)
+      requireName("name", name)
+      SimCounterRef(tag, name)
+    }
+
+    private[DpiApi] def pushToSim(
+        tag: String,
+        name: String,
+        delta: UInt,
+        valid: Bool,
+    ): SimCounterRef = {
+      val counterRef = ref(tag, name)
+      require(delta.getWidth <= 64, s"simulation counter '$tag.$name' delta exceeds 64 bits")
       if (enabled) {
-        val counter = Module(new SimCounterPushDPI(name))
+        val counter = Module(new SimCounterPushDPI(tag, name))
         counter.io.clock := clock
         counter.io.reset := reset
         counter.io.valid := valid
         counter.io.delta := delta.pad(64)
       }
+      counterRef
     }
 
-    def readFromSim(name: String): UInt = {
+    private[DpiApi] def readFromSim(tag: String, name: String): UInt = {
+      ref(tag, name)
       if (enabled) {
-        val counter = Module(new SimCounterReadDPI(name))
+        val counter = Module(new SimCounterReadDPI(tag, name))
         counter.io.clock := clock
         counter.io.value
       } else {
         0.U(64.W)
+      }
+    }
+
+    private[DpiApi] def registerRatio(
+        tag: String,
+        name: String,
+        numerator: SimCounterRef,
+        denominator: SimCounterRef,
+        percentage: Boolean,
+    ): Unit = {
+      ref(tag, name)
+      if (enabled) {
+        Module(new SimCounterRatioDPI(
+          tag,
+          name,
+          numerator.tag,
+          numerator.name,
+          denominator.tag,
+          denominator.name,
+          percentage,
+        ))
       }
     }
   }

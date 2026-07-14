@@ -215,10 +215,18 @@ class LSU(
 
   if (enableDpi) {
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
-    counters.pushToSim("lsu.load_requests", io.mem.a.fire && !io.mem.a.bits.write)
-    counters.pushToSim("lsu.store_requests", io.mem.a.fire && io.mem.a.bits.write)
-    counters.pushToSim("lsu.load_replies", io.mem.r.fire && reqRegIsLoad)
-    counters.pushToSim("lsu.store_replies", io.mem.b.fire && reqRegIsStore)
-    counters.pushToSim("lsu.service_cycles", isInputMem && io.in.fire || state =/= State.Idle)
+    val lsuCounters = counters.tag("lsu")
+    val requests = lsuCounters.pushToSim("requests", io.mem.a.fire)
+    val loadRequests = lsuCounters.pushToSim("load_requests", io.mem.a.fire && !io.mem.a.bits.write)
+    val storeRequests = lsuCounters.pushToSim("store_requests", io.mem.a.fire && io.mem.a.bits.write)
+    lsuCounters.pushToSim("load_replies", io.mem.r.fire && reqRegIsLoad)
+    lsuCounters.pushToSim("store_replies", io.mem.b.fire && reqRegIsStore)
+    val serviceCycles = lsuCounters.pushToSim(
+      "service_cycles",
+      isInputMem && io.in.fire || state =/= State.Idle,
+    )
+    lsuCounters.ratio("cycles_per_request", serviceCycles, requests)
+    lsuCounters.percentage("load_share", loadRequests, requests)
+    lsuCounters.percentage("store_share", storeRequests, requests)
   }
 }

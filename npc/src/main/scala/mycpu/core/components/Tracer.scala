@@ -39,10 +39,15 @@ class Tracer(enableDpi: Boolean = false) extends Module {
   if (enableDpi) {
     DpiApi.simState(clock, reset.asBool, io.simState, localName = "core_sim_state")
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
-    counters.pushToSim("retire.total", io.retireTrace.valid)
-    counters.pushToSim("retire.arith", io.retireTrace.valid && trace.instType === InstType.arith)
-    counters.pushToSim("retire.mem", io.retireTrace.valid && trace.instType === InstType.mem)
-    counters.pushToSim("retire.redirect", io.retireTrace.valid && trace.instType === InstType.redirect)
-    counters.pushToSim("retire.sys", io.retireTrace.valid && trace.instType === InstType.sys)
+    val instCounters = counters.tag("inst")
+    val total = instCounters.pushToSim("total", io.retireTrace.valid)
+    val arith = instCounters.pushToSim("arith", io.retireTrace.valid && trace.instType === InstType.arith)
+    val mem = instCounters.pushToSim("mem", io.retireTrace.valid && trace.instType === InstType.mem)
+    val redirect = instCounters.pushToSim("redirect", io.retireTrace.valid && trace.instType === InstType.redirect)
+    val sys = instCounters.pushToSim("sys", io.retireTrace.valid && trace.instType === InstType.sys)
+    instCounters.percentage("arith_share", arith, total)
+    instCounters.percentage("mem_share", mem, total)
+    instCounters.percentage("redirect_share", redirect, total)
+    instCounters.percentage("sys_share", sys, total)
   }
 }

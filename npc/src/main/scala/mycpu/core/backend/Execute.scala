@@ -61,6 +61,15 @@ class Execute(
     hasJumpRedirect -> jumpRedirectTarget,
   ))
   val redirectValid = !data.inst.except.valid && (hasBranchRedirect || hasJumpRedirect)
+  val redirectIssued = RegInit(false.B)
+  val redirectPulse = io.in.valid && redirectValid && !redirectIssued
+
+  // 同一个输出packet可能被后级长期反压，只在它首次产生redirect时发出pulse。
+  when(!io.in.valid || io.out.fire) {
+    redirectIssued := false.B
+  }.elsewhen(redirectPulse) {
+    redirectIssued := true.B
+  }
 
   val result = MuxLookup(ctrl.wbSel, alu.io.out)(Seq(
     WBSel.Alu -> alu.io.out,
@@ -96,7 +105,7 @@ class Execute(
   io.out.bits.sys.csr.csrOp := sys.csr.csrOp
   io.out.bits.sys.csr.csrAddr := sys.csr.csrAddr
 
-  io.out.bits.ifRedct.redirect.valid := redirectValid
+  io.out.bits.ifRedct.redirect.valid := redirectPulse
 
   if (enableTraceFields) {
     io.out.bits.retireTrace.get := io.in.bits.retireTrace.get

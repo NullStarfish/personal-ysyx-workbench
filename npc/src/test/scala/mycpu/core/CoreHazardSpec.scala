@@ -84,4 +84,60 @@ class CoreHazardSpec extends AnyFlatSpec with CoreProgramSupport {
     }
   }
 
+  it should "issue one redirect while the execute packet is backpressured" in {
+    simulate(new Core) { c =>
+      val memory = Map[BigInt, BigInt](
+        BigInt(START_ADDR) -> BigInt("10002083", 16),      // lw x1, 256(x0)
+        BigInt(START_ADDR + 4) -> BigInt("00200113", 16),  // addi x2, x0, 2
+        BigInt(START_ADDR + 8) -> BigInt("0080006f", 16),  // jal x0, 8
+        BigInt(START_ADDR + 12) -> BigInt("00100193", 16), // addi x3, x0, 1 (wrong path)
+        BigInt(START_ADDR + 16) -> BigInt("00200193", 16), // addi x3, x0, 2 (target)
+        BigInt(START_ADDR + 20) -> BigInt("00100073", 16), // ebreak
+        BigInt(0x100) -> BigInt(0x10),
+      )
+
+      c.reset.poke(true.B)
+      initBus(c)
+      c.clock.step()
+      c.reset.poke(false.B)
+
+      var pending: List[ReadTxn] = Nil
+      var retireCount = 0
+      var cycles = 0
+
+      while (retireCount < 5 && cycles < 160) {
+        initBus(c)
+
+        if (c.io.master.ar.valid.peek().litValue == 1) {
+          c.io.master.ar.ready.poke(true.B)
+          val addr = c.io.master.ar.bits.addr.peek().litValue
+          val beats = c.io.master.ar.bits.len.peek().litValue.toInt + 1
+          val firstBeatDelay = if (addr == 0x100) 10 else 1
+          pending ++= (0 until beats).map { beat =>
+            ReadTxn(addr + beat * 4, if (beat == 0) firstBeatDelay else 0, beat == beats - 1)
+          }
+        }
+
+        pending match {
+          case ReadTxn(addr, 0, last) :: tail =>
+            c.io.master.r.valid.poke(true.B)
+            c.io.master.r.bits.data.poke(memory.getOrElse(addr, BigInt(0)).U)
+            c.io.master.r.bits.last.poke(last.B)
+            if (c.io.master.r.ready.peek().litValue == 1) pending = tail
+          case head :: tail =>
+            pending = head.copy(delay = head.delay - 1) :: tail
+          case Nil =>
+        }
+
+        c.clock.step()
+        cycles += 1
+        if (c.io.simState.valid.peek().litValue == 1) retireCount += 1
+      }
+
+      assert(retireCount >= 5, s"timed out after $cycles cycles")
+      assert(cycles <= 40, s"redirect packet was repeatedly flushed; completed in $cycles cycles")
+      c.io.debug_regs(3).expect(2.U)
+    }
+  }
+
 }
