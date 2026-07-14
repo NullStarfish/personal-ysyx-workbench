@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #ifdef __cplusplus
 #ifdef CONFIG_NPC_VIRTUAL_SOC
@@ -13,6 +14,7 @@ class VysyxSoCFull;
 using VerilatedDut = VysyxSoCFull;
 #endif
 class CPU;
+class VerilatedVcdC;
 #endif
 
 #ifdef __cplusplus
@@ -43,6 +45,10 @@ public:
   void syncAfterLoad();
   void setDpiScope();
   void assertFailMsg() const;
+  bool startVcdWatch(const char *filename = nullptr);
+  bool endVcdWatch();
+  bool isVcdWatching() const;
+  const char *vcdPath() const;
 
   void setRunning();
   void setStop();
@@ -59,6 +65,10 @@ private:
   uint64_t getTime();
 
   VerilatedDut *top = nullptr;
+  VerilatedVcdC *vcd = nullptr;
+  bool vcdWatching = false;
+  uint64_t simTime = 0;
+  std::string vcdPathValue;
   uint64_t bootTime = 0;
   NpcState npcState{NPC_STOP, 0};
 };

@@ -26,10 +26,8 @@ extern "C" void dpi_update_state(
     int mstatus,
     int mcause,
     int inst,
-    int inst_type,
-    int icache_hit) {
+    int inst_type) {
   (void)inst_type;
-  (void)icache_hit;
   g_commit_count++;
   std::printf(
       "[dpi-smoke] commit=%d pc=0x%08x dnpc=0x%08x inst=0x%08x x1=0x%08x mtvec=0x%08x mepc=0x%08x mstatus=0x%08x mcause=0x%08x\n",

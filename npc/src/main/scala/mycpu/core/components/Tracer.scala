@@ -34,7 +34,6 @@ class Tracer(enableDpi: Boolean = false) extends Module {
   io.simState.mcause := trace.csrs.mcause
   io.simState.inst := trace.inst
   io.simState.instType := trace.instType
-  io.simState.icacheHit := trace.icacheHit
 
   if (enableDpi) {
     DpiApi.simState(clock, reset.asBool, io.simState, localName = "core_sim_state")

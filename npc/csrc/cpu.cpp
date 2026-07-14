@@ -40,7 +40,6 @@ void CPU::init() {
   archState = {};
   archState.pc = kResetPc;
   archState.csrs.mstatus = 0x1800;
-  retireICacheHitValue = false;
   retirePcValue = kResetPc;
   retireInstValue = 0;
   hasCommitted = false;
@@ -108,7 +107,6 @@ void CPU::commitRetire(const RetireSnapshot &snapshot) {
 #ifdef CONFIG_RETIRE_TRACE
   retirePcValue = snapshot.pc;
   retireInstValue = snapshot.inst;
-  retireICacheHitValue = snapshot.icacheHit;
   archState.pc = snapshot.dnpc;
   archState.csrs = snapshot.csrs;
   memcpy(archState.gpr, snapshot.gpr, sizeof(archState.gpr));
@@ -227,7 +225,7 @@ void CPU::handleSigint() {
 
 
 extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, int reg_data, const svBitVecVal *gprs,
-                                 int mtvec, int mepc, int mstatus, int mcause, int inst, int instType, int icacheHit) {
+                                 int mtvec, int mepc, int mstatus, int mcause, int inst, int instType) {
 #ifdef CONFIG_RETIRE_TRACE
   CPU::RetireSnapshot snapshot;
   snapshot.pc = static_cast<uint32_t>(pc);
@@ -244,7 +242,6 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
   snapshot.csrs.mstatus = static_cast<uint32_t>(mstatus);
   snapshot.csrs.mcause = static_cast<uint32_t>(mcause);
   snapshot.instType = static_cast<uint32_t>(instType);
-  snapshot.icacheHit = icacheHit != 0;
   cpu.commitRetire(snapshot);
 #else
   (void)pc;
@@ -259,7 +256,6 @@ extern "C" void dpi_update_state(int pc, int dnpc, int reg_wen, int reg_addr, in
   (void)mcause;
   (void)inst;
   (void)instType;
-  (void)icacheHit;
 #endif
 }
 

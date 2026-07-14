@@ -13,7 +13,6 @@ class RetireTrace extends TraceBase {
   val pc = XLenU
   val inst = UInt(32.W)
   val dnpc = XLenU
-  val icacheHit = Bool()
   val regWrite = new RegWriteMeta
   val instType = InstType()
   val csrs = new CsrDebugBundle

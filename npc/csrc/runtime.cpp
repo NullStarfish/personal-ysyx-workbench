@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <sys/time.h>
 #include <unistd.h>
+#include <verilated.h>
+#include <verilated_vcd_c.h>
 
 #ifdef CONFIG_NPC_VIRTUAL_SOC
 #include "VNpcTop.h"
@@ -29,6 +31,7 @@ Runtime::Runtime() {
 }
 
 Runtime::~Runtime() {
+  shutdown();
   if (activeRuntime == this) {
     activeRuntime = nullptr;
   }
@@ -37,7 +40,10 @@ Runtime::~Runtime() {
 void Runtime::initVerilator(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
+  Verilated::traceEverOn(true);
   top = new VerilatedDut;
+  vcd = new VerilatedVcdC;
+  top->trace(vcd, 99);
 
 #if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   printf("nvboard initing...\n");
@@ -57,6 +63,17 @@ void Runtime::shutdown() {
 #endif
   if (top != nullptr) {
     top->final();
+  }
+  if (vcd != nullptr) {
+    if (vcd->isOpen()) {
+      vcd->close();
+      printf("VCD waveform written to %s\n", vcdPathValue.c_str());
+    }
+    delete vcd;
+    vcd = nullptr;
+    vcdWatching = false;
+  }
+  if (top != nullptr) {
     delete top;
     top = nullptr;
   }
@@ -78,8 +95,12 @@ void Runtime::stepOneClk() {
 
   top->clock = 0;
   top->eval();
+  if (vcdWatching) vcd->dump(simTime);
+  simTime++;
   top->clock = 1;
   top->eval();
+  if (vcdWatching) vcd->dump(simTime);
+  simTime++;
 
 #if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   nvboard_update();
@@ -109,6 +130,42 @@ void Runtime::stepOneClk() {
   //     usleep(expectedSimUs - realTimeUs);
   //   }
   // }
+}
+
+bool Runtime::startVcdWatch(const char *filename) {
+  if (top == nullptr || vcd == nullptr) return false;
+
+  const bool hasFilename = filename != nullptr && filename[0] != '\0';
+  if (vcd->isOpen()) {
+    if (hasFilename && vcdPathValue != filename) {
+      printf("VCD output is already bound to '%s'\n", vcdPathValue.c_str());
+      return false;
+    }
+  } else {
+    vcdPathValue = hasFilename ? filename : "npc-wave.vcd";
+    vcd->open(vcdPathValue.c_str());
+    if (!vcd->isOpen()) {
+      printf("Failed to open VCD output '%s'\n", vcdPathValue.c_str());
+      vcdPathValue.clear();
+      return false;
+    }
+  }
+
+  vcdWatching = true;
+  return true;
+}
+
+bool Runtime::endVcdWatch() {
+  if (!vcdWatching) return false;
+  vcdWatching = false;
+  vcd->flush();
+  return true;
+}
+
+bool Runtime::isVcdWatching() const { return vcdWatching; }
+
+const char *Runtime::vcdPath() const {
+  return vcdPathValue.empty() ? nullptr : vcdPathValue.c_str();
 }
 
 void Runtime::resetCpu(int n) {

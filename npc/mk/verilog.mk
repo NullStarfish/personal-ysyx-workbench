@@ -38,6 +38,7 @@ VERILATOR_LIBS := \
 	$(VERILATOR_MODEL_LIB) \
 	$(VERILATOR_ROOT)/include/verilated.cpp \
 	$(VERILATOR_ROOT)/include/verilated_dpi.cpp \
+	$(VERILATOR_ROOT)/include/verilated_vcd_c.cpp \
 	$(VERILATOR_ROOT)/include/verilated_threads.cpp
 
 VERILATOR_INCFLAGS := $(addprefix +incdir+,$(VERILOG_INC_DIRS))
@@ -45,7 +46,7 @@ VERILATOR_INCFLAGS := $(addprefix +incdir+,$(VERILOG_INC_DIRS))
 $(VERILATOR_MODEL_LIB): $(CHISEL_RTL_STAMP) $(VERILOG_HAND_SRCS) $(SOC_RTL_SRCS) $(BUILD_MODE_FILE) | $(SIM_BUILD_DIR)
 	$(call build_banner,Running Verilator for $(TOP_MODULE)...)
 	$(RM) -r $(VERILATOR_OBJ_DIR)
-	$(VERILATOR) --cc --sv --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
+	$(VERILATOR) --cc --sv --trace --timescale "1ns/1ns" --autoflush --no-timing -DPRINTF_COND=$(DEBUG) --top-module $(TOP_MODULE) \
 		$(VERILATOR_INCFLAGS) \
 		-Mdir $(VERILATOR_OBJ_DIR) -Wno-WIDTHEXPAND $(VERILOG_SRCS)
 	$(call build_banner,Compiling Verilated model library...)

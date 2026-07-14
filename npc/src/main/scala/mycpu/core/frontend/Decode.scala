@@ -343,7 +343,6 @@ class Decode(
   if (enableTraceFields) {
     io.out.bits.retireTrace.get.pc := io.in.bits.pc
     io.out.bits.retireTrace.get.inst := io.in.bits.inst
-    io.out.bits.retireTrace.get.icacheHit := true.B
     io.out.bits.retireTrace.get.dnpc := io.in.bits.pc + 4.U
     io.out.bits.retireTrace.get.regWrite.wen := io.regWrite.regWrite.wen
     io.out.bits.retireTrace.get.regWrite.rd := io.regWrite.regWrite.rd

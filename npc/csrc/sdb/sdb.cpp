@@ -137,6 +137,39 @@ int cmd_bt(char *args) {
   return 0;
 }
 
+int cmd_vcd(char *args) {
+  char *scope = args == nullptr ? nullptr : strtok(args, " ");
+  char *action = scope == nullptr ? nullptr : strtok(nullptr, " ");
+  char *filename = action == nullptr ? nullptr : strtok(nullptr, " ");
+
+  if (scope == nullptr || strcmp(scope, "watch") != 0 || action == nullptr) {
+    printf("Usage: vcd watch start [FILE] | end | status\n");
+    return 0;
+  }
+
+  if (strcmp(action, "start") == 0) {
+    if (runtime.isVcdWatching()) {
+      printf("VCD watch is already active (%s)\n", runtime.vcdPath());
+    } else if (runtime.startVcdWatch(filename)) {
+      printf("VCD watch started: %s\n", runtime.vcdPath());
+    }
+  } else if (strcmp(action, "end") == 0) {
+    if (runtime.endVcdWatch()) {
+      printf("VCD watch stopped: %s\n", runtime.vcdPath());
+    } else {
+      printf("VCD watch is not active\n");
+    }
+  } else if (strcmp(action, "status") == 0) {
+    const char *path = runtime.vcdPath();
+    printf("VCD watch: %s", runtime.isVcdWatching() ? "active" : "inactive");
+    if (path != nullptr) printf(" (%s)", path);
+    printf("\n");
+  } else {
+    printf("Usage: vcd watch start [FILE] | end | status\n");
+  }
+  return 0;
+}
+
 struct CommandEntry {
   const char *name;
   const char *description;
@@ -154,6 +187,7 @@ CommandEntry commandTable[] = {
     {"w", "Set a watchpoint: w EXPR", cmd_w},
     {"d", "Delete a watchpoint: d N", cmd_d},
     {"bt", "Print the current function call stack from ftrace", cmd_bt},
+    {"vcd", "Control interval VCD tracing: vcd watch start [FILE] | end | status", cmd_vcd},
 };
 
 constexpr size_t kCommandCount = sizeof(commandTable) / sizeof(commandTable[0]);
