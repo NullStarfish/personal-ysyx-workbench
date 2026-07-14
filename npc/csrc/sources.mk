@@ -3,32 +3,19 @@
 CSRC_INCLUDE_DIRS := \
 	$(CSRC_DIR) \
 	$(CSRC_DIR)/tools \
-	$(CSRC_DIR)/sdb \
-	$(CSRC_DIR)/difftest \
-	$(CSRC_DIR)/trace \
 	$(CSRC_DIR)/log
 
 CSRC_CPP_SRCS := \
 	$(CSRC_DIR)/log/log.cpp \
 	$(CSRC_DIR)/main.cpp \
-	$(CSRC_DIR)/runtime.cpp \
+	$(CSRC_DIR)/runtime/runtime.cpp \
+	$(CSRC_DIR)/runtime/sdb/sdb.cpp \
+	$(CSRC_DIR)/runtime/traces/itrace.cpp \
+	$(CSRC_DIR)/runtime/traces/ftrace.cpp \
 	$(CSRC_DIR)/sim_counter.cpp \
-	$(CSRC_DIR)/trace/itrace.cpp \
-	$(CSRC_DIR)/trace/ftrace.cpp \
-	$(CSRC_DIR)/monitor.cpp \
 	$(CSRC_DIR)/difftest_runtime.cpp \
 	$(CSRC_DIR)/cpu.cpp \
 	$(CSRC_DIR)/mem.cpp
-
-ifeq ($(strip $(CONFIG_INTERACTIVE_SDB)),y)
-CSRC_CPP_SRCS += \
-	$(CSRC_DIR)/sdb/watchpoint.cpp \
-	$(CSRC_DIR)/sdb/expr.cpp \
-	$(CSRC_DIR)/sdb/sdb.cpp
-else
-CSRC_CPP_SRCS += \
-	$(CSRC_DIR)/sdb/sdb_stub.cpp
-endif
 
 CSRC_C_SRCS :=
 ifeq ($(strip $(CONFIG_DISASM)),y)
@@ -52,8 +39,8 @@ $(CSRC_BUILD_DIR)/%.o: $(CSRC_DIR)/%.c $(BUILD_MODE_FILE) | $(SIM_BUILD_DIR)
 	@echo "+ CC  -> csrc/$<"
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
-# runtime.h selects the Verilated top class and therefore needs its header.
-$(CSRC_BUILD_DIR)/runtime.o: $(VERILATOR_MODEL_LIB)
+# runtime/runtime.h selects the Verilated top class and therefore needs its header.
+$(CSRC_BUILD_DIR)/runtime/runtime.o: $(VERILATOR_MODEL_LIB)
 
 ifeq ($(strip $(CONFIG_DISASM)),y)
 $(CSRC_C_OBJS): $(LIBCAPSTONE)

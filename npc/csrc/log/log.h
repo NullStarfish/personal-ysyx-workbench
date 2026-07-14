@@ -1,13 +1,34 @@
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef NPC_LOG_H
+#define NPC_LOG_H
 
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
+#include <string>
 
-// Initializes the log file. If log_file is NULL, output is redirected to /dev/null.
-void init_log(const char *log_file, bool isLog);
+class Logger {
+public:
+  Logger();
+  ~Logger();
 
-// Writes a formatted string to the log file.
+  Logger(const Logger &) = delete;
+  Logger &operator=(const Logger &) = delete;
+
+  void setLogFile(const char *path);
+  void setPcTraceFile(const char *path);
+  void init();
+  void shutdown();
+  void writeLog(const char *fmt, va_list args);
+  void writePcTrace(const char *fmt, va_list args);
+
+private:
+  static FILE *openFile(const std::string &path);
+
+  std::string logFilePath;
+  std::string pcTraceFilePath;
+  FILE *logFile = nullptr;
+  FILE *pcTraceFile = nullptr;
+};
+
 void log_write(const char *fmt, ...);
-
-void pcTraceWrite(const char *fmt, ...); 
+void pcTraceWrite(const char *fmt, ...);
 #endif

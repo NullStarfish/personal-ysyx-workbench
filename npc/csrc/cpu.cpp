@@ -11,13 +11,10 @@
 
 #include "difftest_runtime.h"
 #include "mem.h"
-#include "runtime.h"
+#include "runtime/runtime.h"
 #include "sim.h"
 #include "sim_counter.h"
 
-#include "sdb/sdb.h"
-#include "trace/ftrace.h"
-#include "trace/itrace.h"
 #include "log.h"
 
 #ifndef PATH_MAX
@@ -86,17 +83,17 @@ void CPU::execOnce() {
 
 void CPU::traceAndDifftest() {
 #ifdef CONFIG_ITRACE
-  log_and_trace(retirePcValue, retireInstValue);
+  runtime.itrace().record(retirePcValue, retireInstValue);
 #endif
 
 #ifdef CONFIG_FTRACE
-  trace_func_call(retirePcValue, retireInstValue);
+  runtime.ftrace().record(retirePcValue, retireInstValue);
 #endif
 
-  difftest.step();
+  runtime.difftest().step();
 
 #ifdef CONFIG_WATCHPOINT
-  volatile bool needStop = check_watchpoints();
+  volatile bool needStop = runtime.sdb().checkWatchpoints();
   if (needStop) {
     runtime.setStop();
   }
@@ -213,9 +210,10 @@ void CPU::printStats() const {
 void CPU::handleSigint() {
   printf("\n\nCaught Ctrl+C (SIGINT). Terminating simulation...\n");
 #ifdef CONFIG_FTRACE
-  print_ftrace_stack();
+  runtime.ftrace().printStack();
 #endif
   printStats();
+  runtime.shutdown();
   exit(0);
 }
 

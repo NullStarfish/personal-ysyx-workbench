@@ -3,11 +3,8 @@
 #include "cpu.h"
 #include "difftest_runtime.h"
 #include "mem.h"
-#include "runtime.h"
-#include "verilated.h"
+#include "runtime/runtime.h"
 
-#include "monitor.h"
-#include "sdb/sdb.h"
 #include "sim.h"
 
 #ifdef CONFIG_INTERACTIVE_SDB
@@ -16,7 +13,6 @@
 
 Runtime runtime;
 Mem mem;
-Difftest difftest;
 CPU cpu;
 
 namespace {
@@ -26,13 +22,12 @@ void handle_sigint(int) {
 }
 
 int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
-  init_monitor(argc, argv);
+  runtime.init(argc, argv);
 #ifdef CONFIG_INTERACTIVE_SDB
   rl_catch_signals = 0;
 #endif
   signal(SIGINT, handle_sigint);
-  sdb_mainloop();
+  runtime.sdb().mainLoop();
   cpu.printStats();
   const int exitStatus = runtime.isExitStatusBad();
   runtime.shutdown();

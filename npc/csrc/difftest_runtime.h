@@ -1,6 +1,8 @@
 #ifndef NPC_DIFFTEST_RUNTIME_H
 #define NPC_DIFFTEST_RUNTIME_H
 
+#include <string>
+
 #include "cpu.h"
 
 class Runtime;
@@ -11,8 +13,14 @@ void difftestskip_ref_if_enabled();
 class Difftest {
 public:
   Difftest();
+  ~Difftest();
 
-  void init(char *refSoFile, long imgSize);
+  Difftest(const Difftest &) = delete;
+  Difftest &operator=(const Difftest &) = delete;
+
+  void setRefSoFile(const char *path);
+  void init(long imgSize);
+  void shutdown();
   void step();
   void skipRef();
 
@@ -30,6 +38,8 @@ private:
 
   bool isSkipRef = false;
   bool refReady = false;
+  std::string refSoFile;
+  void *refHandle = nullptr;
   long imageSize = 0;
   riscv32_CPU_state lastDutState{};
   bool hasLastDutState = false;

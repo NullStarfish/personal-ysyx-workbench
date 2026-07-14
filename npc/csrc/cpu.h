@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "runtime.h"
 #include "svdpi.h"
 
 #ifdef __cplusplus

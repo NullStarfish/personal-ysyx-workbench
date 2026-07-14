@@ -10,6 +10,35 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "name": "NPC C++ (GDB + Difftest)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/sim/npc/bin/npc",
+      "args": [
+        "--diff=/home/nullstarfish/personal-ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/nullstarfish/rt-thread-am/bsp/abstract-machine/build/rtthread-riscv32e-npc.bin"
+      ],
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "NEMU_HOME",
+          "value": "/home/nullstarfish/personal-ysyx-workbench/nemu"
+        }
+      ],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "preLaunchTask": "build npc",
+      "setupCommands": [
+        {
+          "description": "Enable GDB pretty-printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }

@@ -7,7 +7,7 @@
 #include <limits.h>
 
 #include "mem.h"
-#include "runtime.h"
+#include "runtime/runtime.h"
 #include "sim.h"
 
 
@@ -50,11 +50,19 @@ Difftest::Difftest() {
   activeDifftest = this;
 }
 
+Difftest::~Difftest() {
+  shutdown();
+  if (activeDifftest == this) activeDifftest = nullptr;
+}
+
+void Difftest::setRefSoFile(const char *path) { refSoFile = path == nullptr ? "" : path; }
+
 void Difftest::skipRef() { isSkipRef = true; }
 
-void Difftest::init(char *refSoFile, long imgSize) {
+void Difftest::init(long imgSize) {
 #ifdef CONFIG_DIFFTEST
-  if (refSoFile == nullptr) return;
+  shutdown();
+  if (refSoFile.empty()) return;
 
   char *nemuHome = getenv("NEMU_HOME");
   if (nemuHome == nullptr) {
@@ -63,21 +71,21 @@ void Difftest::init(char *refSoFile, long imgSize) {
   }
 
   char soFullPath[PATH_MAX];
-  if (refSoFile[0] == '/') snprintf(soFullPath, sizeof(soFullPath), "%s", refSoFile);
-  else snprintf(soFullPath, sizeof(soFullPath), "%s/%s", nemuHome, refSoFile);
+  if (refSoFile[0] == '/') snprintf(soFullPath, sizeof(soFullPath), "%s", refSoFile.c_str());
+  else snprintf(soFullPath, sizeof(soFullPath), "%s/%s", nemuHome, refSoFile.c_str());
 
   printf("Attempting to open reference simulator: %s\n", soFullPath);
-  void *handle = dlopen(soFullPath, RTLD_LAZY);
-  if (handle == nullptr) {
+  refHandle = dlopen(soFullPath, RTLD_LAZY);
+  if (refHandle == nullptr) {
     printf("\n[NPC ERROR] Cannot open reference simulator '%s'\n", soFullPath);
     printf("dlerror: %s\n\n", dlerror());
     exit(1);
   }
 
-  refMemcpy = reinterpret_cast<RefMemcpy>(dlsym(handle, "difftest_memcpy"));
-  refRegcpy = reinterpret_cast<RefRegcpy>(dlsym(handle, "difftest_regcpy"));
-  refExec = reinterpret_cast<RefExec>(dlsym(handle, "difftest_exec"));
-  refInit = reinterpret_cast<RefInit>(dlsym(handle, "difftest_init"));
+  refMemcpy = reinterpret_cast<RefMemcpy>(dlsym(refHandle, "difftest_memcpy"));
+  refRegcpy = reinterpret_cast<RefRegcpy>(dlsym(refHandle, "difftest_regcpy"));
+  refExec = reinterpret_cast<RefExec>(dlsym(refHandle, "difftest_exec"));
+  refInit = reinterpret_cast<RefInit>(dlsym(refHandle, "difftest_init"));
   if (refMemcpy == nullptr || refRegcpy == nullptr || refExec == nullptr || refInit == nullptr) {
     printf("Error: API symbols not found in reference simulator.\n");
     exit(1);
@@ -89,9 +97,23 @@ void Difftest::init(char *refSoFile, long imgSize) {
   imageSize = imgSize;
   refInit(0);
 #else
-  (void)refSoFile;
   (void)imgSize;
 #endif
+}
+
+void Difftest::shutdown() {
+  difftestis_enabled = false;
+  refReady = false;
+  isSkipRef = false;
+  hasLastDutState = false;
+  refMemcpy = nullptr;
+  refRegcpy = nullptr;
+  refExec = nullptr;
+  refInit = nullptr;
+  if (refHandle != nullptr) {
+    dlclose(refHandle);
+    refHandle = nullptr;
+  }
 }
 
 void Difftest::step() {
