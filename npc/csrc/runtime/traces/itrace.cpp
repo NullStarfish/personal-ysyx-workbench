@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "log/log.h"
+#include "runtime/services/logger.h"
 
 #ifdef CONFIG_ITRACE
 #include "tools/disasm.h"
@@ -13,7 +13,7 @@ namespace {
 constexpr size_t kLogbufSize = 128;
 }
 
-ITrace::ITrace() { reset(); }
+ITrace::ITrace(Logger &logger) : logger(logger) { reset(); }
 
 void ITrace::init() {
   reset();
@@ -32,7 +32,9 @@ void ITrace::reset() {
   size = 0;
 }
 
-void ITrace::record(uint32_t pc, uint32_t inst) {
+void ITrace::record(const RetireEvent &event) {
+  const uint32_t pc = event.pc;
+  uint32_t inst = event.inst;
   char logbuf[kLogbufSize];
   char *p = logbuf;
   char *end = p + sizeof(logbuf);
@@ -49,7 +51,7 @@ void ITrace::record(uint32_t pc, uint32_t inst) {
   disassemble(p, end - p, pc, reinterpret_cast<uint8_t *>(&inst), 4);
 #endif
 
-  log_write("%s\n", logbuf);
+  logger.writeLog("%s\n", logbuf);
   ring[writeIndex] = logbuf;
   writeIndex = (writeIndex + 1) % kRingCapacity;
   if (size < kRingCapacity) ++size;

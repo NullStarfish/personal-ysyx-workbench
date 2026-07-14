@@ -1,19 +1,10 @@
-#include "log.h"
+#include "runtime/services/logger.h"
 
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 
-namespace {
-Logger *activeLogger = nullptr;
-}
-
-Logger::Logger() { activeLogger = this; }
-
-Logger::~Logger() {
-  shutdown();
-  if (activeLogger == this) activeLogger = nullptr;
-}
+Logger::~Logger() { shutdown(); }
 
 void Logger::setLogFile(const char *path) { logFilePath = path == nullptr ? "" : path; }
 
@@ -42,34 +33,24 @@ void Logger::shutdown() {
   pcTraceFile = nullptr;
 }
 
-void Logger::writeLog(const char *fmt, va_list args) {
+void Logger::writeLog(const char *fmt, ...) {
   if (logFile == nullptr) return;
+  va_list args;
+  va_start(args, fmt);
   vfprintf(logFile, fmt, args);
+  va_end(args);
 #ifdef CONFIG_LOG_FLUSH_EACH_WRITE
   fflush(logFile);
 #endif
 }
 
-void Logger::writePcTrace(const char *fmt, va_list args) {
+void Logger::writePcTrace(const char *fmt, ...) {
   if (pcTraceFile == nullptr) return;
+  va_list args;
+  va_start(args, fmt);
   vfprintf(pcTraceFile, fmt, args);
+  va_end(args);
 #ifdef CONFIG_LOG_FLUSH_EACH_WRITE
   fflush(pcTraceFile);
 #endif
-}
-
-void log_write(const char *fmt, ...) {
-  if (activeLogger == nullptr) return;
-  va_list args;
-  va_start(args, fmt);
-  activeLogger->writeLog(fmt, args);
-  va_end(args);
-}
-
-void pcTraceWrite(const char *fmt, ...) {
-  if (activeLogger == nullptr) return;
-  va_list args;
-  va_start(args, fmt);
-  activeLogger->writePcTrace(fmt, args);
-  va_end(args);
 }

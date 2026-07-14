@@ -10,8 +10,6 @@
 #include <unistd.h>
 #include <vector>
 
-#include "sim.h"
-
 class FTrace::Impl {
 public:
   struct FuncInfo {
@@ -162,8 +160,11 @@ void FTrace::reset() {
   impl->callStack.clear();
 }
 
-void FTrace::record(uint32_t pc, uint32_t inst) {
+void FTrace::record(const RetireEvent &event) {
   if (!enabled()) return;
+
+  const uint32_t pc = event.pc;
+  const uint32_t inst = event.inst;
 
   const uint32_t opcode = inst & 0x7f;
   const uint32_t rd = (inst >> 7) & 0x1f;
@@ -178,7 +179,7 @@ void FTrace::record(uint32_t pc, uint32_t inst) {
     impl->logCall(pc, pc + imm);
   } else if (opcode == 0b1100111) {
     const int32_t imm = static_cast<int32_t>(inst) >> 20;
-    const uint32_t target = (cpu.regRead(rs1) + imm) & ~1u;
+    const uint32_t target = (event.gpr[rs1] + imm) & ~1u;
     if (!rdIsLink && rs1IsLink) {
       impl->logReturn(pc);
     } else if (rdIsLink) {

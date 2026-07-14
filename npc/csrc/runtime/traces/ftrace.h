@@ -17,7 +17,7 @@ public:
   void setElfFile(const char *path);
   void init() override;
   void reset() override;
-  void record(uint32_t pc, uint32_t inst) override;
+  void record(const RetireEvent &event) override;
   void printStack() const;
 
 private:

@@ -3,11 +3,19 @@
 
 #include <memory>
 
-class Runtime;
+class CPU;
+class Dut;
+class FTrace;
+class Memory;
+class ProgramImage;
+class RunControl;
+class Simulation;
+class WatchpointManager;
 
 class Sdb {
 public:
-  explicit Sdb(Runtime &runtime);
+  Sdb(Simulation &simulation, CPU &cpu, Memory &memory, WatchpointManager &watchpoints,
+      FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl);
   ~Sdb();
 
   Sdb(const Sdb &) = delete;
@@ -16,7 +24,6 @@ public:
   void init();
   void mainLoop();
   void setBatchMode();
-  bool checkWatchpoints();
 
 private:
   class Impl;

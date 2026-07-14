@@ -4,7 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 
-class Mem {
+class HostClock;
+
+class Memory {
 public:
   static constexpr long long kTargetSimFreq = 1000000;
 #ifdef CONFIG_NPC_VIRTUAL_SOC
@@ -23,8 +25,8 @@ public:
   static constexpr uint32_t kSdramSize = 0x02000000u;
   static constexpr uint32_t kSdramHalfwords = 0x01000000u;
 
-  Mem();
-  ~Mem();
+  explicit Memory(HostClock &clock);
+  ~Memory();
 
   void flashRead(int32_t addr, int32_t *data) const;
   void mromRead(int32_t addr, int32_t *data) const;
@@ -36,6 +38,7 @@ public:
   void pmemReadChunk(uint32_t addr, uint8_t *buf, size_t n) const;
   int pmemRead(int raddr) const;
   void pmemWrite(int waddr, int wdata, char wmask);
+  uint64_t elapsedMicros() const;
 
 private:
   static uint32_t sdramLinearHalfaddrFromBus(uint32_t addr);
@@ -43,6 +46,7 @@ private:
   void writeSdramByte(uint32_t addr, uint8_t data);
   void loadDataToSdram(const uint8_t *data, size_t size);
 
+  HostClock &clock;
   uint8_t *pmem = nullptr;
   uint8_t *psramMem = nullptr;
   uint16_t *sdramMem[4] = {nullptr, nullptr, nullptr, nullptr};

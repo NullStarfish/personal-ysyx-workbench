@@ -43,6 +43,4 @@ private:
   std::unordered_map<std::string, int> ratioIds_;
 };
 
-extern SimCounterBank simCounters;
-
 #endif

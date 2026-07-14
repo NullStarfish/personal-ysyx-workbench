@@ -1,9 +1,7 @@
-#include "sim_counter.h"
+#include "runtime/services/sim_counter.h"
 
 #include <algorithm>
 #include <cstdio>
-
-SimCounterBank simCounters;
 
 namespace {
 
@@ -104,26 +102,4 @@ void SimCounterBank::dump() const {
       }
     }
   }
-}
-
-extern "C" int sim_counter_alloc(const char *tag, const char *name) {
-  return simCounters.allocate(tag, name);
-}
-
-extern "C" void sim_counter_add(int id, uint64_t delta) {
-  simCounters.add(id, delta);
-}
-
-extern "C" uint64_t sim_counter_read(int id) {
-  return simCounters.read(id);
-}
-
-extern "C" void sim_counter_register_ratio(
-    const char *tag, const char *name,
-    const char *numeratorTag, const char *numeratorName,
-    const char *denominatorTag, const char *denominatorName,
-    int percentage) {
-  simCounters.registerRatio(tag, name, numeratorTag, numeratorName,
-                            denominatorTag, denominatorName,
-                            percentage != 0);
 }

@@ -1,13 +1,12 @@
 #ifndef NPC_LOG_H
 #define NPC_LOG_H
 
-#include <cstdarg>
 #include <cstdio>
 #include <string>
 
 class Logger {
 public:
-  Logger();
+  Logger() = default;
   ~Logger();
 
   Logger(const Logger &) = delete;
@@ -17,8 +16,8 @@ public:
   void setPcTraceFile(const char *path);
   void init();
   void shutdown();
-  void writeLog(const char *fmt, va_list args);
-  void writePcTrace(const char *fmt, va_list args);
+  void writeLog(const char *fmt, ...);
+  void writePcTrace(const char *fmt, ...);
 
 private:
   static FILE *openFile(const std::string &path);
@@ -28,7 +27,4 @@ private:
   FILE *logFile = nullptr;
   FILE *pcTraceFile = nullptr;
 };
-
-void log_write(const char *fmt, ...);
-void pcTraceWrite(const char *fmt, ...);
 #endif

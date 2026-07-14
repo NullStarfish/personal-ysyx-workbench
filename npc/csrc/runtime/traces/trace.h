@@ -3,13 +3,15 @@
 
 #include <cstdint>
 
+#include "runtime/base/retire_event.h"
+
 class Trace {
 public:
   virtual ~Trace() = default;
 
   virtual void init() = 0;
   virtual void reset() = 0;
-  virtual void record(uint32_t pc, uint32_t inst) = 0;
+  virtual void record(const RetireEvent &event) = 0;
 
   bool enabled() const { return enabledValue; }
 

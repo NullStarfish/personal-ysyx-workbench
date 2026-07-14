@@ -1,4 +1,4 @@
-#include "difftest_runtime.h"
+#include "runtime/services/difftest.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -6,9 +6,7 @@
 #include <dlfcn.h>
 #include <limits.h>
 
-#include "mem.h"
-#include "runtime/runtime.h"
-#include "sim.h"
+#include "runtime/platform/memory.h"
 
 
 #ifndef PATH_MAX
@@ -18,9 +16,6 @@
 #ifndef IMAGE_BASE_ADDR
 #define IMAGE_BASE_ADDR 0xa0000000u
 #endif
-
-bool difftestis_enabled = false;
-Difftest *activeDifftest = nullptr;
 
 namespace {
 constexpr uint32_t kImageBase = IMAGE_BASE_ADDR;
@@ -38,26 +33,14 @@ bool in_difftestmem(uint32_t addr, uint32_t len) {
 }
 }
 
-void difftestskip_ref_if_enabled() {
-#ifdef CONFIG_DIFFTEST
-  if (activeDifftest != nullptr) {
-    activeDifftest->skipRef();
-  }
-#endif
-}
+Difftest::Difftest(CPU &cpu, Memory &memory) : cpu(cpu), memory(memory) {}
 
-Difftest::Difftest() {
-  activeDifftest = this;
-}
-
-Difftest::~Difftest() {
-  shutdown();
-  if (activeDifftest == this) activeDifftest = nullptr;
-}
+Difftest::~Difftest() { shutdown(); }
 
 void Difftest::setRefSoFile(const char *path) { refSoFile = path == nullptr ? "" : path; }
 
 void Difftest::skipRef() { isSkipRef = true; }
+bool Difftest::enabled() const { return enabledValue; }
 
 void Difftest::init(long imgSize) {
 #ifdef CONFIG_DIFFTEST
@@ -92,7 +75,7 @@ void Difftest::init(long imgSize) {
   }
 
   printf("Differential testing: armed, waiting for SDRAM PC\n");
-  difftestis_enabled = false;
+  enabledValue = false;
   refReady = true;
   imageSize = imgSize;
   refInit(0);
@@ -102,7 +85,7 @@ void Difftest::init(long imgSize) {
 }
 
 void Difftest::shutdown() {
-  difftestis_enabled = false;
+  enabledValue = false;
   refReady = false;
   isSkipRef = false;
   hasLastDutState = false;
@@ -116,37 +99,41 @@ void Difftest::shutdown() {
   }
 }
 
-void Difftest::step() {
+DifftestResult Difftest::step(const RetireEvent &event) {
 #ifdef CONFIG_DIFFTEST
-  if (refReady && !difftestis_enabled) {
-    if (!armAtSdram()) return;
-    return;
+  if (refReady && !enabledValue) {
+    if (!armAtSdram()) return DifftestResult::Continue;
+    return DifftestResult::Continue;
   }
-  if (!difftestis_enabled) return;
+  if (!enabledValue) return DifftestResult::Continue;
 
-  riscv32_CPU_state dut = cpu.dutState();
-  uint32_t inst = cpu.inst();
+  riscv32_CPU_state dut = cpu.state();
+  const uint32_t inst = event.inst;
 
   if (isSkipRef) {
     refRegcpy(&dut, DIFFTEST_TO_REF);
     remember(dut);
     isSkipRef = false;
-    return;
+    return DifftestResult::Continue;
   }
 
   if (shouldSkipRefForInst(inst)) {
     refRegcpy(&dut, DIFFTEST_TO_REF);
     remember(dut);
-    return;
+    return DifftestResult::Continue;
   }
 
   refExec(1);
 
   riscv32_CPU_state ref;
   refRegcpy(&ref, DIFFTEST_TO_DUT);
-  checkregs(dut, ref);
+  const bool matched = checkregs(dut, ref);
   refRegcpy(&ref, DIFFTEST_TO_REF);
   remember(dut);
+  return matched ? DifftestResult::Continue : DifftestResult::Mismatch;
+#else
+  (void)event;
+  return DifftestResult::Continue;
 #endif
 }
 
@@ -157,14 +144,14 @@ bool Difftest::armAtSdram() {
   }
 
   uint8_t *guestMem = static_cast<uint8_t *>(malloc(imageSize));
-  mem.pmemReadChunk(kImageBase, guestMem, imageSize);
+  memory.pmemReadChunk(kImageBase, guestMem, imageSize);
   refMemcpy(kImageBase, guestMem, imageSize, DIFFTEST_TO_REF);
   free(guestMem);
 
-  lastDutState = cpu.dutState();
+  lastDutState = cpu.state();
   hasLastDutState = true;
   refRegcpy(&lastDutState, DIFFTEST_TO_REF);
-  difftestis_enabled = true;
+  enabledValue = true;
   printf("Differential testing: ON from SDRAM PC 0x%08x\n", retirePc);
   return true;
 }
@@ -222,7 +209,7 @@ bool Difftest::shouldSkipRefForInst(uint32_t inst) const {
   return !in_difftestmem(addr, len);
 }
 
-void Difftest::checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &ref) {
+bool Difftest::checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &ref) {
   bool mismatch = false;
 
   for (int i = 0; i < 32; i++) {
@@ -253,7 +240,6 @@ void Difftest::checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &
   }
 
   if (mismatch) {
-    runtime.setAbort();
     printf("dut's regs:\n");
     cpu.isa_reg_display();
     printf("============================\n");
@@ -267,12 +253,5 @@ void Difftest::checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &
     printf("mepc:  %x\n", ref.csrs.mepc);
     printf("mcause:  %x\n", ref.csrs.mcause);
   }
-}
-
-extern "C" void difftest_skip_ref_cpp() {
-  difftestskip_ref_if_enabled();
-}
-
-void difftestskip_ref() {
-  difftestskip_ref_if_enabled();
+  return !mismatch;
 }

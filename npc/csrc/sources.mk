@@ -2,20 +2,28 @@
 
 CSRC_INCLUDE_DIRS := \
 	$(CSRC_DIR) \
-	$(CSRC_DIR)/tools \
-	$(CSRC_DIR)/log
+	$(CSRC_DIR)/tools
 
 CSRC_CPP_SRCS := \
-	$(CSRC_DIR)/log/log.cpp \
 	$(CSRC_DIR)/main.cpp \
 	$(CSRC_DIR)/runtime/runtime.cpp \
+	$(CSRC_DIR)/runtime/base/cpu.cpp \
+	$(CSRC_DIR)/runtime/base/host_clock.cpp \
+	$(CSRC_DIR)/runtime/base/run_control.cpp \
+	$(CSRC_DIR)/runtime/platform/dut.cpp \
+	$(CSRC_DIR)/runtime/platform/memory.cpp \
+	$(CSRC_DIR)/runtime/platform/program_image.cpp \
+	$(CSRC_DIR)/runtime/services/difftest.cpp \
+	$(CSRC_DIR)/runtime/services/logger.cpp \
+	$(CSRC_DIR)/runtime/services/sim_counter.cpp \
+	$(CSRC_DIR)/runtime/execution/interrupt.cpp \
+	$(CSRC_DIR)/runtime/execution/retire_pipeline.cpp \
+	$(CSRC_DIR)/runtime/execution/simulation.cpp \
+	$(CSRC_DIR)/runtime/dpi/dpi_bridge.cpp \
 	$(CSRC_DIR)/runtime/sdb/sdb.cpp \
+	$(CSRC_DIR)/runtime/sdb/watchpoint.cpp \
 	$(CSRC_DIR)/runtime/traces/itrace.cpp \
-	$(CSRC_DIR)/runtime/traces/ftrace.cpp \
-	$(CSRC_DIR)/sim_counter.cpp \
-	$(CSRC_DIR)/difftest_runtime.cpp \
-	$(CSRC_DIR)/cpu.cpp \
-	$(CSRC_DIR)/mem.cpp
+	$(CSRC_DIR)/runtime/traces/ftrace.cpp
 
 CSRC_C_SRCS :=
 ifeq ($(strip $(CONFIG_DISASM)),y)
@@ -39,8 +47,8 @@ $(CSRC_BUILD_DIR)/%.o: $(CSRC_DIR)/%.c $(BUILD_MODE_FILE) | $(SIM_BUILD_DIR)
 	@echo "+ CC  -> csrc/$<"
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
-# runtime/runtime.h selects the Verilated top class and therefore needs its header.
-$(CSRC_BUILD_DIR)/runtime/runtime.o: $(VERILATOR_MODEL_LIB)
+# Dut owns the selected Verilated top and therefore needs its generated header.
+$(CSRC_BUILD_DIR)/runtime/platform/dut.o: $(VERILATOR_MODEL_LIB)
 
 ifeq ($(strip $(CONFIG_DISASM)),y)
 $(CSRC_C_OBJS): $(LIBCAPSTONE)

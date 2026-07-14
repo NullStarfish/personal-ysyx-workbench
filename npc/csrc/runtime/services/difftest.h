@@ -3,16 +3,18 @@
 
 #include <string>
 
-#include "cpu.h"
+#include "runtime/base/cpu.h"
 
-class Runtime;
-class Mem;
+class Memory;
 
-void difftestskip_ref_if_enabled();
+#define DIFFTEST_TO_REF 1
+#define DIFFTEST_TO_DUT 0
+
+enum class DifftestResult { Continue, Mismatch };
 
 class Difftest {
 public:
-  Difftest();
+  Difftest(CPU &cpu, Memory &memory);
   ~Difftest();
 
   Difftest(const Difftest &) = delete;
@@ -21,8 +23,9 @@ public:
   void setRefSoFile(const char *path);
   void init(long imgSize);
   void shutdown();
-  void step();
+  DifftestResult step(const RetireEvent &event);
   void skipRef();
+  bool enabled() const;
 
 private:
   using RefMemcpy = void (*)(uint32_t addr, void *buf, size_t n, bool direction);
@@ -34,10 +37,13 @@ private:
   bool armAtSdram();
   bool isMemoryInstruction(uint32_t inst, uint32_t *addr, uint32_t *len) const;
   bool shouldSkipRefForInst(uint32_t inst) const;
-  void checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &ref);
+  bool checkregs(const riscv32_CPU_state &dut, const riscv32_CPU_state &ref);
 
+  CPU &cpu;
+  Memory &memory;
   bool isSkipRef = false;
   bool refReady = false;
+  bool enabledValue = false;
   std::string refSoFile;
   void *refHandle = nullptr;
   long imageSize = 0;
