@@ -115,7 +115,7 @@ class ICacheFormalHarness extends Module {
 object GenICacheFormal extends App {
   ChiselStage.emitSystemVerilogFile(
     new ICacheFormalHarness,
-    args = Array("--target-dir", "src/main/verilog/ICacheFormal"),
+    args = Array("--target-dir", "build/rtl/ICacheFormal"),
     firtoolOpts = Array(
       "--disable-all-randomization",
       "--verification-flavor=immediate",

@@ -26,6 +26,7 @@
 !HwOS/
 !*.sh
 !STA/
+!*.nxdc
 build/
 out/
 project/

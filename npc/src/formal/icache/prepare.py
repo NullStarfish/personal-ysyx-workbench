@@ -5,7 +5,7 @@ import shutil
 
 
 ROOT = Path(__file__).resolve().parents[3]
-SRC = ROOT / "src/main/verilog/ICacheFormal"
+SRC = ROOT / "build/rtl/ICacheFormal"
 DST = ROOT / "src/formal/icache/generated"
 
 
