@@ -1,73 +1,140 @@
-nullstarfish@DESKTOP-7E7LGSH:~/personal-ysyx-workbench/am-kernels/benchmarks/microbench$ make ARCH=riscv32e-ysyxsoc run mainargs=train
-# Building microbench-run [riscv32e-ysyxsoc]
-# Building am-archive [riscv32e-ysyxsoc]
-# Building klib-archive [riscv32e-ysyxsoc]
-+ OBJCOPY -> build/microbench-riscv32e-ysyxsoc.bin
-mainargs=train
-make -C /home/nullstarfish/personal-ysyx-workbench/nemu/../npc SIM_TARGET=ysyxsoc
-make[1]: Entering directory '/home/nullstarfish/personal-ysyx-workbench/npc'
-make[2]: Entering directory '/home/nullstarfish/personal-ysyx-workbench'
-make[2]: Leaving directory '/home/nullstarfish/personal-ysyx-workbench'
-make[1]: Leaving directory '/home/nullstarfish/personal-ysyx-workbench/npc'
-+ /home/nullstarfish/personal-ysyx-workbench/nemu/../npc/npc /home/nullstarfish/personal-ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc
-/home/nullstarfish/personal-ysyx-workbench/nemu/../npc/npc  /home/nullstarfish/personal-ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
-The image is /home/nullstarfish/personal-ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin, size = 34592
-CPU reset complete.
-Welcome to the RISC-V NPC simulator!
-For help, type "help"
-The current img is /home/nullstarfish/personal-ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
+he current img is /home/nullstarfish/personal-ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
 ysyx
 archid: 25050151
 ======= Running MicroBench [input *train*] =======
 [qsort] Quick sort: * Passed.
-  min time: 126751.900 ms [0]
+  min time: 117764.323 ms [0]
 [queen] Queen placement: * Passed.
-  min time: 159228.977 ms [0]
+  min time: 153224.721 ms [0]
 [bf] Brainf**k interpreter: * Passed.
-  min time: 164641.253 ms [0]
+  min time: 147955.727 ms [0]
 [fib] Fibonacci number: * Passed.
-  min time: 1227341.176 ms [0]
+  min time: 856196.945 ms [0]
 [sieve] Eratosthenes sieve: * Passed.
-  min time: 116673.790 ms [0]
+  min time: 101918.681 ms [0]
 [15pz] A* 15-puzzle search: * Passed.
-  min time: 165072.384 ms [0]
+  min time: 144662.325 ms [0]
 [dinic] Dinic's maxflow algorithm: * Passed.
-  min time: 104822.478 ms [0]
+  min time: 104504.394 ms [0]
 [lzip] Lzip compression: * Passed.
-  min time: 104558.971 ms [0]
+  min time: 102478.568 ms [0]
 [ssort] Suffix sort: * Passed.
-  min time: 143591.720 ms [0]
+  min time: 115012.385 ms [0]
 [md5] MD5 digest: * Passed.
-  min time: 176767.201 ms [0]
+  min time: 161395.542 ms [0]
 ==================================================
 MicroBench PASS
-Scored time: 2489449.850 ms
-Total  time: 2762339.652 ms
+Scored time: 2005113.611 ms
+Total  time: 2210564.295 ms
 ebreak: state: 2, a0: 0
 
 Execution Statistics:
-  Total Cycles:       1605611334
-  Total Instructions: 195204726
-Inst statistics:
-Arith: 115856484        , Mem: 22595410 , Redirect: 56752830    , Sys: 2
-Arith: 59.351270%, Mem: 11.575237%, Redirect: 29.073492%, Sys: 0.000001%
-Inst lifecycle: Avg=12.444535 cycles    , Max=318 cycles
-Inst lifecycle by type: Arith=13.162356 , Mem=14.005161 , Redirect=10.357817   , Sys=19.000000
-Unit trace: FetchInst=201227553, ExecuteDone=195204726, LsuLoadData=15581690   , LsuStoreAck=7013720
-Fetch memory latency: Avg=2.797666 cycles       , Max=10247 cycles
-Fetch output wait: Avg=9.332232 cycles  , Max=354 cycles
-Fetch unit stalls: ReqBlocked=1158377366 (72.145565%), OutBlocked=759293337 (47.289984%), Flush=153058300 (9.532712%)
-LSU backpressure: 719793906 (44.829897%)
-LSU load latency: Avg=42.196957 cycles  , Max=55 cycles
-LSU store latency: Avg=38.403275 cycles , Max=173 cycles
-Cache trace: ICacheHit=210909010, ICacheMiss=129022, DCacheHit=0, DCacheMiss=22595410
-ICache AMAT=4.691308 cycles, TMT=23095088 cycles, Max=10245 cycles
-DCache AMAT=41.019380 cycles, TMT=926849717 cycles, Max=173 cycles
-Pipeline stages:
-  Fetch     valid=0 pc=0x00000000 inst=0x00000000 occupancy=0.000000% accepted=0
-  Decode    valid=0 pc=0x00000000 inst=0x00000000 occupancy=62.586592% accepted=204820690
-  Execute   valid=1 pc=0xa00054e8 inst=0x00100073 occupancy=51.591435% accepted=199137775
-  LSU       valid=0 pc=0x00000000 inst=0x00000000 occupancy=70.328605% accepted=195204726
-  WriteBack valid=0 pc=0x00000000 inst=0x00000000 occupancy=12.157657% accepted=195204726
-Hazard trace: LoadUse=494663507 (30.808421%), RedirectFlush=153058300 (9.532712%)
-  Average IPC:        0.121577
+  Total Cycles:       1288434556
+  Total Instructions: 195206488
+Simulation counters:
+  [backpressure]
+    load_use_cycles                  523732500
+    if_i0_cycles                     42490850
+    i0_i1_cycles                     965745288
+    i1_id_cycles                     905049622
+    id_ex_cycles                     597722904
+    ex_mem_cycles                    707738768
+    mem_wb_cycles                    0
+    load_use_rate                    40.648747%
+    load_use_cycles_per_load         33.610371
+    if_i0_rate                       3.297866%
+    if_i0_blocked_share              13.167730%
+    i0_i1_rate                       74.954936%
+    i0_i1_blocked_share              80.248325%
+    i1_id_rate                       70.244129%
+    i1_id_blocked_share              79.397284%
+    id_ex_rate                       46.391406%
+    id_ex_blocked_share              75.381605%
+    ex_mem_rate                      54.930130%
+    ex_mem_blocked_share             78.381138%
+    mem_wb_rate                      0.000000%
+    mem_wb_blocked_share             0.000000%
+  [core]
+    cycles                           1288434546
+    ipc                              0.151507
+  [frontend]
+    fetch_accepted                   322689258
+    icache_output                    237672907
+    flush_cycles                     42494256
+    execute_redirects                42494256
+    writeback_redirects              0
+    flush_rate                       3.298131%
+  [icache]
+    accesses                         237672907
+    hits                             237549287
+    miss_outputs                     123620
+    lookup_misses                    151459
+    service_cycles                   260529146
+    refill_beats                     1016120
+    hit_rate                         99.947987%
+    miss_rate                        0.052013%
+    cycles_per_access                1.096167
+  [inst]
+    total                            195206488
+    arith                            115856904
+    mem                              22596180
+    redirect                         56753402
+    sys                              2
+    arith_share                      59.350949%
+    mem_share                        11.575527%
+    redirect_share                   29.073522%
+    sys_share                        0.000001%
+  [lsu]
+    requests                         22596180
+    load_requests                    15582467
+    store_requests                   7013713
+    load_replies                     15582467
+    store_replies                    7013713
+    service_cycles                   937264992
+    cycles_per_request               41.478913
+    load_share                       68.960625%
+    store_share                      31.039375%
+  [pipeline]
+    decode_output                    234850352
+    execute_output                   195206490
+    lsu_output                       195206489
+    if_i0_valid_cycles               322689258
+    i0_i1_valid_cycles               1203446034
+    i1_id_valid_cycles               1139899974
+    id_ex_valid_cycles               792929394
+    ex_mem_valid_cycles              902945257
+    mem_wb_valid_cycles              195206488
+    if_i0_occupancy                  25.045064%
+    i0_i1_occupancy                  93.403738%
+    i1_id_occupancy                  88.471702%
+    id_ex_occupancy                  61.542078%
+    ex_mem_occupancy                 70.080802%
+    mem_wb_occupancy                 15.150672%
+
+
+
+
++----------------------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| Endpoint                                                                                                             | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack  | Freq(MHz) |
++----------------------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| core.icacheOpt.cacheSet.lines_ext.Memory[9]_254__reg_p:D                                                             | core_clock               | max        | 1.531r     | 0.151         | 0.000 | -1.380 | 632.861   |
+| core.icacheOpt.cacheSet.lines_ext.Memory[6]_248__reg_p:D                                                             | core_clock               | max        | 1.531r     | 0.151         | 0.000 | -1.380 | 632.861   |
+| core.icacheOpt.cacheSet.lines_ext.Memory[6]_246__reg_p:D                                                             | core_clock               | max        | 1.531r     | 0.151         | 0.000 | -1.380 | 632.861   |
+| core.icacheOpt.cacheSet.lines_ext.Memory[56]_254__reg_p:D                                                            | core_clock               | max        | 1.531r     | 0.151         | 0.000 | -1.380 | 632.861   |
+| core.icacheOpt.cacheSet.lines_ext.Memory[56]_253__reg_p:D                                                            | core_clock               | max        | 1.531r     | 0.151         | 0.000 | -1.380 | 632.861   |
+| core.icacheOpt.TwoWayLRUReplacement.lruWay_29_AOI31X0P5H7L_A0_A2_NAND2X0P5H7L_B_Y_NOR2X0P5H7L_A_Y_ICGX0P5H7L_E_1:E   | **clock_gating_default** | max        | 1.195r     | 0.141         | 0.000 | -1.055 | NA        |
+| core.icacheOpt.TwoWayLRUReplacement.lruWay_29_AOI31X0P5H7L_A0_A2_NAND2X0P5H7L_B_Y_NOR2X0P5H7L_A_Y_ICGX0P5H7L_E:E     | **clock_gating_default** | max        | 1.195r     | 0.141         | 0.000 | -1.055 | NA        |
+| core.icacheOpt.TwoWayLRUReplacement.lruWay_9_AOI22X0P5H7L_A0_A1_NAND2X0P5H7L_B_Y_NOR2X0P5H7L_B_Y_ICGX0P5H7L_E:E      | **clock_gating_default** | max        | 1.194r     | 0.139         | 0.000 | -1.055 | NA        |
+| core.icacheOpt.TwoWayLRUReplacement.lruWay_9_AOI22X0P5H7L_A0_A1_NAND2X0P5H7L_B_Y_NOR2X0P5H7L_B_Y_ICGX0P5H7L_E_1:E    | **clock_gating_default** | max        | 1.194r     | 0.139         | 0.000 | -1.055 | NA        |
+| core.icacheOpt.TwoWayLRUReplacement.lruWay_29_AOI31X0P5H7L_A0_A2_NAND2X0P5H7L_B_Y_NOR2X0P5H7L_A_5_Y_ICGX0P5H7L_E_1:E | **clock_gating_default** | max        | 1.195r     | 0.140         | 0.000 | -1.054 | NA        |
+| core.lsu.reqReg_memCtrl_unsigned_reg_p:D                                                                             | core_clock               | min        | 0.059f     | -0.008        | 0.000 | 0.067  | NA        |
+| core._execute_io_out_bits_retireTrace_pc_18__reg_p:D                                                                 | core_clock               | min        | 0.059f     | -0.008        | 0.000 | 0.067  | NA        |
+| core._execute_io_out_bits_retireTrace_pc_27__reg_p:D                                                                 | core_clock               | min        | 0.059f     | -0.008        | 0.000 | 0.067  | NA        |
+| core._execute_io_out_bits_retireTrace_pc_5__reg_p:D                                                                  | core_clock               | min        | 0.059f     | -0.008        | 0.000 | 0.067  | NA        |
+| core._execute_io_out_bits_retireTrace_pc_15__reg_p:D                                                                 | core_clock               | min        | 0.059f     | -0.008        | 0.000 | 0.067  | NA        |
+| core.idEx.queue.do_enq_ICGX0P5H7L_E:E                                                                                | **clock_gating_default** | min        | 0.106f     | -0.008        | 0.000 | 0.114  | NA        |
+| core.fetch.fetchReq.enq_ptr_value_0__NOR3BX0P5H7L_B_Y_ICGX0P5H7L_E:E                                                 | **clock_gating_default** | min        | 0.112f     | -0.005        | 0.000 | 0.117  | NA        |
+| core.fetch.fetchReply.enq_ptr_value_0__NOR3BX0P5H7L_B_Y_ICGX0P5H7L_E:E                                               | **clock_gating_default** | min        | 0.112f     | -0.005        | 0.000 | 0.117  | NA        |
+| core.memory.readArb._GEN_0_ICGX0P5H7L_E:E                                                                            | **clock_gating_default** | min        | 0.114f     | -0.003        | 0.000 | 0.117  | NA        |
+| io_master_rvalid_NOR3BX0P5H7L_AN_Y_ICGX0P5H7L_E:E                                                                    | **clock_gating_default** | min        | 0.111f     | -0.007        | 0.000 | 0.118  | NA        |
++----------------------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+

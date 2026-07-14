@@ -1,229 +1,222 @@
 
-54. Printing statistics.
+56. Printing statistics.
 
 === myCore ===
 
         +----------Local Count, excluding submodules.
         |        +-Local Area, excluding submodules.
         |        | 
-    39738        - wires
-    39738        - wire bits
-    39738        - public wires
-    39738        - public wire bits
+    39945        - wires
+    39945        - wire bits
+    39945        - public wires
+    39945        - public wire bits
       383        - ports
       383        - port bits
-    39467 1.81E+05 cells
-        1     1.68   AND2X0P5H7L
-       26    43.68   AND2X1H7L
-        1     1.68   AND2X1P4H7L
-        2     3.92   AND3X0P5H7L
-        8    15.68   AND3X1P4H7L
-        1     2.24   AND3X2H7L
-       25       56   AND4X0P5H7L
-        1     2.24   AND4X0P7H7L
-        4     8.96   AND4X1P4H7L
-        1     2.52   AO211X0P5H7L
-        3     7.56   AO211X1H7L
-       38    95.76   AO211X1P4H7L
-       17    38.08   AO21X1H7L
-        1     2.24   AO21X1P4H7L
-        3     9.24   AO221X0P5H7L
-        1     3.08   AO221X0P7H7L
-        1     3.08   AO221X1H7L
-        6    20.16   AO222X0P5H7L
-       15     37.8   AO22X0P7H7L
-        1     2.52   AO31X0P5H7L
-       14    35.28   AOA211X0P5H7L
-       26    65.52   AOA211X1H7L
-       79   199.08   AOA211X1P4H7L
-        1     3.36   AOA211X4H7L
-      219   429.24   AOAI211X0P5H7L
-        6    11.76   AOAI211X1P4H7L
-        5     12.6   AOAI211X2H7L
+    39674 1.86E+05 cells
+       24    40.32   AND2X1H7L
+        2     3.36   AND2X1P4H7L
+        1     1.96   AND3X0P5H7L
+        3     5.88   AND3X1H7L
+       17    33.32   AND3X1P4H7L
+       49   109.76   AND4X0P5H7L
+        8    17.92   AND4X1P4H7L
+        1     2.52   AO211X0P7H7L
+        2     5.04   AO211X1H7L
+       11    27.72   AO211X1P4H7L
+       26    58.24   AO21X1H7L
+        9    27.72   AO221X0P5H7L
+        3    10.08   AO222X0P5H7L
+        3    10.08   AO222X1P4H7L
+       24    60.48   AO22X0P7H7L
+        1     2.52   AO22X1H7L
+        4    10.08   AO31X0P5H7L
+        2     5.04   AOA211X0P5H7L
+        1     2.52   AOA211X0P7H7L
+       11    27.72   AOA211X1H7L
+       15     37.8   AOA211X1P4H7L
+      415    813.4   AOAI211X0P5H7L
+        5      9.8   AOAI211X0P7H7L
+        3     5.88   AOAI211X1H7L
+        9    17.64   AOAI211X1P4H7L
         1     3.64   AOAI211X3H7L
-      559  1095.64   AOI211X0P5H7L
-        1     1.96   AOI211X1H7L
-       29    56.84   AOI211X1P4H7L
-        2     5.04   AOI211X2H7L
-        1      4.2   AOI211X4H7L
-        2     4.48   AOI21BX0P5H7L
-        1     2.24   AOI21BX1P4H7L
+      591  1158.36   AOI211X0P5H7L
+        5      9.8   AOI211X0P7H7L
+        4     7.84   AOI211X1H7L
+        8    15.68   AOI211X1P4H7L
+        1     3.36   AOI211X3H7L
+        3     6.72   AOI21BX0P5H7L
         1     2.24   AOI21BX2H7L
-        2     6.16   AOI21BX4H7L
-     1738   2433.2   AOI21X0P5H7L
+      689    964.6   AOI21X0P5H7L
         3      4.2   AOI21X0P7H7L
-        1      1.4   AOI21X1H7L
-       13     18.2   AOI21X1P4H7L
-        1     4.48   AOI21X6H7L
-       30     75.6   AOI221X0P5H7L
+        3      4.2   AOI21X1H7L
+       10       14   AOI21X1P4H7L
+        1     1.96   AOI21X2H7L
+        1     3.64   AOI21X4H7L
+       67   168.84   AOI221X0P5H7L
         1     2.52   AOI221X0P7H7L
-       70    215.6   AOI222X0P5H7L
-     1765   3459.4   AOI22X0P5H7L
-        1     1.96   AOI22X1P4H7L
-        2     6.72   AOI22X3H7L
-       33    64.68   AOI2BB1X0P5H7L
-        3     5.88   AOI2BB1X1P4H7L
-        1     2.24   AOI2BB1X2H7L
-        7    17.64   AOI2BB2X0P5H7L
-        4     8.96   AOI2XB1X0P5H7L
-        1     2.24   AOI2XB1X0P7H7L
+        1     2.52   AOI221X1H7L
+        3     7.56   AOI221X1P4H7L
+       97   298.76   AOI222X0P5H7L
+        4    12.32   AOI222X1H7L
+     1231  2412.76   AOI22X0P5H7L
+        2     3.92   AOI22X0P7H7L
+        2     3.92   AOI22X1H7L
+        7    13.72   AOI22X1P4H7L
+       89   174.44   AOI2BB1X0P5H7L
+        2     5.04   AOI2BB2X0P5H7L
+        1     2.52   AOI2BB2X1P4H7L
+        2     4.48   AOI2XB1X0P5H7L
         1     2.24   AOI2XB1X1H7L
-       32    62.72   AOI31X0P5H7L
-        2     3.92   AOI31X1P4H7L
-        2     4.48   AOI31X2H7L
-        1      4.2   AOI31X4H7L
-        9    20.16   AOI32X0P5H7L
-        3     7.56   AOI33X0P5H7L
-       48    53.76   BUFX0P5H7L
-        3    10.92   BUFX10H7L
-        2     7.84   BUFX12H7L
-        4    20.16   BUFX16H7L
-       13    14.56   BUFX1H7L
-      284   318.08   BUFX1P4H7L
-        2    12.32   BUFX20H7L
-        1      1.4   BUFX2P5H7L
-      347    485.8   BUFX3H7L
+       46    90.16   AOI31X0P5H7L
+        2     3.92   AOI31X0P7H7L
+        4     7.84   AOI31X1P4H7L
+       38    85.12   AOI32X0P5H7L
+        1     2.24   AOI32X0P7H7L
+        3     6.72   AOI32X1P4H7L
+       15     37.8   AOI33X0P5H7L
+       78    87.36   BUFX0P5H7L
+        1     1.12   BUFX0P7H7L
+       62   225.68   BUFX10H7L
+       99   388.08   BUFX12H7L
+       52   262.08   BUFX16H7L
+       14    15.68   BUFX1H7L
+      222   248.64   BUFX1P4H7L
+       38   234.08   BUFX20H7L
+      323    452.2   BUFX3H7L
        62   104.16   BUFX3P5H7L
        52   101.92   BUFX5H7L
-        2     5.04   BUFX6H7L
-      442  1113.84   BUFX7H7L
-    20350   125356   DFFQX1H7L
-      154   948.64   ICGX0P5H7L
-      107    89.88   INVX0P5H7L
-        1     0.84   INVX0P7H7L
-        1     0.84   INVX1H7L
-        5      4.2   INVX1P4H7L
-        2     2.24   INVX2P5H7L
+        1     2.52   BUFX6H7L
+      250      630   BUFX7H7L
+       37    103.6   BUFX8H7L
+    20754 1.28E+05   DFFQX1H7L
+       85    523.6   ICGX0P5H7L
+      102    85.68   INVX0P5H7L
+        2     1.68   INVX0P7H7L
+       10      8.4   INVX1P4H7L
         1      1.4   INVX5H7L
-      343    960.4   MUX2X0P5H7L
-        1      2.8   MUX2X0P7H7L
-        3      8.4   MUX2X1H7L
-       21     58.8   MUX2X1P4H7L
-       12    43.68   MUX2X3H7L
-     4935  31781.4   MUX4X1P4H7L
-       21    64.68   MUXI2X0P5H7L
-        3     9.24   MUXI2X1P4H7L
-        1     4.48   MUXI2X3H7L
-      113    158.2   NAND2BX0P5H7L
-        2      2.8   NAND2BX1H7L
-       12     16.8   NAND2BX1P4H7L
-     2909  3258.08   NAND2X0P5H7L
-        1     1.12   NAND2X0P7H7L
-        5      5.6   NAND2X1H7L
-       29    32.48   NAND2X1P4H7L
-        3     5.88   NAND2X3H7L
-        2     6.16   NAND2X6H7L
-        4    10.08   NAND3BBX0P5H7L
-       19    37.24   NAND3BX0P5H7L
-        1     1.96   NAND3BX1P4H7L
-      268    375.2   NAND3X0P5H7L
-        1      1.4   NAND3X0P7H7L
-        8     11.2   NAND3X1P4H7L
+     1055     2954   MUX2X0P5H7L
+        6     16.8   MUX2X0P7H7L
+        5       14   MUX2X1H7L
+       55      154   MUX2X1P4H7L
+        4    14.56   MUX2X3H7L
+        8    51.52   MUX4X0P7H7L
+      257  1655.08   MUX4X1H7L
+     4774 3.07E+04   MUX4X1P4H7L
+       19      133   MUX4X3H7L
+       24    73.92   MUXI2X0P5H7L
+        1     3.08   MUXI2X0P7H7L
+        1     3.08   MUXI2X1P4H7L
+      163    228.2   NAND2BX0P5H7L
+        9     12.6   NAND2BX1P4H7L
+     1853  2075.36   NAND2X0P5H7L
+        4     4.48   NAND2X0P7H7L
+        4     4.48   NAND2X1H7L
+       19    21.28   NAND2X1P4H7L
+        1     1.96   NAND2X3H7L
+        1     2.52   NAND3BBX0P5H7L
+       33    64.68   NAND3BX0P5H7L
+        2     3.92   NAND3BX1P4H7L
+      259    362.6   NAND3X0P5H7L
+        3      4.2   NAND3X0P7H7L
+        1      1.4   NAND3X1H7L
+        7      9.8   NAND3X1P4H7L
         1      2.8   NAND4BBX0P5H7L
-       13    29.12   NAND4BX0P5H7L
+        1      2.8   NAND4BBX2H7L
+       12    26.88   NAND4BX0P5H7L
+        2     4.48   NAND4BX1H7L
+        7    15.68   NAND4BX1P4H7L
         1     2.52   NAND4BX2H7L
-      422   827.12   NAND4X0P5H7L
-        2     3.92   NAND4X1H7L
-        2     4.48   NAND4X2H7L
-        1      4.2   NAND4X4H7L
-        1     5.32   NAND4X6H7L
-      676    946.4   NOR2BX1H7L
-      177    247.8   NOR2BX1P4H7L
-      527   590.24   NOR2X0P5H7L
-        2     2.24   NOR2X0P7H7L
-        4     4.48   NOR2X1H7L
-       97   108.64   NOR2X1P4H7L
-        4     7.84   NOR2X3H7L
-        1     3.36   NOR2X6H7L
-       28    54.88   NOR3BX0P5H7L
+        1     4.48   NAND4BX4H7L
+      281   550.76   NAND4X0P5H7L
+        3     5.88   NAND4X1H7L
+       20     39.2   NAND4X1P4H7L
+      839   1174.6   NOR2BX1H7L
+      119    166.6   NOR2BX1P4H7L
+      508   568.96   NOR2X0P5H7L
+        4     4.48   NOR2X0P7H7L
+        5      5.6   NOR2X1H7L
+       84    94.08   NOR2X1P4H7L
+        3     5.88   NOR2X3H7L
+       13    25.48   NOR3BX0P5H7L
         2     3.92   NOR3BX1P4H7L
-      130      182   NOR3X0P5H7L
-        3      4.2   NOR3X1H7L
-       17     23.8   NOR3X1P4H7L
-        3      8.4   NOR3X3H7L
-        5       14   NOR4BBX0P5H7L
-        7    15.68   NOR4BX0P5H7L
-        2     4.48   NOR4BX1P4H7L
-      129   252.84   NOR4X0P5H7L
-        1     1.96   NOR4X1H7L
-        3     7.56   NOR4X2H7L
-        4    21.28   NOR4X6H7L
+      108    151.2   NOR3X0P5H7L
+        2      2.8   NOR3X0P7H7L
+       10       14   NOR3X1P4H7L
+        1      2.8   NOR3X3H7L
+        1      2.8   NOR4BBX0P5H7L
+        1      2.8   NOR4BBX0P7H7L
+        1      2.8   NOR4BBX2H7L
+        5     11.2   NOR4BX0P5H7L
+        8    17.92   NOR4BX1P4H7L
+        3     7.56   NOR4BX2H7L
+        1     5.04   NOR4BX4H7L
+      166   325.36   NOR4X0P5H7L
+        4     7.84   NOR4X1H7L
+        5      9.8   NOR4X1P4H7L
+        4    10.08   NOR4X2H7L
         1     2.52   OA211X0P5H7L
-        3     7.56   OA211X0P7H7L
-       14    35.28   OA211X1P4H7L
-        1      2.8   OA211X3H7L
-        1     3.08   OA211X4H7L
-       18    40.32   OA21X0P7H7L
-        3     6.72   OA21X1P4H7L
-        5       14   OA221X0P5H7L
-        1      2.8   OA221X1P4H7L
-        7    15.68   OA31X1H7L
-        2     4.48   OA31X1P4H7L
-        1      2.8   OA31X4H7L
-      282   473.76   OAI211X0P7H7L
-       11    18.48   OAI211X1H7L
-      210    352.8   OAI211X1P4H7L
-        2     4.48   OAI21BX0P5H7L
-        1     3.64   OAI21BX3H7L
-      512    716.8   OAI21X0P5H7L
-        2      2.8   OAI21X1H7L
-       11     15.4   OAI21X1P4H7L
-        1     2.24   OAI21X2H7L
-        1      2.8   OAI21X3H7L
-        8    20.16   OAI221X0P5H7L
+        9    22.68   OA211X0P7H7L
+       43   108.36   OA211X1P4H7L
+       12    26.88   OA21X0P7H7L
+        1     2.24   OA21X1P4H7L
+        6     16.8   OA221X0P5H7L
+       14    31.36   OA31X1H7L
+        1     2.24   OA31X1P4H7L
+        1     2.52   OA31X3H7L
+      310    520.8   OAI211X0P7H7L
+       36    60.48   OAI211X1H7L
+      129   216.72   OAI211X1P4H7L
+        2     7.84   OAI211X3H7L
+        1     2.24   OAI21BX1P4H7L
+      424    593.6   OAI21X0P5H7L
+        2      2.8   OAI21X0P7H7L
+        1      1.4   OAI21X1H7L
+       42     58.8   OAI21X1P4H7L
+       38    95.76   OAI221X0P5H7L
         1     2.52   OAI221X1P4H7L
-        1     3.08   OAI221X2H7L
-        1     3.64   OAI222X2H7L
-       31    60.76   OAI22X0P5H7L
-        1     2.52   OAI22X2H7L
-       50       98   OAI2BB1X0P5H7L
-        1     1.96   OAI2BB1X1P4H7L
-        1      2.8   OAI2BB1X3H7L
-        7    17.64   OAI2BB2X0P5H7L
-        3     6.72   OAI2XB1X0P5H7L
-        2     4.48   OAI2XB1X1P4H7L
-        1     3.64   OAI2XB1X3H7L
-       31    60.76   OAI31X0P5H7L
+        1     5.32   OAI221X4H7L
+       18    55.44   OAI222X0P5H7L
+        1     3.08   OAI222X1H7L
+       88   172.48   OAI22X0P5H7L
+        1     1.96   OAI22X0P7H7L
+        4     7.84   OAI22X1P4H7L
+       86   168.56   OAI2BB1X0P5H7L
+        1     1.96   OAI2BB1X0P7H7L
+        2     3.92   OAI2BB1X1P4H7L
+        3     7.56   OAI2BB2X0P5H7L
+        1     2.52   OAI2BB2X1P4H7L
+        7    15.68   OAI2XB1X0P5H7L
+       60    117.6   OAI31X0P5H7L
         2     3.92   OAI31X1H7L
         1     1.96   OAI31X1P4H7L
-        1     3.36   OAI31X3H7L
-        3     6.72   OAI32X0P5H7L
-        2     4.48   OAI32X1P4H7L
-        2     5.04   OAI33X0P7H7L
-        2      5.6   OAO211X0P5H7L
-        1      2.8   OAO211X0P7H7L
-        1      2.8   OAO211X1H7L
-        1     3.08   OAO211X3H7L
-        1     3.36   OAO211X4H7L
-       77   172.48   OAOI211X0P5H7L
-        1     2.24   OAOI211X0P7H7L
+        8    17.92   OAI32X0P5H7L
+        1     2.24   OAI32X1H7L
+        1     2.52   OAI33X0P7H7L
+        1     2.52   OAI33X1P4H7L
+        7     19.6   OAO211X0P5H7L
+        4     11.2   OAO211X2H7L
+     1123  2515.52   OAOI211X0P5H7L
         2     4.48   OAOI211X1H7L
         7    15.68   OAOI211X1P4H7L
-        3     7.56   OAOI211X2H7L
-        1     3.64   OAOI211X3H7L
-        1      4.2   OAOI211X4H7L
-       18     25.2   OR2X0P5H7L
-        2      2.8   OR2X0P7H7L
-       59     82.6   OR2X1P4H7L
+        2     7.28   OAOI211X3H7L
+       21     29.4   OR2X0P5H7L
+        1      1.4   OR2X0P7H7L
+       44     61.6   OR2X1P4H7L
         1     1.96   OR2X3H7L
-       25       49   OR3X1H7L
-        1     2.24   OR3X3H7L
-       14    31.36   OR4X1P4H7L
+       11    21.56   OR3X1H7L
+        1     1.96   OR3X1P4H7L
+       31    69.44   OR4X1P4H7L
         1      2.8   OR4X3H7L
         1     1.12   TIEHIH7L
         1     1.12   TIELOH7L
-      151    422.8   XNOR2X0P5H7L
-        1      2.8   XNOR2X0P7H7L
-        2      5.6   XNOR2X1H7L
-        6     16.8   XNOR2X1P4H7L
-        6    20.16   XNOR2X3H7L
-      129    361.2   XOR2X0P5H7L
-        1      2.8   XOR2X0P7H7L
-        1      2.8   XOR2X1H7L
-        9     25.2   XOR2X1P4H7L
-        5     16.8   XOR2X3H7L
-        1     3.64   XOR2X4H7L
+      277    775.6   XNOR2X0P5H7L
+        2      5.6   XNOR2X1P4H7L
+      130      364   XOR2X0P5H7L
+        2      5.6   XOR2X0P7H7L
+        2      5.6   XOR2X1H7L
+        6     16.8   XOR2X1P4H7L
+        8    26.88   XOR2X3H7L
 
-   Chip area for module '\myCore': 180979.120000
-     of which used for sequential elements: 125356.000000 (69.27%)
+   Chip area for module '\myCore': 186452.840000
+     of which used for sequential elements: 127844.640000 (68.57%)
 
