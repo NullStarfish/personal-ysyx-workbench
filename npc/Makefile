@@ -47,7 +47,7 @@ include $(NPC_HOME)/csrc/sources.mk
 include $(NPC_HOME)/cachesim/sources.mk
 include $(NPC_HOME)/mk/nvboard.mk
 
-.PHONY: all npc menuconfig run rundiff gdb-diff clean compdb perf
+.PHONY: all npc menuconfig run rundiff gdb-diff clean compdb perf print-%
 
 all: npc
 npc: $(SIM_EXEC)
@@ -105,3 +105,10 @@ clean:
 perf:
 	./yosys-sta.sh
 	$(MAKE) -C $(NPC_HOME)/../am-kernels/benchmarks/microbench/ ARCH=riscv32e-ysyxsoc ARGS=-b run mainargs=train
+
+
+print-%:
+	@echo '$*=$($*)'
+	@echo 'origin=$(origin $*)'
+	@echo 'flavor=$(flavor $*)'
+	@echo 'raw=$(value $*)'

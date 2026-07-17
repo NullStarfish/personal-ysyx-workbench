@@ -5896,3 +5896,510 @@ WARNING: Unmatched cancel notification for request id 1113
 2026.05.30 00:32:49 INFO  shutting down Metals[0m
 2026.05.30 00:32:49 INFO  Shut down connection with build server.[0m
 2026.05.30 00:32:49 INFO  Exiting server[0m
+2026.07.16 15:12:53 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.07.16 15:12:54 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.07.16 15:12:54 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.128.0.[0m
+2026.07.16 15:12:54 INFO  Memory monitor started[0m
+2026.07.16 15:12:56 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.07.16 15:12:56 INFO  no build target found for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/SDRAM.scala. Using presentation compiler with project's scala-library version: 3.3.7[0m
+2026.07.16 15:12:56 INFO  Attempting to connect to the build server...[0m
+2026.07.16 15:12:56 INFO  No running Bloop server found, starting one.[0m
+2026.07.16 15:12:57 INFO  Starting compilation server[0m
+2026.07.16 15:12:59 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.07.16 15:13:08 INFO  time: Connected to build server in 12s[0m
+2026.07.16 15:13:08 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.07.16 15:13:08 INFO  time: Imported build in 0.26s[0m
+2026.07.16 15:13:08 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.07.16 15:13:11 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.07.16 15:13:11 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-07-16/r_scala-toplevel-mtags_15-13-11-415.md")[0m
+2026.07.16 15:13:12 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.07.16 15:13:12 INFO  time: indexed workspace in 3.99s[0m
+2026.07.16 15:13:13 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.07.16 15:13:13 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.07.16 15:13:13 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.07.16 15:13:16 INFO  time: compiled rocketchip.macros in 2.9s[0m
+2026.07.16 15:13:16 INFO  time: compiled rocketchip.cde in 2.91s[0m
+2026.07.16 15:13:16 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.07.16 15:13:23 INFO  time: compiled rocketchip.diplomacy in 6.97s[0m
+2026.07.16 15:13:23 INFO  time: compiled rocketchip.hardfloat in 10s[0m
+2026.07.16 15:13:25 INFO  compiling rocketchip (317 scala sources)[0m
+2026.07.16 15:14:19 WARN  7 deprecations[0m
+2026.07.16 15:14:19 WARN  78 deprecations (since 2.13.0)[0m
+2026.07.16 15:14:19 WARN  1 deprecation (since 2.13.7)[0m
+2026.07.16 15:14:19 WARN  1 deprecation (since 9)[0m
+2026.07.16 15:14:19 WARN  27 deprecations (since CDE 0.1)[0m
+2026.07.16 15:14:19 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.07.16 15:14:19 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.07.16 15:14:19 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.07.16 15:14:19 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.07.16 15:14:19 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.07.16 15:14:19 INFO  compiling ysyxsoc (38 scala sources)[0m
+2026.07.16 15:14:21 INFO  time: compiled rocketchip in 56s[0m
+2026.07.16 15:14:29 WARN  1 deprecation (since 2.13.0)[0m
+2026.07.16 15:14:29 WARN  1 deprecation (since 2.13.3)[0m
+2026.07.16 15:14:29 WARN  93 deprecations (since rocketchip 2.0.0)[0m
+2026.07.16 15:14:29 WARN  95 deprecations in total; re-run with -deprecation for details[0m
+2026.07.16 15:14:29 INFO  time: compiled ysyxsoc in 8.46s[0m
+Jul 16, 2026 3:26:00 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 14
+2026.07.17 12:15:59 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.07.17 12:16:00 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.07.17 12:16:00 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.128.0.[0m
+2026.07.17 12:16:00 INFO  Memory monitor started[0m
+2026.07.17 12:16:02 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.07.17 12:16:02 INFO  Attempting to connect to the build server...[0m
+2026.07.17 12:16:02 INFO  No running Bloop server found, starting one.[0m
+2026.07.17 12:16:04 INFO  Starting compilation server[0m
+2026.07.17 12:16:05 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+2026.07.17 12:16:08 INFO  time: Connected to build server in 6.08s[0m
+2026.07.17 12:16:08 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.07.17 12:16:09 INFO  time: Imported build in 0.21s[0m
+2026.07.17 12:16:08 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.07.17 12:16:12 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.07.17 12:16:12 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-07-17/r_scala-toplevel-mtags_12-16-12-895.md")[0m
+2026.07.17 12:16:13 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.07.17 12:16:13 INFO  time: indexed workspace in 5.25s[0m
+Jul 17, 2026 12:19:09 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+Jul 17, 2026 12:19:10 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.07.17 12:19:52 INFO  Shutting down server[0m
+2026.07.17 12:19:52 INFO  Memory monitor stopped[0m
+2026.07.17 12:19:52 INFO  shutting down Metals[0m
+2026.07.17 12:19:52 INFO  Shut down connection with build server.[0m
+2026.07.17 12:19:52 INFO  Exiting server[0m
+2026.07.17 22:03:18 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/lsp.trace.json[0m
+2026.07.17 22:03:20 INFO  logging to files /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/metals.log[0m
+2026.07.17 22:03:20 INFO  Started: Metals version 1.6.7 in folders '/home/nullstarfish/personal-ysyx-workbench/ysyxSoC' for client Visual Studio Code 1.129.0.[0m
+2026.07.17 22:03:20 INFO  Memory monitor started[0m
+2026.07.17 22:03:22 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.[0m
+2026.07.17 22:03:22 INFO  Attempting to connect to the build server...[0m
+2026.07.17 22:03:22 INFO  No running Bloop server found, starting one.[0m
+2026.07.17 22:03:23 INFO  Starting compilation server[0m
+2026.07.17 22:03:24 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/bsp.trace.json[0m
+Jul 17, 2026 10:03:28 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.07.17 22:03:31 INFO  time: Connected to build server in 8.86s[0m
+2026.07.17 22:03:31 INFO  Connected to Build server: Bloop v2.0.19[0m
+2026.07.17 22:03:31 INFO  time: Imported build in 0.17s[0m
+2026.07.17 22:03:31 WARN  2.13.14 is no longer supported in the current Metals versions, using the last known supported version 1.6.3[0m
+2026.07.17 22:03:34 INFO  Created report: Optional[file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/file:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/prci/ClockDomain.scala][0m
+2026.07.17 22:03:34 INFO  expected identifier; obtained this (full report at: "/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/.metals/.reports/metals/2026-07-17/r_scala-toplevel-mtags_22-03-34-967.md")[0m
+2026.07.17 22:03:36 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2026.07.17 22:03:36 INFO  time: indexed workspace in 5.34s[0m
+Jul 17, 2026 10:04:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5
+Jul 17, 2026 10:04:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 3
+Jul 17, 2026 10:04:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9
+Jul 17, 2026 10:04:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 13
+Jul 17, 2026 10:04:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+2026.07.17 22:04:55 INFO  compiling rocketchip.cde (1 scala source)[0m
+2026.07.17 22:04:55 INFO  compiling rocketchip.macros (1 scala source)[0m
+2026.07.17 22:04:55 INFO  compiling rocketchip.hardfloat (20 scala sources)[0m
+2026.07.17 22:04:59 INFO  time: compiled rocketchip.cde in 4.03s[0m
+2026.07.17 22:04:59 INFO  time: compiled rocketchip.macros in 4.03s[0m
+2026.07.17 22:04:59 INFO  compiling rocketchip.diplomacy (36 scala sources)[0m
+2026.07.17 22:05:06 INFO  time: compiled rocketchip.diplomacy in 7.62s[0m
+2026.07.17 22:05:06 INFO  time: compiled rocketchip.hardfloat in 12s[0m
+Jul 17, 2026 10:05:08 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+2026.07.17 22:05:08 INFO  compiling rocketchip (317 scala sources)[0m
+Jul 17, 2026 10:05:10 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%220d25927feb6211fa06b8d0fef5018fd88971d229%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:12 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:13 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%220d25927feb6211fa06b8d0fef5018fd88971d229%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:13 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:14 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%220d25927feb6211fa06b8d0fef5018fd88971d229%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:20 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:20 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/Keyboard.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FKeyboard.scala%22%2C%22ref%22%3A%220d25927feb6211fa06b8d0fef5018fd88971d229%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:38 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/MROM.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FMROM.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:46 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/MROM.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FMROM.scala%22%2C%22ref%22%3A%224b825dc642cb6eb9a060e54bf8d69288fbee4904%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Jul 17, 2026 10:05:47 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+WARNING: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/MROM.scala?%7B%22path%22%3A%22%2Fhome%2Fnullstarfish%2Fpersonal-ysyx-workbench%2FysyxSoC%2Fsrc%2Fdevice%2FMROM.scala%22%2C%22ref%22%3A%228a5277f805d99c675034a01e345fb3c2de061554%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:213)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:209)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:808)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+2026.07.17 22:06:02 WARN  7 deprecations[0m
+2026.07.17 22:06:02 WARN  78 deprecations (since 2.13.0)[0m
+2026.07.17 22:06:02 WARN  1 deprecation (since 2.13.7)[0m
+2026.07.17 22:06:02 WARN  1 deprecation (since 9)[0m
+2026.07.17 22:06:02 WARN  27 deprecations (since CDE 0.1)[0m
+2026.07.17 22:06:02 WARN  10 deprecations (since diplomacy 1.0.0)[0m
+2026.07.17 22:06:02 WARN  1 deprecation (since rocket-chip 1.2)[0m
+2026.07.17 22:06:02 WARN  36 deprecations (since rocketchip 2.0.0)[0m
+2026.07.17 22:06:02 WARN  161 deprecations in total; re-run with -deprecation for details[0m
+2026.07.17 22:06:02 WARN  20 feature warnings; re-run with -feature for details[0m
+2026.07.17 22:06:02 INFO  compiling ysyxsoc (38 scala sources)[0m
+2026.07.17 22:06:03 INFO  time: compiled rocketchip in 55s[0m
+2026.07.17 22:06:10 WARN  1 deprecation (since 2.13.0)[0m
+2026.07.17 22:06:10 WARN  1 deprecation (since 2.13.3)[0m
+2026.07.17 22:06:10 WARN  93 deprecations (since rocketchip 2.0.0)[0m
+2026.07.17 22:06:10 WARN  95 deprecations in total; re-run with -deprecation for details[0m
+2026.07.17 22:06:10 INFO  time: compiled ysyxsoc in 7.14s[0m
+Exception in thread "pool-5-thread-1" java.lang.InterruptedException
+	at scala.meta.internal.metals.FutureCancelToken.checkCanceled(FutureCancelToken.scala:29)
+	at scala.meta.internal.pc.CompilerAccess.$anonfun$onCompilerJobQueue$1(CompilerAccess.scala:207)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:152)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026.07.17 22:42:47 WARN  Could not find semantic tokens for: file:///home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/SDRAM.scala[0m
+Jul 17, 2026 10:43:06 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2482
+Jul 17, 2026 10:43:08 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2525
+2026.07.17 22:43:09 INFO  compiling ysyxsoc (1 scala source)[0m
+Jul 17, 2026 10:43:11 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2553
+Jul 17, 2026 10:43:11 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2554
+Jul 17, 2026 10:43:11 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2564
+Jul 17, 2026 10:43:11 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2565
+2026.07.17 22:43:13 WARN  4 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.07.17 22:43:13 INFO  time: compiled ysyxsoc in 4.33s[0m
+2026.07.17 22:43:13 INFO  compiling ysyxsoc (1 scala source)[0m
+2026.07.17 22:43:14 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/SDRAM.scala[0m
+2026.07.17 22:43:14 WARN  Could not load snapshot text for /home/nullstarfish/personal-ysyx-workbench/ysyxSoC/src/device/SDRAM.scala[0m
+2026.07.17 22:43:15 WARN  4 deprecations (since rocketchip 2.0.0); re-run with -deprecation for details[0m
+2026.07.17 22:43:15 INFO  time: compiled ysyxsoc in 2.08s[0m

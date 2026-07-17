@@ -8,5 +8,6 @@
 !.gitignore
 !README.md
 !Kconfig
+!*.json
 include/config
 include/generated

@@ -38,8 +38,8 @@ void __am_uart_init_once(void) {
   outb(SERIAL_PORT + 3, 0x83);
 
   uint16_t divisor = 1;
-  outb(SERIAL_PORT + 1, (divisor >> 8) & 0xff);
-  outb(SERIAL_PORT + 0, divisor & 0xff);  // 你现在写成 &0x0f 了，最好改成 &0xff
+  //outb(SERIAL_PORT + 1, (divisor >> 8) & 0xff);
+  outb(SERIAL_PORT + 0, divisor & 0xff);  
 
   outb(SERIAL_PORT + 3, 0x03);
   outb(SERIAL_PORT + 2, 0xc7);

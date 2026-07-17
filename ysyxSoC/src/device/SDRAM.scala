@@ -111,7 +111,7 @@ class sdramChipCore(chipId: Int) extends RawModule {
     when(!io.cs) {
       cmd := Cat(io.cs, io.ras, io.cas, io.we)
     }
-
+    //bank的row是否被激活以及被激活的row
     val rowOpen = RegInit(VecInit(Seq.fill(BankCount)(false.B)))
     val openRow = RegInit(VecInit(Seq.fill(BankCount)(0.U(RowWidth.W))))
 
