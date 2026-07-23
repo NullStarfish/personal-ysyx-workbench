@@ -112,3 +112,9 @@ print-%:
 	@echo 'origin=$(origin $*)'
 	@echo 'flavor=$(flavor $*)'
 	@echo 'raw=$(value $*)'
+
+.PHONY: ila-test
+ila-test:
+	@mkdir -p $(BUILD_DIR)/tests
+	$(CXX) -std=c++17 -I$(CSRC_DIR) $(CSRC_DIR)/tests/ila_engine_test.cpp $(CSRC_DIR)/runtime/services/ila_engine.cpp -o $(BUILD_DIR)/tests/ila_engine_test
+	$(BUILD_DIR)/tests/ila_engine_test

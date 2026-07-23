@@ -9,13 +9,13 @@ endif
 
 SOC_RTL_SRCS :=
 ifneq ($(filter ysyxsoc ysyxsoc-bootloader,$(SIM_TARGET)),)
-SOC_TOP_RTL := $(SOC_HOME)/build/ysyxSoCFull.v
+SOC_TOP_RTL := $(SOC_HOME)/build/ysyxSoCFull-npc-ila.v
 SOC_CHISEL_SRCS := $(shell find $(SOC_HOME)/src -name '*.scala')
 SOC_RTL_SRCS := $(shell find $(SOC_HOME)/perip \( -name '*.v' -o -name '*.sv' \)) $(SOC_TOP_RTL)
 
 $(SOC_TOP_RTL): $(SOC_CHISEL_SRCS) $(SOC_HOME)/Makefile
 	$(call build_banner,Generating ysyxSoC RTL...)
-	$(MAKE) -C $(SOC_HOME) verilog
+	NPC_ENABLE_ILA=1 $(MAKE) -C $(SOC_HOME) V_FILE_FINAL=build/ysyxSoCFull-npc-ila.v verilog
 endif
 
 # These are expanded in the Verilator recipe after the Chisel generation

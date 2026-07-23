@@ -12,6 +12,7 @@ struct RuntimeOptions {
   std::string elfFile;
   std::string diffSoFile;
 
+
   static RuntimeOptions parse(int argc, char *argv[]);
 };
 

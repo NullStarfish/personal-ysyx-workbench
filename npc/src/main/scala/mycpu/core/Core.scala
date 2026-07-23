@@ -163,6 +163,25 @@ class Core(
   i1Id.io.flush := redirectFlush
 
   if (enableDpi) {
+    DpiApi.ila(
+      clock = clock,
+      reset = reset.asBool,
+      enabled = true,
+      source = "Core",
+      probes = Seq(
+        DpiApi.ilaProbe("io_master_ar_valid", io.master.ar.valid.asUInt),
+        DpiApi.ilaProbe("io_master_ar_ready", io.master.ar.ready.asUInt),
+        DpiApi.ilaProbe("io_master_ar_bits_addr", io.master.ar.bits.addr),
+        DpiApi.ilaProbe("io_master_ar_bits_len", io.master.ar.bits.len),
+        DpiApi.ilaProbe("io_master_ar_bits_size", io.master.ar.bits.size),
+        DpiApi.ilaProbe("io_master_ar_bits_burst", io.master.ar.bits.burst),
+        DpiApi.ilaProbe("io_master_r_valid", io.master.r.valid.asUInt),
+        DpiApi.ilaProbe("io_master_r_ready", io.master.r.ready.asUInt),
+        DpiApi.ilaProbe("io_master_r_bits_data", io.master.r.bits.data),
+        DpiApi.ilaProbe("io_master_r_bits_last", io.master.r.bits.last.asUInt),
+      ),
+    )
+
     val counters = DpiApi.counters(clock, reset.asBool, enabled = true)
     val coreCounters = counters.tag("core")
     val coreCycles = coreCounters.pushToSim("cycles", true.B)

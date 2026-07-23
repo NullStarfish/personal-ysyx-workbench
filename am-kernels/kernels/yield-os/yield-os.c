@@ -3,7 +3,7 @@
 
 #define STACK_SIZE (4096 * 8)
 typedef union {
-  uint8_t stack[STACK_SIZE];
+  uint8_t stack[STACK_SIZE];//该Stack用来存局部变量，和Context，非彼kstack
   struct { Context *cp; };
 } PCB;
 static PCB pcb[2], pcb_boot, *current = &pcb_boot;

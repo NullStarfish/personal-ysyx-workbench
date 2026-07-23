@@ -64,7 +64,8 @@
 | 命令 | 作用 |
 | --- | --- |
 | `help [CMD]` | 列出全部命令，或查看一条命令。 |
-| `c` | 连续执行，直到程序结束、watchpoint、difftest mismatch 或中断。 |
+| `c` | 连续执行；若当前停在 ebreak，提示使用 `fc`。 |
+| `fc` | 强制越过当前 ebreak 暂停并继续执行。 |
 | `si [N]` | 单步执行 N 条提交指令，默认 1 条。 |
 | `q` | 退出模拟器。 |
 | `info r` | 显示 GPR 和 PC。 |
@@ -77,6 +78,8 @@
 | `vcd watch start [FILE]` | 从当前时刻开始记录区间 VCD；默认文件名由 DUT 决定。 |
 | `vcd watch end` | 停止记录并关闭当前 VCD。 |
 | `vcd watch status` | 查看区间 VCD 状态和路径。 |
+| `ila status [CAPTURE|all]` | 查看采样、触发和输出状态。 |
+| `ila trigger on|off [CAPTURE|all]` | 启用或关闭触发；关闭时仍维护预触发历史。 |
 
 使用示例：
 

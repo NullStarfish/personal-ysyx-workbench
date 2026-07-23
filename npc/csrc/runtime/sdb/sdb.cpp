@@ -21,13 +21,21 @@
 #include "runtime/platform/dut.h"
 #include "runtime/platform/memory.h"
 #include "runtime/platform/program_image.h"
+#include "runtime/services/ila_engine.h"
 #include "runtime/sdb/watchpoint.h"
 #include "runtime/traces/ftrace.h"
 
+#ifdef CONFIG_BOARD
+void read_event();
+#endif
+
 namespace {
 #ifdef CONFIG_BOARD
+// nvboard_update() also advances UART/PS2 timing and must only run with the
+// simulated clock. While SDB is stopped, poll SDL events without advancing
+// any board-side protocol state.
 int nvboardReadlineEventHook() {
-  nvboard_update();
+  read_event();
   return 0;
 }
 #endif
@@ -36,17 +44,18 @@ int nvboardReadlineEventHook() {
 class Sdb::Impl {
 public:
   Impl(Simulation &simulation, CPU &cpu, Memory &memory, WatchpointManager &watchpoints,
-       FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl)
+       FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl, IlaEngine &ila)
       : simulation(simulation), cpu(cpu), memory(memory), watchpoints(watchpoints),
-        ftrace(ftrace), dut(dut), program(program), runControl(runControl) {}
+        ftrace(ftrace), dut(dut), program(program), runControl(runControl), ila(ila) {}
 
   using CommandHandler = int (Impl::*)(char *);
   struct CommandEntry { const char *name; const char *description; CommandHandler handler; };
 
-  static const std::array<CommandEntry, 11> &commands() {
-    static const std::array<CommandEntry, 11> table{{
+  static const std::array<CommandEntry, 13> &commands() {
+    static const std::array<CommandEntry, 13> table{{
         {"help", "Display information about all supported commands", &Impl::cmdHelp},
         {"c", "Continue the execution of the program", &Impl::cmdContinue},
+        {"fc", "Force continue after an ebreak stop", &Impl::cmdForceContinue},
         {"q", "Exit the simulator", &Impl::cmdQuit},
         {"si", "Step forward [N] instructions (default 1)", &Impl::cmdStep},
         {"info", "Print program state (r for registers, w for watchpoints)", &Impl::cmdInfo},
@@ -56,6 +65,7 @@ public:
         {"d", "Delete a watchpoint: d N", &Impl::cmdDelete},
         {"bt", "Print the current function call stack from ftrace", &Impl::cmdBacktrace},
         {"vcd", "Control interval VCD tracing: vcd watch start [FILE] | end | status", &Impl::cmdVcd},
+        {"ila", "Control DPI-ILA: ila status|trigger", &Impl::cmdIla},
     }};
     return table;
   }
@@ -83,7 +93,7 @@ public:
       char *command = strtok(line, " ");
       if (command == nullptr) { free(line); continue; }
 #ifdef CONFIG_BOARD
-      nvboard_update();
+      read_event();
 #endif
       char *args = strtok(nullptr, "");
       const CommandEntry *entry = findCommand(command);
@@ -108,7 +118,23 @@ public:
     return 0;
   }
 
-  int cmdContinue(char *) { simulation.run(static_cast<uint64_t>(-1)); return 0; }
+  int cmdContinue(char *) {
+    ila.prepareRun();
+    simulation.run(static_cast<uint64_t>(-1));
+    return 0;
+  }
+
+  int cmdForceContinue(char *) {
+    if (!simulation.resumeFromEbreak()) {
+      printf("The simulator is not stopped at an ebreak.\n");
+      return 0;
+    }
+
+    ila.prepareRun();
+    simulation.run(static_cast<uint64_t>(-1));
+    return 0;
+  }
+
   int cmdQuit(char *) {
     runControl.quit();
     printf("file %s quit\n", program.path() == nullptr ? "(none)" : program.path());
@@ -118,6 +144,7 @@ public:
     char *end = nullptr;
     long count = args == nullptr ? 1 : strtol(args, &end, 10);
     if (args != nullptr && end != nullptr && *end != '\0') count = 1;
+    ila.prepareRun();
     simulation.run(count);
     return 0;
   }
@@ -195,6 +222,36 @@ public:
     return 0;
   }
 
+
+  int cmdIla(char *args) {
+    char *action = args == nullptr ? nullptr : strtok(args, " ");
+    char *rest = action == nullptr ? nullptr : strtok(nullptr, "");
+    if (action == nullptr) {
+      printf("Usage: ila status [CAPTURE|all] | trigger on|off [CAPTURE|all]\n");
+      return 0;
+    }
+    if (strcmp(action, "status") == 0) {
+      ila.printStatus(rest == nullptr ? "all" : rest);
+      return 0;
+    }
+    if (strcmp(action, "trigger") == 0) {
+      char *mode = rest == nullptr ? nullptr : strtok(rest, " ");
+      char *target = mode == nullptr ? nullptr : strtok(nullptr, " ");
+      if (mode == nullptr || (strcmp(mode, "on") != 0 && strcmp(mode, "off") != 0)) {
+        printf("Usage: ila trigger on|off [CAPTURE|all]\n");
+        return 0;
+      }
+      std::string error;
+      const bool enabled = strcmp(mode, "on") == 0;
+      if (ila.setTrigger(target == nullptr ? "all" : target, enabled, error))
+        printf("ILA trigger %s: %s\n", enabled ? "enabled" : "disabled", target == nullptr ? "all" : target);
+      else printf("ILA trigger error: %s\n", error.c_str());
+      return 0;
+    }
+    printf("Usage: ila status [CAPTURE|all] | trigger on|off [CAPTURE|all]\n");
+    return 0;
+  }
+
   Simulation &simulation;
   CPU &cpu;
   Memory &memory;
@@ -203,12 +260,13 @@ public:
   Dut &dut;
   ProgramImage &program;
   RunControl &runControl;
+  IlaEngine &ila;
   bool batchMode = false;
 };
 
 Sdb::Sdb(Simulation &simulation, CPU &cpu, Memory &memory, WatchpointManager &watchpoints,
-         FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl)
-    : impl(std::make_unique<Impl>(simulation, cpu, memory, watchpoints, ftrace, dut, program, runControl)) {}
+         FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl, IlaEngine &ila)
+    : impl(std::make_unique<Impl>(simulation, cpu, memory, watchpoints, ftrace, dut, program, runControl, ila)) {}
 Sdb::~Sdb() = default;
 void Sdb::init() { impl->init(); }
 void Sdb::mainLoop() { impl->mainLoop(); }

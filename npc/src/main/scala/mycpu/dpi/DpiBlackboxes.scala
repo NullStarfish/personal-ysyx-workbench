@@ -4,6 +4,61 @@ import chisel3._
 import chisel3.experimental.{IntParam, StringParam}
 import chisel3.util.HasBlackBoxInline
 
+
+final class IlaProbeDPI(source: String, schema: String, packedWidth: Int)
+    extends BlackBox(Map(
+      "SOURCE" -> StringParam(source),
+      "SCHEMA" -> StringParam(schema),
+      "PACKED_WIDTH" -> IntParam(packedWidth),
+    ))
+    with HasBlackBoxInline {
+  val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val reset = Input(Bool())
+    val sampleData = Input(UInt(packedWidth.W))
+  })
+
+  setInline(
+    "IlaProbeDPI.sv",
+    """module IlaProbeDPI #(
+      |  parameter string SOURCE = "",
+      |  parameter string SCHEMA = "",
+      |  parameter integer PACKED_WIDTH = 64
+      |) (
+      |  input logic clock,
+      |  input logic reset,
+      |  input logic [PACKED_WIDTH-1:0] sampleData
+      |);
+      |  localparam integer WORD_COUNT = PACKED_WIDTH / 32;
+      |  bit [31:0] sampleWords [0:WORD_COUNT-1];
+      |
+      |  import "DPI-C" function int ila_source_allocate(
+      |    input string source_name,
+      |    input string schema,
+      |    input int packed_width
+      |  );
+      |  import "DPI-C" function void ila_sample(
+      |    input int id,
+      |    input bit [31:0] sample_words[]
+      |  );
+      |
+      |  genvar wordIndex;
+      |  generate
+      |    for (wordIndex = 0; wordIndex < WORD_COUNT; wordIndex = wordIndex + 1) begin : gen_sample_words
+      |      assign sampleWords[wordIndex] = sampleData[wordIndex * 32 +: 32];
+      |    end
+      |  endgenerate
+      |
+      |  integer id;
+      |  initial id = ila_source_allocate(SOURCE, SCHEMA, PACKED_WIDTH);
+      |  always_ff @(posedge clock) begin
+      |    if (!reset) ila_sample(id, sampleWords);
+      |  end
+      |endmodule
+      |""".stripMargin,
+  )
+}
+
 final class SimCounterPushDPI(tag: String, name: String)
     extends BlackBox(Map("TAG" -> StringParam(tag), "NAME" -> StringParam(name)))
     with HasBlackBoxInline {
@@ -157,6 +212,8 @@ final class DifftestSkipDPI extends BlackBox with HasBlackBoxInline {
 
 final class SimEbreakDPI extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle {
+    val clock = Input(Clock())
+    val reset = Input(Bool())
     val valid = Input(Bool())
     val is_ebreak = Input(UInt(32.W))
   })
@@ -164,13 +221,15 @@ final class SimEbreakDPI extends BlackBox with HasBlackBoxInline {
   setInline(
     "SimEbreakDPI.sv",
     """module SimEbreakDPI(
+      |    input logic        clock,
+      |    input logic        reset,
       |    input logic        valid,
       |    input logic [31:0] is_ebreak
       |);
       |    import "DPI-C" function void ebreak();
       |
-      |    always @(*) begin
-      |        if (valid) begin
+      |    always_ff @(posedge clock) begin
+      |        if (!reset && valid) begin
       |            ebreak();
       |        end
       |    end

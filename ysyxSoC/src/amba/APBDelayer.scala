@@ -23,7 +23,7 @@ class apb_delayer extends BlackBox {
 class APBDelayerChisel extends Module {
   val io = IO(new APBDelayerIO)
 
-  val r = 8.12
+  val r = 1
   val s = 8
 
   val step = math.round((r - 1) * s).toInt

@@ -548,6 +548,7 @@ object coreprogram extends NpcScalaModule {
         root / "src/test/scala/mycpu/core/CoreHazardStressSpec.scala",
         root / "src/test/scala/mycpu/core/Rv32eEncoders.scala",
         root / "src/test/scala/mycpu/core/frontend/I$StageSpec.scala",
+        root / "src/test/scala/mycpu/dpi/IlaApiSpec.scala",
       )
       val dest = T.dest / "src"
       for (file <- files) {

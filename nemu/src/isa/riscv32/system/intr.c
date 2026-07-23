@@ -32,10 +32,6 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 
   // 2. 在 mstatus.MPP (bits 11-12) 中保存当前的特权级
   //    注意: 这里我们假设CPU总是在M-mode下运行，所以硬编码为0b11。
-  //    当你的NEMU完整支持多级特权后，这里应该读取CPU的当前特权级。
-  //    在你修复mret之前，这个假设是成立的。修复后，当CPU在U-mode时，
-  //    这里应该写入0b00，这需要你的CPU状态机支持特权级跟踪。
-  //    但对于通过am-test来说，仅修复mret就足够了。
   word_t current_privilege = 3; // 假设当前是M-mode (0b11)
   cpu.csrs.mstatus &= ~((1 << 11) | (1 << 12)); // 清空 MPP 字段
   cpu.csrs.mstatus |= (current_privilege << 11); // 设置为当前权限

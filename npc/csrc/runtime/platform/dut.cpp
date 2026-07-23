@@ -78,10 +78,12 @@ void Dut::stepCycle() {
   impl->top->eval();
   if (impl->vcdWatching) impl->vcd->dump(impl->timestamp);
   ++impl->timestamp;
+  Verilated::timeInc(1);
   impl->top->clock = 1;
   impl->top->eval();
   if (impl->vcdWatching) impl->vcd->dump(impl->timestamp);
   ++impl->timestamp;
+  Verilated::timeInc(1);
 
 #if defined(CONFIG_BOARD) && !defined(CONFIG_NPC_VIRTUAL_SOC)
   nvboard_update();

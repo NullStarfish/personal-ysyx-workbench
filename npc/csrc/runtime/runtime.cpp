@@ -21,6 +21,10 @@
 #include "runtime/sdb/watchpoint.h"
 #include "runtime/services/difftest.h"
 #include "runtime/services/logger.h"
+#include "runtime/services/ila_engine.h"
+#ifdef NPC_ILA_CONFIG_HEADER
+#include NPC_ILA_CONFIG_HEADER
+#endif
 #include "runtime/services/sim_counter.h"
 #include "runtime/traces/ftrace.h"
 #include "runtime/traces/itrace.h"
@@ -28,6 +32,7 @@
 RuntimeOptions RuntimeOptions::parse(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   RuntimeOptions options;
+
   const option table[] = {
       {"batch", no_argument, nullptr, 'b'},
       {"log", required_argument, nullptr, 'l'},
@@ -35,6 +40,7 @@ RuntimeOptions RuntimeOptions::parse(int argc, char *argv[]) {
       {"ftrace", required_argument, nullptr, 'f'},
       {"help", no_argument, nullptr, 'h'},
       {"pc-trace", required_argument, nullptr, 'p'},
+
       {0, 0, nullptr, 0},
   };
 
@@ -46,8 +52,9 @@ RuntimeOptions RuntimeOptions::parse(int argc, char *argv[]) {
       case 'd': options.diffSoFile = optarg; break;
       case 'f': options.elfFile = optarg; break;
       case 'p': options.pcTraceFile = optarg; break;
+
       case 'h':
-        printf("pass img file or opts to the executable\n");
+        printf("Usage: npc [OPTIONS] IMAGE\n");
         exit(0);
       case 1:
         if (options.imageFile.empty()) options.imageFile = optarg;
@@ -66,9 +73,9 @@ public:
         difftest(cpu, memory), watchpoints(cpu, memory),
         retirePipeline(itrace, ftrace, difftest, watchpoints, runControl),
         program(this->options.imageFile),
-        simulation(dut, cpu, runControl, retirePipeline, logger, counters, itrace, ftrace),
-        dpiBridge(simulation, memory, difftest, counters),
-        sdb(simulation, cpu, memory, watchpoints, ftrace, dut, program, runControl) {
+        simulation(dut, cpu, runControl, retirePipeline, logger, counters, itrace, ftrace, ila),
+        dpiBridge(simulation, memory, difftest, counters, ila),
+        sdb(simulation, cpu, memory, watchpoints, ftrace, dut, program, runControl, ila) {
     logger.setLogFile(this->options.logFile.c_str());
     logger.setPcTraceFile(this->options.pcTraceFile.c_str());
     ftrace.setElfFile(this->options.elfFile.c_str());
@@ -89,6 +96,15 @@ public:
     program.init(memory);
     dut.reset(100);
     printf("CPU reset complete.\n");
+#ifdef NPC_CONFIGURE_ILA
+    std::string ilaConfigError;
+    if (!NPC_CONFIGURE_ILA(ila, ilaConfigError)) {
+      fprintf(stderr, "ILA configuration error: %s\n",
+              ilaConfigError.c_str());
+      exit(1);
+    }
+    printf("ILA built-in configuration loaded.\n");
+#endif
     difftest.init(static_cast<long>(program.size()));
     sdb.init();
     printf("Welcome to the RISC-V NPC simulator!\nFor help, type \"help\"\nThe current img is %s\n",
@@ -119,6 +135,7 @@ public:
   CPU cpu;
   RunControl runControl;
   SimCounterBank counters;
+  IlaEngine ila;
   ITrace itrace;
   FTrace ftrace;
   Difftest difftest;

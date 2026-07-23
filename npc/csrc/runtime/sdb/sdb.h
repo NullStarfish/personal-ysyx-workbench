@@ -7,6 +7,7 @@ class CPU;
 class Dut;
 class FTrace;
 class Memory;
+class IlaEngine;
 class ProgramImage;
 class RunControl;
 class Simulation;
@@ -15,7 +16,7 @@ class WatchpointManager;
 class Sdb {
 public:
   Sdb(Simulation &simulation, CPU &cpu, Memory &memory, WatchpointManager &watchpoints,
-      FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl);
+      FTrace &ftrace, Dut &dut, ProgramImage &program, RunControl &runControl, IlaEngine &ila);
   ~Sdb();
 
   Sdb(const Sdb &) = delete;

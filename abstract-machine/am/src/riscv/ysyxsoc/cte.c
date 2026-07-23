@@ -30,7 +30,13 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
   return true;
 }
-
+/**
+ * kstack: stack,这里的Stack完全根据__am_asm_trap的内存排布顺序进行定义,
+ * 在使用的时候，我们必须保证kstack分配的大小能够装入一个Context
+ * entry: 进程的函数入口
+ * arg: 传给entry的参数
+ * 用来构建Context对象的
+ */
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *kctx = (Context *)(kstack.end-sizeof(Context));
   kctx->mepc=(uintptr_t) entry;

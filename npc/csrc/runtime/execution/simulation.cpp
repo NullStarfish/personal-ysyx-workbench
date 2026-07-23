@@ -8,23 +8,29 @@
 #include "runtime/execution/retire_pipeline.h"
 #include "runtime/platform/dut.h"
 #include "runtime/services/logger.h"
+#include "runtime/services/ila_engine.h"
 #include "runtime/services/sim_counter.h"
 #include "runtime/traces/ftrace.h"
 #include "runtime/traces/itrace.h"
 
 Simulation::Simulation(Dut &dut, CPU &cpu, RunControl &runControl, RetirePipeline &retirePipeline,
-                       Logger &logger, SimCounterBank &counters, ITrace &itrace, FTrace &ftrace)
+                       Logger &logger, SimCounterBank &counters, ITrace &itrace, FTrace &ftrace, IlaEngine &ila)
     : dut(dut), cpu(cpu), runControl(runControl), retirePipeline(retirePipeline),
-      logger(logger), counters(counters), itrace(itrace), ftrace(ftrace) {}
+      logger(logger), counters(counters), itrace(itrace), ftrace(ftrace), ila(ila) {}
 
 void Simulation::init() {
   cpu.init();
   runControl.reset();
   counters.reset();
   cycleCountValue = 0;
+  stoppedAtEbreakValue = false;
 }
 
 void Simulation::run(uint64_t count) {
+  if (stoppedAtEbreakValue) {
+    printf("Stopped at ebreak. Use 'fc' to force continue.\n");
+    return;
+  }
   if (runControl.hasEnded()) {
     printf("Program execution has ended. To restart, exit and run again.\n");
     return;
@@ -39,6 +45,7 @@ void Simulation::run(uint64_t count) {
   for (; count > 0 && runControl.isRunning(); --count) {
     dut.stepCycle();
     ++cycleCountValue;
+    if (ila.finishCycle()) { runControl.stop(); break; }
     if (checkInterrupt()) break;
   }
 #endif
@@ -51,13 +58,27 @@ void Simulation::stepInstruction() {
   while (!cpu.hasRetired() && runControl.isRunning()) {
     dut.stepCycle();
     ++cycleCountValue;
+    if (ila.finishCycle()) { runControl.stop(); return; }
     if (checkInterrupt()) return;
   }
-  if (!runControl.isRunning()) return;
+  if (!runControl.isRunning()) {
+    if (stoppedAtEbreakValue && cpu.hasRetired()) {
+      retirePipeline.process(cpu.lastRetire());
+      if (runControl.hasEnded()) {
+        stoppedAtEbreakValue = false;
+        return;
+      }
+
+      const uint32_t a0 = cpu.regRead(10);
+      printf("\nebreak: stopped, a0: %u (0x%x)\n", a0, a0);
+    }
+    return;
+  }
   retirePipeline.process(cpu.lastRetire());
 #else
   dut.stepCycle();
   ++cycleCountValue;
+  if (ila.finishCycle()) runControl.stop();
 #endif
 }
 
@@ -69,15 +90,23 @@ void Simulation::acceptRetire(const RetireEvent &event) {
 }
 
 void Simulation::handleEbreak() {
-#ifdef CONFIG_RETIRE_TRACE
-  const uint32_t a0 = cpu.regRead(10);
-  if (a0 == 0) runControl.end(a0);
-  else runControl.abort(a0);
-  printf("ebreak: state: %d, a0: %d\n", static_cast<int>(runControl.status()), a0);
-#else
-  runControl.end(0);
-  printf("ebreak: state: %d\n", static_cast<int>(runControl.status()));
+  stoppedAtEbreakValue = true;
+  runControl.stop();
+#ifndef CONFIG_RETIRE_TRACE
+  printf("\nebreak: stopped\n");
 #endif
+}
+
+bool Simulation::resumeFromEbreak() {
+  if (!stoppedAtEbreakValue) {
+    return false;
+  }
+  stoppedAtEbreakValue = false;
+  return true;
+}
+
+bool Simulation::stoppedAtEbreak() const {
+  return stoppedAtEbreakValue;
 }
 
 void Simulation::handleInterrupt() {

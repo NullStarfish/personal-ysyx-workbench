@@ -48,6 +48,8 @@ class WriteBack(
 
   if (enableDpi) {
     val simEbreak = Module(new SimEbreakDPI)
+    simEbreak.io.clock := clock
+    simEbreak.io.reset := reset.asBool
     simEbreak.io.valid := retire && sys.ebreak
     simEbreak.io.is_ebreak := 0.U
   }

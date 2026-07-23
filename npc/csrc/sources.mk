@@ -15,6 +15,7 @@ CSRC_CPP_SRCS := \
 	$(CSRC_DIR)/runtime/platform/program_image.cpp \
 	$(CSRC_DIR)/runtime/services/difftest.cpp \
 	$(CSRC_DIR)/runtime/services/logger.cpp \
+	$(CSRC_DIR)/runtime/services/ila_engine.cpp \
 	$(CSRC_DIR)/runtime/services/sim_counter.cpp \
 	$(CSRC_DIR)/runtime/execution/interrupt.cpp \
 	$(CSRC_DIR)/runtime/execution/retire_pipeline.cpp \

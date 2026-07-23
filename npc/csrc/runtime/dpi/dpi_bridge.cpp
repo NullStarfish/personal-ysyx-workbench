@@ -9,8 +9,10 @@
 #include "runtime/platform/memory.h"
 #include "runtime/platform/memory_map.h"
 #include "runtime/services/difftest.h"
+#include "runtime/services/ila_engine.h"
 #include "runtime/services/sim_counter.h"
 #include "svdpi.h"
+#include <verilated.h>
 
 namespace {
 DpiBridge *activeBridge = nullptr;
@@ -24,8 +26,8 @@ DpiBridge &bridge() {
 }
 }
 
-DpiBridge::DpiBridge(Simulation &simulation, Memory &memory, Difftest &difftest, SimCounterBank &counters)
-    : simulation(simulation), memory(memory), difftest(difftest), counters(counters) {}
+DpiBridge::DpiBridge(Simulation &simulation, Memory &memory, Difftest &difftest, SimCounterBank &counters, IlaEngine &ila)
+    : simulation(simulation), memory(memory), difftest(difftest), counters(counters), ila(ila) {}
 DpiBridge::~DpiBridge() { unbind(); }
 void DpiBridge::bind() { activeBridge = this; }
 void DpiBridge::unbind() {
@@ -110,4 +112,18 @@ extern "C" void sim_counter_register_ratio(const char *tag, const char *name,
                                              int percentage) {
   bridge().counters.registerRatio(tag, name, numeratorTag, numeratorName,
                                   denominatorTag, denominatorName, percentage != 0);
+}
+
+extern "C" int ila_source_allocate(const char *name, const char *schema,
+                                     int packedWidth) {
+  return bridge().ila.allocateSource(name, schema, packedWidth);
+}
+extern "C" void ila_sample(int id, const svOpenArrayHandle sampleWords) {
+  const auto *packed =
+      static_cast<const svBitVecVal *>(svGetArrayPtr(sampleWords));
+  if (packed == nullptr) {
+    fprintf(stderr, "ILA DPI sample array is not contiguous\n");
+    abort();
+  }
+  bridge().ila.sample(id, packed, Verilated::time());
 }

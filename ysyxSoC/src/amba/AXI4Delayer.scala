@@ -60,7 +60,7 @@ class AXI4DelayChannel[T <: Data](gen: T, delayCycles: Int) extends Module {
 class AXI4DelayerChisel extends Module {
   val io = IO(new AXI4DelayerIO)
 
-  val r = 8.12
+  val r = 1
   val s = 8
 
   val step = math.round((r - 1) * s).toInt

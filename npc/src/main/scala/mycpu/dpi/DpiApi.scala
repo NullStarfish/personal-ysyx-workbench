@@ -1,8 +1,56 @@
 package mycpu.dpi
 
 import chisel3._
+import chisel3.util.Cat
 
 object DpiApi {
+
+  final case class IlaProbe(name: String, value: UInt)
+
+  def ilaProbe(name: String, value: UInt): IlaProbe = IlaProbe(name, value)
+
+  def ila(
+      clock: Clock,
+      reset: Bool,
+      enabled: Boolean,
+      source: String,
+      probes: Seq[IlaProbe],
+  ): Unit = {
+    val identifier = "[A-Za-z_][A-Za-z0-9_]*"
+    require(
+      source.matches(identifier),
+      s"ILA source '$source' is not a valid identifier",
+    )
+    require(
+      probes.nonEmpty,
+      s"ILA source '$source' must contain at least one probe",
+    )
+    require(
+      probes.map(_.name).distinct.size == probes.size,
+      s"ILA source '$source' contains duplicate probe names",
+    )
+    probes.foreach { probe =>
+      require(
+        probe.name.matches(identifier),
+        s"ILA probe '$source.${probe.name}' is not a valid identifier",
+      )
+      require(
+        probe.value.getWidth > 0,
+        s"ILA probe '$source.${probe.name}' has zero width",
+      )
+    }
+
+    if (enabled) {
+      val payloadWidth = probes.map(_.value.getWidth).sum
+      val packedWidth = math.max(64, ((payloadWidth + 31) / 32) * 32)
+      val payload = Cat(probes.reverse.map(_.value))
+      val schema = probes.map(p => s"${p.name}:${p.value.getWidth}").mkString(",")
+      val sampler = Module(new IlaProbeDPI(source, schema, packedWidth))
+      sampler.io.clock := clock
+      sampler.io.reset := reset
+      sampler.io.sampleData := payload.pad(packedWidth)
+    }
+  }
 
   final case class SimCounterRef(tag: String, name: String)
 
@@ -94,8 +142,16 @@ object DpiApi {
     new SimCounters(clock, reset, enabled)
 
 
-  def simEbreak(valid: Bool, isEbreak: UInt = 0.U(32.W), localName: String = "sim_ebreak"): Unit = {
+  def simEbreak(
+      clock: Clock,
+      reset: Bool,
+      valid: Bool,
+      isEbreak: UInt = 0.U(32.W),
+      localName: String = "sim_ebreak",
+  ): Unit = {
     val m = Module(new SimEbreakDPI).suggestName(localName)
+    m.io.clock := clock
+    m.io.reset := reset
     m.io.valid := valid
     m.io.is_ebreak := isEbreak
   }
