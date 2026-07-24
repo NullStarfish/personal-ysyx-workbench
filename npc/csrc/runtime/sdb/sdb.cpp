@@ -51,11 +51,12 @@ public:
   using CommandHandler = int (Impl::*)(char *);
   struct CommandEntry { const char *name; const char *description; CommandHandler handler; };
 
-  static const std::array<CommandEntry, 13> &commands() {
-    static const std::array<CommandEntry, 13> table{{
+  static const std::array<CommandEntry, 14> &commands() {
+    static const std::array<CommandEntry, 14> table{{
         {"help", "Display information about all supported commands", &Impl::cmdHelp},
         {"c", "Continue the execution of the program", &Impl::cmdContinue},
         {"fc", "Force continue after an ebreak stop", &Impl::cmdForceContinue},
+        {"fsi", "Force step [N] instructions after an ebreak stop (default 1)", &Impl::cmdForceStep},
         {"q", "Exit the simulator", &Impl::cmdQuit},
         {"si", "Step forward [N] instructions (default 1)", &Impl::cmdStep},
         {"info", "Print program state (r for registers, w for watchpoints)", &Impl::cmdInfo},
@@ -132,6 +133,21 @@ public:
 
     ila.prepareRun();
     simulation.run(static_cast<uint64_t>(-1));
+    return 0;
+  }
+
+  int cmdForceStep(char *args) {
+    if (!simulation.resumeFromEbreak()) {
+      printf("The simulator is not stopped at an ebreak.\n");
+      return 0;
+    }
+
+    char *end = nullptr;
+    long count = args == nullptr ? 1 : strtol(args, &end, 10);
+    if (args != nullptr && end != nullptr && *end != '\0') count = 1;
+
+    ila.prepareRun();
+    simulation.run(count);
     return 0;
   }
 

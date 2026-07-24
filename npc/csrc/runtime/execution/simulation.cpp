@@ -28,7 +28,7 @@ void Simulation::init() {
 
 void Simulation::run(uint64_t count) {
   if (stoppedAtEbreakValue) {
-    printf("Stopped at ebreak. Use 'fc' to force continue.\n");
+    printf("Stopped at ebreak. Use 'fc' to force continue or 'fsi [N]' to force step.\n");
     return;
   }
   if (runControl.hasEnded()) {

@@ -36,3 +36,4 @@ project/
 .agents/
 generated/
 target/
+outputs/

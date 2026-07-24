@@ -15,7 +15,7 @@
 enum { WHITE = 0, RED, GREEN, PURPLE };
 struct character {
   char ch;
-  int x, y, v, t;
+  int x, y, v, t; // x,y：坐标。 v:速度，t:时间
 } chars[NCHAR];
 
 int screen_w, screen_h, hit, miss, wrong;
@@ -36,7 +36,7 @@ void new_char() {
       c->ch = 'A' + randint(0, 25);
       c->x = randint(0, screen_w - CHAR_W);
       c->y = 0;
-      c->v = (screen_h - CHAR_H + 1) / randint(FPS * 3 / 2, FPS * 2);
+      c->v = (screen_h - CHAR_H + 1) / randint(FPS * 3 / 2, FPS * 2); //随机两到三秒
       c->t = 0;
       return;
     }
@@ -44,7 +44,7 @@ void new_char() {
 }
 
 void game_logic_update(int frame) {
-  if (frame % (FPS / CPS) == 0) new_char();
+  if (frame % (FPS / CPS) == 0) new_char(); //每秒更新5个Character
   for (int i = 0; i < LENGTH(chars); i++) {
     struct character *c = &chars[i];
     if (c->ch) {
@@ -53,15 +53,15 @@ void game_logic_update(int frame) {
           c->ch = '\0';
         }
       } else {
-        c->y += c->v;
+        c->y += c->v;//下落
         if (c->y < 0) {
-          c->ch = '\0';
+          c->ch = '\0';//已经hit的character
         }
-        if (c->y + CHAR_H >= screen_h) {
+        if (c->y + CHAR_H >= screen_h) {//到底
           miss++;
           c->v = 0;
           c->y = screen_h - CHAR_H;
-          c->t = FPS;
+          c->t = FPS; //到底后停留一秒
         }
       }
     }
@@ -94,6 +94,7 @@ void check_hit(char ch) {
   for (int i = 0; i < LENGTH(chars); i++) {
     struct character *c = &chars[i];
     if (ch == c->ch && c->v > 0 && (m < 0 || c->y > chars[m].y)) {
+      //找到最低的hit的那个字母
       m = i;
     }
   }
@@ -101,7 +102,7 @@ void check_hit(char ch) {
     wrong++;
   } else {
     hit++;
-    chars[m].v = -(screen_h - CHAR_H + 1) / (FPS);
+    chars[m].v = -(screen_h - CHAR_H + 1) / (FPS);//让字母在一秒飞上去
   }
 }
 
